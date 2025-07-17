@@ -24,6 +24,7 @@ class Elevator(val io: ElevatorIO) : SubsystemBase() {
         get() = inputs.elevatorPosition <= ElevatorConstants.DOWNWARDS_EXTENSION_LIMIT
 
     var isHomed = false
+        private set
 
     var currentState: ElevatorState = ElevatorState.UNINITIALIZED
     var currentRequest: ElevatorRequest = ElevatorRequest.OpenLoop(0.0.volts)
@@ -53,11 +54,9 @@ class Elevator(val io: ElevatorIO) : SubsystemBase() {
                     currentRequest is ElevatorRequest.ClosedLoop &&
                             (inputs.elevatorPosition - elevatorPositionTarget).absoluteValue <=
                             ElevatorConstants.ELEVATOR_TOLERANCE
-                    ) ||
-                    (ElevatorTunableValues.enableElevator.get() != 1.0)
+                    )
 
     init {
-
         if (RobotBase.isReal()) {
             isHomed = false
 
@@ -75,7 +74,6 @@ class Elevator(val io: ElevatorIO) : SubsystemBase() {
         ElevatorTunableValues.kS.initDefault(ElevatorConstants.PID.KS)
         ElevatorTunableValues.kV.initDefault(ElevatorConstants.PID.KV)
         ElevatorTunableValues.kA.initDefault(ElevatorConstants.PID.KA)
-        ElevatorTunableValues.kGDefault.initDefault(ElevatorConstants.PID.KG_DEFAULT)
         ElevatorTunableValues.kGFirst.initDefault(ElevatorConstants.PID.KG_FIRST_STAGE)
         ElevatorTunableValues.kGSecond.initDefault(ElevatorConstants.PID.KG_SECOND_STAGE)
 
@@ -88,7 +86,6 @@ class Elevator(val io: ElevatorIO) : SubsystemBase() {
         io.configFF(
             ElevatorTunableValues.kGFirst.get(),
             ElevatorTunableValues.kGSecond.get(),
-            ElevatorTunableValues.kGThird.get(),
             ElevatorTunableValues.kS.get(),
             ElevatorTunableValues.kV.get(),
             ElevatorTunableValues.kA.get()
@@ -109,7 +106,8 @@ class Elevator(val io: ElevatorIO) : SubsystemBase() {
             )
         }
 
-        if (ElevatorTunableValues.kGDefault.hasChanged() ||
+        if (ElevatorTunableValues.kGFirst.hasChanged() ||
+            ElevatorTunableValues.kGSecond.hasChanged() ||
             ElevatorTunableValues.kS.hasChanged() ||
             ElevatorTunableValues.kV.hasChanged() ||
             ElevatorTunableValues.kA.hasChanged()
@@ -117,7 +115,6 @@ class Elevator(val io: ElevatorIO) : SubsystemBase() {
             io.configFF(
                 ElevatorTunableValues.kGFirst.get(),
                 ElevatorTunableValues.kGSecond.get(),
-                ElevatorTunableValues.kGThird.get(),
                 ElevatorTunableValues.kS.get(),
                 ElevatorTunableValues.kV.get(),
                 ElevatorTunableValues.kA.get()
@@ -125,11 +122,6 @@ class Elevator(val io: ElevatorIO) : SubsystemBase() {
         }
 
         CustomLogger.processInputs("Elevator", inputs)
-
-        CustomLogger.recordOutput(
-            "Elevator/elevatorHeightWithGroundOffset",
-            (inputs.elevatorPosition + ElevatorConstants.ELEVATOR_GROUND_OFFSET).inInches
-        )
 
         CustomLogger.recordOutput("Elevator/currentState", currentState.name)
         CustomLogger.recordOutput("Elevator/currentRequest", currentRequest.javaClass.simpleName)
@@ -159,12 +151,12 @@ class Elevator(val io: ElevatorIO) : SubsystemBase() {
                     lastHomingStatorCurrentTripTime = Clock.fpgaTime
                 }
 
-                if (!inputs.isSimulating &&
+                if (!inputs.isSimulating && !isHomed &&
                     (
-                            !isHomed &&
-                                    inputs.leaderStatorCurrent < ElevatorConstants.HOMING_STALL_CURRENT &&
-                                    (Clock.fpgaTime - lastHomingStatorCurrentTripTime) <
-                                    ElevatorConstants.HOMING_STALL_TIME_THRESHOLD
+                            inputs.leaderStatorCurrent < ElevatorConstants.HOMING_STALL_CURRENT ||
+                                (
+                                        Clock.fpgaTime - lastHomingStatorCurrentTripTime) <
+                                        ElevatorConstants.HOMING_STALL_TIME_THRESHOLD
                             )
                 ) {
                     setVoltage(ElevatorConstants.HOMING_APPLIED_VOLTAGE)
@@ -189,7 +181,7 @@ class Elevator(val io: ElevatorIO) : SubsystemBase() {
         currentState = nextState
     }
 
-    fun setVoltage(targetVoltage: ElectricalPotential) {
+    private fun setVoltage(targetVoltage: ElectricalPotential) {
         if ((
                     (upperLimitReached && targetVoltage > 0.0.volts) ||
                             (lowerLimitReached && targetVoltage < 0.0.volts)

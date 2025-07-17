@@ -7,11 +7,11 @@ import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.perSecond
 
-object ElevatorConstants { //TODO add ts coonstants @magigoon
+object ElevatorConstants {
     val VOLTAGE_COMPENSATION: ElectricalPotential = 12.0.volts
     val SPOOL_DIAMETER: Length = 3.5.inches
-    val GEAR_RATIO: Double = 72.0 / 12.0
-    val FIRST_STAGE_HEIGHT: Length = 0.0.inches
+    val GEAR_RATIO: Double = 48.0 / 12.0
+    val CARRIAGE_MASS: Mass = 0.0.grams
 
     val LEADER_STATOR_CURRENT_LIMIT = 60.0.amps
     val LEADER_SUPPLY_CURRENT_LIMIT = 60.0.amps
@@ -23,11 +23,39 @@ object ElevatorConstants { //TODO add ts coonstants @magigoon
     val FOLLOWER_SUPPLY_CURRENT_LOWER_LIMIT = 60.0.amps
     val FOLLOWER_SUPPLY_CURRENT_LOWER_TIME = 60.0.amps
 
-    val UPWARDS_EXTENSION_LIMIT: Length = 0.inches
+    val HOMING_APPLIED_VOLTAGE = -1.0.volts
+    val HOMING_STALL_CURRENT = 15.0.amps
+    val HOMING_STALL_TIME_THRESHOLD = 0.15.seconds
+
+    val UPWARDS_EXTENSION_LIMIT: Length = (73.45 - 15.0).inches
     val DOWNWARDS_EXTENSION_LIMIT: Length = 0.inches
+    val FIRST_STAGE_HEIGHT: Length = (40.25 - 15.0).inches
 
     val MAX_VELOCITY: LinearVelocity = 0.meters.perSecond
     val MAX_ACCELERATION: LinearAcceleration = 0.meters.perSecond.perSecond
+
+    val ELEVATOR_TOLERANCE = 0.25.inches
+
+    object HEIGHTS {
+        val IDLE = 0.0.inches
+        val IDLE_CORAL = 0.0.inches
+        val IDLE_ALGAE = 0.0.inches
+
+        val INTAKE_CORAL = 0.0.inches
+        val INTAKE_ALGAE_GROUND = 0.0.inches
+        val INTAKE_ALGAE_LOW = 0.0.inches
+        val INTAKE_ALGAE_HIGH = 0.0.inches
+
+        val L1 = 0.0.inches
+        val L2 = 0.0.inches
+        val L3 = 0.0.inches
+        val L4 = 0.0.inches
+
+        val PROCESSOR = 0.0.inches
+        val BARGE = 0.0.inches
+
+        val EJECT = 0.0.inches
+    }
 
     object PID {
         // TODO: tune all
@@ -46,7 +74,6 @@ object ElevatorConstants { //TODO add ts coonstants @magigoon
 
         val KV_ADD = (0.0.volts) / 1.0.meters.perSecond //  0.037
 
-        val KG_DEFAULT = 0.0.volts
         val KG_FIRST_STAGE = 0.0.volts
         val KG_SECOND_STAGE = 0.0.volts
     }

@@ -41,11 +41,10 @@ object ElevatorTunableValues {
             Pair({ it.inVoltsPerMeterPerSecondPerSecond }, { it.volts.perMeterPerSecondPerSecond })
         )
 
-    val kGDefault = LoggedTunableValue("Elevator/kGDefault", Pair({ it.inVolts }, { it.volts }))
     val kGFirst = LoggedTunableValue("Elevator/kGFirstStage", Pair({ it.inVolts }, { it.volts }))
     val kGSecond = LoggedTunableValue("Elevator/kGSecondStage", Pair({ it.inVolts }, { it.volts }))
 
-    object ElevatorHeights {
+    object Heights {
         val minHeight =
             LoggedTunableValue(
                 "Elevator/minPosition",
@@ -63,99 +62,98 @@ object ElevatorTunableValues {
         val idleHeight =
             LoggedTunableValue(
                 "Elevator/idleHeight",
-                ElevatorConstants.IDLE_HEIGHT,
+                ElevatorConstants.HEIGHTS.IDLE,
                 Pair({ it.inInches }, { it.inches })
             )
 
         val idleCoralHeight =
             LoggedTunableValue(
                 "Elevator/idleCoralHeight",
-                ElevatorConstants.IDLE_CORAL_HEIGHT,
+                ElevatorConstants.HEIGHTS.IDLE_CORAL,
                 Pair({ it.inInches }, { it.inches })
             )
 
         val idleAlgaeHeight =
             LoggedTunableValue(
                 "Elevator/idleAlgaeHeight",
-                ElevatorConstants.IDLE_ALGAE_HEIGHT,
+                ElevatorConstants.HEIGHTS.IDLE_ALGAE,
                 Pair({ it.inInches }, { it.inches })
             )
 
         val intakeCoralHeight =
             LoggedTunableValue(
                 "Elevator/intakeCoralHeight",
-                ElevatorConstants.INTAKE_CORAL_HEIGHT,
+                ElevatorConstants.HEIGHTS.INTAKE_CORAL,
                 Pair({ it.inInches }, { it.inches })
             )
 
         val intakeAlgaeGroundHeight =
             LoggedTunableValue(
                 "Elevator/intakeAlgaeGroundHeight",
-                ElevatorConstants.INTAKE_ALGAE_GROUND_HEIGHT,
+                ElevatorConstants.HEIGHTS.INTAKE_ALGAE_GROUND,
                 Pair({ it.inInches }, { it.inches })
             )
 
-        val intakeAlgaeL2Height =
+        val intakeAlgaeLowHeight =
             LoggedTunableValue(
-                "Elevator/intakeAlgaeL2Height",
-                ElevatorConstants.INTAKE_ALGAE_L2_HEIGHT,
+                "Elevator/intakeAlgaeLowHeight",
+                ElevatorConstants.HEIGHTS.INTAKE_ALGAE_LOW,
                 Pair({ it.inInches }, { it.inches })
             )
 
-        val intakeAlgaeL3Height =
+        val intakeAlgaeHighHeight =
             LoggedTunableValue(
-                "Elevator/intakeAlgaeL3Height",
-                ElevatorConstants.INTAKE_ALGAE_L3_HEIGHT,
-                Pair({ it.inInches }, { it.inches })
-            )
-
-        val scoreAlgaeProcessorHeight =
-            LoggedTunableValue(
-                "Elevator/scoreAlgaeProcessorHeight",
-                ElevatorConstants.SCORE_PROCESSOR_HEIGHT,
-                Pair({ it.inInches }, { it.inches })
-            )
-
-        val scoreAlgaeBargeHeight =
-            LoggedTunableValue(
-                "Elevator/scoreBargeProcessorHeight",
-                ElevatorConstants.SCORE_BARGE_HEIGHT,
+                "Elevator/intakeAlgaeHighHeight",
+                ElevatorConstants.HEIGHTS.INTAKE_ALGAE_HIGH,
                 Pair({ it.inInches }, { it.inches })
             )
 
         val L1Height =
             LoggedTunableValue(
-                "Elevator/coralL1Height",
-                ElevatorConstants.L1_HEIGHT,
+                "Elevator/L1Height",
+                ElevatorConstants.HEIGHTS.L1,
                 Pair({ it.inInches }, { it.inches })
             )
 
         val L2Height =
             LoggedTunableValue(
-                "Elevator/L2Height", ElevatorConstants.L2_HEIGHT, Pair({ it.inInches }, { it.inches })
+                "Elevator/L2Height",
+                ElevatorConstants.HEIGHTS.L2,
+                Pair({ it.inInches }, { it.inches })
             )
 
         val L3Height =
             LoggedTunableValue(
-                "Elevator/L3Height", ElevatorConstants.L3_HEIGHT, Pair({ it.inInches }, { it.inches })
-            )
-
-        val PrepL4Height =
-            LoggedTunableValue(
-                "Elevator/L4Height",
-                ElevatorConstants.PREP_L4_HEIGHT,
+                "Elevator/L3Height",
+                ElevatorConstants.HEIGHTS.L3,
                 Pair({ it.inInches }, { it.inches })
             )
 
         val L4Height =
             LoggedTunableValue(
-                "Elevator/L4Height", ElevatorConstants.L4_HEIGHT, Pair({ it.inInches }, { it.inches })
+                "Elevator/L4Height",
+                ElevatorConstants.HEIGHTS.L4,
+                Pair({ it.inInches }, { it.inches })
+            )
+
+        val processorHeight =
+            LoggedTunableValue(
+                "Elevator/processorHeight",
+                ElevatorConstants.HEIGHTS.PROCESSOR,
+                Pair({ it.inInches }, { it.inches })
+            )
+
+        val bargeHeight =
+            LoggedTunableValue(
+                "Elevator/bargeHeight",
+                ElevatorConstants.HEIGHTS.BARGE,
+                Pair({ it.inInches }, { it.inches })
             )
 
         val ejectHeight =
             LoggedTunableValue(
                 "Elevator/ejectHeight",
-                ElevatorConstants.EJECT_HEIGHT,
+                ElevatorConstants.HEIGHTS.EJECT,
                 Pair({ it.inInches }, { it.inches })
             )
     }

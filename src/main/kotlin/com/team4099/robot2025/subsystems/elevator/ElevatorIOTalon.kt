@@ -43,209 +43,206 @@ import edu.wpi.first.units.measure.Temperature as WPILibTemperature
 import edu.wpi.first.units.measure.Voltage as WPILibVoltage
 
 object ElevatorIOTalon : ElevatorIO {
-    private val leaderTalon: TalonFX = TalonFX(Constants.Elevator.LEADER_MOTOR_ID)
-    private val followerTalon: TalonFX = TalonFX(Constants.Elevator.FOLLOWER_MOTOR_ID)
+  private val leaderTalon: TalonFX = TalonFX(Constants.Elevator.LEADER_MOTOR_ID)
+  private val followerTalon: TalonFX = TalonFX(Constants.Elevator.FOLLOWER_MOTOR_ID)
 
-    private val configs: TalonFXConfiguration = TalonFXConfiguration()
-    private var slot0Configs = configs.Slot0
-    private var slot1Configs = configs.Slot1
+  private val configs: TalonFXConfiguration = TalonFXConfiguration()
+  private var slot0Configs = configs.Slot0
+  private var slot1Configs = configs.Slot1
 
-    private val motionMagicControl: MotionMagicVoltage = MotionMagicVoltage(-1337.inches.inInches)
+  private val motionMagicControl: MotionMagicVoltage = MotionMagicVoltage(-1337.inches.inInches)
 
-    private val leaderSensor =
-        ctreLinearMechanismSensor(
-            leaderTalon,
-            ElevatorConstants.GEAR_RATIO,
-            ElevatorConstants.SPOOL_DIAMETER,
-            ElevatorConstants.VOLTAGE_COMPENSATION
-        )
+  private val leaderSensor =
+    ctreLinearMechanismSensor(
+      leaderTalon,
+      ElevatorConstants.GEAR_RATIO,
+      ElevatorConstants.SPOOL_DIAMETER,
+      ElevatorConstants.VOLTAGE_COMPENSATION
+    )
 
-    private var leaderStatorCurrentSignal: StatusSignal<WPILibCurrent>
-    private var leaderSupplyCurrentSignal: StatusSignal<WPILibCurrent>
-    private var leaderTempSignal: StatusSignal<WPILibTemperature>
-    private var leaderDutyCycle: StatusSignal<Double>
-    private var leaderPositionSignal: StatusSignal<edu.wpi.first.units.measure.Angle>
-    private var leaderVelocitySignal: StatusSignal<AngularVelocity>
+  private var leaderStatorCurrentSignal: StatusSignal<WPILibCurrent>
+  private var leaderSupplyCurrentSignal: StatusSignal<WPILibCurrent>
+  private var leaderTempSignal: StatusSignal<WPILibTemperature>
+  private var leaderDutyCycle: StatusSignal<Double>
+  private var leaderPositionSignal: StatusSignal<edu.wpi.first.units.measure.Angle>
+  private var leaderVelocitySignal: StatusSignal<AngularVelocity>
 
-    private var followerStatorCurrentSignal: StatusSignal<WPILibCurrent>
-    private var followerSupplyCurrentSignal: StatusSignal<WPILibCurrent>
-    private var followerTempSignal: StatusSignal<WPILibTemperature>
-    private var followerDutyCycle: StatusSignal<Double>
-    private var motorVoltage: StatusSignal<WPILibVoltage>
-    private var motorTorque: StatusSignal<WPILibCurrent>
+  private var followerStatorCurrentSignal: StatusSignal<WPILibCurrent>
+  private var followerSupplyCurrentSignal: StatusSignal<WPILibCurrent>
+  private var followerTempSignal: StatusSignal<WPILibTemperature>
+  private var followerDutyCycle: StatusSignal<Double>
+  private var motorVoltage: StatusSignal<WPILibVoltage>
+  private var motorTorque: StatusSignal<WPILibCurrent>
 
-    private var motionMagicTargetVelocity: StatusSignal<Double>
-    private var motionMagicTargetPosition: StatusSignal<Double>
+  private var motionMagicTargetVelocity: StatusSignal<Double>
+  private var motionMagicTargetPosition: StatusSignal<Double>
 
-    init {
-        leaderTalon.clearStickyFaults()
-        followerTalon.clearStickyFaults()
+  init {
+    leaderTalon.clearStickyFaults()
+    followerTalon.clearStickyFaults()
 
-        configs.CurrentLimits.SupplyCurrentLimit =
-            ElevatorConstants.LEADER_SUPPLY_CURRENT_LIMIT.inAmperes
-        configs.CurrentLimits.SupplyCurrentLowerLimit =
-            ElevatorConstants.LEADER_SUPPLY_CURRENT_LIMIT.inAmperes
-        configs.CurrentLimits.StatorCurrentLimit =
-            ElevatorConstants.LEADER_STATOR_CURRENT_LIMIT.inAmperes
-        configs.CurrentLimits.SupplyCurrentLowerTime =
-            ElevatorConstants.LEADER_SUPPLY_CURRENT_LIMIT.inAmperes
-        configs.CurrentLimits.StatorCurrentLimitEnable = true
-        configs.CurrentLimits.SupplyCurrentLimitEnable = true
+    configs.CurrentLimits.SupplyCurrentLimit =
+      ElevatorConstants.LEADER_SUPPLY_CURRENT_LIMIT.inAmperes
+    configs.CurrentLimits.SupplyCurrentLowerLimit =
+      ElevatorConstants.LEADER_SUPPLY_CURRENT_LIMIT.inAmperes
+    configs.CurrentLimits.StatorCurrentLimit =
+      ElevatorConstants.LEADER_STATOR_CURRENT_LIMIT.inAmperes
+    configs.CurrentLimits.SupplyCurrentLowerTime =
+      ElevatorConstants.LEADER_SUPPLY_CURRENT_LIMIT.inAmperes
+    configs.CurrentLimits.StatorCurrentLimitEnable = true
+    configs.CurrentLimits.SupplyCurrentLimitEnable = true
 
-        configs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true
-        configs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
+    configs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true
+    configs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
 
-         configs.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-         leaderSensor.positionToRawUnits(ElevatorConstants.UPWARDS_EXTENSION_LIMIT)
+    configs.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
+      leaderSensor.positionToRawUnits(ElevatorConstants.UPWARDS_EXTENSION_LIMIT)
 
-         configs.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-         leaderSensor.positionToRawUnits(ElevatorConstants.DOWNWARDS_EXTENSION_LIMIT)
+    configs.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
+      leaderSensor.positionToRawUnits(ElevatorConstants.DOWNWARDS_EXTENSION_LIMIT)
 
-        configs.MotionMagic.MotionMagicCruiseVelocity = MAX_VELOCITY.inInchesPerSecond
-        configs.MotionMagic.MotionMagicAcceleration = MAX_ACCELERATION.inInchesPerSecondPerSecond
+    configs.MotionMagic.MotionMagicCruiseVelocity = MAX_VELOCITY.inInchesPerSecond
+    configs.MotionMagic.MotionMagicAcceleration = MAX_ACCELERATION.inInchesPerSecondPerSecond
 
-        followerTalon.setControl(Follower(Constants.Elevator.LEADER_MOTOR_ID, false))
+    followerTalon.setControl(Follower(Constants.Elevator.LEADER_MOTOR_ID, false))
 
-        leaderPositionSignal = leaderTalon.position
-        leaderVelocitySignal = leaderTalon.velocity
-        leaderStatorCurrentSignal = leaderTalon.statorCurrent
-        leaderSupplyCurrentSignal = leaderTalon.supplyCurrent
-        leaderTempSignal = leaderTalon.deviceTemp
-        leaderDutyCycle = leaderTalon.dutyCycle
+    leaderPositionSignal = leaderTalon.position
+    leaderVelocitySignal = leaderTalon.velocity
+    leaderStatorCurrentSignal = leaderTalon.statorCurrent
+    leaderSupplyCurrentSignal = leaderTalon.supplyCurrent
+    leaderTempSignal = leaderTalon.deviceTemp
+    leaderDutyCycle = leaderTalon.dutyCycle
 
-        followerStatorCurrentSignal = followerTalon.statorCurrent
-        followerSupplyCurrentSignal = followerTalon.supplyCurrent
-        followerTempSignal = followerTalon.deviceTemp
-        followerDutyCycle = followerTalon.dutyCycle
+    followerStatorCurrentSignal = followerTalon.statorCurrent
+    followerSupplyCurrentSignal = followerTalon.supplyCurrent
+    followerTempSignal = followerTalon.deviceTemp
+    followerDutyCycle = followerTalon.dutyCycle
 
-        motorVoltage = leaderTalon.motorVoltage
-        motorTorque = leaderTalon.torqueCurrent
+    motorVoltage = leaderTalon.motorVoltage
+    motorTorque = leaderTalon.torqueCurrent
 
-        motionMagicTargetPosition = leaderTalon.closedLoopReference
-        motionMagicTargetVelocity = leaderTalon.closedLoopReferenceSlope
+    motionMagicTargetPosition = leaderTalon.closedLoopReference
+    motionMagicTargetVelocity = leaderTalon.closedLoopReferenceSlope
 
-        motionMagicTargetPosition.setUpdateFrequency(250.0)
-        motionMagicTargetVelocity.setUpdateFrequency(250.0)
+    motionMagicTargetPosition.setUpdateFrequency(250.0)
+    motionMagicTargetVelocity.setUpdateFrequency(250.0)
 
-        leaderTalon.configurator.apply(configs)
-        followerTalon.configurator.apply(configs)
-    }
+    leaderTalon.configurator.apply(configs)
+    followerTalon.configurator.apply(configs)
+  }
 
-    private fun updateSignals() {
-        BaseStatusSignal.refreshAll(
-            motorTorque,
-            motorVoltage,
-            leaderPositionSignal,
-            leaderVelocitySignal,
-            leaderTempSignal,
-            leaderDutyCycle,
-            leaderStatorCurrentSignal,
-            leaderSupplyCurrentSignal,
-            followerTempSignal,
-            followerDutyCycle,
-            followerStatorCurrentSignal,
-            followerSupplyCurrentSignal,
-            motionMagicTargetPosition,
-            motionMagicTargetVelocity
-        )
-    }
+  private fun updateSignals() {
+    BaseStatusSignal.refreshAll(
+      motorTorque,
+      motorVoltage,
+      leaderPositionSignal,
+      leaderVelocitySignal,
+      leaderTempSignal,
+      leaderDutyCycle,
+      leaderStatorCurrentSignal,
+      leaderSupplyCurrentSignal,
+      followerTempSignal,
+      followerDutyCycle,
+      followerStatorCurrentSignal,
+      followerSupplyCurrentSignal,
+      motionMagicTargetPosition,
+      motionMagicTargetVelocity
+    )
+  }
 
-    override fun updateInputs(inputs: ElevatorIO.ElevatorInputs) {
-        updateSignals()
+  override fun updateInputs(inputs: ElevatorIO.ElevatorInputs) {
+    updateSignals()
 
-        inputs.elevatorPosition = leaderSensor.position
-        inputs.elevatorVelocity = leaderSensor.velocity
+    inputs.elevatorPosition = leaderSensor.position
+    inputs.elevatorVelocity = leaderSensor.velocity
 
-        inputs.leaderTemperature = leaderTempSignal.valueAsDouble.celsius
-        inputs.leaderSupplyCurrent = leaderSupplyCurrentSignal.valueAsDouble.amps
-        inputs.leaderStatorCurrent = leaderStatorCurrentSignal.valueAsDouble.amps
-        inputs.leaderAppliedVoltage = (leaderDutyCycle.valueAsDouble * 12).volts
+    inputs.leaderTemperature = leaderTempSignal.valueAsDouble.celsius
+    inputs.leaderSupplyCurrent = leaderSupplyCurrentSignal.valueAsDouble.amps
+    inputs.leaderStatorCurrent = leaderStatorCurrentSignal.valueAsDouble.amps
+    inputs.leaderAppliedVoltage = (leaderDutyCycle.valueAsDouble * 12).volts
 
-        inputs.followerTemperature = followerTempSignal.valueAsDouble.celsius
-        inputs.followerStatorCurrent = followerStatorCurrentSignal.valueAsDouble.amps
-        inputs.followerSupplyCurrent = followerSupplyCurrentSignal.valueAsDouble.amps
-        inputs.followerAppliedVoltage = (followerDutyCycle.valueAsDouble * 12).volts
+    inputs.followerTemperature = followerTempSignal.valueAsDouble.celsius
+    inputs.followerStatorCurrent = followerStatorCurrentSignal.valueAsDouble.amps
+    inputs.followerSupplyCurrent = followerSupplyCurrentSignal.valueAsDouble.amps
+    inputs.followerAppliedVoltage = (followerDutyCycle.valueAsDouble * 12).volts
 
-        Logger.recordOutput(
-            "Elevator/motionMagicPositon",
-            motionMagicTargetPosition.value *
-                    ElevatorConstants.GEAR_RATIO *
-                    (Math.PI * ElevatorConstants.SPOOL_DIAMETER.inInches)
-        )
-        Logger.recordOutput(
-            "Elevator/motionMagicVelocity",
-            motionMagicTargetVelocity.value *
-                    ElevatorConstants.GEAR_RATIO *
-                    (Math.PI * ElevatorConstants.SPOOL_DIAMETER.inInches)
-        )
-    }
+    Logger.recordOutput(
+      "Elevator/motionMagicPositon",
+      motionMagicTargetPosition.value *
+        ElevatorConstants.GEAR_RATIO *
+        (Math.PI * ElevatorConstants.SPOOL_DIAMETER.inInches)
+    )
+    Logger.recordOutput(
+      "Elevator/motionMagicVelocity",
+      motionMagicTargetVelocity.value *
+        ElevatorConstants.GEAR_RATIO *
+        (Math.PI * ElevatorConstants.SPOOL_DIAMETER.inInches)
+    )
+  }
 
-    override fun configPID(
-        kP: ProportionalGain<Meter, Volt>,
-        kI: IntegralGain<Meter, Volt>,
-        kD: DerivativeGain<Meter, Volt>
-    ) {
-        slot0Configs.kP = kP.inVoltsPerInch
-        slot0Configs.kI = kI.inVoltsPerInchSeconds
-        slot0Configs.kD = kD.inVoltsPerInchPerSecond
+  override fun configPID(
+    kP: ProportionalGain<Meter, Volt>,
+    kI: IntegralGain<Meter, Volt>,
+    kD: DerivativeGain<Meter, Volt>
+  ) {
+    slot0Configs.kP = kP.inVoltsPerInch
+    slot0Configs.kI = kI.inVoltsPerInchSeconds
+    slot0Configs.kD = kD.inVoltsPerInchPerSecond
 
-        slot1Configs.kP = kP.inVoltsPerInch
-        slot1Configs.kI = kI.inVoltsPerInchSeconds
-        slot1Configs.kD = kD.inVoltsPerInchPerSecond
+    slot1Configs.kP = kP.inVoltsPerInch
+    slot1Configs.kI = kI.inVoltsPerInchSeconds
+    slot1Configs.kD = kD.inVoltsPerInchPerSecond
 
+    leaderTalon.configurator.apply(slot0Configs)
+    followerTalon.configurator.apply(slot0Configs)
+    leaderTalon.configurator.apply(slot1Configs)
+    followerTalon.configurator.apply(slot1Configs)
+  }
 
-        leaderTalon.configurator.apply(slot0Configs)
-        followerTalon.configurator.apply(slot0Configs)
-        leaderTalon.configurator.apply(slot1Configs)
-        followerTalon.configurator.apply(slot1Configs)
+  override fun configFF(
+    kGFirstStage: ElectricalPotential,
+    kGSecondStage: ElectricalPotential,
+    kS: StaticFeedforward<Volt>,
+    kV: VelocityFeedforward<Meter, Volt>,
+    kA: AccelerationFeedforward<Meter, Volt>
+  ) {
+    slot0Configs.kG = kGFirstStage.inVolts
+    slot0Configs.kS = kS.inVolts
+    slot0Configs.kV = kV.inVoltsPerInchPerSecond
+    slot0Configs.kA = kA.inVoltsPerMetersPerSecondPerSecond
+    slot0Configs.GravityType = GravityTypeValue.Elevator_Static
 
-    }
+    slot1Configs.kG = kGSecondStage.inVolts
+    slot1Configs.kS = kS.inVolts
+    slot1Configs.kV = kV.inVoltsPerInchPerSecond
+    slot1Configs.kA = kA.inVoltsPerMetersPerSecondPerSecond
+    slot1Configs.GravityType = GravityTypeValue.Elevator_Static
 
-    override fun configFF(
-        kGFirstStage: ElectricalPotential,
-        kGSecondStage: ElectricalPotential,
-        kS: StaticFeedforward<Volt>,
-        kV: VelocityFeedforward<Meter, Volt>,
-        kA: AccelerationFeedforward<Meter, Volt>
-    ) {
-        slot0Configs.kG = kGFirstStage.inVolts
-        slot0Configs.kS = kS.inVolts
-        slot0Configs.kV = kV.inVoltsPerInchPerSecond
-        slot0Configs.kA = kA.inVoltsPerMetersPerSecondPerSecond
-        slot0Configs.GravityType = GravityTypeValue.Elevator_Static
+    leaderTalon.configurator.apply(slot0Configs)
+    followerTalon.configurator.apply(slot0Configs)
+  }
 
-        slot1Configs.kG = kGSecondStage.inVolts
-        slot1Configs.kS = kS.inVolts
-        slot1Configs.kV = kV.inVoltsPerInchPerSecond
-        slot1Configs.kA = kA.inVoltsPerMetersPerSecondPerSecond
-        slot1Configs.GravityType = GravityTypeValue.Elevator_Static
+  override fun setPosition(position: Length) {
+    val slotUsed =
+      if (leaderSensor.position > ElevatorConstants.FIRST_STAGE_HEIGHT) {
+        1
+      } else {
+        0
+      }
 
+    leaderTalon.setControl(
+      motionMagicControl
+        .withPosition(leaderSensor.positionToRawUnits(position))
+        .withSlot(slotUsed)
+    )
+  }
 
-        leaderTalon.configurator.apply(slot0Configs)
-        followerTalon.configurator.apply(slot0Configs)
-    }
+  override fun setVoltage(targetVoltage: ElectricalPotential) {
+    leaderTalon.setControl(VoltageOut(targetVoltage.inVolts))
+  }
 
-    override fun setPosition(position: Length) {
-        val slotUsed =
-            if (leaderSensor.position > ElevatorConstants.FIRST_STAGE_HEIGHT) {
-                1
-            } else {
-                0
-            }
-
-        leaderTalon.setControl(
-            motionMagicControl
-                .withPosition(leaderSensor.positionToRawUnits(position))
-                .withSlot(slotUsed)
-        )
-    }
-
-    override fun setVoltage(targetVoltage: ElectricalPotential) {
-        leaderTalon.setControl(VoltageOut(targetVoltage.inVolts))
-    }
-
-    override fun zeroEncoder() {
-        leaderTalon.setPosition(0.0)
-        followerTalon.setPosition(0.0)
-    }
+  override fun zeroEncoder() {
+    leaderTalon.setPosition(0.0)
+    followerTalon.setPosition(0.0)
+  }
 }

@@ -1,29 +1,29 @@
 package com.team4099.robot2025.auto.mode
 
-//import choreo.Choreo
-//import choreo.trajectory.SwerveSample
-//import com.team4099.robot2025.commands.drivetrain.DrivePathCommand
-//import com.team4099.robot2025.commands.drivetrain.ReefAlignCommand
-//import com.team4099.robot2025.config.ControlBoard
-//import com.team4099.robot2025.config.constants.Constants
-//import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
-//import com.team4099.robot2025.subsystems.elevator.Elevator
-//import com.team4099.robot2025.subsystems.superstructure.Superstructure
-//import com.team4099.robot2025.subsystems.vision.Vision
-//import com.team4099.robot2025.util.TrajectoryTypes
-//import com.team4099.robot2025.util.driver.Jessika
-//import edu.wpi.first.wpilibj2.command.ParallelCommandGroup
-//import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
-//import edu.wpi.first.wpilibj2.command.WaitCommand
-//import org.team4099.lib.geometry.Pose2d
-//import org.team4099.lib.smoothDeadband
+// import choreo.Choreo
+// import choreo.trajectory.SwerveSample
+// import com.team4099.robot2025.commands.drivetrain.DrivePathCommand
+// import com.team4099.robot2025.commands.drivetrain.ReefAlignCommand
+// import com.team4099.robot2025.config.ControlBoard
+// import com.team4099.robot2025.config.constants.Constants
+// import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
+// import com.team4099.robot2025.subsystems.elevator.Elevator
+// import com.team4099.robot2025.subsystems.superstructure.Superstructure
+// import com.team4099.robot2025.subsystems.vision.Vision
+// import com.team4099.robot2025.util.TrajectoryTypes
+// import com.team4099.robot2025.util.driver.Jessika
+// import edu.wpi.first.wpilibj2.command.ParallelCommandGroup
+// import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
+// import edu.wpi.first.wpilibj2.command.WaitCommand
+// import org.team4099.lib.geometry.Pose2d
+// import org.team4099.lib.smoothDeadband
 
-//class ThreeL4RightAuto(
+// class ThreeL4RightAuto(
 //  val drivetrain: Drivetrain,
 //  val elevator: Elevator,
 //  val superstructure: Superstructure,
 //  val vision: Vision
-//) : SequentialCommandGroup() {
+// ) : SequentialCommandGroup() {
 //  init {
 //    addRequirements(drivetrain)
 //
@@ -102,10 +102,11 @@ package com.team4099.robot2025.auto.mode
 //      Choreo.loadTrajectory<SwerveSample>("ThreeL4Home/startingLineTo1Right").get()
 //    private val secondTrajectory =
 //      Choreo.loadTrajectory<SwerveSample>("ThreeL4Home/1to2Right").get()
-//    private val thirdTrajectory = Choreo.loadTrajectory<SwerveSample>("ThreeL4Home/2to3Right").get()
+//    private val thirdTrajectory =
+// Choreo.loadTrajectory<SwerveSample>("ThreeL4Home/2to3Right").get()
 //
 //    val startingPose = Pose2d(firstTrajectory.getInitialPose(false).get())
 //    val secondPose = Pose2d(secondTrajectory.getInitialPose(false).get())
 //    val thirdPose = Pose2d(thirdTrajectory.getInitialPose(false).get())
 //  }
-//}
+// }

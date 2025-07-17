@@ -58,18 +58,165 @@ object Robot : LoggedRobot() {
 
    */
 
-  override fun robotInit() {}
+  override fun robotInit() {
+    // running replays as fast as possible when replaying. (play in real time when robot is real or
+    // sim)
+    setUseTiming(
+      RobotBase.isReal() || Constants.Universal.SIM_MODE != Constants.Tuning.SimType.REPLAY
+    )
 
-  override fun autonomousInit() {}
+    // Tuning mode alert check
+    logTuningModeEnabled.set(Constants.Tuning.TUNING_MODE)
 
-  override fun disabledPeriodic() {}
+    // metadata value (not timed -- just metadata for given log file)
+    Logger.recordMetadata(
+      "Robot", if (RobotBase.isReal()) "REAL" else Constants.Universal.SIM_MODE.name
+    )
+    Logger.recordMetadata("Tuning Mode Enabled", Constants.Tuning.TUNING_MODE.toString())
+    Logger.recordMetadata("ProjectName", MAVEN_NAME)
+    Logger.recordMetadata("BuildDate", BUILD_DATE)
+    Logger.recordMetadata("GitSHA", GIT_SHA)
+    Logger.recordMetadata("GitBranch", GIT_BRANCH)
+    when (DIRTY) {
+      0 -> Logger.recordMetadata("GitDirty", "All changes committed")
+      1 -> Logger.recordMetadata("GitDirty", "Uncommitted changes")
+      else -> Logger.recordMetadata("GitDirty", "Unknown")
+    }
 
-  override fun disabledInit() {}
+    var isLogging = false
+    if (RobotBase.isReal()) {
+      // check if folder path exists
+      if (Files.exists(Paths.get(Constants.Universal.LOG_FOLDER))) {
+        // log to USB stick and network for real time data viewing on AdvantageScope
+        isLogging = true
+        Logger.addDataReceiver(WPILOGWriter(Constants.Universal.LOG_FOLDER))
+      } else {
+        logFolderAlert.set(true)
+      }
 
-  override fun robotPeriodic() {
+      Logger.addDataReceiver(NTSafePublisher())
+      LoggedPowerDistribution.getInstance(
+        Constants.Universal.POWER_DISTRIBUTION_HUB_ID, PowerDistribution.ModuleType.kRev
+      )
+    } else {
+      when (Constants.Universal.SIM_MODE) {
+        Constants.Tuning.SimType.SIM -> {
+          Logger.addDataReceiver(NTSafePublisher())
+          logSimulationAlert.set(true)
+          DriverStationSim.setAllianceStationId(AllianceStationID.Blue1)
+        }
+        Constants.Tuning.SimType.REPLAY -> {
+          // if in replay mode get file path from command line and read log file
+          val path = LogFileUtil.findReplayLog()
+          Logger.setReplaySource(WPILOGReader(path))
+          Logger.addDataReceiver(WPILOGWriter(LogFileUtil.addPathSuffix(path, "_replayed")))
+        }
+      }
+
+      // initialize mech2d stuff
+    }
+
+    Logger.start() // no more configuration allowed
+
+    Logger.recordOutput("LogFolder/isLogging", isLogging)
+
+    LiveWindow.disableAllTelemetry()
+
+    // init robot container too
+    RobotContainer
+    AutonomousSelector
+    PathStore
+    RobotContainer.mapDefaultCommands()
+
+    // Set the scheduler to log events for command initialize, interrupt, finish
+    CommandScheduler.getInstance().onCommandInitialize { command: Command ->
+      Logger.recordOutput("/ActiveCommands/${command.name}", true)
+    }
+
+    CommandScheduler.getInstance().onCommandFinish { command: Command ->
+      Logger.recordOutput("/ActiveCommands/${command.name}", false)
+    }
+
+    CommandScheduler.getInstance().onCommandInterrupt { command: Command ->
+      Logger.recordOutput("/ActiveCommands/${command.name}", false)
+    }
+
+    val autoTab = Shuffleboard.getTab("Pre-match")
+    allianceSelected =
+      autoTab
+        .add("Alliance Selected", "No alliance")
+        .withPosition(0, 1)
+        .withWidget(BuiltInWidgets.kTextView)
+        .entry
   }
 
-  override fun teleopInit() {}
+  override fun autonomousInit() {
+    RobotContainer.setSteeringCoastMode()
 
-  override fun testInit() {}
+    val autonCommandWithWait =
+      runOnce({ RobotContainer.zeroSensors(isInAutonomous = true) }).andThen(autonomousCommand)
+    autonCommandWithWait?.schedule()
+  }
+
+  override fun disabledPeriodic() {
+    FMSData.allianceColor = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue)
+    autonomousCommand = RobotContainer.getAutonomousCommand()
+  }
+
+  override fun disabledInit() {
+    // RobotContainer.requestIdle()
+    // autonomousCommand.cancel()
+  }
+
+  override fun robotPeriodic() {
+    //    RobotContainer.measurementsWithTimestamps.forEach {
+    // RobotContainer.addVisionMeasurement(it) }
+
+    var startTime = Clock.realTimestamp
+
+    // begin scheduling all commands
+    CommandScheduler.getInstance().run()
+
+    // checking for logging errors
+    logReceiverQueueAlert.set(Logger.getReceiverQueueFault())
+
+    val superstructureLoopTimeMS = Clock.realTimestamp
+    RobotContainer.superstructure.periodic()
+    Logger.recordOutput(
+      "LoggedRobot/Subsystems/SuperstructureLoopTimeMS",
+      (Clock.realTimestamp - superstructureLoopTimeMS).inMilliseconds
+    )
+
+    Logger.recordOutput(
+      "LoggedRobot/RemainingRamMB", Runtime.getRuntime().freeMemory() / 1024 / 1024
+    )
+
+    CustomLogger.recordDebugOutput(
+      "LoggedRobot/totalMS", (Clock.realTimestamp - startTime).inMilliseconds
+    )
+
+    /*
+    DebugLogger.recordDebugOutput("LoggedRobot/port0", port0.voltage)
+    DebugLogger.recordDebugOutput("LoggedRobot/port1", port1.voltage)
+    DebugLogger.recordDebugOutput("LoggedRobot/port2", port2.voltage)
+    Logger.recordOutput("LoggedRobot/port3", port3.voltage)
+     */
+  }
+
+  override fun teleopInit() {
+    RobotContainer.zeroSensors(isInAutonomous = false)
+    RobotContainer.mapTeleopControls()
+    RobotContainer.getAutonomousCommand().cancel()
+    RobotContainer.requestIdle()
+    RobotContainer.setDriveBrakeMode()
+    RobotContainer.setSteeringCoastMode()
+    if (Constants.Tuning.TUNING_MODE) {
+      RobotContainer.mapTunableCommands()
+    }
+  }
+
+  override fun testInit() {
+    RobotContainer.mapTestControls()
+    RobotContainer.getAutonomousCommand().cancel()
+  }
 }

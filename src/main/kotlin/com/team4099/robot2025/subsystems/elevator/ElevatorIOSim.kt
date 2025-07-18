@@ -7,8 +7,8 @@ import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.wpilibj.simulation.BatterySim
 import edu.wpi.first.wpilibj.simulation.ElevatorSim
 import edu.wpi.first.wpilibj.simulation.RoboRioSim
-import org.team4099.lib.controller.ProfiledPIDController
 import org.team4099.lib.controller.ElevatorFeedforward
+import org.team4099.lib.controller.ProfiledPIDController
 import org.team4099.lib.controller.TrapezoidProfile
 import org.team4099.lib.units.base.Length
 import org.team4099.lib.units.base.Meter
@@ -111,9 +111,13 @@ object ElevatorIOSim : ElevatorIO {
     val pidOutput = elevatorPIDController.calculate(elevatorSim.positionMeters.meters)
     val ffOutput =
       if (elevatorSim.positionMeters < ElevatorConstants.FIRST_STAGE_HEIGHT.inMeters) {
-        elevatorFFControllerFirstStage.calculate(elevatorSim.velocityMetersPerSecond.meters.perSecond)
+        elevatorFFControllerFirstStage.calculate(
+          elevatorSim.velocityMetersPerSecond.meters.perSecond
+        )
       } else {
-        elevatorFFControllerSecondStage.calculate(elevatorSim.velocityMetersPerSecond.meters.perSecond)
+        elevatorFFControllerSecondStage.calculate(
+          elevatorSim.velocityMetersPerSecond.meters.perSecond
+        )
       }
     setVoltage(pidOutput + ffOutput)
   }

@@ -18,7 +18,8 @@ object ElevatorConstants {
   val VOLTAGE_COMPENSATION: ElectricalPotential = 12.0.volts
   val SPOOL_DIAMETER: Length = 2.0.inches
   val GEAR_RATIO: Double = 12.0 / 48.0
-  val CARRIAGE_MASS: Mass = 15.0.pounds // semi-accurate, tbf this value is only used in sim so its whatever
+  val CARRIAGE_MASS: Mass =
+    15.0.pounds // semi-accurate, tbf this value is only used in sim so its whatever
 
   val STATOR_CURRENT_LIMIT = 60.0.amps
   val SUPPLY_CURRENT_LIMIT = 60.0.amps
@@ -31,7 +32,7 @@ object ElevatorConstants {
   val DOWNWARDS_EXTENSION_LIMIT: Length = 0.inches
   val FIRST_STAGE_HEIGHT: Length = 39.125000.inches
 
-  //TODO: check?
+  // TODO: check?
   val MAX_VELOCITY: LinearVelocity = 144.85.inches.perSecond
   val MAX_ACCELERATION: LinearAcceleration = 259.54.inches.perSecond.perSecond
 

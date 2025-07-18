@@ -13,12 +13,12 @@ class TestElevatorCommand(val elevator: Elevator, private val height: Length): C
     }
 
     override fun initialize() {
-        elevator.currentRequest = Request.ElevatorRequest.ClosedLoop(height)
+//        CustomLogger.recordDebugOutput("ActiveCommands/TestElevatorCommand", true)
     }
 
     override fun execute() {
-        CustomLogger.recordDebugOutput("ActiveCommands/TestElevatorCommand", true)
-        if (elevator.isAtTargetedPosition) end(false)
+        elevator.currentRequest = Request.ElevatorRequest.ClosedLoop(height)
+//        if (isFinished) end(false)
     }
 
     override fun isFinished(): Boolean {
@@ -26,6 +26,7 @@ class TestElevatorCommand(val elevator: Elevator, private val height: Length): C
     }
 
     override fun end(interrupted: Boolean) {
-        elevator.currentRequest = Request.ElevatorRequest.OpenLoop(0.0.volts)
+//        CustomLogger.recordDebugOutput("ActiveCommands/TestElevatorCommand", false)
+//        elevator.currentRequest = Request.ElevatorRequest.OpenLoop(0.0.volts)
     }
 }

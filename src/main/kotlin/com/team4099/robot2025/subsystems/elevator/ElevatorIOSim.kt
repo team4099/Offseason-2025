@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.simulation.BatterySim
 import edu.wpi.first.wpilibj.simulation.ElevatorSim
 import edu.wpi.first.wpilibj.simulation.RoboRioSim
 import org.team4099.lib.controller.ProfiledPIDController
+import org.team4099.lib.controller.ElevatorFeedforward
 import org.team4099.lib.controller.TrapezoidProfile
 import org.team4099.lib.units.base.Length
 import org.team4099.lib.units.base.Meter
@@ -54,6 +55,22 @@ object ElevatorIOSim : ElevatorIO {
       )
     )
 
+  private var elevatorFFControllerFirstStage =
+    ElevatorFeedforward(
+      ElevatorConstants.PID.KS,
+      ElevatorConstants.PID.KG_FIRST_STAGE,
+      ElevatorConstants.PID.KV,
+      ElevatorConstants.PID.KA
+    )
+
+  private var elevatorFFControllerSecondStage =
+    ElevatorFeedforward(
+      ElevatorConstants.PID.KS,
+      ElevatorConstants.PID.KG_SECOND_STAGE,
+      ElevatorConstants.PID.KV,
+      ElevatorConstants.PID.KA
+    )
+
   override fun updateInputs(inputs: ElevatorIO.ElevatorInputs) {
     elevatorSim.update(Constants.Universal.LOOP_PERIOD_TIME.inSeconds)
 
@@ -92,7 +109,13 @@ object ElevatorIOSim : ElevatorIO {
   override fun setPosition(position: Length) {
     elevatorPIDController.setGoal(position)
     val pidOutput = elevatorPIDController.calculate(elevatorSim.positionMeters.meters)
-    setVoltage(pidOutput)
+    val ffOutput =
+      if (elevatorSim.positionMeters < ElevatorConstants.FIRST_STAGE_HEIGHT.inMeters) {
+        elevatorFFControllerFirstStage.calculate(elevatorSim.velocityMetersPerSecond.meters.perSecond)
+      } else {
+        elevatorFFControllerSecondStage.calculate(elevatorSim.velocityMetersPerSecond.meters.perSecond)
+      }
+    setVoltage(pidOutput + ffOutput)
   }
 
   override fun zeroEncoder() {}
@@ -119,5 +142,9 @@ object ElevatorIOSim : ElevatorIO {
     kS: StaticFeedforward<Volt>,
     kV: VelocityFeedforward<Meter, Volt>,
     kA: AccelerationFeedforward<Meter, Volt>
-  ) {}
+  ) {
+    // why is there no set method for ElevatorFeedforward lol
+    elevatorFFControllerFirstStage = ElevatorFeedforward(kS, kGFirstStage, kV, kA)
+    elevatorFFControllerSecondStage = ElevatorFeedforward(kS, kGSecondStage, kV, kA)
+  }
 }

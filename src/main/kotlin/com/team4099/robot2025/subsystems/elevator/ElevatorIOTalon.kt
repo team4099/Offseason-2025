@@ -220,6 +220,8 @@ object ElevatorIOTalon : ElevatorIO {
 
     leaderTalon.configurator.apply(slot0Configs)
     followerTalon.configurator.apply(slot0Configs)
+    leaderTalon.configurator.apply(slot1Configs)
+    followerTalon.configurator.apply(slot1Configs)
   }
 
   override fun setPosition(position: Length) {

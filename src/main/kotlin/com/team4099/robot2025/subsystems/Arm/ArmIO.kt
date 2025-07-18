@@ -86,5 +86,11 @@ interface ArmIO {
         kI: IntegralGain <Radian, Volt>,
         kD: DerivativeGain <Radian, Volt>
     ) {}
+
+    fun zeroEncoder(){}
+
+    fun setVoltage(targetVoltage: ElectricalPotential) {}
+
+     fun setPosition(position: Angle) {}
 }
 

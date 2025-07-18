@@ -6,6 +6,7 @@ import com.ctre.phoenix6.configs.Slot0Configs
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage
 import com.ctre.phoenix6.controls.MotionMagicVoltage
+import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.CANcoder
 import com.ctre.phoenix6.hardware.ParentDevice.MapGenerator
 import com.ctre.phoenix6.hardware.TalonFX
@@ -17,16 +18,21 @@ import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.units.measure.Temperature as WPITemp
 import edu.wpi.first.units.measure.Current as WPICurrent
 import edu.wpi.first.wpilibj.motorcontrol.Talon
+import org.team4099.lib.units.Value
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.celsius
+import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.ctreAngularMechanismSensor
+import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.DerivativeGain
+import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.IntegralGain
 import org.team4099.lib.units.derived.ProportionalGain
 import org.team4099.lib.units.derived.Radian
 import org.team4099.lib.units.derived.Volt
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inDegrees
+import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.rotations
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.perSecond
@@ -83,8 +89,8 @@ object ArmIOTIalon: ArmIO {
     }
 
     override fun updateInputs(inputs: ArmIO.ArmIOInputs){
-        inputs.armPosition = armSensor.position
-        inputs.armVelocity = armSensor.velocity
+        inputs.armPosition = absoluteEncoderSignal.valueAsDouble.degrees
+        inputs.armVelocity = absoluteEncoder.velocity.valueAsDouble.degrees.perSecond
         inputs.armTorque = armTalon.torqueCurrent.valueAsDouble
         inputs.armAppliedVoltage = motorVoltageSignal.valueAsDouble.volts
         inputs.armDutyCycle = dutyCycleSignal.valueAsDouble.volts
@@ -114,6 +120,24 @@ object ArmIOTIalon: ArmIO {
         PIDConfig.kP = armSensor.proportionalPositionGainToRawUnits(kP)
         PIDConfig.kI = armSensor.integralPositionGainToRawUnits(kI)
         PIDConfig.kD = armSensor.derivativePositionGainToRawUnits(kD)
+    }
+
+    override fun zeroEncoder() {
+        absoluteEncoder.setPosition(0.0)
+    }
+
+    override fun setVoltage(targetVoltage: ElectricalPotential) {
+        armTalon.setControl(VoltageOut(targetVoltage.inVolts))
+    }
+
+    override fun setPosition(position: Angle) {
+        val slotUsed = 0
+
+        armTalon.setControl(
+            motionMagicControl
+                .withPosition(armSensor.positionToRawUnits(position))
+                .withSlot(slotUsed)
+        )
     }
 
 }

@@ -6,10 +6,10 @@ package com.team4099.robot2025
 const val MAVEN_GROUP = ""
 const val MAVEN_NAME = "Offseason-2025"
 const val VERSION = "unspecified"
-const val GIT_REVISION = 3
-const val GIT_SHA = "4531b50da70affabc40df2b6cd954a9cd5e5f746"
-const val GIT_DATE = "2025-07-17T01:48:58Z"
-const val GIT_BRANCH = "main"
-const val BUILD_DATE = "2025-07-17T14:02:35Z"
-const val BUILD_UNIX_TIME = 1752778955960L
+const val GIT_REVISION = 10
+const val GIT_SHA = "38fe7e7a6b73766eba2e468931ab6194ad2d625a"
+const val GIT_DATE = "2025-07-18T23:20:33Z"
+const val GIT_BRANCH = "climber"
+const val BUILD_DATE = "2025-07-18T23:23:57Z"
+const val BUILD_UNIX_TIME = 1752899037310L
 const val DIRTY = 1

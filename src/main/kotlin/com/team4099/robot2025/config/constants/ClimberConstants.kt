@@ -14,34 +14,34 @@ import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.perSecond
 
 object ClimberConstants {
-    val VOLTAGE_COMPENSATION = 0.0.volts
-    val STATOR_CURRENT_LIMIT = 0.0.amps
-    val SUPPLY_CURRENT_LIMIT = 0.0.amps
-    val THRESHOLD_CURRENT_LIMIT = 0.0.amps
-    val CLIMB_EXTEND_VOLTAGE = 0.0.volts
-    val CLIMB_RETRACT_VOLTAGE = 0.0.volts
+  val VOLTAGE_COMPENSATION = 0.0.volts
+  val STATOR_CURRENT_LIMIT = 0.0.amps
+  val SUPPLY_CURRENT_LIMIT = 0.0.amps
+  val THRESHOLD_CURRENT_LIMIT = 0.0.amps
+  val CLIMB_EXTEND_VOLTAGE = 0.0.volts
+  val CLIMB_RETRACT_VOLTAGE = 0.0.volts
 
-    val LENGTH = 0.0.inches
-    val INERTIA = 0.0.pounds * 1.0.inches.squared
-    val GEAR_RATIO = 0.0
+  val LENGTH = 0.0.inches
+  val INERTIA = 0.0.pounds * 1.0.inches.squared
+  val GEAR_RATIO = 0.0
 
-    val CLIMBER_TARGET_TOLERANCE = 3.0.degrees
+  val CLIMBER_TARGET_TOLERANCE = 3.0.degrees
 
-    object PID {
-        val KP_REAL: ProportionalGain<Radian, Volt> = 0.0.volts / 1.0.degrees
-        val KI_REAL: IntegralGain<Radian, Volt> = 0.0.volts / (1.0.degrees * 1.0.seconds)
-        val KD_REAL: DerivativeGain<Radian, Volt> = 0.0.volts / 1.0.degrees.perSecond
+  object PID {
+    val KP_REAL: ProportionalGain<Radian, Volt> = 0.0.volts / 1.0.degrees
+    val KI_REAL: IntegralGain<Radian, Volt> = 0.0.volts / (1.0.degrees * 1.0.seconds)
+    val KD_REAL: DerivativeGain<Radian, Volt> = 0.0.volts / 1.0.degrees.perSecond
 
-        val KP_SIM = 0.0.volts / 1.0.degrees
-        val KI_SIM = 0.0.volts / (1.0.degrees * 1.0.seconds)
-        val KD_SIM = 0.0.volts / 1.0.degrees.perSecond
+    val KP_SIM = 0.0.volts / 1.0.degrees
+    val KI_SIM = 0.0.volts / (1.0.degrees * 1.0.seconds)
+    val KD_SIM = 0.0.volts / 1.0.degrees.perSecond
 
-        val KS = 0.0.volts
-        val KV = 0.0.volts / 1.0.degrees.perSecond
-        val KA = 0.0.volts / 1.0.degrees.perSecond.perSecond
+    val KS = 0.0.volts
+    val KV = 0.0.volts / 1.0.degrees.perSecond
+    val KA = 0.0.volts / 1.0.degrees.perSecond.perSecond
 
-        val KG_DEFAULT = 0.0.volts
-        val KG_LATCHED = 0.0.volts
-        val KG_UNLATCHED = 0.0.volts
-    }
+    val KG_DEFAULT = 0.0.volts
+    val KG_LATCHED = 0.0.volts
+    val KG_UNLATCHED = 0.0.volts
+  }
 }

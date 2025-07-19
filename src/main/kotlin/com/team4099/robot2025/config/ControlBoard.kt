@@ -44,4 +44,7 @@ object ControlBoard {
   val resetGyro = Trigger { driver.startButton && driver.selectButton }
   val forceIdle = Trigger { driver.dPadDown }
   val manualReset = Trigger { driver.leftShoulderButton && driver.rightShoulderButton }
+
+  val testCommand = Trigger { driver.xButton }
+  val testCommand2 = Trigger { driver.yButton }
 }

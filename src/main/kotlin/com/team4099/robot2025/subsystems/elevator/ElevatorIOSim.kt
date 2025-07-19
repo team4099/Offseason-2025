@@ -139,7 +139,6 @@ object ElevatorIOSim : ElevatorIO {
     elevatorPIDController.setPID(kP, kI, kD)
   }
 
-  /** no ff in sim */
   override fun configFF(
     kGFirstStage: ElectricalPotential,
     kGSecondStage: ElectricalPotential,

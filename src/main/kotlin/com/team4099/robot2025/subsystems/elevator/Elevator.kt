@@ -14,7 +14,7 @@ import org.team4099.lib.units.inInchesPerSecond
 import org.team4099.lib.units.perSecond
 import com.team4099.robot2025.subsystems.superstructure.Request.ElevatorRequest as ElevatorRequest
 
-class Elevator(val io: ElevatorIO) : SubsystemBase() {
+class Elevator(private val io: ElevatorIO) : SubsystemBase() {
   val inputs = ElevatorIO.ElevatorInputs()
 
   val upperLimitReached: Boolean
@@ -40,8 +40,6 @@ class Elevator(val io: ElevatorIO) : SubsystemBase() {
     }
 
   var elevatorPositionTarget = 0.0.inches
-    private set
-  var elevatorVelocityTarget = 0.0.inches.perSecond
     private set
   var elevatorVoltageTarget = 0.0.volts
     private set
@@ -131,9 +129,6 @@ class Elevator(val io: ElevatorIO) : SubsystemBase() {
     CustomLogger.recordOutput("Elevator/isAtTargetPosition", isAtTargetedPosition)
 
     CustomLogger.recordOutput("Elevator/elevatorPositionTarget", elevatorPositionTarget.inInches)
-    CustomLogger.recordOutput(
-      "Elevator/elevatorVelocityTarget", elevatorVelocityTarget.inInchesPerSecond
-    )
     CustomLogger.recordOutput("Elevator/elevatorVoltageTarget", elevatorVoltageTarget.inVolts)
 
     CustomLogger.recordDebugOutput("Elevator/upperLimitReached", upperLimitReached)

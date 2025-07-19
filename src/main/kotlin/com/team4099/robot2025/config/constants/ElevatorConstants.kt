@@ -30,7 +30,7 @@ object ElevatorConstants {
 
   val UPWARDS_EXTENSION_LIMIT: Length = 59.375000.inches
   val DOWNWARDS_EXTENSION_LIMIT: Length = 0.inches
-  val FIRST_STAGE_HEIGHT: Length = 39.125000.inches
+  val FIRST_STAGE_HEIGHT: Length = 25.125000.inches
 
   // TODO: check?
   val MAX_VELOCITY: LinearVelocity = 144.85.inches.perSecond

@@ -10,106 +10,111 @@ import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.volts
 
 class Climber(private val io: ClimberIO) {
-    private val inputs: ClimberIO.ClimberInputs = ClimberIO.ClimberInputs()
+  private val inputs: ClimberIO.ClimberInputs = ClimberIO.ClimberInputs()
 
-    private var currentState: ClimberState = ClimberState.UNINITIALIZED
-    private var currentRequest: Request.ClimberRequest = Request.ClimberRequest.Home()
-        set(value) {
-            when (value) {
-                is Request.ClimberRequest.OpenLoop -> targetVoltage = value.voltage
-                else -> {}
-            }
-
-            field = value
-        }
-
-    private var targetVoltage: ElectricalPotential = 0.0.volts
-    private var isAtTargetedPosition: Boolean = (inputs.climberPosition - 90.degrees).absoluteValue <= ClimberConstants.CLIMBER_TARGET_TOLERANCE
-
-    init {
-        if (RobotBase.isReal()) {
-            ClimberTunableValues.kP.initDefault(ClimberConstants.PID.KP_REAL)
-            ClimberTunableValues.kI.initDefault(ClimberConstants.PID.KI_REAL)
-            ClimberTunableValues.kD.initDefault(ClimberConstants.PID.KD_REAL)
-        } else {
-            ClimberTunableValues.kP.initDefault(ClimberConstants.PID.KP_SIM)
-            ClimberTunableValues.kI.initDefault(ClimberConstants.PID.KI_SIM)
-            ClimberTunableValues.kD.initDefault(ClimberConstants.PID.KD_SIM)
-        }
+  private var currentState: ClimberState = ClimberState.UNINITIALIZED
+  private var currentRequest: Request.ClimberRequest = Request.ClimberRequest.Home()
+    set(value) {
+      when (value) {
+        is Request.ClimberRequest.OpenLoop -> targetVoltage = value.voltage
+        else -> {}
+      }
+      field = value
     }
 
-    fun periodic() {
-        io.updateInputs(inputs)
+  private var targetVoltage: ElectricalPotential = 0.0.volts
+  private var isAtTargetedPosition: Boolean =
+    (inputs.climberPosition - 90.degrees).absoluteValue <=
+      ClimberConstants.CLIMBER_TARGET_TOLERANCE
 
-        val hasPIDChanged = ClimberTunableValues.kP.hasChanged() ||
-                ClimberTunableValues.kI.hasChanged() ||
-                ClimberTunableValues.kD.hasChanged()
+  init {
+    if (RobotBase.isReal()) {
+      ClimberTunableValues.kP.initDefault(ClimberConstants.PID.KP_REAL)
+      ClimberTunableValues.kI.initDefault(ClimberConstants.PID.KI_REAL)
+      ClimberTunableValues.kD.initDefault(ClimberConstants.PID.KD_REAL)
+    } else {
+      ClimberTunableValues.kP.initDefault(ClimberConstants.PID.KP_SIM)
+      ClimberTunableValues.kI.initDefault(ClimberConstants.PID.KI_SIM)
+      ClimberTunableValues.kD.initDefault(ClimberConstants.PID.KD_SIM)
+    }
+  }
 
-        val hasFFChanged = ClimberTunableValues.kS.hasChanged() ||
-                ClimberTunableValues.kGDefault.hasChanged() ||
-                ClimberTunableValues.kV.hasChanged() ||
-                ClimberTunableValues.kA.hasChanged()
+  fun periodic() {
+    io.updateInputs(inputs)
 
-        if (hasPIDChanged) {
-            io.configPID(
-                ClimberTunableValues.kP.get(),
-                ClimberTunableValues.kI.get(),
-                ClimberTunableValues.kD.get()
-            )
-        }
+    val hasPIDChanged: Boolean =
+      ClimberTunableValues.kP.hasChanged() ||
+        ClimberTunableValues.kI.hasChanged() ||
+        ClimberTunableValues.kD.hasChanged()
 
-        if (hasFFChanged) {
-            io.configFF(
-                ClimberTunableValues.kGDefault.get(),
-                ClimberTunableValues.kS.get(),
-                ClimberTunableValues.kV.get(),
-                ClimberTunableValues.kA.get()
-            )
-        }
+    val hasFFChanged: Boolean =
+      ClimberTunableValues.kS.hasChanged() ||
+        ClimberTunableValues.kGDefault.hasChanged() ||
+        ClimberTunableValues.kV.hasChanged() ||
+        ClimberTunableValues.kA.hasChanged()
 
-        CustomLogger.processInputs("Climber", inputs)
-        CustomLogger.recordOutput("Climber/currentState", currentState.name)
-        CustomLogger.recordOutput("Climber/requestedState", currentRequest.javaClass.simpleName)
-        CustomLogger.recordOutput("Climber/targetVoltage", targetVoltage.inVolts)
-
-        var nextState = currentState
-
-        when (currentState) {
-            ClimberState.UNINITIALIZED -> {
-                io.zeroEncoder()
-                nextState = fromRequestToState(currentRequest)
-            }
-            ClimberState.OPEN_LOOP -> {
-                setVoltage(targetVoltage)
-                nextState = fromRequestToState(currentRequest)
-            }
-            else -> {}
-        }
-
-        currentState = nextState
+    if (hasPIDChanged) {
+      io.configPID(
+        ClimberTunableValues.kP.get(),
+        ClimberTunableValues.kI.get(),
+        ClimberTunableValues.kD.get()
+      )
     }
 
-    private fun setVoltage(voltage: ElectricalPotential) {
-        io.setVoltage(voltage)
+    if (hasFFChanged) {
+      io.configFF(
+        ClimberTunableValues.kGDefault.get(),
+        ClimberTunableValues.kS.get(),
+        ClimberTunableValues.kV.get(),
+        ClimberTunableValues.kA.get()
+      )
     }
 
-    companion object {
-        enum class ClimberState {
-            UNINITIALIZED,
-            OPEN_LOOP,
-            HOME;
+    CustomLogger.processInputs("Climber", inputs)
+    CustomLogger.recordOutput("Climber/currentState", currentState.name)
+    CustomLogger.recordOutput("Climber/requestedState", currentRequest.javaClass.simpleName)
+    CustomLogger.recordOutput("Climber/targetVoltage", targetVoltage.inVolts)
 
-            fun equivalentToRequest(request: Request.ClimberRequest): Boolean {
-                return ((request is Request.ClimberRequest.Home && this == HOME) ||
-                        (request is Request.ClimberRequest.OpenLoop && this == OPEN_LOOP))
-            }
-        }
+    var nextState: ClimberState = currentState
 
-        fun fromRequestToState(request: Request.ClimberRequest): ClimberState {
-            return when (request) {
-                is Request.ClimberRequest.Home -> ClimberState.HOME
-                is Request.ClimberRequest.OpenLoop -> ClimberState.OPEN_LOOP
-            }
-        }
+    when (currentState) {
+      ClimberState.UNINITIALIZED -> {
+        io.zeroEncoder()
+        nextState = fromRequestToState(currentRequest)
+      }
+      ClimberState.OPEN_LOOP -> {
+        setVoltage(targetVoltage)
+        nextState = fromRequestToState(currentRequest)
+      }
+      else -> {}
     }
+
+    currentState = nextState
+  }
+
+  private fun setVoltage(voltage: ElectricalPotential) {
+    io.setVoltage(voltage)
+  }
+
+  companion object {
+    enum class ClimberState {
+      UNINITIALIZED,
+      OPEN_LOOP,
+      HOME;
+
+      fun equivalentToRequest(request: Request.ClimberRequest): Boolean {
+        return (
+          (request is Request.ClimberRequest.Home && this == HOME) ||
+            (request is Request.ClimberRequest.OpenLoop && this == OPEN_LOOP)
+          )
+      }
+    }
+
+    fun fromRequestToState(request: Request.ClimberRequest): ClimberState {
+      return when (request) {
+        is Request.ClimberRequest.Home -> ClimberState.HOME
+        is Request.ClimberRequest.OpenLoop -> ClimberState.OPEN_LOOP
+      }
+    }
+  }
 }

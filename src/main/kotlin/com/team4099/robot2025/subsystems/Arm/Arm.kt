@@ -1,63 +1,139 @@
 package com.team4099.robot2025.subsystems.Arm
 
-import com.team4099.lib.logging.LoggedTunableValue
+import com.team4099.robot2025.config.constants.ArmConstants
+import com.team4099.robot2025.subsystems.superstructure.Request
+import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.SubsystemBase
-import org.team4099.lib.controller.ArmFeedforward
-import org.team4099.lib.units.derived.inVolts
-import org.team4099.lib.units.derived.inVoltsPerDegree
-import org.team4099.lib.units.derived.inVoltsPerDegreePerSecond
-import org.team4099.lib.units.derived.inVoltsPerDegreeSeconds
-import org.team4099.lib.units.derived.inVoltsPerRadianPerSecond
-import org.team4099.lib.units.derived.inVoltsPerRadianPerSecondPerSecond
-import org.team4099.lib.units.derived.perDegree
-import org.team4099.lib.units.derived.perDegreePerSecond
-import org.team4099.lib.units.derived.perDegreeSeconds
-import org.team4099.lib.units.derived.perRadianPerSecond
-import org.team4099.lib.units.derived.perRadianPerSecondPerSecond
+import org.team4099.lib.units.derived.Angle
+import org.team4099.lib.units.derived.ElectricalPotential
+import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.volts
 
-class Arm(val io:ArmIO) : SubsystemBase() {
-    val inputs = ArmIO.ArmIOInputs()
+class Arm(val io: ArmIO) : SubsystemBase() {
+  val inputs = ArmIO.ArmIOInputs()
 
-    private val armkS = LoggedTunableValue("arm/kS", Pair({ it.inVolts }, { it.volts }))
-    private val armkV =
-        LoggedTunableValue(
-            "arm/kV", Pair({ it.inVoltsPerRadianPerSecond }, { it.volts.perRadianPerSecond })
-        )
-    private val armkA =
-        LoggedTunableValue(
-            "arm/kA",
-            Pair({ it.inVoltsPerRadianPerSecondPerSecond }, { it.volts.perRadianPerSecondPerSecond })
-        )
-    private val armkG = LoggedTunableValue("arm/kG", Pair({ it.inVolts }, { it.volts }))
+  var currentState: ArmState = ArmState.UNINITIALIZED
 
-    var armFeedForward: ArmFeedforward
+  var isZeroed = false
 
-    private val armkP =
-        LoggedTunableValue("arm/kP", Pair({ it.inVoltsPerDegree }, { it.volts.perDegree }))
-    private val armkI =
-        LoggedTunableValue(
-            "arm/kI", Pair({ it.inVoltsPerDegreeSeconds }, { it.volts.perDegreeSeconds })
-        )
-    private val armkD =
-        LoggedTunableValue(
-            "arm/kD", Pair({ it.inVoltsPerDegreePerSecond }, { it.volts.perDegreePerSecond })
-        )
+  var armTargetVoltage: ElectricalPotential = 0.0.volts
 
+  private var lastArmPositionTarget = -1337.0.degrees
+  private var armPositionTarget = 0.0.degrees
 
+  private var armToleranceRequested: Angle = ArmConstants.ARM_TOLERANCE
 
-    override fun periodic(){
-        io.updateInputs(inputs)
-        if (Ar)
-    }
-
-
-    companion object{
-        enum class ArmStates{
-            UNINIT,
-            HOME,
-            OPEN_LOOP,
-            TARGETING_POS
+  var currentRequest: Request.ArmRequest = Request.ArmRequest.Home()
+    set(value) {
+      when (value) {
+        is Request.ArmRequest.OpenLoop -> {
+          armTargetVoltage = value.armVoltage
         }
+        is Request.ArmRequest.ClosedLoop -> {
+          armPositionTarget = value.armPosition
+          armToleranceRequested = value.armTolerance
+        }
+        else -> {}
+      }
+      field = value
     }
+
+  var isHomed = false
+
+  init {
+
+    if (RobotBase.isReal()) {
+      isHomed = false
+
+      ArmTunableValues.armkP.initDefault(ArmConstants.PID.REAL_KP)
+      ArmTunableValues.armkI.initDefault(ArmConstants.PID.REAL_KI)
+      ArmTunableValues.armkD.initDefault(ArmConstants.PID.REAL_KD)
+    } else {
+      ArmTunableValues.armkP.initDefault(ArmConstants.PID.SIM_KP)
+      ArmTunableValues.armkI.initDefault(ArmConstants.PID.SIM_KI)
+      ArmTunableValues.armkD.initDefault(ArmConstants.PID.SIM_KD)
+    }
+
+    ArmTunableValues.armkS.initDefault(ArmConstants.PID.KS)
+    ArmTunableValues.armkG.initDefault(ArmConstants.PID.KG)
+    ArmTunableValues.armkV.initDefault(ArmConstants.PID.KV)
+    ArmTunableValues.armkA.initDefault(ArmConstants.PID.KA)
+
+    io.configFF(
+      ArmTunableValues.armkG.get(),
+      ArmTunableValues.armkS.get(),
+      ArmTunableValues.armkV.get(),
+      ArmTunableValues.armkA.get()
+    )
+    io.configPID(
+      ArmTunableValues.armkP.get(),
+      ArmTunableValues.armkI.get(),
+      ArmTunableValues.armkD.get(),
+    )
+  }
+
+  override fun periodic() {
+    io.updateInputs(inputs)
+
+    if (ArmTunableValues.armkP.hasChanged() ||
+      ArmTunableValues.armkI.hasChanged() ||
+      ArmTunableValues.armkD.hasChanged()
+    ) {
+      io.configPID(
+        ArmTunableValues.armkP.get(), ArmTunableValues.armkI.get(), ArmTunableValues.armkD.get()
+      )
+    }
+
+    if (ArmTunableValues.armkS.hasChanged() ||
+      ArmTunableValues.armkV.hasChanged() ||
+      ArmTunableValues.armkA.hasChanged()
+    ) {
+      io.configFF(
+        ArmTunableValues.armkG.get(),
+        ArmTunableValues.armkS.get(),
+        ArmTunableValues.armkV.get(),
+        ArmTunableValues.armkA.get()
+      )
+    }
+
+    var nextState = currentState
+    when (currentState) {
+      ArmState.UNINITIALIZED -> {
+        nextState = fromRequestToState(currentRequest)
+      }
+      ArmState.HOME -> {
+        io.zeroEncoder()
+        currentRequest = Request.ArmRequest.OpenLoop(0.volts)
+        isZeroed = true
+        nextState = fromRequestToState(currentRequest)
+      }
+      ArmState.OPEN_LOOP -> {
+        io.setVoltage(armTargetVoltage)
+
+        nextState = fromRequestToState(currentRequest)
+      }
+      ArmState.TARGETING_POS -> {
+        io.setPosition(armPositionTarget)
+        lastArmPositionTarget = armPositionTarget
+        nextState = fromRequestToState(currentRequest)
+      }
+    }
+    currentState = nextState
+  }
+
+  companion object {
+    enum class ArmState {
+      UNINITIALIZED,
+      HOME,
+      OPEN_LOOP,
+      TARGETING_POS
+    }
+    inline fun fromRequestToState(request: Request.ArmRequest): ArmState {
+      return when (request) {
+        is Request.ArmRequest.OpenLoop -> ArmState.OPEN_LOOP
+        is Request.ArmRequest.ClosedLoop -> ArmState.TARGETING_POS
+        is Request.ArmRequest.Home -> ArmState.HOME
+      }
+    }
+  }
 }

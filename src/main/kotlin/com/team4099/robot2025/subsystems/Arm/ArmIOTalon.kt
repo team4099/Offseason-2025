@@ -55,8 +55,6 @@ object ArmIOTalon : ArmIO {
 
   private val configs: TalonFXConfiguration = TalonFXConfiguration()
   private var slot0Configs = configs.Slot0
-  private var slot2Configs = configs.Slot0
-  private var slot3Configs = configs.Slot0
 
   var statorCurrentSignal: StatusSignal<WPICurrent>
   var supplyCurrentSignal: StatusSignal<WPICurrent>
@@ -111,7 +109,7 @@ object ArmIOTalon : ArmIO {
     kI: IntegralGain<Radian, Volt>,
     kD: DerivativeGain<Radian, Volt>
   ) {
-    val PIDConfig = Slot0Configs()
+    val PIDConfig = Slot0Configs
     PIDConfig.kP = kP.inVoltsPerRadian
     PIDConfig.kI = kI.inVoltsPerRadianSeconds
     PIDConfig.kD = kD.inVoltsPerRadianPerSecond
@@ -125,7 +123,7 @@ object ArmIOTalon : ArmIO {
     kV: VelocityFeedforward<Radian, Volt>,
     kA: AccelerationFeedforward<Radian, Volt>,
   ) {
-    val FFConfig = Slot0Configs()
+    val FFConfig = Slot0Configs
 
     FFConfig.kG = kG.inVolts
     FFConfig.kS = kS.inVolts

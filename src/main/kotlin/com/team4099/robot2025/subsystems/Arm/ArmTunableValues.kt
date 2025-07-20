@@ -22,9 +22,6 @@ object ArmTunableValues {
       "arm/kV", Pair({ it.inVoltsPerRadianPerSecond }, { it.volts.perRadianPerSecond })
     )
 
-  val arbitraryFeedforward =
-    LoggedTunableValue("Wrist/arbitraryFeedforward", Pair({ it.inVolts }, { it.volts }))
-
   val armkA =
     LoggedTunableValue(
       "arm/kA",

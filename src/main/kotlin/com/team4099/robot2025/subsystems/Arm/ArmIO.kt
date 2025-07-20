@@ -74,8 +74,6 @@ interface ArmIO {
 
   fun setArmBrakeMode(brake: Boolean) {}
 
-  fun setWristPosition(position: Angle, feedforward: ElectricalPotential) {}
-
   fun updateInputs(inputs: ArmIOInputs) {}
 
   fun configPID(

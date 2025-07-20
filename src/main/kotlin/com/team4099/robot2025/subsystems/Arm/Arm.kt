@@ -86,7 +86,8 @@ class Arm(val io: ArmIO) : SubsystemBase() {
 
     if (ArmTunableValues.armkS.hasChanged() ||
       ArmTunableValues.armkV.hasChanged() ||
-      ArmTunableValues.armkA.hasChanged()
+      ArmTunableValues.armkA.hasChanged()||
+      ArmTunableValues.armkG.hasChanged()
     ) {
       io.configFF(
         ArmTunableValues.armkG.get(),

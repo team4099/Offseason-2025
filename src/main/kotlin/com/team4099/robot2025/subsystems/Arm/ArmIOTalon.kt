@@ -138,7 +138,9 @@ object ArmIOTalon : ArmIO {
   }
 
   override fun setVoltage(targetVoltage: ElectricalPotential) {
-    armTalon.setControl(VoltageOut(targetVoltage.inVolts))
+    val clampedVoltage =
+      clamp(targetVoltage, -ArmConstants.VOLTAGE_COMPENSATION, ArmConstants.VOLTAGE_COMPENSATION)
+    armTalon.setControl(VoltageOut(clampedVoltage))
   }
 
   override fun setPosition(position: Angle) {

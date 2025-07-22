@@ -82,9 +82,7 @@ object ElevatorIOTalon : ElevatorIO {
     followerTalon.clearStickyFaults()
 
     configs.CurrentLimits.SupplyCurrentLimit = ElevatorConstants.SUPPLY_CURRENT_LIMIT.inAmperes
-    configs.CurrentLimits.SupplyCurrentLowerLimit = ElevatorConstants.SUPPLY_CURRENT_LIMIT.inAmperes
     configs.CurrentLimits.StatorCurrentLimit = ElevatorConstants.STATOR_CURRENT_LIMIT.inAmperes
-    configs.CurrentLimits.SupplyCurrentLowerTime = ElevatorConstants.SUPPLY_CURRENT_LIMIT.inAmperes
     configs.CurrentLimits.StatorCurrentLimitEnable = true
     configs.CurrentLimits.SupplyCurrentLimitEnable = true
 

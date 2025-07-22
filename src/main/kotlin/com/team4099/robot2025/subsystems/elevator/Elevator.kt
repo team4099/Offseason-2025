@@ -10,8 +10,6 @@ import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.volts
-import org.team4099.lib.units.inInchesPerSecond
-import org.team4099.lib.units.perSecond
 import com.team4099.robot2025.subsystems.superstructure.Request.ElevatorRequest as ElevatorRequest
 
 class Elevator(private val io: ElevatorIO) : SubsystemBase() {

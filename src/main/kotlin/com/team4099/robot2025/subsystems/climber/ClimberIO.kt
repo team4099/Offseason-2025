@@ -42,6 +42,13 @@ interface ClimberIO {
     var climberStatorCurrent: Current = 0.0.amps
     var climberSupplyCurrent: Current = 0.0.amps
     var climberTemperature: Temperature = 0.0.celsius
+
+    var rollersVelocity: Value<Velocity<Radian>> = 0.0.degrees.perSecond
+    var rollersAppliedVoltage: ElectricalPotential = 0.0.volts
+    var rollersStatorCurrent: Current = 0.0.amps
+    var rollersSupplyCurrent: Current = 0.0.amps
+    var rollersTemperature: Temperature = 0.0.celsius
+    
     var isSimulated: Boolean = false
 
     override fun toLog(table: LogTable?) {
@@ -57,9 +64,16 @@ interface ClimberIO {
       table?.put("climberStatorCurrentAmps", climberStatorCurrent.inAmperes)
       table?.put("climberSupplyCurrentAmps", climberSupplyCurrent.inAmperes)
       table?.put("climberTemperatureCelsius", climberTemperature.inCelsius)
+
+      table?.put("rollersVelocityDegreesPerSecond", rollersVelocity.inDegreesPerSecond)
+      table?.put("rollersAppliedVolts", rollersAppliedVoltage.inVolts)
+      table?.put("rollersStatorCurrentAmps", rollersStatorCurrent.inAmperes)
+      table?.put("rollersSupplyCurrentAmps", rollersSupplyCurrent.inAmperes)
+      table?.put("rollersTemperatureCelsius", rollersTemperature.inCelsius)
     }
 
     override fun fromLog(table: LogTable?) {
+      // ---------- CLIMBER ----------
       table?.get("climberPositionDegrees", climberPosition.inDegrees)?.let {
         climberPosition = it.degrees
       }
@@ -81,6 +95,7 @@ interface ClimberIO {
       table?.get("climberAppliedVolts", climberAppliedVoltage.inVolts)?.let {
         climberAppliedVoltage = it.volts
       }
+
       table?.get("climberDutyCycleVolts", climberDutyCycle.inVolts)?.let {
         climberDutyCycle = it.volts
       }
@@ -88,6 +103,7 @@ interface ClimberIO {
       table?.get("climberStatorCurrentAmps", climberStatorCurrent.inAmperes)?.let {
         climberStatorCurrent = it.amps
       }
+
       table?.get("climberSupplyCurrentAmps", climberSupplyCurrent.inAmperes)?.let {
         climberSupplyCurrent = it.amps
       }
@@ -95,26 +111,49 @@ interface ClimberIO {
       table?.get("climberTemperatureCelsius", climberTemperature.inCelsius)?.let {
         climberTemperature = it.celsius
       }
+
+      // ---------- ROLLERS ----------
+      table?.get("rollersVelocityDegreesPerSecond", rollersVelocity.inDegreesPerSecond)?.let {
+        rollersVelocity = it.degrees.perSecond
+      }
+
+      table?.get("rollersAppliedVolts", rollersAppliedVoltage.inVolts)?.let {
+        rollersAppliedVoltage = it.volts
+      }
+
+      table?.get("rollersStatorCurrentAmps", rollersStatorCurrent.inAmperes)?.let {
+        rollersStatorCurrent = it.amps
+      }
+
+      table?.get("rollersSupplyCurrentAmps", rollersSupplyCurrent.inAmperes)?.let {
+        rollersSupplyCurrent = it.amps
+      }
+
+      table?.get("rollersTemperatureCelsius", rollersTemperature.inCelsius)?.let {
+        rollersTemperature = it.celsius
+      }
     }
   }
 
   fun updateInputs(inputs: ClimberInputs) {}
 
-  fun setVoltage(voltage: ElectricalPotential) {}
+  fun setClimberVoltage(voltage: ElectricalPotential) {}
 
-  fun setPosition(position: Angle, feedforward: ElectricalPotential) {}
+  fun setRollersVoltage(voltage: ElectricalPotential) {}
 
-  fun setBrakeMode(brake: Boolean) {}
+  fun setClimberPosition(position: Angle, feedforward: ElectricalPotential) {}
+
+  fun setBrakeMode(climberBrake: Boolean, rollersBrake: Boolean) {}
 
   fun zeroEncoder() {}
 
-  fun configPID(
+  fun configClimberPID(
     kP: ProportionalGain<Radian, Volt>,
     kI: IntegralGain<Radian, Volt>,
     kD: DerivativeGain<Radian, Volt>
   ) {}
 
-  fun configFF(
+  fun configClimberFF(
     kG: ElectricalPotential,
     kS: StaticFeedforward<Volt>,
     kV: VelocityFeedforward<Radian, Volt>,

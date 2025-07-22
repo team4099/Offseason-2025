@@ -16,14 +16,18 @@ class Climber(private val io: ClimberIO) {
   private var currentRequest: Request.ClimberRequest = Request.ClimberRequest.Home()
     set(value) {
       when (value) {
-        is Request.ClimberRequest.OpenLoop -> targetVoltage = value.voltage
+        is Request.ClimberRequest.OpenLoop -> {
+          climberTargetVoltage = value.climberVoltage
+          rollersTargetVoltage = value.rollersVoltage
+        }
         else -> {}
       }
       field = value
     }
 
-  private var targetVoltage: ElectricalPotential = 0.0.volts
-  private var isAtTargetedPosition: Boolean =
+  private var climberTargetVoltage: ElectricalPotential = 0.0.volts
+  private var rollersTargetVoltage: ElectricalPotential = 0.0.volts
+  var isAtTargetedPosition: Boolean =
     (inputs.climberPosition - 90.degrees).absoluteValue <=
       ClimberConstants.CLIMBER_TARGET_TOLERANCE
 
@@ -54,7 +58,7 @@ class Climber(private val io: ClimberIO) {
         ClimberTunableValues.kA.hasChanged()
 
     if (hasPIDChanged) {
-      io.configPID(
+      io.configClimberPID(
         ClimberTunableValues.kP.get(),
         ClimberTunableValues.kI.get(),
         ClimberTunableValues.kD.get()
@@ -62,7 +66,7 @@ class Climber(private val io: ClimberIO) {
     }
 
     if (hasFFChanged) {
-      io.configFF(
+      io.configClimberFF(
         ClimberTunableValues.kGDefault.get(),
         ClimberTunableValues.kS.get(),
         ClimberTunableValues.kV.get(),
@@ -73,7 +77,8 @@ class Climber(private val io: ClimberIO) {
     CustomLogger.processInputs("Climber", inputs)
     CustomLogger.recordOutput("Climber/currentState", currentState.name)
     CustomLogger.recordOutput("Climber/requestedState", currentRequest.javaClass.simpleName)
-    CustomLogger.recordOutput("Climber/targetVoltage", targetVoltage.inVolts)
+    CustomLogger.recordOutput("Climber/climberTargetVoltage", climberTargetVoltage.inVolts)
+    CustomLogger.recordOutput("Climber/rollersTargetVoltage", rollersTargetVoltage.inVolts)
 
     var nextState: ClimberState = currentState
 
@@ -83,7 +88,8 @@ class Climber(private val io: ClimberIO) {
         nextState = fromRequestToState(currentRequest)
       }
       ClimberState.OPEN_LOOP -> {
-        setVoltage(targetVoltage)
+        setClimberVoltage(climberTargetVoltage)
+        setRollersVoltage(rollersTargetVoltage)
         nextState = fromRequestToState(currentRequest)
       }
       else -> {}
@@ -92,8 +98,12 @@ class Climber(private val io: ClimberIO) {
     currentState = nextState
   }
 
-  private fun setVoltage(voltage: ElectricalPotential) {
-    io.setVoltage(voltage)
+  private fun setClimberVoltage(voltage: ElectricalPotential) {
+    io.setClimberVoltage(voltage)
+  }
+
+  private fun setRollersVoltage(voltage: ElectricalPotential) {
+    io.setRollersVoltage(voltage)
   }
 
   companion object {

@@ -1,7 +1,9 @@
 package com.team4099.robot2025.config.constants
 
 import org.team4099.lib.units.base.amps
+import org.team4099.lib.units.base.grams
 import org.team4099.lib.units.base.inches
+import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.base.pounds
 import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.DerivativeGain
@@ -11,10 +13,11 @@ import org.team4099.lib.units.derived.Radian
 import org.team4099.lib.units.derived.Volt
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.volts
+import org.team4099.lib.units.kilo
 import org.team4099.lib.units.perSecond
 
 object ClimberConstants {
-  val VOLTAGE_COMPENSATION = 0.0.volts
+  val CLIMBER_VOLTAGE_COMPENSATION = 0.0.volts
   val STATOR_CURRENT_LIMIT = 0.0.amps
   val SUPPLY_CURRENT_LIMIT = 0.0.amps
   val THRESHOLD_CURRENT_LIMIT = 0.0.amps
@@ -26,6 +29,14 @@ object ClimberConstants {
   val GEAR_RATIO = 0.0
 
   val CLIMBER_TARGET_TOLERANCE = 3.0.degrees
+
+  val ROLLERS_CLASP_VOLTAGE = 0.0.volts
+  val ROLLERS_GEAR_RATIO = 0.0
+  val ROLLERS_MOMENT_OF_INERTIA = 0.0.kilo.grams * 1.0.meters.squared
+  val ROLLERS_VOLTAGE_COMPENSATION = 0.0.volts
+  val ROLLERS_STATOR_CURRENT_LIMIT = 0.0.amps
+  val ROLLERS_SUPPLY_CURRENT_LIMIT = 0.0.amps
+  val ROLLERS_THRESHOLD_CURRENT_LIMIT = 0.0.amps
 
   object PID {
     val KP_REAL: ProportionalGain<Radian, Volt> = 0.0.volts / 1.0.degrees

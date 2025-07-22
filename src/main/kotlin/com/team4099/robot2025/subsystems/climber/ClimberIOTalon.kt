@@ -7,6 +7,7 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs
 import com.ctre.phoenix6.configs.Slot0Configs
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.controls.MotionMagicVoltage
+import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.TalonFX
 import com.ctre.phoenix6.signals.GravityTypeValue
 import com.ctre.phoenix6.signals.InvertedValue
@@ -44,27 +45,41 @@ class ClimberIOTalon : ClimberIO {
     private val climberConfiguration: TalonFXConfiguration = TalonFXConfiguration()
     private val climberSensor = ctreAngularMechanismSensor(
         climberTalon,
-        1.0,
-        ClimberConstants.VOLTAGE_COMPENSATION
+        ClimberConstants.GEAR_RATIO,
+        ClimberConstants.CLIMBER_VOLTAGE_COMPENSATION
     )
 
+    private val rollersTalon: TalonFX = TalonFX(Constants.Rollers.ROLLERS_MOTOR_ID)
+    private val rollersConfiguration: TalonFXConfiguration = TalonFXConfiguration()
+    private val rollersSensor = ctreAngularMechanismSensor(
+        rollersTalon,
+        ClimberConstants.ROLLERS_GEAR_RATIO,
+        ClimberConstants.ROLLERS_VOLTAGE_COMPENSATION
+    )
+    
     private val motionMagicConfig: MotionMagicConfigs = climberConfiguration.MotionMagic
-
     // -1337 symbolizes an "uninitialized" position to later be overwritten
     private val motionMagicControl: MotionMagicVoltage = MotionMagicVoltage((-1337).degrees.inDegrees)
     private var pidSlot0Configs: Slot0Configs = climberConfiguration.Slot0
 
-    private var statorCurrentSignal: StatusSignal<Current>
-    private var supplyCurrentSignal: StatusSignal<Current>
-    private var tempSignal: StatusSignal<Temperature>
-    private var dutyCycle: StatusSignal<Double>
-    private var motorVoltage: StatusSignal<Voltage>
-    private var motorTorque: StatusSignal<Current>
-    private var motorPosition: StatusSignal<edu.wpi.first.units.measure.Angle>
-    private var motorVelocity: StatusSignal<AngularVelocity>
-    private var motorAcceleration: StatusSignal<AngularAcceleration>
+    private var climberStatorCurrentSignal: StatusSignal<Current>
+    private var climberSupplyCurrentSignal: StatusSignal<Current>
+    private var climberTempSignal: StatusSignal<Temperature>
+    private var climberDutyCycle: StatusSignal<Double>
+    private var climberMotorVoltage: StatusSignal<Voltage>
+    private var climberMotorTorque: StatusSignal<Current>
+    private var climberMotorPosition: StatusSignal<edu.wpi.first.units.measure.Angle>
+    private var climberMotorVelocity: StatusSignal<AngularVelocity>
+    private var climberMotorAcceleration: StatusSignal<AngularAcceleration>
+
+    private var rollersMotorVoltage: StatusSignal<Voltage>
+    private var rollersStatorCurrentSignal: StatusSignal<Current>
+    private var rollersSupplyCurrentSignal: StatusSignal<Current>
+    private var rollersTempSignal: StatusSignal<Temperature>
+
 
     init {
+        // ---------- CLIMBER ----------
         climberTalon.configurator.apply(TalonFXConfiguration())
         climberTalon.clearStickyFaults()
 
@@ -88,18 +103,35 @@ class ClimberIOTalon : ClimberIO {
         climberConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive
         climberTalon.configurator.apply(climberConfiguration)
 
-        statorCurrentSignal = climberTalon.statorCurrent
-        supplyCurrentSignal = climberTalon.supplyCurrent
-        dutyCycle = climberTalon.dutyCycle
-        tempSignal = climberTalon.deviceTemp
-        motorVoltage = climberTalon.motorVoltage
-        motorTorque = climberTalon.torqueCurrent
-        motorPosition = climberTalon.position
-        motorVelocity = climberTalon.velocity
-        motorAcceleration = climberTalon.acceleration
+        climberStatorCurrentSignal = climberTalon.statorCurrent
+        climberSupplyCurrentSignal = climberTalon.supplyCurrent
+        climberDutyCycle = climberTalon.dutyCycle
+        climberTempSignal = climberTalon.deviceTemp
+        climberMotorVoltage = climberTalon.motorVoltage
+        climberMotorTorque = climberTalon.torqueCurrent
+        climberMotorPosition = climberTalon.position
+        climberMotorVelocity = climberTalon.velocity
+        climberMotorAcceleration = climberTalon.acceleration
+
+        // ---------- ROLLERS ----------
+        rollersTalon.configurator.apply(TalonFXConfiguration())
+        rollersTalon.clearStickyFaults()
+
+        rollersConfiguration.CurrentLimits.StatorCurrentLimit = ClimberConstants.ROLLERS_STATOR_CURRENT_LIMIT.inAmperes
+        rollersConfiguration.CurrentLimits.SupplyCurrentLimit = ClimberConstants.ROLLERS_SUPPLY_CURRENT_LIMIT.inAmperes
+        rollersConfiguration.CurrentLimits.StatorCurrentLimitEnable = false
+        rollersConfiguration.CurrentLimits.SupplyCurrentLimitEnable = false
+        rollersConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
+        rollersConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Coast
+        rollersTalon.configurator.apply(rollersConfiguration)
+
+        rollersMotorVoltage = rollersTalon.motorVoltage
+        rollersStatorCurrentSignal = rollersTalon.statorCurrent
+        rollersSupplyCurrentSignal = rollersTalon.supplyCurrent
+        rollersTempSignal = rollersTalon.deviceTemp
     }
 
-    override fun configPID(
+    override fun configClimberPID(
         kP: ProportionalGain<Radian, Volt>,
         kI: IntegralGain<Radian, Volt>,
         kD: DerivativeGain<Radian, Volt>
@@ -111,7 +143,7 @@ class ClimberIOTalon : ClimberIO {
         climberTalon.configurator.apply(climberPIDConfig)
     }
 
-    override fun configFF(
+    override fun configClimberFF(
         kG: ElectricalPotential,
         kS: StaticFeedforward<Volt>,
         kV: VelocityFeedforward<Radian, Volt>,
@@ -129,19 +161,35 @@ class ClimberIOTalon : ClimberIO {
         climberTalon.setPosition(0.0)
     }
 
-    override fun setBrakeMode(brake: Boolean) {
-        val motorOutputConfig = MotorOutputConfigs()
+    override fun setBrakeMode(climberBrake: Boolean, rollersBrake: Boolean) {
+        val climberMotorOutputConfig = MotorOutputConfigs()
+        val rollersMotorOutputConfig = MotorOutputConfigs()
 
-        if (brake) {
-            motorOutputConfig.NeutralMode = NeutralModeValue.Brake
+        if (climberBrake) {
+            climberMotorOutputConfig.NeutralMode = NeutralModeValue.Brake
         } else {
-            motorOutputConfig.NeutralMode = NeutralModeValue.Coast
+            climberMotorOutputConfig.NeutralMode = NeutralModeValue.Coast
         }
 
-        climberTalon.configurator.apply(motorOutputConfig)
+        if (rollersBrake) {
+            rollersMotorOutputConfig.NeutralMode = NeutralModeValue.Brake
+        } else {
+            rollersMotorOutputConfig.NeutralMode = NeutralModeValue.Coast
+        }
+
+        climberTalon.configurator.apply(climberMotorOutputConfig)
+        rollersTalon.configurator.apply(rollersMotorOutputConfig)
     }
 
-    override fun setPosition(position: Angle, feedforward: ElectricalPotential) {
+    override fun setClimberVoltage(voltage: ElectricalPotential) {
+        climberTalon.setControl(VoltageOut(voltage.inVolts))
+    }
+
+    override fun setRollersVoltage(voltage: ElectricalPotential) {
+        rollersTalon.setControl(VoltageOut(voltage.inVolts))
+    }
+
+    override fun setClimberPosition(position: Angle, feedforward: ElectricalPotential) {
         climberTalon.setControl(
             motionMagicControl
                 .withPosition(climberSensor.positionToRawUnits(position))
@@ -149,19 +197,26 @@ class ClimberIOTalon : ClimberIO {
                 .withLimitForwardMotion(true)
                 .withLimitReverseMotion(true)
         )
+
+        // Rollers should constantly clasp to the bars while climber is moving
+        setRollersVoltage(ClimberConstants.ROLLERS_CLASP_VOLTAGE)
     }
 
     private fun updateSignals() {
         BaseStatusSignal.refreshAll(
-            motorPosition,
-            motorVelocity,
-            motorAcceleration,
-            motorTorque,
-            motorVoltage,
-            dutyCycle,
-            statorCurrentSignal,
-            supplyCurrentSignal,
-            tempSignal,
+            climberMotorPosition,
+            climberMotorVelocity,
+            climberMotorAcceleration,
+            climberMotorTorque,
+            climberMotorVoltage,
+            climberDutyCycle,
+            climberStatorCurrentSignal,
+            climberSupplyCurrentSignal,
+            climberTempSignal,
+            rollersMotorVoltage,
+            rollersStatorCurrentSignal,
+            rollersSupplyCurrentSignal,
+            rollersTempSignal
         )
     }
 
@@ -173,12 +228,18 @@ class ClimberIOTalon : ClimberIO {
 
         inputs.climberPosition = climberSensor.position
         inputs.climberVelocity = climberSensor.velocity
-        inputs.climberAcceleration = motorAcceleration.valueAsDouble.degrees.perSecond.perSecond
-        inputs.climberTorque = motorTorque.valueAsDouble.newtons
-        inputs.climberAppliedVoltage = motorVoltage.valueAsDouble.volts
-        inputs.climberDutyCycle = dutyCycle.valueAsDouble.volts
-        inputs.climberStatorCurrent = statorCurrentSignal.valueAsDouble.amps
-        inputs.climberSupplyCurrent = supplyCurrentSignal.valueAsDouble.amps
-        inputs.climberTemperature = tempSignal.valueAsDouble.celsius
+        inputs.climberAcceleration = climberMotorAcceleration.valueAsDouble.degrees.perSecond.perSecond
+        inputs.climberTorque = climberMotorTorque.valueAsDouble.newtons
+        inputs.climberAppliedVoltage = climberMotorVoltage.valueAsDouble.volts
+        inputs.climberDutyCycle = climberDutyCycle.valueAsDouble.volts
+        inputs.climberStatorCurrent = climberStatorCurrentSignal.valueAsDouble.amps
+        inputs.climberSupplyCurrent = climberSupplyCurrentSignal.valueAsDouble.amps
+        inputs.climberTemperature = climberTempSignal.valueAsDouble.celsius
+
+        inputs.rollersVelocity = rollersSensor.velocity
+        inputs.rollersAppliedVoltage = rollersMotorVoltage.valueAsDouble.volts
+        inputs.rollersStatorCurrent = rollersStatorCurrentSignal.valueAsDouble.amps
+        inputs.rollersSupplyCurrent = rollersSupplyCurrentSignal.valueAsDouble.amps
+        inputs.rollersTemperature = rollersTempSignal.valueAsDouble.celsius
     }
 }

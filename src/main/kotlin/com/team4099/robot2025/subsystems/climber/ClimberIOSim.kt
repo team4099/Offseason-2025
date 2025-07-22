@@ -4,6 +4,8 @@ import com.team4099.lib.math.clamp
 import com.team4099.robot2025.config.constants.ClimberConstants
 import com.team4099.robot2025.config.constants.Constants
 import edu.wpi.first.math.system.plant.DCMotor
+import edu.wpi.first.math.system.plant.LinearSystemId
+import edu.wpi.first.wpilibj.simulation.FlywheelSim
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim
 import org.team4099.lib.controller.PIDController
 import org.team4099.lib.units.base.amps
@@ -20,9 +22,12 @@ import org.team4099.lib.units.derived.Volt
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inKilogramsMeterSquared
 import org.team4099.lib.units.derived.inRadians
+import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.newtons
 import org.team4099.lib.units.derived.radians
+import org.team4099.lib.units.derived.rotations
 import org.team4099.lib.units.derived.volts
+import org.team4099.lib.units.perMinute
 import org.team4099.lib.units.perSecond
 
 class ClimberIOSim : ClimberIO {
@@ -38,15 +43,26 @@ class ClimberIOSim : ClimberIO {
             0.0
         )
 
+    private val rollersSim: FlywheelSim = FlywheelSim(
+        LinearSystemId.createFlywheelSystem(
+            DCMotor.getKrakenX60(1),
+            ClimberConstants.ROLLERS_MOMENT_OF_INERTIA.inKilogramsMeterSquared,
+            1 / ClimberConstants.ROLLERS_GEAR_RATIO
+        ),
+        DCMotor.getKrakenX60(1),
+        1 / ClimberConstants.ROLLERS_GEAR_RATIO
+    )
+
     private var climberPIDController =
         PIDController(
             ClimberConstants.PID.KP_SIM, ClimberConstants.PID.KI_SIM, ClimberConstants.PID.KD_SIM
         )
 
     private var targetPosition: Angle = 0.0.degrees
-    private var appliedVoltage: ElectricalPotential = 0.0.volts
+    private var climberAppliedVoltage: ElectricalPotential = 0.0.volts
+    private var rollersAppliedVoltage: ElectricalPotential = 0.0.volts
 
-    override fun configPID(
+    override fun configClimberPID(
         kP: ProportionalGain<Radian, Volt>,
         kI: IntegralGain<Radian, Volt>,
         kD: DerivativeGain<Radian, Volt>
@@ -54,26 +70,50 @@ class ClimberIOSim : ClimberIO {
         climberPIDController.setPID(kP, kI, kD)
     }
 
-    override fun setVoltage(voltage: ElectricalPotential) {
-        val clampedVoltage =
-            clamp(
-                voltage, -ClimberConstants.VOLTAGE_COMPENSATION, ClimberConstants.VOLTAGE_COMPENSATION
-            )
+    override fun setClimberVoltage(voltage: ElectricalPotential) {
+        val climberClampedVoltage = clamp(
+            voltage,
+            -ClimberConstants.CLIMBER_VOLTAGE_COMPENSATION,
+            ClimberConstants.CLIMBER_VOLTAGE_COMPENSATION
+        )
+
+        climberSim.setInputVoltage(climberClampedVoltage.inVolts)
+        climberAppliedVoltage = climberClampedVoltage
     }
 
-    override fun setPosition(position: Angle, feedforward: ElectricalPotential) {
+    override fun setRollersVoltage(voltage: ElectricalPotential) {
+        val rollersClampedVoltage = clamp(
+            voltage,
+            -ClimberConstants.ROLLERS_VOLTAGE_COMPENSATION,
+            ClimberConstants.ROLLERS_VOLTAGE_COMPENSATION
+        )
+
+        rollersSim.setInputVoltage(rollersClampedVoltage.inVolts)
+        rollersAppliedVoltage = rollersClampedVoltage
+    }
+
+    override fun setClimberPosition(position: Angle, feedforward: ElectricalPotential) {
         targetPosition = position
-        setVoltage(climberPIDController.calculate(climberSim.angleRads.radians, position))
+        // Rollers should constantly clasp to the bars while climber is moving
+        setClimberVoltage(climberPIDController.calculate(climberSim.angleRads.radians, position))
+        setRollersVoltage(ClimberConstants.ROLLERS_CLASP_VOLTAGE)
     }
 
     override fun updateInputs(inputs: ClimberIO.ClimberInputs) {
         climberSim.update(Constants.Universal.LOOP_PERIOD_TIME.inSeconds)
         inputs.climberPosition = climberSim.angleRads.radians
         inputs.climberVelocity = climberSim.velocityRadPerSec.radians.perSecond
-        inputs.climberAppliedVoltage = appliedVoltage
+        inputs.climberAppliedVoltage = climberAppliedVoltage
         inputs.climberStatorCurrent = climberSim.currentDrawAmps.amps
         inputs.climberSupplyCurrent = 0.0.amps
         inputs.climberTorque = 0.0.newtons
         inputs.climberTemperature = 0.0.celsius
+
+        rollersSim.update(Constants.Universal.LOOP_PERIOD_TIME.inSeconds)
+        inputs.rollersVelocity = rollersSim.angularVelocityRPM.rotations.perMinute
+        inputs.rollersAppliedVoltage = rollersAppliedVoltage
+        inputs.rollersStatorCurrent = rollersSim.currentDrawAmps.amps
+        inputs.rollersSupplyCurrent = 0.0.amps
+        inputs.rollersTemperature = 0.0.celsius
     }
 }

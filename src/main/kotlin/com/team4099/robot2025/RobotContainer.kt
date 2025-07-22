@@ -1,5 +1,7 @@
 package com.team4099.robot2025
 
+import Intake
+import IntakeIO
 import com.team4099.robot2023.subsystems.vision.camera.CameraIO
 import com.team4099.robot2023.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.auto.AutonomousSelector
@@ -31,6 +33,7 @@ object RobotContainer {
   private val limelight: LimelightVision
   private val vision: Vision
   private val elevator: Elevator
+  private val intake: Intake
   val superstructure: Superstructure
 
   init {
@@ -40,6 +43,7 @@ object RobotContainer {
       // other subsystems go here
       elevator =
         Elevator(object : ElevatorIO {}) // fake elevator needed for robot container functions
+      intake = Intake(object : IntakeIO {})
 
       vision =
         Vision(
@@ -56,6 +60,7 @@ object RobotContainer {
       // other subsystems go here
       elevator =
         Elevator(object : ElevatorIO {}) // fake elevator needed for robot container functions
+      intake = Intake(object : IntakeIO {})
 
       vision = Vision(object : CameraIO {})
     }

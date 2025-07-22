@@ -4,11 +4,8 @@ import com.team4099.robot2025.config.constants.ClimberConstants
 import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj.RobotBase
-import org.team4099.lib.controller.SimpleMotorFeedforward
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.ElectricalPotential
-import org.team4099.lib.units.derived.Radian
-import org.team4099.lib.units.derived.Volt
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.volts
@@ -37,8 +34,7 @@ class Climber(private val io: ClimberIO) {
 
   private var climberTargetPosition: Angle = 0.0.degrees
   var isAtTargetedPosition: Boolean =
-    (inputs.climberPosition - 90.degrees).absoluteValue <=
-      ClimberConstants.TARGET_TOLERANCE
+    (inputs.climberPosition - 90.degrees).absoluteValue <= ClimberConstants.TARGET_TOLERANCE
 
   init {
     if (RobotBase.isReal()) {
@@ -119,10 +115,10 @@ class Climber(private val io: ClimberIO) {
 
       fun equivalentToRequest(request: Request.ClimberRequest): Boolean {
         return (
-                (request is Request.ClimberRequest.Home && this == HOME) ||
-                        (request is Request.ClimberRequest.OpenLoop && this == OPEN_LOOP) ||
-                        (request is Request.ClimberRequest.ClosedLoop && this == CLOSED_LOOP)
-                )
+          (request is Request.ClimberRequest.Home && this == HOME) ||
+            (request is Request.ClimberRequest.OpenLoop && this == OPEN_LOOP) ||
+            (request is Request.ClimberRequest.ClosedLoop && this == CLOSED_LOOP)
+          )
       }
     }
 

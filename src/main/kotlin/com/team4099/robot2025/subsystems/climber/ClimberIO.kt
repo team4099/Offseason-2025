@@ -2,7 +2,6 @@ package com.team4099.robot2025.subsystems.climber
 
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
-import org.team4099.lib.controller.SimpleMotorFeedforward
 import org.team4099.lib.units.Value
 import org.team4099.lib.units.Velocity
 import org.team4099.lib.units.base.Current
@@ -49,7 +48,7 @@ interface ClimberIO {
     var rollersStatorCurrent: Current = 0.0.amps
     var rollersSupplyCurrent: Current = 0.0.amps
     var rollersTemperature: Temperature = 0.0.celsius
-    
+
     var isSimulated: Boolean = false
 
     override fun toLog(table: LogTable?) {

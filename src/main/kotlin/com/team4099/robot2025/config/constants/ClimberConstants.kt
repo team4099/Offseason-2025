@@ -26,7 +26,7 @@ object ClimberConstants {
   val GEAR_RATIO = 0.0
 
   val TARGET_TOLERANCE = 3.0.degrees
-  
+
   object Rollers {
     val CLASP_VOLTAGE = 0.0.volts
     val GEAR_RATIO = 0.0

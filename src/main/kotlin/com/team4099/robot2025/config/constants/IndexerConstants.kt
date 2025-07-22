@@ -7,7 +7,7 @@ import org.team4099.lib.units.derived.meterSquared
 import org.team4099.lib.units.derived.volts
 
 object IndexerConstants {
-  const val GEAR_RATIO = -1337.0 / 1.0
+  const val GEAR_RATIO = 12.0 / 24.0
   val MOMENT_OF_INERTIA = -1337.0.grams.meterSquared
 
   val VOLTAGE_COMPENSATION = 12.0.volts

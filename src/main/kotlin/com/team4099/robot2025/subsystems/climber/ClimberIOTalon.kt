@@ -19,6 +19,7 @@ import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Current
 import edu.wpi.first.units.measure.Temperature
 import edu.wpi.first.units.measure.Voltage
+import org.team4099.lib.controller.SimpleMotorFeedforward
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.celsius
 import org.team4099.lib.units.base.inAmperes
@@ -53,8 +54,8 @@ class ClimberIOTalon : ClimberIO {
     private val rollersConfiguration: TalonFXConfiguration = TalonFXConfiguration()
     private val rollersSensor = ctreAngularMechanismSensor(
         rollersTalon,
-        ClimberConstants.ROLLERS_GEAR_RATIO,
-        ClimberConstants.ROLLERS_VOLTAGE_COMPENSATION
+        ClimberConstants.Rollers.GEAR_RATIO,
+        ClimberConstants.Rollers.VOLTAGE_COMPENSATION
     )
     
     private val motionMagicConfig: MotionMagicConfigs = climberConfiguration.MotionMagic
@@ -117,8 +118,8 @@ class ClimberIOTalon : ClimberIO {
         rollersTalon.configurator.apply(TalonFXConfiguration())
         rollersTalon.clearStickyFaults()
 
-        rollersConfiguration.CurrentLimits.StatorCurrentLimit = ClimberConstants.ROLLERS_STATOR_CURRENT_LIMIT.inAmperes
-        rollersConfiguration.CurrentLimits.SupplyCurrentLimit = ClimberConstants.ROLLERS_SUPPLY_CURRENT_LIMIT.inAmperes
+        rollersConfiguration.CurrentLimits.StatorCurrentLimit = ClimberConstants.Rollers.STATOR_CURRENT_LIMIT.inAmperes
+        rollersConfiguration.CurrentLimits.SupplyCurrentLimit = ClimberConstants.Rollers.SUPPLY_CURRENT_LIMIT.inAmperes
         rollersConfiguration.CurrentLimits.StatorCurrentLimitEnable = false
         rollersConfiguration.CurrentLimits.SupplyCurrentLimitEnable = false
         rollersConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
@@ -189,17 +190,17 @@ class ClimberIOTalon : ClimberIO {
         rollersTalon.setControl(VoltageOut(voltage.inVolts))
     }
 
-    override fun setClimberPosition(position: Angle, feedforward: ElectricalPotential) {
+    override fun setClimberPosition(position: Angle) {
         climberTalon.setControl(
             motionMagicControl
                 .withPosition(climberSensor.positionToRawUnits(position))
-                .withFeedForward(feedforward.inVolts)
+                .withSlot(0)
                 .withLimitForwardMotion(true)
                 .withLimitReverseMotion(true)
         )
 
         // Rollers should constantly clasp to the bars while climber is moving
-        setRollersVoltage(ClimberConstants.ROLLERS_CLASP_VOLTAGE)
+        setRollersVoltage(ClimberConstants.Rollers.CLASP_VOLTAGE)
     }
 
     private fun updateSignals() {

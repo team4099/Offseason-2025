@@ -2,6 +2,7 @@ package com.team4099.robot2025.subsystems.climber
 
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
+import org.team4099.lib.controller.SimpleMotorFeedforward
 import org.team4099.lib.units.Value
 import org.team4099.lib.units.Velocity
 import org.team4099.lib.units.base.Current
@@ -141,7 +142,7 @@ interface ClimberIO {
 
   fun setRollersVoltage(voltage: ElectricalPotential) {}
 
-  fun setClimberPosition(position: Angle, feedforward: ElectricalPotential) {}
+  fun setClimberPosition(position: Angle) {}
 
   fun setBrakeMode(climberBrake: Boolean, rollersBrake: Boolean) {}
 

@@ -8,6 +8,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId
 import edu.wpi.first.wpilibj.simulation.FlywheelSim
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim
 import org.team4099.lib.controller.PIDController
+import org.team4099.lib.controller.SimpleMotorFeedforward
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.celsius
 import org.team4099.lib.units.base.inMeters
@@ -46,11 +47,11 @@ class ClimberIOSim : ClimberIO {
     private val rollersSim: FlywheelSim = FlywheelSim(
         LinearSystemId.createFlywheelSystem(
             DCMotor.getKrakenX60(1),
-            ClimberConstants.ROLLERS_MOMENT_OF_INERTIA.inKilogramsMeterSquared,
-            1 / ClimberConstants.ROLLERS_GEAR_RATIO
+            ClimberConstants.Rollers.INERTIA.inKilogramsMeterSquared,
+            1 / ClimberConstants.Rollers.GEAR_RATIO
         ),
         DCMotor.getKrakenX60(1),
-        1 / ClimberConstants.ROLLERS_GEAR_RATIO
+        1 / ClimberConstants.Rollers.GEAR_RATIO
     )
 
     private var climberPIDController =
@@ -84,19 +85,19 @@ class ClimberIOSim : ClimberIO {
     override fun setRollersVoltage(voltage: ElectricalPotential) {
         val rollersClampedVoltage = clamp(
             voltage,
-            -ClimberConstants.ROLLERS_VOLTAGE_COMPENSATION,
-            ClimberConstants.ROLLERS_VOLTAGE_COMPENSATION
+            -ClimberConstants.Rollers.VOLTAGE_COMPENSATION,
+            ClimberConstants.Rollers.VOLTAGE_COMPENSATION
         )
 
         rollersSim.setInputVoltage(rollersClampedVoltage.inVolts)
         rollersAppliedVoltage = rollersClampedVoltage
     }
 
-    override fun setClimberPosition(position: Angle, feedforward: ElectricalPotential) {
+    override fun setClimberPosition(position: Angle) {
         targetPosition = position
         // Rollers should constantly clasp to the bars while climber is moving
         setClimberVoltage(climberPIDController.calculate(climberSim.angleRads.radians, position))
-        setRollersVoltage(ClimberConstants.ROLLERS_CLASP_VOLTAGE)
+        setRollersVoltage(ClimberConstants.Rollers.CLASP_VOLTAGE)
     }
 
     override fun updateInputs(inputs: ClimberIO.ClimberInputs) {

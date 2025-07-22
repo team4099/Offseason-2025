@@ -3,6 +3,7 @@ package com.team4099.robot2025.subsystems.superstructure
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import org.team4099.lib.units.AngularVelocity
 import org.team4099.lib.units.LinearVelocity
+import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.ElectricalPotential
 
 sealed interface Request {
@@ -33,6 +34,7 @@ sealed interface Request {
 
   sealed interface ClimberRequest : Request {
     class OpenLoop(val climberVoltage: ElectricalPotential, val rollersVoltage: ElectricalPotential) : ClimberRequest
+    class ClosedLoop(val position: Angle) : ClimberRequest
     class Home() : ClimberRequest
   }
 }

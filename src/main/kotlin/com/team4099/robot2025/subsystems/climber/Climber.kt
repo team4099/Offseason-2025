@@ -4,7 +4,11 @@ import com.team4099.robot2025.config.constants.ClimberConstants
 import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj.RobotBase
+import org.team4099.lib.controller.SimpleMotorFeedforward
+import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.ElectricalPotential
+import org.team4099.lib.units.derived.Radian
+import org.team4099.lib.units.derived.Volt
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.volts
@@ -20,6 +24,9 @@ class Climber(private val io: ClimberIO) {
           climberTargetVoltage = value.climberVoltage
           rollersTargetVoltage = value.rollersVoltage
         }
+        is Request.ClimberRequest.ClosedLoop -> {
+          climberTargetPosition = value.position
+        }
         else -> {}
       }
       field = value
@@ -27,9 +34,11 @@ class Climber(private val io: ClimberIO) {
 
   private var climberTargetVoltage: ElectricalPotential = 0.0.volts
   private var rollersTargetVoltage: ElectricalPotential = 0.0.volts
+
+  private var climberTargetPosition: Angle = 0.0.degrees
   var isAtTargetedPosition: Boolean =
     (inputs.climberPosition - 90.degrees).absoluteValue <=
-      ClimberConstants.CLIMBER_TARGET_TOLERANCE
+      ClimberConstants.TARGET_TOLERANCE
 
   init {
     if (RobotBase.isReal()) {
@@ -88,9 +97,12 @@ class Climber(private val io: ClimberIO) {
         nextState = fromRequestToState(currentRequest)
       }
       ClimberState.OPEN_LOOP -> {
-        setClimberVoltage(climberTargetVoltage)
-        setRollersVoltage(rollersTargetVoltage)
+        io.setClimberVoltage(climberTargetVoltage)
+        io.setRollersVoltage(rollersTargetVoltage)
         nextState = fromRequestToState(currentRequest)
+      }
+      ClimberState.CLOSED_LOOP -> {
+        io.setClimberPosition(climberTargetPosition)
       }
       else -> {}
     }
@@ -98,25 +110,19 @@ class Climber(private val io: ClimberIO) {
     currentState = nextState
   }
 
-  private fun setClimberVoltage(voltage: ElectricalPotential) {
-    io.setClimberVoltage(voltage)
-  }
-
-  private fun setRollersVoltage(voltage: ElectricalPotential) {
-    io.setRollersVoltage(voltage)
-  }
-
   companion object {
     enum class ClimberState {
       UNINITIALIZED,
       OPEN_LOOP,
+      CLOSED_LOOP,
       HOME;
 
       fun equivalentToRequest(request: Request.ClimberRequest): Boolean {
         return (
-          (request is Request.ClimberRequest.Home && this == HOME) ||
-            (request is Request.ClimberRequest.OpenLoop && this == OPEN_LOOP)
-          )
+                (request is Request.ClimberRequest.Home && this == HOME) ||
+                        (request is Request.ClimberRequest.OpenLoop && this == OPEN_LOOP) ||
+                        (request is Request.ClimberRequest.ClosedLoop && this == CLOSED_LOOP)
+                )
       }
     }
 
@@ -124,6 +130,7 @@ class Climber(private val io: ClimberIO) {
       return when (request) {
         is Request.ClimberRequest.Home -> ClimberState.HOME
         is Request.ClimberRequest.OpenLoop -> ClimberState.OPEN_LOOP
+        is Request.ClimberRequest.ClosedLoop -> ClimberState.CLOSED_LOOP
       }
     }
   }

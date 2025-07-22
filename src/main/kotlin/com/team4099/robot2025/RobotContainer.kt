@@ -3,7 +3,6 @@ package com.team4099.robot2025
 import com.team4099.robot2023.subsystems.vision.camera.CameraIO
 import com.team4099.robot2023.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.auto.AutonomousSelector
-import com.team4099.robot2025.commands.TestElevatorCommand
 import com.team4099.robot2025.commands.drivetrain.ResetGyroYawCommand
 import com.team4099.robot2025.commands.drivetrain.TeleopDriveCommand
 import com.team4099.robot2025.config.ControlBoard
@@ -15,8 +14,7 @@ import com.team4099.robot2025.subsystems.drivetrain.drive.DrivetrainIOSim
 import com.team4099.robot2025.subsystems.drivetrain.gyro.GyroIO
 import com.team4099.robot2025.subsystems.drivetrain.gyro.GyroIOPigeon2
 import com.team4099.robot2025.subsystems.elevator.Elevator
-import com.team4099.robot2025.subsystems.elevator.ElevatorIOSim
-import com.team4099.robot2025.subsystems.elevator.ElevatorIOTalon
+import com.team4099.robot2025.subsystems.elevator.ElevatorIO
 import com.team4099.robot2025.subsystems.limelight.LimelightVision
 import com.team4099.robot2025.subsystems.limelight.LimelightVisionIO
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
@@ -25,7 +23,6 @@ import com.team4099.robot2025.util.driver.Jessika
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import org.team4099.lib.smoothDeadband
-import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.derived.Angle
 import com.team4099.robot2025.subsystems.superstructure.Request.DrivetrainRequest as DrivetrainRequest
 
@@ -40,7 +37,9 @@ object RobotContainer {
     if (RobotBase.isReal()) {
       drivetrain = Drivetrain(GyroIOPigeon2, DrivetrainIOReal)
       limelight = LimelightVision(object : LimelightVisionIO {})
-      elevator = Elevator(ElevatorIOTalon)
+      // other subsystems go here
+      elevator =
+        Elevator(object : ElevatorIO {}) // fake elevator needed for robot container functions
 
       vision =
         Vision(
@@ -54,7 +53,9 @@ object RobotContainer {
     } else {
       drivetrain = Drivetrain(object : GyroIO {}, DrivetrainIOSim)
       limelight = LimelightVision(object : LimelightVisionIO {})
-      elevator = Elevator(ElevatorIOSim)
+      // other subsystems go here
+      elevator =
+        Elevator(object : ElevatorIO {}) // fake elevator needed for robot container functions
 
       vision = Vision(object : CameraIO {})
     }
@@ -113,10 +114,7 @@ object RobotContainer {
   // TODO fix
   fun requestIdle() {}
 
-  fun mapTeleopControls() {
-    ControlBoard.testCommand.whileTrue(TestElevatorCommand(elevator, 10.0.inches))
-    ControlBoard.testCommand2.whileTrue(TestElevatorCommand(elevator, 40.0.inches))
-  }
+  fun mapTeleopControls() {}
 
   fun mapTestControls() {}
 

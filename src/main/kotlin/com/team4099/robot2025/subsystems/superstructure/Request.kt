@@ -35,4 +35,9 @@ sealed interface Request {
     class OpenLoop(val voltage: ElectricalPotential) : ClimberRequest
     class Home() : ClimberRequest
   }
+
+  sealed interface IndexerRequest : Request {
+    class Idle : IndexerRequest
+    class Index : IndexerRequest
+  }
 }

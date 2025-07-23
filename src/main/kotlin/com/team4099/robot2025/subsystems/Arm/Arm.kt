@@ -1,0 +1,140 @@
+package com.team4099.robot2025.subsystems.Arm
+
+import com.team4099.robot2025.config.constants.ArmConstants
+import com.team4099.robot2025.subsystems.superstructure.Request
+import edu.wpi.first.wpilibj.RobotBase
+import edu.wpi.first.wpilibj2.command.SubsystemBase
+import org.team4099.lib.units.derived.Angle
+import org.team4099.lib.units.derived.ElectricalPotential
+import org.team4099.lib.units.derived.degrees
+import org.team4099.lib.units.derived.volts
+
+class Arm(val io: ArmIO) : SubsystemBase() {
+  val inputs = ArmIO.ArmIOInputs()
+
+  var currentState: ArmState = ArmState.UNINITIALIZED
+
+  var isZeroed = false
+
+  var armTargetVoltage: ElectricalPotential = 0.0.volts
+
+  private var lastArmPositionTarget = -1337.0.degrees
+  private var armPositionTarget = 0.0.degrees
+
+  private var armToleranceRequested: Angle = ArmConstants.ARM_TOLERANCE
+
+  var currentRequest: Request.ArmRequest = Request.ArmRequest.Home()
+    set(value) {
+      when (value) {
+        is Request.ArmRequest.OpenLoop -> {
+          armTargetVoltage = value.armVoltage
+        }
+        is Request.ArmRequest.ClosedLoop -> {
+          armPositionTarget = value.armPosition
+          armToleranceRequested = value.armTolerance
+        }
+        else -> {}
+      }
+      field = value
+    }
+
+  var isHomed = false
+
+  init {
+
+    if (RobotBase.isReal()) {
+      isHomed = false
+
+      ArmTunableValues.armkP.initDefault(ArmConstants.PID.REAL_KP)
+      ArmTunableValues.armkI.initDefault(ArmConstants.PID.REAL_KI)
+      ArmTunableValues.armkD.initDefault(ArmConstants.PID.REAL_KD)
+    } else {
+      ArmTunableValues.armkP.initDefault(ArmConstants.PID.SIM_KP)
+      ArmTunableValues.armkI.initDefault(ArmConstants.PID.SIM_KI)
+      ArmTunableValues.armkD.initDefault(ArmConstants.PID.SIM_KD)
+    }
+
+    ArmTunableValues.armkS.initDefault(ArmConstants.PID.KS)
+    ArmTunableValues.armkG.initDefault(ArmConstants.PID.KG)
+    ArmTunableValues.armkV.initDefault(ArmConstants.PID.KV)
+    ArmTunableValues.armkA.initDefault(ArmConstants.PID.KA)
+
+    io.configFF(
+      ArmTunableValues.armkG.get(),
+      ArmTunableValues.armkS.get(),
+      ArmTunableValues.armkV.get(),
+      ArmTunableValues.armkA.get()
+    )
+    io.configPID(
+      ArmTunableValues.armkP.get(),
+      ArmTunableValues.armkI.get(),
+      ArmTunableValues.armkD.get(),
+    )
+  }
+
+  override fun periodic() {
+    io.updateInputs(inputs)
+
+    if (ArmTunableValues.armkP.hasChanged() ||
+      ArmTunableValues.armkI.hasChanged() ||
+      ArmTunableValues.armkD.hasChanged()
+    ) {
+      io.configPID(
+        ArmTunableValues.armkP.get(), ArmTunableValues.armkI.get(), ArmTunableValues.armkD.get()
+      )
+    }
+
+    if (ArmTunableValues.armkS.hasChanged() ||
+      ArmTunableValues.armkV.hasChanged() ||
+      ArmTunableValues.armkA.hasChanged() ||
+      ArmTunableValues.armkG.hasChanged()
+    ) {
+      io.configFF(
+        ArmTunableValues.armkG.get(),
+        ArmTunableValues.armkS.get(),
+        ArmTunableValues.armkV.get(),
+        ArmTunableValues.armkA.get()
+      )
+    }
+
+    var nextState = currentState
+    when (currentState) {
+      ArmState.UNINITIALIZED -> {
+        nextState = fromRequestToState(currentRequest)
+      }
+      ArmState.HOME -> {
+        io.zeroEncoder()
+        currentRequest = Request.ArmRequest.OpenLoop(0.volts)
+        isZeroed = true
+        nextState = fromRequestToState(currentRequest)
+      }
+      ArmState.OPEN_LOOP -> {
+        io.setVoltage(armTargetVoltage)
+
+        nextState = fromRequestToState(currentRequest)
+      }
+      ArmState.TARGETING_POS -> {
+        io.setPosition(armPositionTarget)
+        lastArmPositionTarget = armPositionTarget
+        nextState = fromRequestToState(currentRequest)
+      }
+    }
+    currentState = nextState
+  }
+
+  companion object {
+    enum class ArmState {
+      UNINITIALIZED,
+      HOME,
+      OPEN_LOOP,
+      TARGETING_POS
+    }
+    inline fun fromRequestToState(request: Request.ArmRequest): ArmState {
+      return when (request) {
+        is Request.ArmRequest.OpenLoop -> ArmState.OPEN_LOOP
+        is Request.ArmRequest.ClosedLoop -> ArmState.TARGETING_POS
+        is Request.ArmRequest.Home -> ArmState.HOME
+      }
+    }
+  }
+}

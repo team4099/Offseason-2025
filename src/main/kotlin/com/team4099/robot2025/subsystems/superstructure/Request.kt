@@ -33,6 +33,17 @@ sealed interface Request {
     class TargetTag(val tags: Array<Int>) : VisionRequest
   }
 
+  sealed interface RollersRequest : Request {
+
+    class OpenLoop(val voltage: ElectricalPotential) : RollersRequest
+  }
+
+  sealed interface ArmRequest : Request {
+    class OpenLoop(val armVoltage: ElectricalPotential) : ArmRequest
+    class ClosedLoop(val armPosition: Angle, val armTolerance: Angle) : ArmRequest
+    class Home() : ArmRequest
+  }
+
   sealed interface ClimberRequest : Request {
     class OpenLoop(val voltage: ElectricalPotential) : ClimberRequest
     class Home() : ClimberRequest

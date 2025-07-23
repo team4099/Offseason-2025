@@ -74,8 +74,17 @@ object ArmIOTalon : ArmIO {
     configs.CurrentLimits.SupplyCurrentLimitEnable = true
     configs.CurrentLimits.StatorCurrentLimitEnable = true
 
-    configs.MotionMagic.MotionMagicCruiseVelocity = 0.0
-    configs.MotionMagic.MotionMagicAcceleration = 0.0
+    configs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true
+    configs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
+
+    configs.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
+    armSensor.positionToRawUnits(ArmConstants.MAX_EXTENSION)
+
+    configs.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
+    leaderSensor.positionToRawUnits(ArmConstants.MIN_EXTENSION)
+
+    configs.MotionMagic.MotionMagicCruiseVelocity = ArmConsants.MAX_VELOCITY
+    configs.MotionMagic.MotionMagicAcceleration = ArmConstants.MAX_ACCELERATION
 
     statorCurrentSignal = armTalon.statorCurrent
     supplyCurrentSignal = armTalon.supplyCurrent

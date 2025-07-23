@@ -1,11 +1,30 @@
 package com.team4099.robot2025.subsystems.superstructure
 
+import com.team4099.robot2025.config.constants.Constants
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import org.team4099.lib.units.AngularVelocity
 import org.team4099.lib.units.LinearVelocity
 import org.team4099.lib.units.derived.ElectricalPotential
 
 sealed interface Request {
+  sealed interface SuperstructureRequest : Request {
+    class Idle() : SuperstructureRequest
+
+    class ExtendClimb() : SuperstructureRequest
+
+    class RetractClimb() : SuperstructureRequest
+
+    class IntakeCoral() : SuperstructureRequest
+
+    class IntakeAlgae(val level: Constants.Universal.AlgaeIntakeLevel) : SuperstructureRequest
+
+    class ScorePrepAlgae(val level: Constants.Universal.AlgaeScoringLevel) : SuperstructureRequest
+
+    class ScorePrepCoral(val level: Constants.Universal.CoralLevel) : SuperstructureRequest
+
+    class Score() : SuperstructureRequest
+  }
+
   sealed interface DrivetrainRequest : Request {
     class OpenLoop(
       val angularVelocity: AngularVelocity,

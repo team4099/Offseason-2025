@@ -5,7 +5,6 @@ import org.team4099.lib.units.base.grams
 import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.meterSquared
 import org.team4099.lib.units.derived.volts
-import org.team4099.lib.units.kilo
 
 object RollersConstants {
   val GEAR_RATIO = 12.0 / (24.0 / 20.0) / (60.0 / 18.0) / (36.0 / 24.0) / 24.0

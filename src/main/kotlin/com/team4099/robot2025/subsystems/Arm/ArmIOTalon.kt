@@ -2,7 +2,6 @@ package com.team4099.robot2025.subsystems.Arm
 
 import com.ctre.phoenix6.StatusSignal
 import com.ctre.phoenix6.configs.MagnetSensorConfigs
-import com.ctre.phoenix6.configs.Slot0Configs
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.controls.MotionMagicVoltage
 import com.ctre.phoenix6.controls.VoltageOut
@@ -54,7 +53,9 @@ object ArmIOTalon : ArmIO {
   private val motionMagicControl: MotionMagicVoltage = MotionMagicVoltage(-1337.degrees.inDegrees)
 
   private val armSensor =
-    ctreAngularMechanismSensor(armTalon, ArmConstants.GEAR_RATIO, ArmConstants.VOLTAGE_COMPENSATION)
+    ctreAngularMechanismSensor(
+      armTalon, ArmConstants.GEAR_RATIO, ArmConstants.VOLTAGE_COMPENSATION
+    )
 
   private val configs: TalonFXConfiguration = TalonFXConfiguration()
   var slot0Configs = configs.Slot0
@@ -81,13 +82,14 @@ object ArmIOTalon : ArmIO {
     configs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
 
     configs.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-    armSensor.positionToRawUnits(ArmConstants.MAX_ROTATION)
+      armSensor.positionToRawUnits(ArmConstants.MAX_ROTATION)
 
     configs.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-    armSensor.positionToRawUnits(ArmConstants.MIN_ROTATION)
+      armSensor.positionToRawUnits(ArmConstants.MIN_ROTATION)
 
     configs.MotionMagic.MotionMagicCruiseVelocity = ArmConstants.MAX_VELOCITY.inDegreesPerSecond
-    configs.MotionMagic.MotionMagicAcceleration = ArmConstants.MAX_ACCELERATION.inDegreesPerSecondPerSecond
+    configs.MotionMagic.MotionMagicAcceleration =
+      ArmConstants.MAX_ACCELERATION.inDegreesPerSecondPerSecond
 
     statorCurrentSignal = armTalon.statorCurrent
     supplyCurrentSignal = armTalon.supplyCurrent

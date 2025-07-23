@@ -22,7 +22,7 @@ import edu.wpi.first.units.measure.Temperature as WPITemp
 
 object RollersIOTalon : RollersIO {
 
-  private val rollerTalon: TalonFX = TalonFX(Constants.Arm.ARM_MOTOR_ID)
+  private val rollerTalon: TalonFX = TalonFX(Constants.ArmRollers.ARM_ROLLERS_MOTOR_ID)
 
   private val rollerConfig: TalonFXConfiguration = TalonFXConfiguration()
 

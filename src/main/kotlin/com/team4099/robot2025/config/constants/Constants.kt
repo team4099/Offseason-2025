@@ -126,8 +126,20 @@ object Constants {
     const val CANDI_ID = 62
   }
 
+  object Intake {
+    const val INTAKE_MOTOR_ID = 71
+
+    object Rollers {
+      const val ROLLERS_MOTOR_ID = 72
+    }
+  }
+
   object Ramp {
     const val RAMP_MOTOR_ID = 62
+  }
+
+  object Indexer {
+    const val INDEXER_MOTOR_ID = 81
   }
 
   object Alert {

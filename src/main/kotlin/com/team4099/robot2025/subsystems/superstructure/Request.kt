@@ -46,7 +46,7 @@ sealed interface Request {
 
     class ZeroPivot() : IntakeRequest
   }
-  
+
   sealed interface IndexerRequest : Request {
     class Idle : IndexerRequest
     class Index : IndexerRequest

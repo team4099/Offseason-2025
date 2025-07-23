@@ -43,7 +43,7 @@ class Rollers(val io: RollersIO):SubsytemBase() {
       field = value
     }
 
-  fun periodic() {
+  override periodic() {
     io.updateInputs(inputs)
     CustomLogger.processInputs("Rollers", inputs)
     CustomLogger.recordOutput("Rollers/currentState", currentState.toString())

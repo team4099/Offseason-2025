@@ -45,7 +45,11 @@ sealed interface Request {
   }
 
   sealed interface ClimberRequest : Request {
-    class OpenLoop(val voltage: ElectricalPotential) : ClimberRequest
+    class OpenLoop(
+      val climberVoltage: ElectricalPotential,
+      val rollersVoltage: ElectricalPotential
+    ) : ClimberRequest
+    class ClosedLoop(val position: Angle) : ClimberRequest
     class Home() : ClimberRequest
   }
 

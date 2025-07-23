@@ -1,6 +1,5 @@
 package com.team4099.robot2025.subsystems.superstructure
 
-import com.team4099.robot2025.config.constants.Constants
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import org.team4099.lib.units.AngularVelocity
 import org.team4099.lib.units.LinearVelocity
@@ -39,8 +38,10 @@ sealed interface Request {
   }
 
   sealed interface IntakeRequest : Request {
-    class OpenLoop(val pivotVoltage: ElectricalPotential, val rollersVoltage: ElectricalPotential) : IntakeRequest
-    class TargetingPosition(val pivotPosition: Angle, val rollersVoltage: ElectricalPotential) : IntakeRequest
+    class OpenLoop(val pivotVoltage: ElectricalPotential, val rollersVoltage: ElectricalPotential) :
+      IntakeRequest
+    class TargetingPosition(val pivotPosition: Angle, val rollersVoltage: ElectricalPotential) :
+      IntakeRequest
     class ZeroPivot() : IntakeRequest
   }
 }

@@ -13,6 +13,7 @@ import edu.wpi.first.units.measure.AngularAcceleration
 import edu.wpi.first.units.measure.Voltage
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.celsius
+import org.team4099.lib.units.base.inAmperes
 import org.team4099.lib.units.ctreAngularMechanismSensor
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.inVolts
@@ -52,9 +53,8 @@ object RollersIOTalon : RollersIO {
   init {
     rollerTalon.clearStickyFaults()
 
-    configs.CurrentLimits.SupplyCurrentLimit = 40.0.amps
-    configs.CurrentLimits.SupplyCurrentLowerLimit = 20.0.amps
-    configs.CurrentLimits.StatorCurrentLimit = 40.0.amps
+    configs.CurrentLimits.SupplyCurrentLimit = RollersConstants.SUPPLY_CURRENT_LIMIT.inAmperes
+    configs.CurrentLimits.StatorCurrentLimit = RollersConstants.STATOR_CURRENT_LIMIT.inAmperes
     configs.CurrentLimits.SupplyCurrentLimitEnable = true
     configs.CurrentLimits.StatorCurrentLimitEnable = true
 

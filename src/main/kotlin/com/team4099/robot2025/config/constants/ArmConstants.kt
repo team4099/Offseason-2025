@@ -23,7 +23,7 @@ object ArmConstants {
   val MIN_ROTATION = 0.0.degrees
   val MAX_ROTATION = 0.0.degrees
 
-  val GEAR_RATIO
+  val GEAR_RATIO = (14.0 / 62.0) * (26.0 / 54.0)
 
   val MAX_VELOCITY: AngularVelocity = 0.0.degrees.perSecond
   val MAX_ACCELERATION: AngularAcceleration = 0.0.degrees.perSecond.perSecond

@@ -34,7 +34,7 @@ class Climber(private val io: ClimberIO) {
 
   private var climberTargetPosition: Angle = 0.0.degrees
   var isAtTargetedPosition: Boolean =
-    (inputs.climberPosition - 90.degrees).absoluteValue <= ClimberConstants.TARGET_TOLERANCE
+    (inputs.climberPosition - ClimberConstants.FULLY_CLIMED_ANGLE).absoluteValue <= ClimberConstants.TARGET_TOLERANCE
 
   init {
     if (RobotBase.isReal()) {

@@ -6,8 +6,9 @@ import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.util.CustomLogger
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.volts
+import edu.wpi.first.wpilibj2.command.SubsystemBase
 
-class Rollers(val io: RollersIO) {
+class Rollers(val io: RollersIO):SubsytemBase() {
 
   val inputs = RollersIO.RollerInputs()
 

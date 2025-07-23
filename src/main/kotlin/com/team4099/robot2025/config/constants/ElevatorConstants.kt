@@ -37,6 +37,8 @@ object ElevatorConstants {
   val MAX_ACCELERATION: LinearAcceleration = 259.54.inches.perSecond.perSecond
 
   val ELEVATOR_TOLERANCE = 0.2.inches
+  val ELEVATOR_HEIGHT_TO_CLEAR_ARM =
+    16.0.inches // todo update with final robot to make sure nothing breaks !!!!!!
 
   object HEIGHTS {
     val IDLE = 0.0.inches

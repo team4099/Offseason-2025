@@ -45,4 +45,14 @@ object ArmConstants {
 
     val KG = 0.0.volts
   }
+
+  object ANGLES {
+    val L1_PREP_ANGLE = 0.0.degrees
+    val L2_PREP_ANGLE = 0.0.degrees
+    val L3_PREP_ANGLE = 0.0.degrees
+    val L4_PREP_ANGLE = 0.0.degrees
+
+    val BARGE_ANGLE = 0.0.degrees
+    val PROCESSOR_ANGLE = 0.0.degrees
+  }
 }

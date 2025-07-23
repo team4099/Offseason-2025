@@ -12,6 +12,7 @@ import com.ctre.phoenix6.hardware.TalonFX
 import com.ctre.phoenix6.signals.GravityTypeValue
 import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.NeutralModeValue
+import com.team4099.lib.math.clamp
 import com.team4099.robot2025.config.constants.ClimberConstants
 import com.team4099.robot2025.config.constants.Constants
 import edu.wpi.first.units.measure.AngularAcceleration
@@ -89,6 +90,7 @@ class ClimberIOTalon : ClimberIO {
     climberConfiguration.Slot0.kD =
       climberSensor.derivativePositionGainToRawUnits(ClimberConstants.PID.KD_REAL)
     climberConfiguration.Slot0.GravityType = GravityTypeValue.Arm_Cosine
+    climberTalon.configurator.apply(pidSlot0Configs)
 
     climberConfiguration.CurrentLimits.StatorCurrentLimit =
       ClimberConstants.STATOR_CURRENT_LIMIT.inAmperes
@@ -101,6 +103,11 @@ class ClimberIOTalon : ClimberIO {
 
     climberConfiguration.SoftwareLimitSwitch.ForwardSoftLimitEnable = true
     climberConfiguration.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
+    climberConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
+      climberSensor.positionToRawUnits(ClimberConstants.FULLY_CLIMBED_ANGLE)
+    climberConfiguration.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
+      climberSensor.positionToRawUnits(ClimberConstants.FULLY_RETRACTED_ANGLE)
+
     climberConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake
     climberConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive
     climberTalon.configurator.apply(climberConfiguration)
@@ -140,11 +147,10 @@ class ClimberIOTalon : ClimberIO {
     kI: IntegralGain<Radian, Volt>,
     kD: DerivativeGain<Radian, Volt>
   ) {
-    val climberPIDConfig = Slot0Configs()
-    climberPIDConfig.kP = climberSensor.proportionalPositionGainToRawUnits(kP)
-    climberPIDConfig.kI = climberSensor.integralPositionGainToRawUnits(kI)
-    climberPIDConfig.kD = climberSensor.derivativePositionGainToRawUnits(kD)
-    climberTalon.configurator.apply(climberPIDConfig)
+    pidSlot0Configs.kP = climberSensor.proportionalPositionGainToRawUnits(kP)
+    pidSlot0Configs.kI = climberSensor.integralPositionGainToRawUnits(kI)
+    pidSlot0Configs.kD = climberSensor.derivativePositionGainToRawUnits(kD)
+    climberTalon.configurator.apply(pidSlot0Configs)
   }
 
   override fun configClimberFF(
@@ -186,11 +192,29 @@ class ClimberIOTalon : ClimberIO {
   }
 
   override fun setClimberVoltage(voltage: ElectricalPotential) {
-    climberTalon.setControl(VoltageOut(voltage.inVolts))
+    climberTalon.setControl(
+      VoltageOut(
+        clamp(
+          voltage,
+          -ClimberConstants.CLIMBER_VOLTAGE_COMPENSATION,
+          ClimberConstants.CLIMBER_VOLTAGE_COMPENSATION
+        )
+          .inVolts
+      )
+    )
   }
 
   override fun setRollersVoltage(voltage: ElectricalPotential) {
-    rollersTalon.setControl(VoltageOut(voltage.inVolts))
+    rollersTalon.setControl(
+      VoltageOut(
+        clamp(
+          voltage,
+          -ClimberConstants.Rollers.VOLTAGE_COMPENSATION,
+          ClimberConstants.Rollers.VOLTAGE_COMPENSATION
+        )
+          .inVolts
+      )
+    )
   }
 
   override fun setClimberPosition(position: Angle) {

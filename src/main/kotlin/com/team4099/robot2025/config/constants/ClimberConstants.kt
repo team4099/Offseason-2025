@@ -14,29 +14,30 @@ import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.perSecond
 
 object ClimberConstants {
-  val CLIMBER_VOLTAGE_COMPENSATION = 0.0.volts
-  val STATOR_CURRENT_LIMIT = 0.0.amps
-  val SUPPLY_CURRENT_LIMIT = 0.0.amps
-  val THRESHOLD_CURRENT_LIMIT = 0.0.amps
-  val CLIMB_EXTEND_VOLTAGE = 0.0.volts
-  val CLIMB_RETRACT_VOLTAGE = 0.0.volts
+  val CLIMBER_VOLTAGE_COMPENSATION = 12.0.volts
+  val STATOR_CURRENT_LIMIT = 40.0.amps
+  val SUPPLY_CURRENT_LIMIT = 40.0.amps
+  val THRESHOLD_CURRENT_LIMIT = 0.0.amps // todo: figure out
+  val CLIMB_EXTEND_VOLTAGE = 4.0.volts
+  val CLIMB_RETRACT_VOLTAGE = (-4.0).volts
 
-  val FULLY_CLIMED_ANGLE = 90.0.degrees
+  val FULLY_CLIMBED_ANGLE = 90.0.degrees
+  val FULLY_RETRACTED_ANGLE = 0.0.degrees
 
-  val LENGTH = 0.0.inches
-  val INERTIA = 0.0.pounds * 1.0.inches.squared
-  val GEAR_RATIO = 0.0
+  val LENGTH = 10.879905.inches
+  val INERTIA = 7.370097.pounds * 1.0.inches.squared
+  val GEAR_RATIO = (1.0 / 12.0) * (18.0 / 68.0)
 
   val TARGET_TOLERANCE = 3.0.degrees
 
   object Rollers {
-    val CLASP_VOLTAGE = 0.0.volts
-    val GEAR_RATIO = 0.0
-    val INERTIA = 0.0.pounds * 1.0.inches.squared
-    val VOLTAGE_COMPENSATION = 0.0.volts
-    val STATOR_CURRENT_LIMIT = 0.0.amps
-    val SUPPLY_CURRENT_LIMIT = 0.0.amps
-    val THRESHOLD_CURRENT_LIMIT = 0.0.amps
+    val CLASP_VOLTAGE = 5.0.volts
+    val GEAR_RATIO = 12.0 / 15.0
+    val INERTIA = 0.1419193.pounds * 3.0.inches.squared
+    val VOLTAGE_COMPENSATION = 12.0.volts
+    val STATOR_CURRENT_LIMIT = 40.0.amps
+    val SUPPLY_CURRENT_LIMIT = 40.0.amps
+    val THRESHOLD_CURRENT_LIMIT = 0.0.amps // todo
   }
 
   object PID {

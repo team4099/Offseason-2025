@@ -4,13 +4,14 @@ import com.team4099.robot2025.config.constants.ClimberConstants
 import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj.RobotBase
+import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.volts
 
-class Climber(private val io: ClimberIO) {
+class Climber(private val io: ClimberIO) : SubsystemBase() {
   private val inputs: ClimberIO.ClimberInputs = ClimberIO.ClimberInputs()
 
   private var currentState: ClimberState = ClimberState.UNINITIALIZED
@@ -34,7 +35,8 @@ class Climber(private val io: ClimberIO) {
 
   private var climberTargetPosition: Angle = 0.0.degrees
   var isAtTargetedPosition: Boolean =
-    (inputs.climberPosition - ClimberConstants.FULLY_CLIMED_ANGLE).absoluteValue <= ClimberConstants.TARGET_TOLERANCE
+    (inputs.climberPosition - ClimberConstants.FULLY_CLIMBED_ANGLE).absoluteValue <=
+      ClimberConstants.TARGET_TOLERANCE
 
   init {
     if (RobotBase.isReal()) {
@@ -46,9 +48,16 @@ class Climber(private val io: ClimberIO) {
       ClimberTunableValues.kI.initDefault(ClimberConstants.PID.KI_SIM)
       ClimberTunableValues.kD.initDefault(ClimberConstants.PID.KD_SIM)
     }
+
+    ClimberTunableValues.kS.initDefault(ClimberConstants.PID.KG_DEFAULT)
+    ClimberTunableValues.kGDefault.initDefault(ClimberConstants.PID.KG_DEFAULT)
+    ClimberTunableValues.kGLatched.initDefault(ClimberConstants.PID.KG_LATCHED)
+    ClimberTunableValues.kGUnLatched.initDefault(ClimberConstants.PID.KG_UNLATCHED)
+    ClimberTunableValues.kV.initDefault(ClimberConstants.PID.KV)
+    ClimberTunableValues.kA.initDefault(ClimberConstants.PID.KA)
   }
 
-  fun periodic() {
+  override fun periodic() {
     io.updateInputs(inputs)
 
     val hasPIDChanged: Boolean =
@@ -59,6 +68,8 @@ class Climber(private val io: ClimberIO) {
     val hasFFChanged: Boolean =
       ClimberTunableValues.kS.hasChanged() ||
         ClimberTunableValues.kGDefault.hasChanged() ||
+        ClimberTunableValues.kGLatched.hasChanged() ||
+        ClimberTunableValues.kGUnLatched.hasChanged() ||
         ClimberTunableValues.kV.hasChanged() ||
         ClimberTunableValues.kA.hasChanged()
 
@@ -89,8 +100,10 @@ class Climber(private val io: ClimberIO) {
 
     when (currentState) {
       ClimberState.UNINITIALIZED -> {
-        io.zeroEncoder()
         nextState = fromRequestToState(currentRequest)
+      }
+      ClimberState.HOME -> {
+        io.zeroEncoder()
       }
       ClimberState.OPEN_LOOP -> {
         io.setClimberVoltage(climberTargetVoltage)
@@ -100,7 +113,6 @@ class Climber(private val io: ClimberIO) {
       ClimberState.CLOSED_LOOP -> {
         io.setClimberPosition(climberTargetPosition)
       }
-      else -> {}
     }
 
     currentState = nextState

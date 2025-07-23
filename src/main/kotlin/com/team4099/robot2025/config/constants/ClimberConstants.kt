@@ -21,6 +21,8 @@ object ClimberConstants {
   val CLIMB_EXTEND_VOLTAGE = 0.0.volts
   val CLIMB_RETRACT_VOLTAGE = 0.0.volts
 
+  val FULLY_CLIMED_ANGLE = 90.0.degrees
+
   val LENGTH = 0.0.inches
   val INERTIA = 0.0.pounds * 1.0.inches.squared
   val GEAR_RATIO = 0.0

@@ -52,9 +52,9 @@ object RollersIOTalon : RollersIO {
   init {
     rollerTalon.clearStickyFaults()
 
-    configs.CurrentLimits.SupplyCurrentLimit = 0.0
-    configs.CurrentLimits.SupplyCurrentLowerLimit = 0.0
-    configs.CurrentLimits.StatorCurrentLimit = 0.0
+    configs.CurrentLimits.SupplyCurrentLimit = 40.0.amps
+    configs.CurrentLimits.SupplyCurrentLowerLimit = 20.0.amps
+    configs.CurrentLimits.StatorCurrentLimit = 40.0.amps
     configs.CurrentLimits.SupplyCurrentLimitEnable = true
     configs.CurrentLimits.StatorCurrentLimitEnable = true
 

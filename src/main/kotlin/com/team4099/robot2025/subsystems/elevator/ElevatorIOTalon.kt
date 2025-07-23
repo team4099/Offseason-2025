@@ -8,6 +8,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage
 import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.TalonFX
 import com.ctre.phoenix6.signals.GravityTypeValue
+import com.team4099.lib.math.clamp
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.ElevatorConstants
 import com.team4099.robot2025.config.constants.ElevatorConstants.MAX_ACCELERATION
@@ -234,7 +235,16 @@ object ElevatorIOTalon : ElevatorIO {
   }
 
   override fun setVoltage(targetVoltage: ElectricalPotential) {
-    leaderTalon.setControl(VoltageOut(targetVoltage.inVolts))
+    leaderTalon.setControl(
+      VoltageOut(
+        clamp(
+          targetVoltage,
+          -ElevatorConstants.VOLTAGE_COMPENSATION,
+          ElevatorConstants.VOLTAGE_COMPENSATION
+        )
+          .inVolts
+      )
+    )
   }
 
   override fun zeroEncoder() {

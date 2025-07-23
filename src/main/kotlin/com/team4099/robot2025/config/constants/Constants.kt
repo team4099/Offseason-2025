@@ -120,6 +120,9 @@ object Constants {
     const val ARM_MOTOR_ID = 51
     const val CANCODER_ID = 52
   }
+  object ArmRollers{
+    const val ARM_ROLLERS_MOTOR_ID = 53
+  }
 
   object Rollers {
     const val ROLLERS_MOTOR_ID = 61

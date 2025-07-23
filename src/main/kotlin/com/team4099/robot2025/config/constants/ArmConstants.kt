@@ -17,16 +17,16 @@ object ArmConstants {
   val ENCODER_TO_MECHANISM_GEAR_RATIO = 1.0 / 2.0
 
   val ARM_TOLERANCE = 1.0.degrees
-  val ARM_LENGTH = 0.0.inches
+  val ARM_LENGTH = 26.1362839.inches
   val ARM_MOMENT_OF_INERTIA = 0.01939647.kilo.grams.meterSquared
 
   val MIN_ROTATION = 0.0.degrees
-  val MAX_ROTATION = 0.0.degrees
+  val MAX_ROTATION = 270.0.degrees
 
   val GEAR_RATIO = (14.0 / 62.0) * (26.0 / 54.0)
 
-  val MAX_VELOCITY: AngularVelocity = 0.0.degrees.perSecond
-  val MAX_ACCELERATION: AngularAcceleration = 0.0.degrees.perSecond.perSecond
+  val MAX_VELOCITY: AngularVelocity = 270.0.degrees.perSecond
+  val MAX_ACCELERATION: AngularAcceleration = 270.0.degrees.perSecond.perSecond
 
   object PID {
     val REAL_KP = 0.0.volts / 1.degrees

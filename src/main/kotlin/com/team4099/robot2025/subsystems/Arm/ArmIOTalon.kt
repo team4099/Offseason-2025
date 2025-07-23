@@ -8,6 +8,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage
 import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.CANcoder
 import com.ctre.phoenix6.hardware.TalonFX
+import com.team4099.lib.math.clamp
 import com.team4099.robot2025.config.constants.ArmConstants
 import com.team4099.robot2025.config.constants.Constants
 import edu.wpi.first.units.measure.AngularAcceleration
@@ -34,6 +35,8 @@ import org.team4099.lib.units.derived.inVoltsPerRadianSeconds
 import org.team4099.lib.units.derived.inVoltsPerRadiansPerSecondPerSecond
 import org.team4099.lib.units.derived.rotations
 import org.team4099.lib.units.derived.volts
+import org.team4099.lib.units.inDegreesPerSecond
+import org.team4099.lib.units.inDegreesPerSecondPerSecond
 import org.team4099.lib.units.perSecond
 import edu.wpi.first.units.measure.Angle as WPIAngle
 import edu.wpi.first.units.measure.Current as WPICurrent
@@ -54,7 +57,7 @@ object ArmIOTalon : ArmIO {
     ctreAngularMechanismSensor(armTalon, ArmConstants.GEAR_RATIO, ArmConstants.VOLTAGE_COMPENSATION)
 
   private val configs: TalonFXConfiguration = TalonFXConfiguration()
-  private var slot0Configs = configs.Slot0
+  var slot0Configs = configs.Slot0
 
   var statorCurrentSignal: StatusSignal<WPICurrent>
   var supplyCurrentSignal: StatusSignal<WPICurrent>
@@ -68,9 +71,9 @@ object ArmIOTalon : ArmIO {
   init {
     armTalon.clearStickyFaults()
 
-    configs.CurrentLimits.SupplyCurrentLimit = 40.0.amps
-    configs.CurrentLimits.SupplyCurrentLowerLimit = 20.0.amps
-    configs.CurrentLimits.StatorCurrentLimit = 40.0.amps
+    configs.CurrentLimits.SupplyCurrentLimit = 40.0
+    configs.CurrentLimits.SupplyCurrentLowerLimit = 20.0
+    configs.CurrentLimits.StatorCurrentLimit = 40.0
     configs.CurrentLimits.SupplyCurrentLimitEnable = true
     configs.CurrentLimits.StatorCurrentLimitEnable = true
 
@@ -78,13 +81,13 @@ object ArmIOTalon : ArmIO {
     configs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
 
     configs.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-    armSensor.positionToRawUnits(ArmConstants.MAX_EXTENSION)
+    armSensor.positionToRawUnits(ArmConstants.MAX_ROTATION)
 
     configs.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-    leaderSensor.positionToRawUnits(ArmConstants.MIN_EXTENSION)
+    armSensor.positionToRawUnits(ArmConstants.MIN_ROTATION)
 
-    configs.MotionMagic.MotionMagicCruiseVelocity = ArmConsants.MAX_VELOCITY
-    configs.MotionMagic.MotionMagicAcceleration = ArmConstants.MAX_ACCELERATION
+    configs.MotionMagic.MotionMagicCruiseVelocity = ArmConstants.MAX_VELOCITY.inDegreesPerSecond
+    configs.MotionMagic.MotionMagicAcceleration = ArmConstants.MAX_ACCELERATION.inDegreesPerSecondPerSecond
 
     statorCurrentSignal = armTalon.statorCurrent
     supplyCurrentSignal = armTalon.supplyCurrent
@@ -118,7 +121,7 @@ object ArmIOTalon : ArmIO {
     kI: IntegralGain<Radian, Volt>,
     kD: DerivativeGain<Radian, Volt>
   ) {
-    val PIDConfig = Slot0Configs
+    val PIDConfig = slot0Configs
     PIDConfig.kP = kP.inVoltsPerRadian
     PIDConfig.kI = kI.inVoltsPerRadianSeconds
     PIDConfig.kD = kD.inVoltsPerRadianPerSecond
@@ -132,7 +135,7 @@ object ArmIOTalon : ArmIO {
     kV: VelocityFeedforward<Radian, Volt>,
     kA: AccelerationFeedforward<Radian, Volt>,
   ) {
-    val FFConfig = Slot0Configs
+    val FFConfig = slot0Configs
 
     FFConfig.kG = kG.inVolts
     FFConfig.kS = kS.inVolts
@@ -149,7 +152,7 @@ object ArmIOTalon : ArmIO {
   override fun setVoltage(targetVoltage: ElectricalPotential) {
     val clampedVoltage =
       clamp(targetVoltage, -ArmConstants.VOLTAGE_COMPENSATION, ArmConstants.VOLTAGE_COMPENSATION)
-    armTalon.setControl(VoltageOut(clampedVoltage))
+    armTalon.setControl(VoltageOut(clampedVoltage.inVolts))
   }
 
   override fun setPosition(position: Angle) {

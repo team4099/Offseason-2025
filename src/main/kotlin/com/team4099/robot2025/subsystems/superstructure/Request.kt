@@ -40,8 +40,15 @@ sealed interface Request {
   sealed interface IntakeRequest : Request {
     class OpenLoop(val pivotVoltage: ElectricalPotential, val rollersVoltage: ElectricalPotential) :
       IntakeRequest
+
     class TargetingPosition(val pivotPosition: Angle, val rollersVoltage: ElectricalPotential) :
       IntakeRequest
+
     class ZeroPivot() : IntakeRequest
+  }
+  
+  sealed interface IndexerRequest : Request {
+    class Idle : IndexerRequest
+    class Index : IndexerRequest
   }
 }

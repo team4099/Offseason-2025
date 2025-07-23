@@ -51,7 +51,7 @@ object ArmIOTalon : ArmIO {
   private val motionMagicControl: MotionMagicVoltage = MotionMagicVoltage(-1337.degrees.inDegrees)
 
   private val armSensor =
-    ctreAngularMechanismSensor(armTalon, 1.0, ArmConstants.VOLTAGE_COMPENSATION)
+    ctreAngularMechanismSensor(armTalon, ArmConstants.GEAR_RATIO, ArmConstants.VOLTAGE_COMPENSATION)
 
   private val configs: TalonFXConfiguration = TalonFXConfiguration()
   private var slot0Configs = configs.Slot0

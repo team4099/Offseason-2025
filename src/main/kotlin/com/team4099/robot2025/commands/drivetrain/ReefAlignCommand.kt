@@ -96,7 +96,7 @@ class ReefAlignCommand() : Command()
 //
 //  override fun isFinished(): Boolean {
 //    return scored &&
-//      Clock.fpgaTime - timeScored > RollersConstants.CORAL_SPIT_TIME &&
+//      Clock.fpgaTime - timeScored > RollersConstants.CORAL_SPIT_TIME_THRESHOLD &&
 //      elevator.inputs.elevatorPosition <=
 //      ElevatorConstants
 //        .PREP_L4_HEIGHT && // just so it doesn't tip when driving and logic stays the same

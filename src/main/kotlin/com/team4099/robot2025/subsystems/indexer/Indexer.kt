@@ -40,7 +40,7 @@ class Indexer(val io: IndexerIO) : SubsystemBase() {
       }
       IndexerState.INDEX -> {
         if (!inputs.isSimulating &&
-          (isStuck || Clock.fpgaTime - lastCoralTripTime <= IndexerConstants.CORAL_SPIT_TIME)
+          (isStuck || Clock.fpgaTime - lastCoralTripTime <= IndexerConstants.CORAL_SPIT_TIME_THRESHOLD)
         ) {
           if (isStuck) lastCoralTripTime = Clock.fpgaTime
           io.setVoltage(IndexerConstants.SPIT_VOLTAGE)

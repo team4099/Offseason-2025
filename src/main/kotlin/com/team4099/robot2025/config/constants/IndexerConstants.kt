@@ -21,5 +21,5 @@ object IndexerConstants {
   val SPIT_VOLTAGE = (-2.0).volts
 
   val CORAL_STALL_CURRENT = 40.0.amps
-  val CORAL_SPIT_TIME = 0.5.seconds
+  val CORAL_SPIT_TIME_THRESHOLD = 0.5.seconds
 }

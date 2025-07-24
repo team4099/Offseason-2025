@@ -171,7 +171,8 @@ class Superstructure(
 
         when (currentRequest) {
           is Request.SuperstructureRequest.Score -> {
-            if (elevator.isAtTargetedPosition && arm.isAtTargetedPosition) nextState = SuperstructureStates.SCORE_CORAL
+            if (elevator.isAtTargetedPosition && arm.isAtTargetedPosition)
+              nextState = SuperstructureStates.SCORE_CORAL
           }
           is Request.SuperstructureRequest.Idle -> {
             nextState = SuperstructureStates.IDLE
@@ -182,7 +183,8 @@ class Superstructure(
         if (coralScoringLevel != CoralLevel.L1)
           arm.currentRequest =
             Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleAngle.get())
-        armRollers.currentRequest = ArmRollersRequest.OpenLoop(ArmRollersConstants.OUTTAKE_CORAL_VOLTAGE)
+        armRollers.currentRequest =
+          ArmRollersRequest.OpenLoop(ArmRollersConstants.OUTTAKE_CORAL_VOLTAGE)
 
         if (currentRequest is Request.SuperstructureRequest.Idle || arm.isAtTargetedPosition) {
           nextState = SuperstructureStates.IDLE
@@ -215,12 +217,14 @@ class Superstructure(
         when (currentRequest) {
           is Request.SuperstructureRequest.Idle -> nextState = SuperstructureStates.IDLE
           is Request.SuperstructureRequest.Score -> {
-            if (elevator.isAtTargetedPosition && arm.isAtTargetedPosition) nextState = SuperstructureStates.SCORE_ALGAE
+            if (elevator.isAtTargetedPosition && arm.isAtTargetedPosition)
+              nextState = SuperstructureStates.SCORE_ALGAE
           }
         }
       }
       SuperstructureStates.SCORE_ALGAE -> {
-        armRollers.currentRequest = ArmRollersRequest.OpenLoop(ArmRollersConstants.OUTTAKE_ALGAE_VOLTAGE)
+        armRollers.currentRequest =
+          ArmRollersRequest.OpenLoop(ArmRollersConstants.OUTTAKE_ALGAE_VOLTAGE)
         if (currentRequest is Request.SuperstructureRequest.Idle ||
           Clock.fpgaTime - lastTransitionTime > 2.0.seconds
         )

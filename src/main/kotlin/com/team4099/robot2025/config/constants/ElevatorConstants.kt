@@ -50,13 +50,13 @@ object ElevatorConstants {
     val INTAKE_ALGAE_LOW = 0.0.inches
     val INTAKE_ALGAE_HIGH = 0.0.inches
 
-    val L1 = 0.0.inches
-    val L2 = 0.0.inches
-    val L3 = 0.0.inches
-    val L4 = 0.0.inches
+    val L1 = 22.0.inches
+    val L2 = 18.146780.inches
+    val L3 = 33.896780.inches
+    val L4 = 56.780235.inches
 
-    val PROCESSOR = 0.0.inches
-    val BARGE = 0.0.inches
+    val PROCESSOR = 18.146780.inches
+    val BARGE = 64.125000.inches
 
     val EJECT = 0.0.inches
   }

@@ -20,5 +20,6 @@ object RollersConstants {
   val SUPPLY_CURRENT_LIMIT = 40.0.amps
   val STATOR_CURRENT_LIMIT = 40.0.amps
 
-  val OUTTAKE_VOLTAGE = (-2.0).volts
+  val OUTTAKE_CORAL_VOLTAGE = (-4.0).volts
+  val OUTTAKE_ALGAE_VOLTAGE = (-8.0).volts
 }

@@ -37,7 +37,7 @@ class ClimberIOSim : ClimberIO {
       1 / ClimberConstants.GEAR_RATIO,
       ClimberConstants.INERTIA.inKilogramsMeterSquared,
       ClimberConstants.LENGTH.inMeters,
-      ClimberConstants.FULLY_RETRACTED_ANGLE.inRadians,
+      ClimberConstants.FULLY_EXTENDED_ANGLE.inRadians,
       ClimberConstants.FULLY_CLIMBED_ANGLE.inRadians,
       true,
       0.0

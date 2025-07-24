@@ -74,6 +74,8 @@ class Arm(val io: ArmIO) : SubsystemBase() {
       ArmTunableValues.armkD.get(),
     )
 
+    ArmTunableValues.Angles.idleCoralAngle.initDefault(ArmConstants.ANGLES.IDLE_CORAL_ANGLE)
+    ArmTunableValues.Angles.idleAlgaeAngle.initDefault(ArmConstants.ANGLES.IDLE_ALGAE_ANGLE)
     ArmTunableValues.Angles.l1PrepAngle.initDefault(ArmConstants.ANGLES.L1_PREP_ANGLE)
     ArmTunableValues.Angles.l2PrepAngle.initDefault(ArmConstants.ANGLES.L2_PREP_ANGLE)
     ArmTunableValues.Angles.l3PrepAngle.initDefault(ArmConstants.ANGLES.L3_PREP_ANGLE)

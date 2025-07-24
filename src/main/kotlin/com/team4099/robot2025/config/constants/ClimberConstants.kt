@@ -18,11 +18,14 @@ object ClimberConstants {
   val STATOR_CURRENT_LIMIT = 40.0.amps
   val SUPPLY_CURRENT_LIMIT = 40.0.amps
   val THRESHOLD_CURRENT_LIMIT = 0.0.amps // todo: figure out
-  val CLIMB_EXTEND_VOLTAGE = 4.0.volts
-  val CLIMB_RETRACT_VOLTAGE = (-4.0).volts
 
-  val FULLY_CLIMBED_ANGLE = 90.0.degrees
-  val FULLY_RETRACTED_ANGLE = 0.0.degrees
+  val INTAKE_CAGE_VOLTAGE = 6.0.volts
+  val CLIMB_EXTEND_VOLTAGE = 6.0.volts
+  val CLIMB_RETRACT_VOLTAGE = (-6.0).volts
+
+  val FULLY_CLIMBED_ANGLE = -90.0.degrees // retracted
+  val FULLY_EXTENDED_ANGLE = 0.0.degrees
+  val IDLE_ANGLE = 0.0.degrees
 
   val LENGTH = 10.879905.inches
   val INERTIA = 7.370097.pounds * 1.0.inches.squared

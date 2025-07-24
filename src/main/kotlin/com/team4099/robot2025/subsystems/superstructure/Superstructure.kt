@@ -1,9 +1,13 @@
 package com.team4099.robot2025.subsystems.superstructure
 
+import Intake
 import com.team4099.lib.hal.Clock
+import com.team4099.robot2025.config.constants.ClimberConstants
 import com.team4099.robot2025.config.constants.ElevatorConstants
+import com.team4099.robot2025.config.constants.IntakeConstants
 import com.team4099.robot2025.subsystems.Arm.Arm
 import com.team4099.robot2025.subsystems.Arm.ArmTunableValues
+import com.team4099.robot2025.subsystems.climber.Climber
 import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.elevator.ElevatorTunableValues
@@ -12,6 +16,7 @@ import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.team4099.lib.units.base.seconds
+import org.team4099.lib.units.derived.volts
 import com.team4099.robot2025.config.constants.Constants.Universal.AlgaeIntakeLevel as AlgaeIntakeLevel
 import com.team4099.robot2025.config.constants.Constants.Universal.AlgaeScoringLevel as AlgaeScoringLevel
 import com.team4099.robot2025.config.constants.Constants.Universal.CoralLevel as CoralLevel
@@ -26,7 +31,9 @@ class Superstructure(
   private val limelight: LimelightVision,
   private val elevator: Elevator,
   private val arm: Arm,
-  private val armRollers: ArmRollers
+  private val armRollers: ArmRollers,
+  private val climber: Climber,
+  private val intake: Intake
 ) : SubsystemBase() {
 
   val theoreticalGamePiece: GamePiece = GamePiece.NONE
@@ -53,10 +60,10 @@ class Superstructure(
         is Request.SuperstructureRequest.IntakeAlgae -> {
           algaeIntakeLevel = value.level
         }
-        is Request.SuperstructureRequest.ScorePrepCoral -> {
+        is Request.SuperstructureRequest.PrepScoreCoral -> {
           coralScoringLevel = value.level
         }
-        is Request.SuperstructureRequest.ScorePrepAlgae -> {
+        is Request.SuperstructureRequest.PrepScoreAlgae -> {
           algaeScoringLevel = value.level
         }
         is Request.SuperstructureRequest.Score -> {
@@ -131,7 +138,97 @@ class Superstructure(
       SuperstructureStates.UNINITIALIZED -> {
         nextState = SuperstructureStates.HOME
       }
-      SuperstructureStates.SCORE_CORAL_PREP -> {
+      SuperstructureStates.HOME -> {
+        elevator.currentRequest = Request.ElevatorRequest.Home()
+
+        if (elevator.isHomed) {
+          nextState = SuperstructureStates.IDLE
+        }
+      }
+      SuperstructureStates.IDLE -> {
+        climber.currentRequest = Request.ClimberRequest.ClosedLoop(ClimberConstants.IDLE_ANGLE)
+        intake.currentRequest = Request.IntakeRequest.TargetingPosition(
+          IntakeConstants.PIVOT_MAX_ANGLE,
+          IntakeConstants.Rollers.IDLE_VOLTAGE
+        ) // we also want a way to stow intake up, should figure that out
+
+        when (theoreticalGamePiece) {
+          GamePiece.CORAL -> {
+            elevator.currentRequest = Request.ElevatorRequest.ClosedLoop(
+              ElevatorTunableValues.Heights.idleCoralHeight.get()
+            )
+            arm.currentRequest = Request.ArmRequest.ClosedLoop(
+              ArmTunableValues.Angles.idleCoralAngle.get()
+            )
+            armRollers.currentRequest = Request.RollersRequest.OpenLoop(ArmRollersConstants.IDLE_CORAL_VOLTAGE)
+          }
+
+          GamePiece.ALGAE -> {
+            elevator.currentRequest = Request.ElevatorRequest.ClosedLoop(
+              ElevatorTunableValues.Heights.idleAlgaeHeight.get()
+            )
+            arm.currentRequest = Request.ArmRequest.ClosedLoop(
+              ArmTunableValues.Angles.idleAlgaeAngle.get()
+            )
+            armRollers.currentRequest = Request.RollersRequest.OpenLoop(ArmRollersConstants.IDLE_ALGAE_VOLTAGE)
+          }
+
+          GamePiece.NONE -> {
+            elevator.currentRequest = Request.ElevatorRequest.ClosedLoop(
+              ElevatorTunableValues.Heights.idleHeight.get()
+            )
+            arm.currentRequest = Request.ArmRequest.ClosedLoop(
+              ArmTunableValues.Angles.idleCoralAngle.get()
+            )
+            armRollers.currentRequest = Request.RollersRequest.OpenLoop(0.0.volts)
+          }
+        }
+
+        // idle to request transitions
+        nextState =
+          when (currentRequest) {
+            is Request.SuperstructureRequest.Home -> SuperstructureStates.HOME
+            is Request.SuperstructureRequest.PrepScoreCoral ->
+              SuperstructureStates.SCORE_PREP_CORAL
+            is Request.SuperstructureRequest.PrepScoreAlgae ->
+              SuperstructureStates.PREP_SCORE_ALGAE
+            is Request.SuperstructureRequest.ExtendClimb -> SuperstructureStates.CLIMB_EXTEND
+            is Request.SuperstructureRequest.RetractClimb -> SuperstructureStates.CLIMB_RETRACT
+            else -> currentState
+          }
+      }
+      SuperstructureStates.CLIMB_EXTEND -> { // for getting climb set-up (straight out)
+        climber.currentRequest = Request.ClimberRequest.ClosedLoop(ClimberConstants.FULLY_EXTENDED_ANGLE)
+
+        if (climber.isAtTargetedPosition) {
+          nextState = SuperstructureStates.IDLE
+        }
+
+        when (currentRequest) {
+          is Request.SuperstructureRequest.Idle -> SuperstructureStates.IDLE
+          is Request.SuperstructureRequest.RetractClimb -> SuperstructureStates.CLIMB_RETRACT
+        }
+      }
+      SuperstructureStates.CLIMB_RETRACT -> {  // for actually CLIMBING (retracting climb into robot)
+        climber.currentRequest = if (climber.isAtTargetedPosition) {
+            Request.ClimberRequest.OpenLoop(
+              0.0.volts, // don't keep open looping or you'll stall out the motor
+              ClimberConstants.INTAKE_CAGE_VOLTAGE
+            )
+          }
+          else {
+            Request.ClimberRequest.OpenLoop(
+              ClimberConstants.CLIMB_RETRACT_VOLTAGE,
+              ClimberConstants.INTAKE_CAGE_VOLTAGE
+            )
+          }
+
+        when (currentRequest) {
+          is Request.SuperstructureRequest.Idle -> SuperstructureStates.IDLE
+          is Request.SuperstructureRequest.ExtendClimb -> SuperstructureStates.CLIMB_EXTEND
+        }
+      }
+      SuperstructureStates.SCORE_PREP_CORAL -> {
         elevator.currentRequest =
           when (coralScoringLevel) {
             CoralLevel.L1 ->
@@ -165,7 +262,7 @@ class Superstructure(
                 Request.ArmRequest.ClosedLoop(
                   ArmTunableValues.Angles.l4PrepAngle.get(),
                 )
-              else -> Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleAngle.get())
+              else -> Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleCoralAngle.get())
             }
         }
 
@@ -182,7 +279,7 @@ class Superstructure(
       SuperstructureStates.SCORE_CORAL -> {
         if (coralScoringLevel != CoralLevel.L1)
           arm.currentRequest =
-            Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleAngle.get())
+            Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleCoralAngle.get())
         armRollers.currentRequest =
           ArmRollersRequest.OpenLoop(ArmRollersConstants.OUTTAKE_CORAL_VOLTAGE)
 
@@ -190,7 +287,7 @@ class Superstructure(
           nextState = SuperstructureStates.IDLE
         }
       }
-      SuperstructureStates.SCORE_ALGAE_PREP -> {
+      SuperstructureStates.PREP_SCORE_ALGAE -> {
         elevator.currentRequest =
           when (algaeScoringLevel) {
             AlgaeScoringLevel.PROCESSOR ->
@@ -205,14 +302,16 @@ class Superstructure(
               Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.idleHeight.get())
           }
 
-        arm.currentRequest =
-          when (algaeScoringLevel) {
-            AlgaeScoringLevel.PROCESSOR ->
-              Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.processorAngle.get())
-            AlgaeScoringLevel.BARGE ->
-              Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.bargeAngle.get())
-            else -> Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleAngle.get())
-          }
+        if (elevator.inputs.elevatorPosition >= ElevatorConstants.ELEVATOR_HEIGHT_TO_CLEAR_ARM) {
+          arm.currentRequest =
+            when (algaeScoringLevel) {
+              AlgaeScoringLevel.PROCESSOR ->
+                Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.processorAngle.get())
+              AlgaeScoringLevel.BARGE ->
+                Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.bargeAngle.get())
+              else -> Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleCoralAngle.get())
+            }
+        }
 
         when (currentRequest) {
           is Request.SuperstructureRequest.Idle -> nextState = SuperstructureStates.IDLE
@@ -245,9 +344,9 @@ class Superstructure(
       INTAKE_ALGAE,
       CLIMB_EXTEND,
       CLIMB_RETRACT,
-      SCORE_CORAL_PREP,
+      SCORE_PREP_CORAL,
       SCORE_CORAL,
-      SCORE_ALGAE_PREP,
+      PREP_SCORE_ALGAE,
       SCORE_ALGAE
     }
   }

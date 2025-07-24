@@ -15,7 +15,7 @@ class Climber(private val io: ClimberIO) : SubsystemBase() {
   private val inputs: ClimberIO.ClimberInputs = ClimberIO.ClimberInputs()
 
   private var currentState: ClimberState = ClimberState.UNINITIALIZED
-  private var currentRequest: Request.ClimberRequest = Request.ClimberRequest.Home()
+  var currentRequest: Request.ClimberRequest = Request.ClimberRequest.Home()
     set(value) {
       when (value) {
         is Request.ClimberRequest.OpenLoop -> {

@@ -12,6 +12,8 @@ sealed interface Request {
   sealed interface SuperstructureRequest : Request {
     class Idle() : SuperstructureRequest
 
+    class Home() : SuperstructureRequest
+
     class ExtendClimb() : SuperstructureRequest
 
     class RetractClimb() : SuperstructureRequest
@@ -20,9 +22,9 @@ sealed interface Request {
 
     class IntakeAlgae(val level: Constants.Universal.AlgaeIntakeLevel) : SuperstructureRequest
 
-    class ScorePrepAlgae(val level: Constants.Universal.AlgaeScoringLevel) : SuperstructureRequest
+    class PrepScoreAlgae(val level: Constants.Universal.AlgaeScoringLevel) : SuperstructureRequest
 
-    class ScorePrepCoral(val level: Constants.Universal.CoralLevel) : SuperstructureRequest
+    class PrepScoreCoral(val level: Constants.Universal.CoralLevel) : SuperstructureRequest
 
     class Score() : SuperstructureRequest
   }

@@ -106,7 +106,7 @@ class ClimberIOTalon : ClimberIO {
     climberConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
       climberSensor.positionToRawUnits(ClimberConstants.FULLY_CLIMBED_ANGLE)
     climberConfiguration.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-      climberSensor.positionToRawUnits(ClimberConstants.FULLY_RETRACTED_ANGLE)
+      climberSensor.positionToRawUnits(ClimberConstants.FULLY_EXTENDED_ANGLE)
 
     climberConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake
     climberConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive

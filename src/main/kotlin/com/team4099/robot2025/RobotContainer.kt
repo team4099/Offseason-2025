@@ -8,13 +8,17 @@ import com.team4099.robot2025.commands.drivetrain.TeleopDriveCommand
 import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.VisionConstants
+import com.team4099.robot2025.subsystems.Arm.Arm
+import com.team4099.robot2025.subsystems.Arm.ArmIOSIm
+import com.team4099.robot2025.subsystems.Arm.ArmIOTalon
 import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
 import com.team4099.robot2025.subsystems.drivetrain.drive.DrivetrainIOReal
 import com.team4099.robot2025.subsystems.drivetrain.drive.DrivetrainIOSim
 import com.team4099.robot2025.subsystems.drivetrain.gyro.GyroIO
 import com.team4099.robot2025.subsystems.drivetrain.gyro.GyroIOPigeon2
 import com.team4099.robot2025.subsystems.elevator.Elevator
-import com.team4099.robot2025.subsystems.elevator.ElevatorIO
+import com.team4099.robot2025.subsystems.elevator.ElevatorIOSim
+import com.team4099.robot2025.subsystems.elevator.ElevatorIOTalon
 import com.team4099.robot2025.subsystems.limelight.LimelightVision
 import com.team4099.robot2025.subsystems.limelight.LimelightVisionIO
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
@@ -24,6 +28,9 @@ import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.derived.Angle
+import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
+import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersIOSim
+import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOTalon as ArmRollersIOTalon
 import com.team4099.robot2025.subsystems.superstructure.Request.DrivetrainRequest as DrivetrainRequest
 
 object RobotContainer {
@@ -31,15 +38,17 @@ object RobotContainer {
   private val limelight: LimelightVision
   private val vision: Vision
   private val elevator: Elevator
+  private val arm: Arm
+  private val armRollers: ArmRollers
   val superstructure: Superstructure
 
   init {
     if (RobotBase.isReal()) {
       drivetrain = Drivetrain(GyroIOPigeon2, DrivetrainIOReal)
       limelight = LimelightVision(object : LimelightVisionIO {})
-      // other subsystems go here
-      elevator =
-        Elevator(object : ElevatorIO {}) // fake elevator needed for robot container functions
+      elevator = Elevator(ElevatorIOTalon)
+      arm = Arm(ArmIOTalon)
+      armRollers = ArmRollers(ArmRollersIOTalon)
 
       vision =
         Vision(
@@ -53,9 +62,9 @@ object RobotContainer {
     } else {
       drivetrain = Drivetrain(object : GyroIO {}, DrivetrainIOSim)
       limelight = LimelightVision(object : LimelightVisionIO {})
-      // other subsystems go here
-      elevator =
-        Elevator(object : ElevatorIO {}) // fake elevator needed for robot container functions
+      elevator = Elevator(ElevatorIOSim)
+      arm = Arm(ArmIOSIm)
+      armRollers = ArmRollers(ArmRollersIOSim)
 
       vision = Vision(object : CameraIO {})
     }
@@ -67,7 +76,7 @@ object RobotContainer {
     )
     vision.drivetrainOdometry = { drivetrain.odomTRobot }
 
-    superstructure = Superstructure(drivetrain, vision, limelight)
+    superstructure = Superstructure(drivetrain, vision, limelight, elevator, arm, armRollers)
 
     limelight.poseSupplier = { drivetrain.odomTRobot }
   }

@@ -1,4 +1,4 @@
-package com.team4099.robot2025.subsystems.Intake
+package com.team4099.robot2025.subsystems.intake
 
 import com.team4099.lib.logging.LoggedTunableValue
 import org.team4099.lib.units.derived.degrees

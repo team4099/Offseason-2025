@@ -1,3 +1,5 @@
+package com.team4099.robot2025.subsystems.intake
+
 import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj2.command.SubsystemBase

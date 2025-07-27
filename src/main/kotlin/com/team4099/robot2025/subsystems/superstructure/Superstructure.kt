@@ -129,7 +129,8 @@ class Superstructure(
     CustomLogger.recordOutput("Superstructure/currentRequest", currentRequest.javaClass.simpleName)
     CustomLogger.recordOutput("Superstructure/currentState", currentState.name)
     CustomLogger.recordOutput("Superstructure/isAtAllTargetedPositions", isAtRequestedState)
-    CustomLogger.recordOutput("Superstructure/theoreticalGamePiece", theoreticalGamePiece)
+    CustomLogger.recordOutput("Superstructure/theoreticalGamePieceArm", theoreticalGamePieceArm)
+    CustomLogger.recordOutput("Superstructure/theoreticalGamePieceHardstop", theoreticalGamePieceHardstop)
 
     var nextState = currentState
     when (currentState) {
@@ -141,7 +142,7 @@ class Superstructure(
       SuperstructureStates.GROUND_INTAKE_CORAL -> {
          intake.currentRequest = Request.IntakeRequest.TargetingPosition(
           IntakeTunableValues.coralPosition.get(),
-           IntakeConstants.INTAKE_VOLTAGE
+           IntakeConstants.Rollers.INTAKE_VOLTAGE
         )
 
         //update with canrange
@@ -150,7 +151,7 @@ class Superstructure(
 //          theoreticalGamePieceHardstop = GamePiece.CORAL
 //        }
 
-        if (theoreticalGamePieceArm == GamePiece.NONE && theoreticalGamePieceHardstop = GamePiece.CORAL) {
+        if (theoreticalGamePieceArm == GamePiece.NONE && theoreticalGamePieceHardstop == GamePiece.CORAL) {
           nextState = SuperstructureStates.INTAKE_CORAL_INTO_ARM
         }
 

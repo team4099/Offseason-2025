@@ -15,6 +15,8 @@ object RollersConstants {
   val ALGAE_CURRENT_THRESHOLD = 0.0.amps
   val ALGAE_DETECTION_THRESHOLD = 0.0.seconds
 
+  val IDLE_VOLTAGE = 0.0.volts
+
   val MOMENT_OF_INERTIA = 0.09344594214.grams.meterSquared
 
   val SUPPLY_CURRENT_LIMIT = 40.0.amps

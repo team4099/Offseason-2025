@@ -2,6 +2,7 @@ package com.team4099.robot2025.subsystems.superstructure
 
 import Intake
 import com.team4099.lib.hal.Clock
+import com.team4099.robot2025.config.constants.ArmConstants
 import com.team4099.robot2025.config.constants.ClimberConstants
 import com.team4099.robot2025.config.constants.ElevatorConstants
 import com.team4099.robot2025.config.constants.IntakeConstants
@@ -146,11 +147,9 @@ class Superstructure(
         }
       }
       SuperstructureStates.IDLE -> {
-        climber.currentRequest = Request.ClimberRequest.ClosedLoop(ClimberConstants.IDLE_ANGLE)
-        intake.currentRequest = Request.IntakeRequest.TargetingPosition(
-          IntakeConstants.PIVOT_MAX_ANGLE,
-          IntakeConstants.Rollers.IDLE_VOLTAGE
-        ) // we also want a way to stow intake up, should figure that out
+        climber.currentRequest = Request.ClimberRequest.OpenLoop(0.0.volts, 0.0.volts)
+        intake.currentRequest = Request.IntakeRequest.OpenLoop(
+          0.0.volts, 0.0.volts) // we also want a way to stow intake up, should figure that out
 
         when (theoreticalGamePiece) {
           GamePiece.CORAL -> {
@@ -178,9 +177,9 @@ class Superstructure(
               ElevatorTunableValues.Heights.idleHeight.get()
             )
             arm.currentRequest = Request.ArmRequest.ClosedLoop(
-              ArmTunableValues.Angles.idleCoralAngle.get()
+              ArmConstants.ANGLES.IDLE_ANGLE
             )
-            armRollers.currentRequest = Request.RollersRequest.OpenLoop(0.0.volts)
+            armRollers.currentRequest = Request.RollersRequest.OpenLoop(ArmRollersConstants.IDLE_ALGAE_VOLTAGE)
           }
         }
 

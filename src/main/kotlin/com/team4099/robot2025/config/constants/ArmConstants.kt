@@ -47,8 +47,9 @@ object ArmConstants {
   }
 
   object ANGLES {
-    val IDLE_CORAL_ANGLE = 0.0.degrees
+    val IDLE_CORAL_ANGLE = 180.0.degrees
     val IDLE_ALGAE_ANGLE = 45.0.degrees
+    val IDLE_ANGLE =0.0.degrees
 
     val L1_PREP_ANGLE = 74.0.degrees
     val L2_PREP_ANGLE = 123.26.degrees

@@ -47,6 +47,8 @@ object ArmConstants {
   }
 
   object ANGLES {
+    val INTAKE_ANGLE = 0.0.degrees
+
     val L1_PREP_ANGLE = 74.0.degrees
     val L2_PREP_ANGLE = 123.26.degrees
     val L3_PREP_ANGLE = 123.26.degrees

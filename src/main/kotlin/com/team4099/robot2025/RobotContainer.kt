@@ -19,6 +19,9 @@ import com.team4099.robot2025.subsystems.drivetrain.gyro.GyroIOPigeon2
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOSim
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOTalon
+import com.team4099.robot2025.subsystems.intake.Intake
+import com.team4099.robot2025.subsystems.intake.IntakeIOSim
+import com.team4099.robot2025.subsystems.intake.IntakeIOTalonFX
 import com.team4099.robot2025.subsystems.limelight.LimelightVision
 import com.team4099.robot2025.subsystems.limelight.LimelightVisionIO
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
@@ -40,6 +43,7 @@ object RobotContainer {
   private val elevator: Elevator
   private val arm: Arm
   private val armRollers: ArmRollers
+  private val intake: Intake
   val superstructure: Superstructure
 
   init {
@@ -49,6 +53,7 @@ object RobotContainer {
       elevator = Elevator(ElevatorIOTalon)
       arm = Arm(ArmIOTalon)
       armRollers = ArmRollers(ArmRollersIOTalon)
+      intake = Intake(IntakeIOTalonFX)
 
       vision =
         Vision(
@@ -65,6 +70,7 @@ object RobotContainer {
       elevator = Elevator(ElevatorIOSim)
       arm = Arm(ArmIOSIm)
       armRollers = ArmRollers(ArmRollersIOSim)
+      intake = Intake(IntakeIOSim)
 
       vision = Vision(object : CameraIO {})
     }
@@ -76,7 +82,8 @@ object RobotContainer {
     )
     vision.drivetrainOdometry = { drivetrain.odomTRobot }
 
-    superstructure = Superstructure(drivetrain, vision, limelight, elevator, arm, armRollers)
+    superstructure =
+      Superstructure(drivetrain, vision, limelight, elevator, arm, armRollers, intake)
 
     limelight.poseSupplier = { drivetrain.odomTRobot }
   }

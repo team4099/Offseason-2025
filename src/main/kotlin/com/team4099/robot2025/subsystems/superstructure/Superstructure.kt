@@ -2,9 +2,12 @@ package com.team4099.robot2025.subsystems.superstructure
 
 import com.team4099.lib.hal.Clock
 import com.team4099.robot2025.config.constants.ElevatorConstants
+import com.team4099.robot2025.config.constants.IntakeConstants
 import com.team4099.robot2025.subsystems.Arm.Arm
 import com.team4099.robot2025.subsystems.Arm.ArmTunableValues
 import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
+import com.team4099.robot2025.subsystems.intake.Intake
+import com.team4099.robot2025.subsystems.intake.IntakeTunableValues
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.elevator.ElevatorTunableValues
 import com.team4099.robot2025.subsystems.limelight.LimelightVision
@@ -26,10 +29,13 @@ class Superstructure(
   private val limelight: LimelightVision,
   private val elevator: Elevator,
   private val arm: Arm,
+  private val intake: Intake,
   private val armRollers: ArmRollers
 ) : SubsystemBase() {
 
-  val theoreticalGamePiece: GamePiece = GamePiece.NONE
+  var theoreticalGamePieceArm: GamePiece = GamePiece.NONE
+  var theoreticalGamePieceHardstop: GamePiece = GamePiece.NONE
+
   //    get() {
   //      if (rollers.hasCoral || ramp.hasCoral) {
   //        return GamePiece.CORAL
@@ -131,6 +137,72 @@ class Superstructure(
       SuperstructureStates.UNINITIALIZED -> {
         nextState = SuperstructureStates.HOME
       }
+
+      SuperstructureStates.GROUND_INTAKE_CORAL -> {
+         intake.currentRequest = Request.IntakeRequest.TargetingPosition(
+          IntakeTunableValues.coralPosition.get(),
+           IntakeConstants.INTAKE_VOLTAGE
+        )
+
+        //update with canrange
+
+//        if (canrange.hasCoral) {
+//          theoreticalGamePieceHardstop = GamePiece.CORAL
+//        }
+
+        if (theoreticalGamePieceArm == GamePiece.NONE && theoreticalGamePieceHardstop = GamePiece.CORAL) {
+          nextState = SuperstructureStates.INTAKE_CORAL_INTO_ARM
+        }
+
+        if (currentRequest is Request.SuperstructureRequest.Idle) {
+          nextState = SuperstructureStates.IDLE
+        }
+      }
+
+      SuperstructureStates.INTAKE_CORAL_INTO_ARM -> {
+        arm.currentRequest =
+          Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.hardstopIntakeAngle.get())
+        armRollers.currentRequest =
+          ArmRollersRequest.OpenLoop(ArmRollersConstants.INTAKE_CORAL_VOLTAGE)
+
+        if(armRollers.hasCoral){
+          theoreticalGamePieceArm = GamePiece.CORAL
+        }
+
+        if (currentRequest is Request.SuperstructureRequest.Idle || arm.isAtTargetedPosition && theoreticalGamePieceArm == GamePiece.CORAL) {
+          nextState = SuperstructureStates.IDLE
+        }
+      }
+
+
+      //TODO: we should change to having prep intake algae and intake algae
+      SuperstructureStates.INTAKE_ALGAE -> {
+        //keep in prep
+        elevator.currentRequest =
+          when (algaeIntakeLevel) {
+            AlgaeIntakeLevel.GROUND ->
+              Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.intakeAlgaeGroundHeight.get())
+            AlgaeIntakeLevel.L2 ->
+              Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.intakeAlgaeLowHeight.get())
+            AlgaeIntakeLevel.L3 ->
+              Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.intakeAlgaeHighHeight.get())
+            else ->
+              Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.idleHeight.get())
+          }
+
+        //use in intake
+        armRollers.currentRequest =
+          ArmRollersRequest.OpenLoop(ArmRollersConstants.INTAKE_ALGAE_VOLTAGE)
+
+        if(armRollers.hasAlgae){
+          theoreticalGamePieceArm = GamePiece.ALGAE
+        }
+
+        if (currentRequest is Request.SuperstructureRequest.Idle || arm.isAtTargetedPosition && theoreticalGamePieceArm == GamePiece.ALGAE) {
+          nextState = SuperstructureStates.IDLE
+        }
+      }
+
       SuperstructureStates.SCORE_CORAL_PREP -> {
         elevator.currentRequest =
           when (coralScoringLevel) {
@@ -179,6 +251,7 @@ class Superstructure(
           }
         }
       }
+
       SuperstructureStates.SCORE_CORAL -> {
         if (coralScoringLevel != CoralLevel.L1)
           arm.currentRequest =

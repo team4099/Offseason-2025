@@ -44,6 +44,8 @@ object ArmTunableValues {
   object Angles {
     val idleAngle = LoggedTunableValue("arm/idleAngle", Pair({ it.inDegrees }, { it.degrees }))
 
+    val hardstopIntakeAngle = LoggedTunableValue("arm/hardstopIntakeAngle", Pair({ it.inDegrees }, { it.degrees }))
+
     val l1PrepAngle = LoggedTunableValue("arm/l1PrepAngle", Pair({ it.inDegrees }, { it.degrees }))
     val l2PrepAngle = LoggedTunableValue("arm/l2PrepAngle", Pair({ it.inDegrees }, { it.degrees }))
     val l3PrepAngle = LoggedTunableValue("arm/l3PrepAngle", Pair({ it.inDegrees }, { it.degrees }))

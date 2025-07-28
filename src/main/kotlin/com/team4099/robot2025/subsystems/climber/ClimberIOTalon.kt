@@ -41,7 +41,7 @@ import org.team4099.lib.units.derived.newtons
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.perSecond
 
-class ClimberIOTalon : ClimberIO {
+object ClimberIOTalon : ClimberIO {
   private val climberTalon: TalonFX = TalonFX(Constants.Climber.CLIMBER_MOTOR_ID)
   private val climberConfiguration: TalonFXConfiguration = TalonFXConfiguration()
   private val climberSensor =
@@ -106,7 +106,7 @@ class ClimberIOTalon : ClimberIO {
     climberConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
       climberSensor.positionToRawUnits(ClimberConstants.FULLY_CLIMBED_ANGLE)
     climberConfiguration.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-      climberSensor.positionToRawUnits(ClimberConstants.FULLY_RETRACTED_ANGLE)
+      climberSensor.positionToRawUnits(ClimberConstants.FULLY_EXTENDED_ANGLE)
 
     climberConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake
     climberConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive

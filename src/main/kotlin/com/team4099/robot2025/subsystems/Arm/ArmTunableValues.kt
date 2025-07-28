@@ -43,7 +43,10 @@ object ArmTunableValues {
     )
 
   object Angles {
-    val idleAngle = LoggedTunableValue("arm/idleAngle", Pair({ it.inDegrees }, { it.degrees }))
+    val idleCoralAngle =
+      LoggedTunableValue("arm/idleCoralAngle", Pair({ it.inDegrees }, { it.degrees }))
+    val idleAlgaeAngle =
+      LoggedTunableValue("arm/idleAlgaeAngle", Pair({ it.inDegrees }, { it.degrees }))
 
     val hardstopIntakeAngle =
       LoggedTunableValue(

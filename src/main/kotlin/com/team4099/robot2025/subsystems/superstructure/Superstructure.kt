@@ -165,27 +165,29 @@ class Superstructure(
         }
       }
       SuperstructureStates.GROUND_INTAKE_CORAL_CLEANUP -> {
-        if (Robot.isAutonomous) nextState = SuperstructureStates.IDLE
+        if (Robot.isAutonomous) {
+          nextState = SuperstructureStates.IDLE
+        } else {
+          intake.currentRequest =
+            Request.IntakeRequest.TargetingPosition(
+              IntakeTunableValues.stowPosition.get(), IntakeConstants.Rollers.IDLE_VOLTAGE
+            )
 
-        intake.currentRequest =
-          Request.IntakeRequest.TargetingPosition(
-            IntakeTunableValues.stowPosition.get(), IntakeConstants.Rollers.IDLE_VOLTAGE
-          )
-
-        if (intake.isAtTargetedPosition) {
-          if (theoreticalGamePieceArm == GamePiece.NONE &&
-            theoreticalGamePieceHardstop ==
-            GamePiece.CORAL
-          ) { // if not holding an algae, intake it now
-            nextState = SuperstructureStates.INTAKE_CORAL_INTO_ARM
-          } else if (theoreticalGamePieceHardstop ==
-            GamePiece.CORAL
-          ) { // if holding an algae, keep in hardstop
+          if (intake.isAtTargetedPosition) {
+            if (theoreticalGamePieceArm == GamePiece.NONE &&
+              theoreticalGamePieceHardstop ==
+              GamePiece.CORAL
+            ) { // if not holding an algae, intake it now
+              nextState = SuperstructureStates.INTAKE_CORAL_INTO_ARM
+            } else if (theoreticalGamePieceHardstop ==
+              GamePiece.CORAL
+            ) { // if holding an algae, keep in hardstop
+              nextState = SuperstructureStates.IDLE
+            }
+          }
+          if (currentRequest is Request.SuperstructureRequest.Idle) {
             nextState = SuperstructureStates.IDLE
           }
-        }
-        if (currentRequest is Request.SuperstructureRequest.Idle) {
-          nextState = SuperstructureStates.IDLE
         }
       }
       SuperstructureStates.INTAKE_CORAL_INTO_ARM -> {

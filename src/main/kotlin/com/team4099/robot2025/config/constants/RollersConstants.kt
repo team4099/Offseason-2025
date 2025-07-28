@@ -15,10 +15,15 @@ object RollersConstants {
   val ALGAE_CURRENT_THRESHOLD = 0.0.amps
   val ALGAE_DETECTION_THRESHOLD = 0.0.seconds
 
+  val IDLE_VOLTAGE = 0.0.volts
+
   val MOMENT_OF_INERTIA = 0.09344594214.grams.meterSquared
 
   val SUPPLY_CURRENT_LIMIT = 40.0.amps
   val STATOR_CURRENT_LIMIT = 40.0.amps
+
+  val IDLE_CORAL_VOLTAGE = 0.volts
+  val IDLE_ALGAE_VOLTAGE = 0.5.volts
 
   val OUTTAKE_CORAL_VOLTAGE = (-4.0).volts
   val OUTTAKE_ALGAE_VOLTAGE = (-8.0).volts

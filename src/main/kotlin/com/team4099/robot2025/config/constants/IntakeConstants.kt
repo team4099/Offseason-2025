@@ -55,6 +55,8 @@ object IntakeConstants {
     val GEAR_RATIO = 1 / 1.0
     val INERTIA = 5.141e-13.pounds * 1.0.inches.squared
 
+    val IDLE_VOLTAGE = 0.volts
+
     val VOLTAGE_COMPENSATION = 12.volts
 
     val STATOR_CURRENT_LIMIT = 40.amps

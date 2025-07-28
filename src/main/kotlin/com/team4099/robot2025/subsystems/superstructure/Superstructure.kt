@@ -183,10 +183,9 @@ class Superstructure(
           ) { // if holding an algae, keep in hardstop
             nextState = SuperstructureStates.IDLE
           }
-
-          if (currentRequest is Request.SuperstructureRequest.Idle) {
-            nextState = SuperstructureStates.IDLE
-          }
+        }
+        if (currentRequest is Request.SuperstructureRequest.Idle) {
+          nextState = SuperstructureStates.IDLE
         }
       }
       SuperstructureStates.INTAKE_CORAL_INTO_ARM -> {
@@ -247,11 +246,7 @@ class Superstructure(
       }
       SuperstructureStates.IDLE -> {
         climber.currentRequest = Request.ClimberRequest.OpenLoop(0.0.volts, 0.0.volts)
-        intake.currentRequest =
-          Request.IntakeRequest.OpenLoop(
-            0.0.volts,
-            0.0.volts
-          ) // we also want a way to stow intake up, should figure that out
+        intake.currentRequest = Request.IntakeRequest.OpenLoop(0.0.volts, 0.0.volts)
 
         when (theoreticalGamePieceArm) {
           GamePiece.CORAL -> {
@@ -285,16 +280,22 @@ class Superstructure(
 
         // idle to request transitions
         nextState =
-          when (currentRequest) {
-            is Request.SuperstructureRequest.Home -> SuperstructureStates.HOME
-            is Request.SuperstructureRequest.PrepScoreCoral ->
-              SuperstructureStates.SCORE_PREP_CORAL
-            is Request.SuperstructureRequest.PrepScoreAlgae ->
-              SuperstructureStates.PREP_SCORE_ALGAE
-            is Request.SuperstructureRequest.ExtendClimb -> SuperstructureStates.CLIMB_EXTEND
-            is Request.SuperstructureRequest.RetractClimb -> SuperstructureStates.CLIMB_RETRACT
-            else -> currentState
-          }
+          if (theoreticalGamePieceArm == GamePiece.NONE &&
+            theoreticalGamePieceHardstop == GamePiece.CORAL
+          )
+            SuperstructureStates.INTAKE_CORAL_INTO_ARM
+          else
+            when (currentRequest) {
+              is Request.SuperstructureRequest.Home -> SuperstructureStates.HOME
+              is Request.SuperstructureRequest.PrepScoreCoral ->
+                SuperstructureStates.SCORE_PREP_CORAL
+              is Request.SuperstructureRequest.PrepScoreAlgae ->
+                SuperstructureStates.PREP_SCORE_ALGAE
+              is Request.SuperstructureRequest.ExtendClimb -> SuperstructureStates.CLIMB_EXTEND
+              is Request.SuperstructureRequest.RetractClimb ->
+                SuperstructureStates.CLIMB_RETRACT
+              else -> currentState
+            }
       }
       SuperstructureStates.CLIMB_EXTEND -> { // for getting climb set-up (straight out)
         climber.currentRequest =

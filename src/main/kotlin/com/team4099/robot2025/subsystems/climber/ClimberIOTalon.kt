@@ -41,7 +41,7 @@ import org.team4099.lib.units.derived.newtons
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.perSecond
 
-class ClimberIOTalon : ClimberIO {
+object ClimberIOTalon : ClimberIO {
   private val climberTalon: TalonFX = TalonFX(Constants.Climber.CLIMBER_MOTOR_ID)
   private val climberConfiguration: TalonFXConfiguration = TalonFXConfiguration()
   private val climberSensor =

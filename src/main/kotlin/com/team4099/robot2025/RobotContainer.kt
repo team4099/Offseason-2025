@@ -11,6 +11,9 @@ import com.team4099.robot2025.config.constants.VisionConstants
 import com.team4099.robot2025.subsystems.Arm.Arm
 import com.team4099.robot2025.subsystems.Arm.ArmIOSIm
 import com.team4099.robot2025.subsystems.Arm.ArmIOTalon
+import com.team4099.robot2025.subsystems.climber.Climber
+import com.team4099.robot2025.subsystems.climber.ClimberIOSim
+import com.team4099.robot2025.subsystems.climber.ClimberIOTalon
 import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
 import com.team4099.robot2025.subsystems.drivetrain.drive.DrivetrainIOReal
 import com.team4099.robot2025.subsystems.drivetrain.drive.DrivetrainIOSim
@@ -19,6 +22,9 @@ import com.team4099.robot2025.subsystems.drivetrain.gyro.GyroIOPigeon2
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOSim
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOTalon
+import com.team4099.robot2025.subsystems.intake.Intake
+import com.team4099.robot2025.subsystems.intake.IntakeIOSim
+import com.team4099.robot2025.subsystems.intake.IntakeIOTalonFX
 import com.team4099.robot2025.subsystems.limelight.LimelightVision
 import com.team4099.robot2025.subsystems.limelight.LimelightVisionIO
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
@@ -40,6 +46,8 @@ object RobotContainer {
   private val elevator: Elevator
   private val arm: Arm
   private val armRollers: ArmRollers
+  private val climber: Climber
+  private val intake: Intake
   val superstructure: Superstructure
 
   init {
@@ -49,6 +57,8 @@ object RobotContainer {
       elevator = Elevator(ElevatorIOTalon)
       arm = Arm(ArmIOTalon)
       armRollers = ArmRollers(ArmRollersIOTalon)
+      climber = Climber(ClimberIOTalon)
+      intake = Intake(IntakeIOTalonFX)
 
       vision =
         Vision(
@@ -65,6 +75,8 @@ object RobotContainer {
       elevator = Elevator(ElevatorIOSim)
       arm = Arm(ArmIOSIm)
       armRollers = ArmRollers(ArmRollersIOSim)
+      climber = Climber(ClimberIOSim)
+      intake = Intake(IntakeIOSim)
 
       vision = Vision(object : CameraIO {})
     }
@@ -76,7 +88,8 @@ object RobotContainer {
     )
     vision.drivetrainOdometry = { drivetrain.odomTRobot }
 
-    superstructure = Superstructure(drivetrain, vision, limelight, elevator, arm, armRollers)
+    superstructure =
+      Superstructure(drivetrain, vision, limelight, elevator, arm, armRollers, climber, intake)
 
     limelight.poseSupplier = { drivetrain.odomTRobot }
   }

@@ -18,6 +18,8 @@ object IntakeConstants {
   val ZERO_OFFSET = 0.0.degrees
   val PIVOT_GEAR_RATIO = 20.0 / 1.0
 
+  val INTAKE_TOLERANCE = 1.0.degrees
+
   val PIVOT_INERTIA = 17.586.pounds * 1.0.inches.squared
   val PIVOT_LENGTH = 13.51441.inches
   val PIVOT_MAX_ANGLE = 145.0.degrees
@@ -40,6 +42,11 @@ object IntakeConstants {
   val SIM_VELOCITY = 400.degrees.perSecond
   val SIM_ACCELERATION = 400.degrees.perSecond.perSecond
 
+  object ANGLES {
+    val INTAKE_ANGLE = 0.0.degrees
+    val STOW_ANGLE = 0.0.degrees
+  }
+
   object PID {
     // PID Constants
     val SIM_PIVOT_KP: ProportionalGain<Radian, Volt> = 0.15.volts / 1.0.degrees
@@ -61,5 +68,7 @@ object IntakeConstants {
 
     val STATOR_CURRENT_LIMIT = 40.amps
     val SUPPLY_CURRENT_LIMIT = 40.amps
+
+    val INTAKE_VOLTAGE = 1.0.volts
   }
 }

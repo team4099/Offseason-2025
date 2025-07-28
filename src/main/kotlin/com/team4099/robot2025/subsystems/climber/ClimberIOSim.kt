@@ -30,7 +30,7 @@ import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.perMinute
 import org.team4099.lib.units.perSecond
 
-class ClimberIOSim : ClimberIO {
+object ClimberIOSim : ClimberIO {
   private val climberSim: SingleJointedArmSim =
     SingleJointedArmSim(
       DCMotor.getKrakenX60(1),

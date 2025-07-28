@@ -1,6 +1,7 @@
 package com.team4099.robot2025.subsystems.Arm
 
 import com.team4099.lib.logging.LoggedTunableValue
+import com.team4099.robot2025.config.constants.ArmConstants
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inDegrees
 import org.team4099.lib.units.derived.inVolts
@@ -42,8 +43,17 @@ object ArmTunableValues {
     )
 
   object Angles {
-    val idleCoralAngle = LoggedTunableValue("arm/idleCoralAngle", Pair({ it.inDegrees }, { it.degrees }))
-    val idleAlgaeAngle = LoggedTunableValue("arm/idleAlgaeAngle", Pair({ it.inDegrees }, { it.degrees }))
+    val idleCoralAngle =
+      LoggedTunableValue("arm/idleCoralAngle", Pair({ it.inDegrees }, { it.degrees }))
+    val idleAlgaeAngle =
+      LoggedTunableValue("arm/idleAlgaeAngle", Pair({ it.inDegrees }, { it.degrees }))
+
+    val hardstopIntakeAngle =
+      LoggedTunableValue(
+        "arm/hardstopIntakeAngle",
+        ArmConstants.ANGLES.INTAKE_ANGLE,
+        Pair({ it.inDegrees }, { it.degrees })
+      )
 
     val l1PrepAngle = LoggedTunableValue("arm/l1PrepAngle", Pair({ it.inDegrees }, { it.degrees }))
     val l2PrepAngle = LoggedTunableValue("arm/l2PrepAngle", Pair({ it.inDegrees }, { it.degrees }))

@@ -18,6 +18,7 @@ import com.team4099.robot2025.subsystems.limelight.LimelightVision
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.volts
 import com.team4099.robot2025.config.constants.Constants.Universal.AlgaeIntakeLevel as AlgaeIntakeLevel
@@ -273,27 +274,32 @@ class Superstructure(
         armRollers.currentRequest =
           ArmRollersRequest.OpenLoop(ArmRollersConstants.INTAKE_ALGAE_VOLTAGE)
 
-        elevator.currentRequest =
-          Request.ElevatorRequest.ClosedLoop(
-            when (algaeIntakeLevel) {
-              AlgaeIntakeLevel.GROUND ->
-                ElevatorTunableValues.Heights.intakeAlgaeGroundHeight.get()
-              AlgaeIntakeLevel.L2 -> ElevatorTunableValues.Heights.intakeAlgaeLowHeight.get()
-              AlgaeIntakeLevel.L3 -> ElevatorTunableValues.Heights.intakeAlgaeHighHeight.get()
-              else -> ElevatorTunableValues.Heights.idleHeight.get()
-            }
-          )
+        if (algaeIntakeLevel == AlgaeIntakeLevel.GROUND) {
+          arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.algaeGroundIntakeAngle.get())
 
-        if (elevator.inputs.elevatorPosition >= ElevatorConstants.ELEVATOR_HEIGHT_TO_CLEAR_ARM) {
-          arm.currentRequest =
-            Request.ArmRequest.ClosedLoop(
+          if (arm.isAtTargetedPosition) {
+            elevator.currentRequest = Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.intakeAlgaeGroundHeight.get())
+          }
+        } else {
+          elevator.currentRequest =
+            Request.ElevatorRequest.ClosedLoop(
               when (algaeIntakeLevel) {
-                AlgaeIntakeLevel.GROUND -> ArmTunableValues.Angles.algaeGroundIntakeAngle.get()
-                AlgaeIntakeLevel.L2 -> ArmTunableValues.Angles.algaeLowIntakeAngle.get()
-                AlgaeIntakeLevel.L3 -> ArmTunableValues.Angles.algaeHighIntakeAngle.get()
-                else -> ArmTunableValues.Angles.idleAngle.get()
+                AlgaeIntakeLevel.L2 -> ElevatorTunableValues.Heights.intakeAlgaeLowHeight.get()
+                AlgaeIntakeLevel.L3 -> ElevatorTunableValues.Heights.intakeAlgaeHighHeight.get()
+                else -> ElevatorTunableValues.Heights.idleHeight.get()
               }
             )
+
+          if (elevator.inputs.elevatorPosition >= ElevatorConstants.ELEVATOR_HEIGHT_TO_CLEAR_ARM) {
+            arm.currentRequest =
+              Request.ArmRequest.ClosedLoop(
+                when (algaeIntakeLevel) {
+                  AlgaeIntakeLevel.L2 -> ArmTunableValues.Angles.algaeLowIntakeAngle.get()
+                  AlgaeIntakeLevel.L3 -> ArmTunableValues.Angles.algaeHighIntakeAngle.get()
+                  else -> ArmTunableValues.Angles.idleAngle.get()
+                }
+              )
+          }
         }
 
         if (armRollers.hasAlgae) {
@@ -303,6 +309,15 @@ class Superstructure(
         if (currentRequest is Request.SuperstructureRequest.Idle ||
           arm.isAtTargetedPosition && theoreticalGamePieceArm == GamePiece.ALGAE
         ) {
+          nextState = SuperstructureStates.CLEANUP_INTAKE_ALGAE
+        }
+      }
+      SuperstructureStates.CLEANUP_INTAKE_ALGAE -> {
+        if (theoreticalGamePieceArm != GamePiece.ALGAE && elevator.inputs.elevatorPosition <= ElevatorConstants.ELEVATOR_HEIGHT_TO_CLEAR_ARM) {
+          elevator.currentRequest = Request.ElevatorRequest.ClosedLoop(ElevatorConstants.ELEVATOR_HEIGHT_TO_CLEAR_ARM + 3.0.inches)
+        } else {
+          // case 1 - holding algae, idle will deal with the transition nicely
+          // case 2 - we've gone up enough in height to safely transition to idle
           nextState = SuperstructureStates.IDLE
         }
       }
@@ -488,13 +503,18 @@ class Superstructure(
       }
       SuperstructureStates.CLEANUP_SCORE_ALGAE -> {
         theoreticalGamePieceArm = GamePiece.NONE
-        arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleAngle.get())
-        if (arm.isAtTargetedPosition) {
-          elevator.currentRequest =
-            Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.idleHeight.get())
-        }
-        if (arm.isAtTargetedPosition && elevator.isAtTargetedPosition) {
-          nextState = SuperstructureStates.IDLE
+        if (theoreticalGamePieceHardstop == GamePiece.CORAL) {
+          // dw, intake_coral_into_arm deals with the transition
+          nextState = SuperstructureStates.INTAKE_CORAL_INTO_ARM
+        } else {
+          arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleAngle.get())
+          if (arm.isAtTargetedPosition) {
+            elevator.currentRequest =
+              Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.idleHeight.get())
+          }
+          if (arm.isAtTargetedPosition && elevator.isAtTargetedPosition) {
+            nextState = SuperstructureStates.IDLE
+          }
         }
       }
     }
@@ -511,6 +531,7 @@ class Superstructure(
       GROUND_INTAKE_CORAL_CLEANUP,
       INTAKE_CORAL_INTO_ARM,
       INTAKE_ALGAE,
+      CLEANUP_INTAKE_ALGAE,
       CLIMB_EXTEND,
       CLIMB_RETRACT,
       PREP_SCORE_CORAL,

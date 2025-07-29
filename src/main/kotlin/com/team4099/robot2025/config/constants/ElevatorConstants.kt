@@ -38,32 +38,33 @@ object ElevatorConstants {
 
   val ELEVATOR_TOLERANCE = 0.2.inches
 
+  val CARRIAGE_TO_BOTTOM = 11.0.inches
+
   // not to be confused with LOW_SCORE_OFFSET, this is to make sure arm doesnt hit battery
   val ELEVATOR_HEIGHT_TO_CLEAR_ARM =
     16.0.inches // todo update with final robot to make sure nothing breaks !!!!!!
 
   object HEIGHTS {
-    val IDLE = 0.0.inches
-    val IDLE_CORAL = 0.0.inches
-    val IDLE_ALGAE = 0.0.inches
+    val IDLE = 22.42.inches
+    val IDLE_CORAL = 22.42.inches
+    val IDLE_ALGAE = 11.9.inches
 
-    val INTAKE_CORAL = 0.0.inches
-    val INTAKE_ALGAE_GROUND = 0.0.inches
-    val INTAKE_ALGAE_LOW = 0.0.inches
-    val INTAKE_ALGAE_HIGH = 0.0.inches
+    val INTAKE_CORAL = 14.66.inches // todo remeasure
+    val INTAKE_ALGAE_GROUND = 11.0.inches - CARRIAGE_TO_BOTTOM
+    val INTAKE_ALGAE_LOW = 34.56.inches - CARRIAGE_TO_BOTTOM
+    val INTAKE_ALGAE_HIGH = 50.46.inches - CARRIAGE_TO_BOTTOM
 
-    val L1 = 22.0.inches
-    val L2 = 18.146780.inches
-    val L3 = 33.896780.inches
-    val L4 = 56.780235.inches
+    val L1 = 28.25.inches - CARRIAGE_TO_BOTTOM
+    val L2 = 24.4.inches - CARRIAGE_TO_BOTTOM
+    val L3 = 40.25.inches - CARRIAGE_TO_BOTTOM
+    val L4 = 63.03.inches - CARRIAGE_TO_BOTTOM
 
-    val PROCESSOR = 18.146780.inches
-    val BARGE = 64.125000.inches
+    val PROCESSOR = 24.4.inches - CARRIAGE_TO_BOTTOM
+    val BARGE = 70.38.inches - CARRIAGE_TO_BOTTOM
 
     val EJECT = 0.0.inches
 
-    // not to be confused with ELEVATOR_HEIGHT_TO_CLEAR_ARM, this is to make sure arm doesnt hit
-    // trough
+    // not to be confused with ELEVATOR_HEIGHT_TO_CLEAR_ARM, this is to ensure arm doesnt hit trough
     val LOW_SCORE_OFFSET = L2 + 7.0.inches
   }
 

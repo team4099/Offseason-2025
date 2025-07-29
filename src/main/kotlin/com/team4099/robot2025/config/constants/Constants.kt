@@ -153,7 +153,7 @@ object Constants {
     const val LED_CANDLE_ID = 1
   }
 
-  object CanRange{
+  object CanRange {
     const val CANRANGE_ID = 91
   }
 }

@@ -31,4 +31,6 @@ object RollersConstants {
 
   val OUTTAKE_CORAL_VOLTAGE = (-4.0).volts
   val OUTTAKE_ALGAE_VOLTAGE = (-8.0).volts
+
+  val GAMEPIECE_SPITOUT_THRESHOLD = 1.0.seconds
 }

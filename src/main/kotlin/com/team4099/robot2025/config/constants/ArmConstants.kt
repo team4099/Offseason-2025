@@ -61,5 +61,11 @@ object ArmConstants {
 
     val BARGE_ANGLE = 152.17.degrees
     val PROCESSOR_ANGLE = 70.0.degrees
+
+    val ALGAE_GROUND_INTAKE_ANGLE = 0.0.degrees
+    val ALGAE_LOW_INTAKE_ANGLE = 0.0.degrees
+    val ALGAE_HIGH_INTAKE_ANGLE = 0.0.degrees
+
+    val SCORE_ANGLE_OFFSET = 30.0.degrees
   }
 }

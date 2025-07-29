@@ -37,6 +37,8 @@ object ElevatorConstants {
   val MAX_ACCELERATION: LinearAcceleration = 259.54.inches.perSecond.perSecond
 
   val ELEVATOR_TOLERANCE = 0.2.inches
+
+  // not to be confused with LOW_SCORE_OFFSET, this is to make sure arm doesnt hit battery
   val ELEVATOR_HEIGHT_TO_CLEAR_ARM =
     16.0.inches // todo update with final robot to make sure nothing breaks !!!!!!
 
@@ -59,6 +61,9 @@ object ElevatorConstants {
     val BARGE = 64.125000.inches
 
     val EJECT = 0.0.inches
+
+    // not to be confused with ELEVATOR_HEIGHT_TO_CLEAR_ARM, this is to make sure arm doesnt hit trough
+    val LOW_SCORE_OFFSET = L2 + 7.0.inches
   }
 
   object PID {

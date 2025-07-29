@@ -427,7 +427,8 @@ class Superstructure(
         theoreticalGamePieceArm = GamePiece.NONE
         when (coralScoringLevel) {
           CoralLevel.L1, CoralLevel.L2 -> {
-            // if arm went straight down now, it'd hit the trough. raise elevator a minuscule tiny molecular amount
+            // if arm went straight down now, it'd hit the trough. raise elevator a minuscule tiny
+            // molecular amount
             elevator.currentRequest =
               Request.ElevatorRequest.ClosedLoop(ElevatorConstants.HEIGHTS.LOW_SCORE_OFFSET)
             if (elevator.isAtTargetedPosition) {

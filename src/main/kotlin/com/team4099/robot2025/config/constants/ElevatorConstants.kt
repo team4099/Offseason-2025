@@ -62,7 +62,8 @@ object ElevatorConstants {
 
     val EJECT = 0.0.inches
 
-    // not to be confused with ELEVATOR_HEIGHT_TO_CLEAR_ARM, this is to make sure arm doesnt hit trough
+    // not to be confused with ELEVATOR_HEIGHT_TO_CLEAR_ARM, this is to make sure arm doesnt hit
+    // trough
     val LOW_SCORE_OFFSET = L2 + 7.0.inches
   }
 

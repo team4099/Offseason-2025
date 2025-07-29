@@ -49,9 +49,17 @@ object ArmTunableValues {
       )
 
     val idleCoralAngle =
-      LoggedTunableValue("arm/idleCoralAngle", ArmConstants.ANGLES.IDLE_CORAL_ANGLE, Pair({ it.inDegrees }, { it.degrees }))
+      LoggedTunableValue(
+        "arm/idleCoralAngle",
+        ArmConstants.ANGLES.IDLE_CORAL_ANGLE,
+        Pair({ it.inDegrees }, { it.degrees })
+      )
     val idleAlgaeAngle =
-      LoggedTunableValue("arm/idleAlgaeAngle", ArmConstants.ANGLES.IDLE_ALGAE_ANGLE, Pair({ it.inDegrees }, { it.degrees }))
+      LoggedTunableValue(
+        "arm/idleAlgaeAngle",
+        ArmConstants.ANGLES.IDLE_ALGAE_ANGLE,
+        Pair({ it.inDegrees }, { it.degrees })
+      )
 
     val hardstopIntakeAngle =
       LoggedTunableValue(
@@ -60,14 +68,43 @@ object ArmTunableValues {
         Pair({ it.inDegrees }, { it.degrees })
       )
 
-    val l1PrepAngle = LoggedTunableValue("arm/l1PrepAngle", ArmConstants.ANGLES.L1_PREP_ANGLE, Pair({ it.inDegrees }, { it.degrees }))
-    val l2PrepAngle = LoggedTunableValue("arm/l2PrepAngle", ArmConstants.ANGLES.L2_PREP_ANGLE, Pair({ it.inDegrees }, { it.degrees }))
-    val l3PrepAngle = LoggedTunableValue("arm/l3PrepAngle", ArmConstants.ANGLES.L3_PREP_ANGLE, Pair({ it.inDegrees }, { it.degrees }))
-    val l4PrepAngle = LoggedTunableValue("arm/l4PrepAngle", ArmConstants.ANGLES.L4_PREP_ANGLE, Pair({ it.inDegrees }, { it.degrees }))
+    val l1PrepAngle =
+      LoggedTunableValue(
+        "arm/l1PrepAngle",
+        ArmConstants.ANGLES.L1_PREP_ANGLE,
+        Pair({ it.inDegrees }, { it.degrees })
+      )
+    val l2PrepAngle =
+      LoggedTunableValue(
+        "arm/l2PrepAngle",
+        ArmConstants.ANGLES.L2_PREP_ANGLE,
+        Pair({ it.inDegrees }, { it.degrees })
+      )
+    val l3PrepAngle =
+      LoggedTunableValue(
+        "arm/l3PrepAngle",
+        ArmConstants.ANGLES.L3_PREP_ANGLE,
+        Pair({ it.inDegrees }, { it.degrees })
+      )
+    val l4PrepAngle =
+      LoggedTunableValue(
+        "arm/l4PrepAngle",
+        ArmConstants.ANGLES.L4_PREP_ANGLE,
+        Pair({ it.inDegrees }, { it.degrees })
+      )
 
-    val bargeAngle = LoggedTunableValue("arm/bargeAngle", ArmConstants.ANGLES.BARGE_ANGLE, Pair({ it.inDegrees }, { it.degrees }))
+    val bargeAngle =
+      LoggedTunableValue(
+        "arm/bargeAngle",
+        ArmConstants.ANGLES.BARGE_ANGLE,
+        Pair({ it.inDegrees }, { it.degrees })
+      )
     val processorAngle =
-      LoggedTunableValue("arm/processorAngle", ArmConstants.ANGLES.PROCESSOR_ANGLE, Pair({ it.inDegrees }, { it.degrees }))
+      LoggedTunableValue(
+        "arm/processorAngle",
+        ArmConstants.ANGLES.PROCESSOR_ANGLE,
+        Pair({ it.inDegrees }, { it.degrees })
+      )
 
     val algaeGroundIntakeAngle =
       LoggedTunableValue(

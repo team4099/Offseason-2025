@@ -275,10 +275,14 @@ class Superstructure(
           ArmRollersRequest.OpenLoop(ArmRollersConstants.INTAKE_ALGAE_VOLTAGE)
 
         if (algaeIntakeLevel == AlgaeIntakeLevel.GROUND) {
-          arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.algaeGroundIntakeAngle.get())
+          arm.currentRequest =
+            Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.algaeGroundIntakeAngle.get())
 
           if (arm.isAtTargetedPosition) {
-            elevator.currentRequest = Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.intakeAlgaeGroundHeight.get())
+            elevator.currentRequest =
+              Request.ElevatorRequest.ClosedLoop(
+                ElevatorTunableValues.Heights.intakeAlgaeGroundHeight.get()
+              )
           }
         } else {
           elevator.currentRequest =
@@ -313,8 +317,13 @@ class Superstructure(
         }
       }
       SuperstructureStates.CLEANUP_INTAKE_ALGAE -> {
-        if (theoreticalGamePieceArm != GamePiece.ALGAE && elevator.inputs.elevatorPosition <= ElevatorConstants.ELEVATOR_HEIGHT_TO_CLEAR_ARM) {
-          elevator.currentRequest = Request.ElevatorRequest.ClosedLoop(ElevatorConstants.ELEVATOR_HEIGHT_TO_CLEAR_ARM + 3.0.inches)
+        if (theoreticalGamePieceArm != GamePiece.ALGAE &&
+          elevator.inputs.elevatorPosition <= ElevatorConstants.ELEVATOR_HEIGHT_TO_CLEAR_ARM
+        ) {
+          elevator.currentRequest =
+            Request.ElevatorRequest.ClosedLoop(
+              ElevatorConstants.ELEVATOR_HEIGHT_TO_CLEAR_ARM + 3.0.inches
+            )
         } else {
           // case 1 - holding algae, idle will deal with the transition nicely
           // case 2 - we've gone up enough in height to safely transition to idle
@@ -507,7 +516,8 @@ class Superstructure(
           // dw, intake_coral_into_arm deals with the transition
           nextState = SuperstructureStates.INTAKE_CORAL_INTO_ARM
         } else {
-          arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleAngle.get())
+          arm.currentRequest =
+            Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleAngle.get())
           if (arm.isAtTargetedPosition) {
             elevator.currentRequest =
               Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.idleHeight.get())

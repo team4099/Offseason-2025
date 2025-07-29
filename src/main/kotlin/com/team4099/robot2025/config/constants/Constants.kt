@@ -154,6 +154,6 @@ object Constants {
   }
 
   object CanRange{
-    const val CANRANGEID = 91
+    const val CANRANGE_ID = 91
   }
 }

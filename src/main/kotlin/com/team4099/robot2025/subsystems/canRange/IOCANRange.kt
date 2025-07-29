@@ -11,10 +11,10 @@ import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.volts
 
 object IOCANRange: CANRangeIO {
-    private val CANrange: CoreCANrange = CoreCANrange(Constants.CanRange.CANRANGEID)
+    private val CANrange: CoreCANrange = CoreCANrange(Constants.CanRange.CANRANGE_ID)
     private val config: CANrangeConfiguration = CANrangeConfiguration()
 
-    var AmbientSignal: StatusSignal<Double>
+    var ambientSignal: StatusSignal<Double>
     var distance: StatusSignal<Distance>
     var isDetected: StatusSignal<Boolean>
     var supplyVoltageSignal: StatusSignal<Voltage>
@@ -25,7 +25,7 @@ object IOCANRange: CANRangeIO {
         config.ProximityParams.MinSignalStrengthForValidMeasurement = 100.0
         config.ProximityParams.ProximityThreshold = 2500.0
 
-        AmbientSignal = CANrange.ambientSignal
+        ambientSignal = CANrange.ambientSignal
         distance = CANrange.distance
         isDetected = CANrange.isDetected
         supplyVoltageSignal = CANrange.supplyVoltage
@@ -34,7 +34,7 @@ object IOCANRange: CANRangeIO {
     override fun updateInputs(inputs: CANRangeIO.CANRangeIOInputs){
         inputs.supplyVoltage = supplyVoltageSignal.valueAsDouble.volts
         inputs.isDetected = isDetected.value
-        inputs.ambientSignal = AmbientSignal.valueAsDouble
+        inputs.ambientSignal = ambientSignal.valueAsDouble
         inputs.distance = distance.valueAsDouble.meters
     }
 }

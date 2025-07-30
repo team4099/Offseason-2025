@@ -62,6 +62,8 @@ object IndexerIOTalon : IndexerIO {
     motorTorque = indexerTalon.torqueCurrent
     motorVoltage = indexerTalon.motorVoltage
     motorAccel = indexerTalon.acceleration
+
+    indexerTalon.configurator.apply(configs)
   }
 
   override fun updateInputs(inputs: IndexerIO.IndexerInputs) {

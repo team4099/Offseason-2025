@@ -27,6 +27,8 @@ object IOCANRange : CANRangeIO {
     distance = CANrange.distance
     isDetected = CANrange.isDetected
     supplyVoltageSignal = CANrange.supplyVoltage
+
+    CANrange.configurator.apply(config)
   }
 
   override fun updateInputs(inputs: CANRangeIO.CANRangeIOInputs) {

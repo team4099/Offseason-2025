@@ -35,17 +35,11 @@ object Constants {
       L4
     }
 
-    enum class AlgaeIntakeLevel {
+    enum class AlgaeLevel {
       NONE,
       GROUND,
       L2,
       L3
-    }
-
-    enum class AlgaeScoringLevel {
-      NONE,
-      BARGE,
-      PROCESSOR
     }
   }
 
@@ -143,12 +137,12 @@ object Constants {
     }
   }
 
-  object Indexer {
-    const val INDEXER_MOTOR_ID = 81
+  object Ramp {
+    const val RAMP_MOTOR_ID = 62
   }
 
-  object CanRange {
-    const val CANRAGE_ID = 91
+  object Indexer {
+    const val INDEXER_MOTOR_ID = 81
   }
 
   object Alert {

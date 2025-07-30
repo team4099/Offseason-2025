@@ -171,9 +171,7 @@ class Superstructure(
             // since we (likely) just intaked coral, make sure the elevator moves out of the way of
             // cradle
             // before arm moves into its idle coral position
-            if (elevator.inputs.elevatorPosition >=
-              ElevatorConstants.ELEVATOR_HEIGHT_TO_CLEAR_ARM
-            ) {
+            if (elevator.clearsBattery) {
               arm.currentRequest =
                 Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleCoralAngle.get())
             }
@@ -295,13 +293,12 @@ class Superstructure(
           // case 1: elevator is too low, move it up first
           // check: elevator is too low, arm hasnt moved out yet
           // solution: raise the elevator enough to get over that
-          if (elevator.inputs.elevatorPosition <= ElevatorConstants.ELEVATOR_HEIGHT_TO_CLEAR_ARM &&
+          if (!elevator.clearsBattery &&
             arm.inputs.armPosition <= ArmConstants.ANGLES.ARM_GUARENTEED_OVER_BATTERY
           ) {
-            // raise the elevator enough to get over threshold
             elevator.currentRequest =
               Request.ElevatorRequest.ClosedLoop(
-                ElevatorConstants.ELEVATOR_HEIGHT_TO_CLEAR_ARM + 2.0.inches
+                ElevatorConstants.HEIGHTS.ELEVATOR_HEIGHT_TO_CLEAR_ARM + 2.0.inches
               )
           } else {
             // case 2: elevator is high enough for arm to move, but arms needs to move out before
@@ -328,7 +325,7 @@ class Superstructure(
               }
             )
 
-          if (elevator.inputs.elevatorPosition >= ElevatorConstants.ELEVATOR_HEIGHT_TO_CLEAR_ARM) {
+          if (elevator.clearsBattery) {
             arm.currentRequest =
               Request.ArmRequest.ClosedLoop(
                 when (algaeIntakeLevel) {
@@ -351,12 +348,10 @@ class Superstructure(
         }
       }
       SuperstructureStates.CLEANUP_INTAKE_ALGAE -> {
-        if (theoreticalGamePieceArm != GamePiece.ALGAE &&
-          elevator.inputs.elevatorPosition <= ElevatorConstants.ELEVATOR_HEIGHT_TO_CLEAR_ARM
-        ) {
+        if (theoreticalGamePieceArm != GamePiece.ALGAE && !elevator.clearsBattery) {
           elevator.currentRequest =
             Request.ElevatorRequest.ClosedLoop(
-              ElevatorConstants.ELEVATOR_HEIGHT_TO_CLEAR_ARM + 3.0.inches
+              ElevatorConstants.HEIGHTS.ELEVATOR_HEIGHT_TO_CLEAR_ARM + 2.0.inches
             )
         } else {
           // case 1 - holding algae, idle will deal with the transition nicely
@@ -410,7 +405,7 @@ class Superstructure(
               Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.idleHeight.get())
           }
 
-        if (elevator.inputs.elevatorPosition > ElevatorConstants.ELEVATOR_HEIGHT_TO_CLEAR_ARM) {
+        if (elevator.clearsBattery) {
           arm.currentRequest =
             when (coralScoringLevel) {
               CoralLevel.L1 ->
@@ -534,7 +529,7 @@ class Superstructure(
               Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.idleHeight.get())
           }
 
-        if (elevator.inputs.elevatorPosition >= ElevatorConstants.ELEVATOR_HEIGHT_TO_CLEAR_ARM) {
+        if (elevator.clearsBattery) {
           arm.currentRequest =
             when (algaeScoringLevel) {
               AlgaeScoringLevel.PROCESSOR ->

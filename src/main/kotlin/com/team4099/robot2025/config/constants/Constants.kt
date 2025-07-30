@@ -35,11 +35,17 @@ object Constants {
       L4
     }
 
-    enum class AlgaeLevel {
+    enum class AlgaeIntakeLevel {
       NONE,
       GROUND,
       L2,
       L3
+    }
+
+    enum class AlgaeScoringLevel {
+      NONE,
+      BARGE,
+      PROCESSOR
     }
   }
 

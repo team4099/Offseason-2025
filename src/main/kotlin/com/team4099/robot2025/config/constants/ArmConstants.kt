@@ -67,5 +67,7 @@ object ArmConstants {
     val ALGAE_HIGH_INTAKE_ANGLE = 90.0.degrees
 
     val SCORE_ANGLE_OFFSET = 30.0.degrees
+
+    val ARM_GUARENTEED_OVER_BATTERY = 45.0.degrees
   }
 }

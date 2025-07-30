@@ -1,5 +1,6 @@
 package com.team4099.robot2025.subsystems.canRange
 
+import com.ctre.phoenix6.BaseStatusSignal
 import com.ctre.phoenix6.StatusSignal
 import com.ctre.phoenix6.configs.CANrangeConfiguration
 import com.ctre.phoenix6.hardware.core.CoreCANrange
@@ -9,29 +10,36 @@ import edu.wpi.first.units.measure.Voltage
 import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.volts
 
-object IOCANRange : CANRangeIO {
-  private val CANrange: CoreCANrange = CoreCANrange(Constants.CanRange.CANRANGE_ID)
+object CANRangeReal : CANRangeIO {
+  private val canRange: CoreCANrange = CoreCANrange(Constants.CanRange.CANRANGE_ID)
   private val config: CANrangeConfiguration = CANrangeConfiguration()
 
-  var ambientSignal: StatusSignal<Double>
-  var distance: StatusSignal<Distance>
-  var isDetected: StatusSignal<Boolean>
-  var supplyVoltageSignal: StatusSignal<Voltage>
+  private var ambientSignal: StatusSignal<Double>
+  private var distance: StatusSignal<Distance>
+  private var isDetected: StatusSignal<Boolean>
+  private var supplyVoltageSignal: StatusSignal<Voltage>
 
   init {
-    CANrange.clearStickyFaults()
+    canRange.clearStickyFaults()
     config.ProximityParams.MinSignalStrengthForValidMeasurement = 100.0
     config.ProximityParams.ProximityThreshold = 2500.0
 
-    ambientSignal = CANrange.ambientSignal
-    distance = CANrange.distance
-    isDetected = CANrange.isDetected
-    supplyVoltageSignal = CANrange.supplyVoltage
+    ambientSignal = canRange.ambientSignal
+    // NOTE(Aryan): distance signal doesn't need to refresh in updateInputs if you set getDistance
+    // parameter to true (KEEP THIS LINE!!!)
+    distance = canRange.getDistance(true)
+    isDetected = canRange.isDetected
+    supplyVoltageSignal = canRange.supplyVoltage
 
-    CANrange.configurator.apply(config)
+    canRange.configurator.apply(config)
+  }
+
+  private fun updateSignals() {
+    BaseStatusSignal.refreshAll(ambientSignal, distance, isDetected, supplyVoltageSignal)
   }
 
   override fun updateInputs(inputs: CANRangeIO.CANRangeIOInputs) {
+    updateSignals()
     inputs.supplyVoltage = supplyVoltageSignal.valueAsDouble.volts
     inputs.isDetected = isDetected.value
     inputs.ambientSignal = ambientSignal.valueAsDouble

@@ -252,14 +252,16 @@ class Superstructure(
 
         when (theoreticalGamePieceArm) {
           GamePiece.CORAL -> {
-            elevator.currentRequest =
-              Request.ElevatorRequest.ClosedLoop(
-                ElevatorTunableValues.Heights.idleCoralHeight.get()
-              )
             arm.currentRequest =
               Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleCoralAngle.get())
             armRollers.currentRequest =
               Request.RollersRequest.OpenLoop(ArmRollersConstants.IDLE_CORAL_VOLTAGE)
+            if(arm.isAtTargetedPosition) {
+              elevator.currentRequest =
+                Request.ElevatorRequest.ClosedLoop(
+                  ElevatorTunableValues.Heights.idleCoralHeight.get()
+                )
+            }
           }
           GamePiece.ALGAE -> {
             elevator.currentRequest =
@@ -272,11 +274,15 @@ class Superstructure(
               Request.RollersRequest.OpenLoop(ArmRollersConstants.IDLE_ALGAE_VOLTAGE)
           }
           GamePiece.NONE -> {
-            elevator.currentRequest =
-              Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.idleHeight.get())
             arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.IDLE_ANGLE)
             armRollers.currentRequest =
               Request.RollersRequest.OpenLoop(ArmRollersConstants.IDLE_ALGAE_VOLTAGE)
+            if(arm.isAtTargetedPosition) {
+              elevator.currentRequest =
+                Request.ElevatorRequest.ClosedLoop(
+                  ElevatorTunableValues.Heights.idleCoralHeight.get()
+                )
+            }
           }
         }
 

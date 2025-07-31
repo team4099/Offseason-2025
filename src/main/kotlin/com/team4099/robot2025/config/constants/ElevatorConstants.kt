@@ -41,6 +41,8 @@ object ElevatorConstants {
   val CARRIAGE_TO_BOTTOM = 11.0.inches
 
   object HEIGHTS {
+    // note(nathan): make the best attempt to keep IDLE and IDLE_CORAL the same. it makes
+    // transitions faster :)
     val IDLE = 22.42.inches
     val IDLE_CORAL = 22.42.inches
     val IDLE_ALGAE = 11.9.inches
@@ -61,6 +63,9 @@ object ElevatorConstants {
     val EJECT = 0.0.inches
 
     // not to be confused with LOW_SCORE_OFFSET, this is to make sure arm doesnt hit battery
+    // the following should always be true statements
+    // ELEVATOR_HEIGHT_TO_CLEAR_ARM < IDLE
+    // ELEVATOR_HEIGHT_TO_CLEAR_ARM < IDLE_CORAL
     val ELEVATOR_HEIGHT_TO_CLEAR_ARM =
       16.0.inches // todo update with final robot to make sure nothing breaks !!!!!!
 

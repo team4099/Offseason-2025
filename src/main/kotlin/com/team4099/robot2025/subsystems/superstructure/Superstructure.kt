@@ -40,7 +40,7 @@ class Superstructure(
   private val indexer: Indexer
 ) : SubsystemBase() {
 
-  var theoreticalGamePieceArm: GamePiece = GamePiece.NONE
+  var theoreticalGamePieceArm: GamePiece = GamePiece.CORAL // preload !!
   var theoreticalGamePieceHardstop: GamePiece = GamePiece.NONE
 
   //    get() {
@@ -151,7 +151,13 @@ class Superstructure(
         elevator.currentRequest = Request.ElevatorRequest.Home()
 
         if (elevator.isHomed) {
-          nextState = SuperstructureStates.IDLE
+          elevator.currentRequest =
+            Request.ElevatorRequest.ClosedLoop(
+              if (theoreticalGamePieceArm == GamePiece.CORAL)
+                ElevatorTunableValues.Heights.idleCoralHeight.get()
+              else ElevatorTunableValues.Heights.idleHeight.get()
+            )
+          if (elevator.isAtTargetedPosition) nextState = SuperstructureStates.IDLE
         }
       }
       SuperstructureStates.IDLE -> {
@@ -169,8 +175,7 @@ class Superstructure(
               )
 
             // since we (likely) just intaked coral, make sure the elevator moves out of the way of
-            // cradle
-            // before arm moves into its idle coral position
+            // cradle before arm moves into its idle coral position
             if (elevator.clearsBattery) {
               arm.currentRequest =
                 Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleCoralAngle.get())

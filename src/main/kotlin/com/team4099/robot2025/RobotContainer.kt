@@ -22,6 +22,9 @@ import com.team4099.robot2025.subsystems.drivetrain.gyro.GyroIOPigeon2
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOSim
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOTalon
+import com.team4099.robot2025.subsystems.indexer.Indexer
+import com.team4099.robot2025.subsystems.indexer.IndexerIOSim
+import com.team4099.robot2025.subsystems.indexer.IndexerIOTalon
 import com.team4099.robot2025.subsystems.intake.Intake
 import com.team4099.robot2025.subsystems.intake.IntakeIOSim
 import com.team4099.robot2025.subsystems.intake.IntakeIOTalonFX
@@ -48,6 +51,7 @@ object RobotContainer {
   private val armRollers: ArmRollers
   private val climber: Climber
   private val intake: Intake
+  private val indexer: Indexer
   val superstructure: Superstructure
 
   init {
@@ -59,6 +63,7 @@ object RobotContainer {
       armRollers = ArmRollers(ArmRollersIOTalon)
       climber = Climber(ClimberIOTalon)
       intake = Intake(IntakeIOTalonFX)
+      indexer = Indexer(IndexerIOTalon)
 
       vision =
         Vision(
@@ -77,6 +82,7 @@ object RobotContainer {
       armRollers = ArmRollers(ArmRollersIOSim)
       climber = Climber(ClimberIOSim)
       intake = Intake(IntakeIOSim)
+      indexer = Indexer(IndexerIOSim)
 
       vision = Vision(object : CameraIO {})
     }
@@ -89,7 +95,9 @@ object RobotContainer {
     vision.drivetrainOdometry = { drivetrain.odomTRobot }
 
     superstructure =
-      Superstructure(drivetrain, vision, limelight, elevator, arm, armRollers, climber, intake)
+      Superstructure(
+        drivetrain, vision, limelight, elevator, arm, armRollers, climber, intake, indexer
+      )
 
     limelight.poseSupplier = { drivetrain.odomTRobot }
   }

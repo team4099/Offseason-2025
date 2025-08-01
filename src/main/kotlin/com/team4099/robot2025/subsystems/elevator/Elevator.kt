@@ -21,6 +21,9 @@ class Elevator(private val io: ElevatorIO) : SubsystemBase() {
   val lowerLimitReached: Boolean
     get() = inputs.elevatorPosition <= ElevatorConstants.DOWNWARDS_EXTENSION_LIMIT
 
+  val clearsBattery: Boolean
+    get() = inputs.elevatorPosition >= ElevatorConstants.HEIGHTS.ELEVATOR_HEIGHT_TO_CLEAR_ARM
+
   var isHomed = false
     private set
 

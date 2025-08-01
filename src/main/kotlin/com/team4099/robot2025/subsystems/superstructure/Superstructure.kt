@@ -145,8 +145,16 @@ class Superstructure(
     when (currentState) {
       // General States
       SuperstructureStates.UNINITIALIZED -> {
-        nextState = SuperstructureStates.HOME
+        nextState = SuperstructureStates.HOME_PREP
       }
+
+      SuperstructureStates.HOME_PREP ->{
+      arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.HOME_ANGLE)
+        if (arm.isAtTargetedPosition){
+          nextState = SuperstructureStates.HOME
+        }
+      }
+
       SuperstructureStates.HOME -> {
         elevator.currentRequest = Request.ElevatorRequest.Home()
 
@@ -580,6 +588,13 @@ class Superstructure(
             SuperstructureStates.IDLE
           }
       }
+      SuperstructureStates.EJECT -> {
+        arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.EJECT_ANGLE)
+        if(arm.isAtTargetedPosition) {
+        armRollers.currentRequest = Request.RollersRequest.OpenLoop(ArmRollersConstants.EJECT_VOLTAGE)
+        nextState = SuperstructureStates.IDLE
+        }
+      }
     }
 
     if (nextState != currentState) lastTransitionTime = Clock.fpgaTime
@@ -590,6 +605,7 @@ class Superstructure(
   companion object {
     enum class SuperstructureStates {
       UNINITIALIZED,
+      HOME_PREP,
       HOME,
       IDLE,
       GROUND_INTAKE_CORAL,
@@ -604,7 +620,8 @@ class Superstructure(
       CLEANUP_SCORE_CORAL,
       PREP_SCORE_ALGAE,
       SCORE_ALGAE,
-      CLEANUP_SCORE_ALGAE
+      CLEANUP_SCORE_ALGAE,
+      EJECT
     }
   }
 }

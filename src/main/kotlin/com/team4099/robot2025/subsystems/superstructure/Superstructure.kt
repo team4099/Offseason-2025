@@ -147,14 +147,12 @@ class Superstructure(
       SuperstructureStates.UNINITIALIZED -> {
         nextState = SuperstructureStates.HOME_PREP
       }
-
-      SuperstructureStates.HOME_PREP ->{
-      arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.HOME_ANGLE)
-        if (arm.isAtTargetedPosition){
+      SuperstructureStates.HOME_PREP -> {
+        arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.HOME_ANGLE)
+        if (arm.isAtTargetedPosition) {
           nextState = SuperstructureStates.HOME
         }
       }
-
       SuperstructureStates.HOME -> {
         elevator.currentRequest = Request.ElevatorRequest.Home()
 
@@ -369,7 +367,9 @@ class Superstructure(
       }
       SuperstructureStates.CLIMB_EXTEND -> { // for getting climb set-up (straight out)
         climber.currentRequest =
-          Request.ClimberRequest.OpenLoop(ClimberConstants.CLIMB_EXTEND_VOLTAGE, ClimberConstants.Rollers.CLASP_VOLTAGE)
+          Request.ClimberRequest.OpenLoop(
+            ClimberConstants.CLIMB_EXTEND_VOLTAGE, ClimberConstants.Rollers.CLASP_VOLTAGE
+          )
 
         if (climber.isAtTargetedPosition) {
           nextState = SuperstructureStates.IDLE
@@ -384,7 +384,7 @@ class Superstructure(
         arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.CLIMB_ANGLE)
 
         climber.currentRequest =
-          if (climber.isAtTargetedPosition&& arm.isAtTargetedPosition) {
+          if (climber.isAtTargetedPosition && arm.isAtTargetedPosition) {
             Request.ClimberRequest.OpenLoop(
               0.0.volts, // don't keep open looping or you'll stall out the motor
               ClimberConstants.INTAKE_CAGE_VOLTAGE
@@ -587,9 +587,10 @@ class Superstructure(
       }
       SuperstructureStates.EJECT -> {
         arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.EJECT_ANGLE)
-        if(arm.isAtTargetedPosition) {
-        armRollers.currentRequest = Request.RollersRequest.OpenLoop(ArmRollersConstants.EJECT_VOLTAGE)
-        nextState = SuperstructureStates.IDLE
+        if (arm.isAtTargetedPosition) {
+          armRollers.currentRequest =
+            Request.RollersRequest.OpenLoop(ArmRollersConstants.EJECT_VOLTAGE)
+          nextState = SuperstructureStates.IDLE
         }
       }
     }

@@ -158,14 +158,8 @@ class Superstructure(
       SuperstructureStates.HOME -> {
         elevator.currentRequest = Request.ElevatorRequest.Home()
 
-        if (elevator.isHomed) {
-          elevator.currentRequest =
-            Request.ElevatorRequest.ClosedLoop(
-              if (theoreticalGamePieceArm == GamePiece.CORAL)
-                ElevatorTunableValues.Heights.idleCoralHeight.get()
-              else ElevatorTunableValues.Heights.idleHeight.get()
-            )
-          if (elevator.isAtTargetedPosition) nextState = SuperstructureStates.IDLE
+        if (elevator.isHomed && elevator.isAtTargetedPosition) {
+          nextState = SuperstructureStates.IDLE
         }
       }
       SuperstructureStates.IDLE -> {
@@ -238,6 +232,7 @@ class Superstructure(
               is Request.SuperstructureRequest.ExtendClimb -> SuperstructureStates.CLIMB_EXTEND
               is Request.SuperstructureRequest.RetractClimb ->
                 SuperstructureStates.CLIMB_RETRACT
+              is Request.SuperstructureRequest.Eject -> SuperstructureStates.EJECT
               else -> currentState
             }
       }
@@ -374,7 +369,7 @@ class Superstructure(
       }
       SuperstructureStates.CLIMB_EXTEND -> { // for getting climb set-up (straight out)
         climber.currentRequest =
-          Request.ClimberRequest.ClosedLoop(ClimberConstants.FULLY_EXTENDED_ANGLE)
+          Request.ClimberRequest.OpenLoop(ClimberConstants.CLIMB_EXTEND_VOLTAGE, ClimberConstants.Rollers.CLASP_VOLTAGE)
 
         if (climber.isAtTargetedPosition) {
           nextState = SuperstructureStates.IDLE
@@ -386,8 +381,10 @@ class Superstructure(
         }
       }
       SuperstructureStates.CLIMB_RETRACT -> { // for actually CLIMBING (retracting climb into robot)
+        arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.CLIMB_ANGLE)
+
         climber.currentRequest =
-          if (climber.isAtTargetedPosition) {
+          if (climber.isAtTargetedPosition&& arm.isAtTargetedPosition) {
             Request.ClimberRequest.OpenLoop(
               0.0.volts, // don't keep open looping or you'll stall out the motor
               ClimberConstants.INTAKE_CAGE_VOLTAGE

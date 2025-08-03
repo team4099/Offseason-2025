@@ -1,7 +1,9 @@
 package com.team4099.robot2025.subsystems.intake
 
 import com.team4099.lib.logging.LoggedTunableValue
+import com.team4099.robot2025.Robot
 import com.team4099.robot2025.config.constants.IntakeConstants
+import org.team4099.lib.units.derived.Radian
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inDegrees
 import org.team4099.lib.units.derived.inVolts
@@ -33,4 +35,7 @@ object IntakeTunableValues {
       IntakeConstants.Rollers.INTAKE_VOLTAGE,
       Pair({ it.inVolts }, { it.volts })
     )
+
+  val idlePosition: LoggedTunableValue<Radian>
+    get() = if (Robot.isAutonomous) coralPosition else stowPosition
 }

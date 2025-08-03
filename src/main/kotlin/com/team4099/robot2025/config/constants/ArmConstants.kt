@@ -48,11 +48,14 @@ object ArmConstants {
 
   object ANGLES {
     val IDLE_ANGLE = 0.0.degrees
+    val EJECT_ANGLE = 90.0.degrees
+    val HOME_ANGLE = 180.0.degrees
+    val CLIMB_ANGLE = 90.0.degrees
 
-    val INTAKE_ANGLE = 0.0.degrees
+    val INTAKE_CORAL_ANGLE = 0.0.degrees
 
-    val IDLE_CORAL_ANGLE = 180.0.degrees
-    val IDLE_ALGAE_ANGLE = 45.0.degrees
+    val IDLE_CORAL_ANGLE = 0.0.degrees
+    val IDLE_ALGAE_ANGLE = 180.0.degrees
 
     val L1_PREP_ANGLE = 74.0.degrees
     val L2_PREP_ANGLE = 123.26.degrees
@@ -61,5 +64,13 @@ object ArmConstants {
 
     val BARGE_ANGLE = 152.17.degrees
     val PROCESSOR_ANGLE = 70.0.degrees
+
+    val ALGAE_GROUND_INTAKE_ANGLE = 79.62.degrees
+    val ALGAE_LOW_INTAKE_ANGLE = 90.0.degrees
+    val ALGAE_HIGH_INTAKE_ANGLE = 90.0.degrees
+
+    val SCORE_ANGLE_OFFSET = 30.0.degrees
+
+    val ARM_GUARENTEED_OVER_BATTERY = 45.0.degrees
   }
 }

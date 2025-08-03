@@ -46,6 +46,7 @@ object ElevatorConstants {
     val IDLE = 22.42.inches
     val IDLE_CORAL = 22.42.inches
     val IDLE_ALGAE = 11.9.inches
+    val CLIMB_HEIGHT = 25.0.inches
 
     val INTAKE_CORAL = 14.66.inches // todo remeasure
     val INTAKE_ALGAE_GROUND = 11.0.inches - CARRIAGE_TO_BOTTOM
@@ -57,20 +58,23 @@ object ElevatorConstants {
     val L3 = 40.25.inches - CARRIAGE_TO_BOTTOM
     val L4 = 63.03.inches - CARRIAGE_TO_BOTTOM
 
+    val ZERO_TO_HOME_THRESHOLD = 0.0.inches
+
     val PROCESSOR = 24.4.inches - CARRIAGE_TO_BOTTOM
     val BARGE = 70.38.inches - CARRIAGE_TO_BOTTOM
 
-    val EJECT = 0.0.inches
+    // not to be confused with LOW_SCORE_OFFSET, this is to make sure arm doesn't hit battery
+    // note(nathan): the following should always be true statements (please please please don't
+    // change 👍👍👍👍👍)
+    // CLEARS_ROBOT < IDLE
+    // CLEARS_ROBOT < IDLE_CORAL
+    val CLEARS_ROBOT =
+      16.5.inches // todo update with final robot to make sure nothing breaks !!!!!!
 
-    // not to be confused with LOW_SCORE_OFFSET, this is to make sure arm doesnt hit battery
-    // the following should always be true statements
-    // ELEVATOR_HEIGHT_TO_CLEAR_ARM < IDLE
-    // ELEVATOR_HEIGHT_TO_CLEAR_ARM < IDLE_CORAL
-    val ELEVATOR_HEIGHT_TO_CLEAR_ARM =
-      16.0.inches // todo update with final robot to make sure nothing breaks !!!!!!
-
-    // not to be confused with ELEVATOR_HEIGHT_TO_CLEAR_ARM, this is to ensure arm doesnt hit trough
+    // not to be confused with CLEARS_ROBOT, this is to ensure arm doesn't hit trough
     val LOW_SCORE_OFFSET = L2 + 7.0.inches
+
+    val EJECT = LOW_SCORE_OFFSET
   }
 
   object PID {

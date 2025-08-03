@@ -12,7 +12,7 @@ import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.volts
 
 class Climber(private val io: ClimberIO) : SubsystemBase() {
-  private val inputs: ClimberIO.ClimberInputs = ClimberIO.ClimberInputs()
+  val inputs: ClimberIO.ClimberInputs = ClimberIO.ClimberInputs()
 
   private var currentState: ClimberState = ClimberState.UNINITIALIZED
   var currentRequest: Request.ClimberRequest = Request.ClimberRequest.Home()

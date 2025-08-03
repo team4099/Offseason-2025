@@ -48,9 +48,9 @@ object ArmConstants {
 
   object ANGLES {
     val IDLE_ANGLE = 0.0.degrees
-    val EJECT_ANGLE = 0.0.degrees
-    val HOME_ANGLE = 0.0.degrees
-    val CLIMB_ANGLE = 0.0.degrees
+    val EJECT_ANGLE = 90.0.degrees
+    val HOME_ANGLE = 180.0.degrees
+    val CLIMB_ANGLE = 90.0.degrees
 
     val INTAKE_CORAL_ANGLE = 0.0.degrees
 

@@ -72,12 +72,11 @@ class Superstructure(
         is Request.SuperstructureRequest.PrepScoreAlgae -> {
           algaeScoringLevel = value.level
         }
-        is Request.SuperstructureRequest.Score -> {
-          coralScoringLevel = coralScoringLevel
-          algaeScoringLevel = algaeScoringLevel
-        }
+        is Request.SuperstructureRequest.Score -> {}
         else -> {
           coralScoringLevel = CoralLevel.NONE
+          algaeIntakeLevel = AlgaeIntakeLevel.NONE
+          algaeScoringLevel = AlgaeScoringLevel.NONE
         }
       }
       field = value
@@ -148,15 +147,20 @@ class Superstructure(
         nextState = SuperstructureStates.HOME_PREP
       }
       SuperstructureStates.HOME_PREP -> {
-        arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.HOME_ANGLE)
-        if (arm.isAtTargetedPosition) {
-          nextState = SuperstructureStates.HOME
+        if (!elevator.clearsRobot) {
+          elevator.currentRequest =
+            Request.ElevatorRequest.ClosedLoop(ElevatorConstants.HEIGHTS.CLEARS_ROBOT)
+        } else {
+          arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.HOME_ANGLE)
+          if (arm.isAtTargetedPosition) {
+            nextState = SuperstructureStates.HOME
+          }
         }
       }
       SuperstructureStates.HOME -> {
         elevator.currentRequest = Request.ElevatorRequest.Home()
 
-        if (elevator.isHomed && elevator.isAtTargetedPosition) {
+        if (elevator.isHomed) {
           nextState = SuperstructureStates.IDLE
         }
       }
@@ -166,30 +170,15 @@ class Superstructure(
           Request.IntakeRequest.TargetingPosition(
             IntakeTunableValues.idlePosition.get(), 0.0.volts
           )
+        indexer.currentRequest = Request.IndexerRequest.Idle()
 
         when (theoreticalGamePieceArm) {
-          GamePiece.CORAL -> {
-            elevator.currentRequest =
-              Request.ElevatorRequest.ClosedLoop(
-                ElevatorTunableValues.Heights.idleCoralHeight.get()
-              )
-
-            // since we (likely) just intaked coral, make sure the elevator moves out of the way of
-            // cradle before arm moves into its idle coral position
-            if (elevator.clearsBattery) {
-              arm.currentRequest =
-                Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleCoralAngle.get())
-            }
-
-            armRollers.currentRequest =
-              Request.RollersRequest.OpenLoop(ArmRollersConstants.IDLE_CORAL_VOLTAGE)
-          }
           GamePiece.ALGAE -> {
             // arm should move first in case elevator ends up moving down
             arm.currentRequest =
               Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleAlgaeAngle.get())
             armRollers.currentRequest =
-              Request.RollersRequest.OpenLoop(ArmRollersConstants.IDLE_ALGAE_VOLTAGE)
+              ArmRollersRequest.OpenLoop(ArmRollersConstants.IDLE_ALGAE_VOLTAGE)
             if (arm.isAtTargetedPosition) {
               elevator.currentRequest =
                 Request.ElevatorRequest.ClosedLoop(
@@ -197,15 +186,22 @@ class Superstructure(
                 )
             }
           }
-          GamePiece.NONE -> {
-            // since we just scored, make sure arm can retract before elevator pulls it down
-            // so it doesnt hit the battery
-            arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.IDLE_ANGLE)
-            armRollers.currentRequest =
-              Request.RollersRequest.OpenLoop(ArmRollersConstants.IDLE_VOLTAGE)
-            if (arm.isAtTargetedPosition) {
-              elevator.currentRequest =
-                Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.idleHeight.get())
+          else -> {
+            elevator.currentRequest =
+              Request.ElevatorRequest.ClosedLoop(
+                if (theoreticalGamePieceArm == GamePiece.CORAL)
+                  ElevatorTunableValues.Heights.idleCoralHeight.get()
+                else ElevatorTunableValues.Heights.idleHeight.get()
+              )
+
+            // note(nathan): ASSERT IDLE AND IDLE_CORAL > CLEARS_ROBOT
+            if (elevator.isAtTargetedPosition) {
+              arm.currentRequest =
+                Request.ArmRequest.ClosedLoop(
+                  if (theoreticalGamePieceArm == GamePiece.CORAL)
+                    ArmTunableValues.Angles.idleCoralAngle.get()
+                  else ArmTunableValues.Angles.idleAngle.get()
+                )
             }
           }
         }
@@ -299,12 +295,12 @@ class Superstructure(
           // case 1: elevator is too low, move it up first
           // check: elevator is too low, arm hasnt moved out yet
           // solution: raise the elevator enough to get over that
-          if (!elevator.clearsBattery &&
+          if (!elevator.clearsRobot &&
             arm.inputs.armPosition <= ArmConstants.ANGLES.ARM_GUARENTEED_OVER_BATTERY
           ) {
             elevator.currentRequest =
               Request.ElevatorRequest.ClosedLoop(
-                ElevatorConstants.HEIGHTS.ELEVATOR_HEIGHT_TO_CLEAR_ARM + 2.0.inches
+                ElevatorConstants.HEIGHTS.CLEARS_ROBOT + 2.0.inches
               )
           } else {
             // case 2: elevator is high enough for arm to move, but arms needs to move out before
@@ -331,7 +327,7 @@ class Superstructure(
               }
             )
 
-          if (elevator.clearsBattery) {
+          if (elevator.clearsRobot) {
             arm.currentRequest =
               Request.ArmRequest.ClosedLoop(
                 when (algaeIntakeLevel) {
@@ -354,10 +350,10 @@ class Superstructure(
         }
       }
       SuperstructureStates.CLEANUP_INTAKE_ALGAE -> {
-        if (theoreticalGamePieceArm != GamePiece.ALGAE && !elevator.clearsBattery) {
+        if (theoreticalGamePieceArm != GamePiece.ALGAE && !elevator.clearsRobot) {
           elevator.currentRequest =
             Request.ElevatorRequest.ClosedLoop(
-              ElevatorConstants.HEIGHTS.ELEVATOR_HEIGHT_TO_CLEAR_ARM + 2.0.inches
+              ElevatorConstants.HEIGHTS.CLEARS_ROBOT + 2.0.inches
             )
         } else {
           // case 1 - holding algae, idle will deal with the transition nicely
@@ -371,7 +367,11 @@ class Superstructure(
             ClimberConstants.CLIMB_EXTEND_VOLTAGE, ClimberConstants.Rollers.CLASP_VOLTAGE
           )
 
-        if (climber.isAtTargetedPosition) {
+        if (climber.inputs.rollersStatorCurrent >
+          ClimberConstants.Rollers.THRESHOLD_CURRENT_LIMIT
+        ) {
+          nextState = SuperstructureStates.CLIMB_RETRACT
+        } else if (climber.isAtTargetedPosition) {
           nextState = SuperstructureStates.IDLE
         }
 
@@ -381,19 +381,23 @@ class Superstructure(
         }
       }
       SuperstructureStates.CLIMB_RETRACT -> { // for actually CLIMBING (retracting climb into robot)
+        elevator.currentRequest =
+          Request.ElevatorRequest.ClosedLoop(ElevatorConstants.HEIGHTS.CLIMB_HEIGHT)
         arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.CLIMB_ANGLE)
 
-        climber.currentRequest =
-          if (climber.isAtTargetedPosition && arm.isAtTargetedPosition) {
-            Request.ClimberRequest.OpenLoop(
-              0.0.volts, // don't keep open looping or you'll stall out the motor
-              ClimberConstants.INTAKE_CAGE_VOLTAGE
-            )
-          } else {
-            Request.ClimberRequest.OpenLoop(
-              ClimberConstants.CLIMB_RETRACT_VOLTAGE, ClimberConstants.INTAKE_CAGE_VOLTAGE
-            )
-          }
+        if (arm.isAtTargetedPosition && elevator.isAtTargetedPosition) {
+          climber.currentRequest =
+            if (climber.isAtTargetedPosition) {
+              Request.ClimberRequest.OpenLoop(
+                0.0.volts, // don't keep open looping or you'll stall out the motor
+                ClimberConstants.INTAKE_CAGE_VOLTAGE
+              )
+            } else {
+              Request.ClimberRequest.OpenLoop(
+                ClimberConstants.CLIMB_RETRACT_VOLTAGE, ClimberConstants.INTAKE_CAGE_VOLTAGE
+              )
+            }
+        }
 
         when (currentRequest) {
           is Request.SuperstructureRequest.Idle -> SuperstructureStates.IDLE
@@ -415,7 +419,7 @@ class Superstructure(
               Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.idleHeight.get())
           }
 
-        if (elevator.clearsBattery) {
+        if (elevator.clearsRobot) {
           arm.currentRequest =
             when (coralScoringLevel) {
               CoralLevel.L1 ->
@@ -539,7 +543,7 @@ class Superstructure(
               Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.idleHeight.get())
           }
 
-        if (elevator.clearsBattery) {
+        if (elevator.clearsRobot) {
           arm.currentRequest =
             when (algaeScoringLevel) {
               AlgaeScoringLevel.PROCESSOR ->
@@ -586,10 +590,18 @@ class Superstructure(
           }
       }
       SuperstructureStates.EJECT -> {
-        arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.EJECT_ANGLE)
-        if (arm.isAtTargetedPosition) {
-          armRollers.currentRequest =
-            Request.RollersRequest.OpenLoop(ArmRollersConstants.EJECT_VOLTAGE)
+        if (!elevator.clearsRobot) {
+          elevator.currentRequest =
+            Request.ElevatorRequest.ClosedLoop(ElevatorConstants.HEIGHTS.CLEARS_ROBOT)
+        } else {
+          arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.EJECT_ANGLE)
+          if (arm.isAtTargetedPosition) {
+            armRollers.currentRequest =
+              ArmRollersRequest.OpenLoop(ArmRollersConstants.EJECT_VOLTAGE)
+          }
+        }
+
+        if (currentRequest is Request.SuperstructureRequest.Idle) {
           nextState = SuperstructureStates.IDLE
         }
       }

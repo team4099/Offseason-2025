@@ -203,6 +203,9 @@ class Superstructure(
 
               if (arm.isAtTargetedPosition) {
                 elevator.currentRequest = Request.ElevatorRequest.ClosedLoop(elevatorIdlePosition)
+              } else {
+                elevator.currentRequest = Request.ElevatorRequest.OpenLoop(0.0.volts)
+                /* in case it gets here from the closedloop request below, stop it */
               }
             } else {
               elevator.currentRequest = Request.ElevatorRequest.ClosedLoop(elevatorIdlePosition)

@@ -202,16 +202,13 @@ class Superstructure(
               arm.currentRequest = Request.ArmRequest.ClosedLoop(armIdleAngle)
 
               if (arm.isAtTargetedPosition) {
-                elevator.currentRequest =
-                  Request.ElevatorRequest.ClosedLoop(elevatorIdlePosition)
+                elevator.currentRequest = Request.ElevatorRequest.ClosedLoop(elevatorIdlePosition)
               }
             } else {
-              elevator.currentRequest =
-                Request.ElevatorRequest.ClosedLoop(elevatorIdlePosition)
+              elevator.currentRequest = Request.ElevatorRequest.ClosedLoop(elevatorIdlePosition)
 
               if (elevator.isAtTargetedPosition) {
-                arm.currentRequest =
-                  Request.ArmRequest.ClosedLoop(armIdleAngle)
+                arm.currentRequest = Request.ArmRequest.ClosedLoop(armIdleAngle)
               }
             }
           }

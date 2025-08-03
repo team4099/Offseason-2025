@@ -187,21 +187,32 @@ class Superstructure(
             }
           }
           else -> {
-            elevator.currentRequest =
-              Request.ElevatorRequest.ClosedLoop(
-                if (theoreticalGamePieceArm == GamePiece.CORAL)
-                  ElevatorTunableValues.Heights.idleCoralHeight.get()
-                else ElevatorTunableValues.Heights.idleHeight.get()
-              )
+            val armIdleAngle =
+              if (theoreticalGamePieceArm == GamePiece.CORAL)
+                ArmTunableValues.Angles.idleCoralAngle.get()
+              else ArmTunableValues.Angles.idleAngle.get()
+
+            val elevatorIdlePosition =
+              if (theoreticalGamePieceArm == GamePiece.CORAL)
+                ElevatorTunableValues.Heights.idleCoralHeight.get()
+              else ElevatorTunableValues.Heights.idleHeight.get()
 
             // note(nathan): ASSERT IDLE AND IDLE_CORAL > CLEARS_ROBOT
-            if (elevator.isAtTargetedPosition) {
-              arm.currentRequest =
-                Request.ArmRequest.ClosedLoop(
-                  if (theoreticalGamePieceArm == GamePiece.CORAL)
-                    ArmTunableValues.Angles.idleCoralAngle.get()
-                  else ArmTunableValues.Angles.idleAngle.get()
-                )
+            if (elevator.clearsRobot) {
+              arm.currentRequest = Request.ArmRequest.ClosedLoop(armIdleAngle)
+
+              if (arm.isAtTargetedPosition) {
+                elevator.currentRequest =
+                  Request.ElevatorRequest.ClosedLoop(elevatorIdlePosition)
+              }
+            } else {
+              elevator.currentRequest =
+                Request.ElevatorRequest.ClosedLoop(elevatorIdlePosition)
+
+              if (elevator.isAtTargetedPosition) {
+                arm.currentRequest =
+                  Request.ArmRequest.ClosedLoop(armIdleAngle)
+              }
             }
           }
         }

@@ -65,6 +65,8 @@ object RollersIOTalon : RollersIO {
     motorTorque = rollerTalon.torqueCurrent
     motorVoltage = rollerTalon.motorVoltage
     motorAccel = rollerTalon.acceleration
+
+    rollerTalon.configurator.apply(configs)
   }
 
   override fun updateInputs(inputs: RollersIO.RollerInputs) {

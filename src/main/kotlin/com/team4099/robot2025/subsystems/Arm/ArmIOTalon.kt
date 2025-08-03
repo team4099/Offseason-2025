@@ -100,6 +100,8 @@ object ArmIOTalon : ArmIO {
     motorAcelSignal = armTalon.acceleration
 
     absoluteEncoderSignal = absoluteEncoder.position
+
+    armTalon.configurator.apply(configs)
   }
 
   override fun updateInputs(inputs: ArmIO.ArmIOInputs) {

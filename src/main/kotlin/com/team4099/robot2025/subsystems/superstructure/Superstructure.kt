@@ -7,6 +7,7 @@ import com.team4099.robot2025.config.constants.ElevatorConstants
 import com.team4099.robot2025.config.constants.IntakeConstants
 import com.team4099.robot2025.subsystems.Arm.Arm
 import com.team4099.robot2025.subsystems.Arm.ArmTunableValues
+import com.team4099.robot2025.subsystems.canRange.CANRange
 import com.team4099.robot2025.subsystems.climber.Climber
 import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
 import com.team4099.robot2025.subsystems.elevator.Elevator
@@ -15,9 +16,12 @@ import com.team4099.robot2025.subsystems.indexer.Indexer
 import com.team4099.robot2025.subsystems.intake.Intake
 import com.team4099.robot2025.subsystems.intake.IntakeTunableValues
 import com.team4099.robot2025.subsystems.limelight.LimelightVision
+import com.team4099.robot2025.subsystems.superstructure.Request.SuperstructureRequest
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.CustomLogger
+import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import org.team4099.lib.units.base.inMilliseconds
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.derived.volts
 import com.team4099.robot2025.config.constants.Constants.Universal.AlgaeIntakeLevel as AlgaeIntakeLevel
@@ -37,7 +41,8 @@ class Superstructure(
   private val armRollers: ArmRollers,
   private val climber: Climber,
   private val intake: Intake,
-  private val indexer: Indexer
+  private val indexer: Indexer,
+  private val canrange: CANRange
 ) : SubsystemBase() {
 
   var theoreticalGamePieceArm: GamePiece = GamePiece.CORAL // preload !!
@@ -60,19 +65,19 @@ class Superstructure(
   private var lastAlgaeScoringLevel: AlgaeScoringLevel = AlgaeScoringLevel.NONE
   private var algaeScoringLevel: AlgaeScoringLevel = AlgaeScoringLevel.NONE
 
-  var currentRequest: Request.SuperstructureRequest = Request.SuperstructureRequest.Idle()
+  var currentRequest: SuperstructureRequest = SuperstructureRequest.Idle()
     set(value) {
       when (value) {
-        is Request.SuperstructureRequest.IntakeAlgae -> {
+        is SuperstructureRequest.IntakeAlgae -> {
           algaeIntakeLevel = value.level
         }
-        is Request.SuperstructureRequest.PrepScoreCoral -> {
+        is SuperstructureRequest.PrepScoreCoral -> {
           coralScoringLevel = value.level
         }
-        is Request.SuperstructureRequest.PrepScoreAlgae -> {
+        is SuperstructureRequest.PrepScoreAlgae -> {
           algaeScoringLevel = value.level
         }
-        is Request.SuperstructureRequest.Score -> {}
+        is SuperstructureRequest.Score -> {}
         else -> {
           coralScoringLevel = CoralLevel.NONE
           algaeIntakeLevel = AlgaeIntakeLevel.NONE
@@ -89,48 +94,56 @@ class Superstructure(
   private var lastTransitionTime = Clock.fpgaTime
 
   override fun periodic() {
-    // add this later when superstructure is done :)
-    //    val ledLoopStartTime = Clock.realTimestamp
-    //    leds.periodic()
-    //    CustomLogger.recordOutput(
-    //      "LoggedRobot/Subsystems/ledLoopTimeMS",
-    //      (Clock.realTimestamp - ledLoopStartTime).inMilliseconds
-    //    )
-    //
-    //    val armLoopStartTime = Clock.realTimestamp
-    //    arm.periodic()
-    //    CustomLogger.recordOutput(
-    //      "LoggedRobot/Subsystems/ArmLoopTimeMS",
-    //      (Clock.realTimestamp - armLoopStartTime).inMilliseconds
-    //    )
-    //
-    //    val climberLoopStartTime = Clock.realTimestamp
-    //    climber.periodic()
-    //    CustomLogger.recordOutput(
-    //      "LoggedRobot/Subsystems/ClimberLoopTimeMS",
-    //      (Clock.realTimestamp - climberLoopStartTime).inMilliseconds
-    //    )
-    //
-    //    val elevatorLoopStartTime = Clock.realTimestamp
-    //    elevator.periodic()
-    //    CustomLogger.recordOutput(
-    //      "LoggedRobot/Subsystems/ElevatorLoopTimeMS",
-    //      (Clock.realTimestamp - elevatorLoopStartTime).inMilliseconds
-    //    )
-    //
-    //    val rollersLoopStartTime = Clock.realTimestamp
-    //    rollers.periodic()
-    //    CustomLogger.recordOutput(
-    //      "LoggedRobot/Subsystems/RollersLoopTimeMS",
-    //      (Clock.realTimestamp - rollersLoopStartTime).inMilliseconds
-    //    )
-    //
-    //    val rampLoopStartTime = Clock.realTimestamp
-    //    ramp.periodic()
-    //    CustomLogger.recordOutput(
-    //      "LoggedRobot/Subsystems/RampLoopTimeMS",
-    //      (Clock.realTimestamp - rampLoopStartTime).inMilliseconds
-    //    )
+    val armStartTime = Clock.realTimestamp
+    arm.periodic()
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/armLoopTimeMS",
+      (Clock.realTimestamp - armStartTime).inMilliseconds
+    )
+
+    val armRollersStartTime = Clock.realTimestamp
+    armRollers.periodic()
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/armRollersLoopTimeMS",
+      (Clock.realTimestamp - armRollersStartTime).inMilliseconds
+    )
+
+    val canRangeStartTime = Clock.realTimestamp
+    canrange.periodic()
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/canRangeLoopTimeMS",
+      (Clock.realTimestamp - canRangeStartTime).inMilliseconds
+    )
+
+    val climberStartTime = Clock.realTimestamp
+    climber.periodic()
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/climberLoopTimeMS",
+      (Clock.realTimestamp - climberStartTime).inMilliseconds
+    )
+
+    val elevatorStartTime = Clock.realTimestamp
+    elevator.periodic()
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/elevatorLoopTimeMS",
+      (Clock.realTimestamp - elevatorStartTime).inMilliseconds
+    )
+
+    val indexerStartTime = Clock.realTimestamp
+    indexer.periodic()
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/indexerLoopTimeMS",
+      (Clock.realTimestamp - indexerStartTime).inMilliseconds
+    )
+
+    val intakeStartTime = Clock.realTimestamp
+    intake.periodic()
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/intakeLoopTimeMS",
+      (Clock.realTimestamp - intakeStartTime).inMilliseconds
+    )
+
+    val superstructureStateMachineStartTime = Clock.realTimestamp
 
     CustomLogger.recordOutput("Superstructure/currentRequest", currentRequest.javaClass.simpleName)
     CustomLogger.recordOutput("Superstructure/currentState", currentState.name)
@@ -226,18 +239,18 @@ class Superstructure(
             SuperstructureStates.INTAKE_CORAL_INTO_ARM
           else
             when (currentRequest) {
-              is Request.SuperstructureRequest.Home -> SuperstructureStates.HOME
-              is Request.SuperstructureRequest.IntakeCoral ->
+              is SuperstructureRequest.Home -> SuperstructureStates.HOME
+              is SuperstructureRequest.IntakeCoral ->
                 SuperstructureStates.GROUND_INTAKE_CORAL
-              is Request.SuperstructureRequest.IntakeAlgae -> SuperstructureStates.INTAKE_ALGAE
-              is Request.SuperstructureRequest.PrepScoreCoral ->
+              is SuperstructureRequest.IntakeAlgae -> SuperstructureStates.INTAKE_ALGAE
+              is SuperstructureRequest.PrepScoreCoral ->
                 SuperstructureStates.PREP_SCORE_CORAL
-              is Request.SuperstructureRequest.PrepScoreAlgae ->
+              is SuperstructureRequest.PrepScoreAlgae ->
                 SuperstructureStates.PREP_SCORE_ALGAE
-              is Request.SuperstructureRequest.ExtendClimb -> SuperstructureStates.CLIMB_EXTEND
-              is Request.SuperstructureRequest.RetractClimb ->
+              is SuperstructureRequest.ExtendClimb -> SuperstructureStates.CLIMB_EXTEND
+              is SuperstructureRequest.RetractClimb ->
                 SuperstructureStates.CLIMB_RETRACT
-              is Request.SuperstructureRequest.Eject -> SuperstructureStates.EJECT
+              is SuperstructureRequest.Eject -> SuperstructureStates.EJECT
               else -> currentState
             }
       }
@@ -249,7 +262,7 @@ class Superstructure(
         indexer.currentRequest = Request.IndexerRequest.Index()
 
         if (theoreticalGamePieceHardstop == GamePiece.CORAL ||
-          currentRequest is Request.SuperstructureRequest.Idle
+          currentRequest is SuperstructureRequest.Idle
         ) {
           nextState = SuperstructureStates.GROUND_INTAKE_CORAL_CLEANUP
         }
@@ -291,7 +304,7 @@ class Superstructure(
           }
         }
 
-        if (currentRequest is Request.SuperstructureRequest.Idle ||
+        if (currentRequest is SuperstructureRequest.Idle ||
           arm.isAtTargetedPosition && theoreticalGamePieceArm == GamePiece.CORAL
         ) {
           nextState = SuperstructureStates.IDLE
@@ -354,7 +367,7 @@ class Superstructure(
           theoreticalGamePieceArm = GamePiece.ALGAE
         }
 
-        if (currentRequest is Request.SuperstructureRequest.Idle ||
+        if (currentRequest is SuperstructureRequest.Idle ||
           arm.isAtTargetedPosition && theoreticalGamePieceArm == GamePiece.ALGAE
         ) {
           nextState = SuperstructureStates.CLEANUP_INTAKE_ALGAE
@@ -387,8 +400,8 @@ class Superstructure(
         }
 
         when (currentRequest) {
-          is Request.SuperstructureRequest.Idle -> SuperstructureStates.IDLE
-          is Request.SuperstructureRequest.RetractClimb -> SuperstructureStates.CLIMB_RETRACT
+          is SuperstructureRequest.Idle -> SuperstructureStates.IDLE
+          is SuperstructureRequest.RetractClimb -> SuperstructureStates.CLIMB_RETRACT
         }
       }
       SuperstructureStates.CLIMB_RETRACT -> { // for actually CLIMBING (retracting climb into robot)
@@ -411,8 +424,8 @@ class Superstructure(
         }
 
         when (currentRequest) {
-          is Request.SuperstructureRequest.Idle -> SuperstructureStates.IDLE
-          is Request.SuperstructureRequest.ExtendClimb -> SuperstructureStates.CLIMB_EXTEND
+          is SuperstructureRequest.Idle -> SuperstructureStates.IDLE
+          is SuperstructureRequest.ExtendClimb -> SuperstructureStates.CLIMB_EXTEND
         }
       }
       SuperstructureStates.PREP_SCORE_CORAL -> {
@@ -454,11 +467,11 @@ class Superstructure(
         }
 
         when (currentRequest) {
-          is Request.SuperstructureRequest.Score -> {
+          is SuperstructureRequest.Score -> {
             if (elevator.isAtTargetedPosition && arm.isAtTargetedPosition)
               nextState = SuperstructureStates.SCORE_CORAL
           }
-          is Request.SuperstructureRequest.Idle -> {
+          is SuperstructureRequest.Idle -> {
             nextState = SuperstructureStates.IDLE
           }
         }
@@ -470,7 +483,7 @@ class Superstructure(
             armRollers.currentRequest =
               ArmRollersRequest.OpenLoop(ArmRollersConstants.OUTTAKE_CORAL_VOLTAGE)
 
-            if (currentRequest is Request.SuperstructureRequest.Idle) {
+            if (currentRequest is SuperstructureRequest.Idle) {
               nextState = SuperstructureStates.CLEANUP_SCORE_CORAL
             }
 
@@ -501,7 +514,7 @@ class Superstructure(
                 } - ArmTunableValues.Angles.scoreOffset.get()
               )
 
-            if (currentRequest is Request.SuperstructureRequest.Idle) {
+            if (currentRequest is SuperstructureRequest.Idle) {
               nextState = SuperstructureStates.CLEANUP_SCORE_CORAL
             }
             if (arm.isAtTargetedPosition &&
@@ -566,8 +579,8 @@ class Superstructure(
         }
 
         when (currentRequest) {
-          is Request.SuperstructureRequest.Idle -> nextState = SuperstructureStates.IDLE
-          is Request.SuperstructureRequest.Score -> {
+          is SuperstructureRequest.Idle -> nextState = SuperstructureStates.IDLE
+          is SuperstructureRequest.Score -> {
             if (elevator.isAtTargetedPosition && arm.isAtTargetedPosition)
               nextState = SuperstructureStates.SCORE_ALGAE
           }
@@ -577,7 +590,7 @@ class Superstructure(
         armRollers.currentRequest =
           ArmRollersRequest.OpenLoop(ArmRollersConstants.OUTTAKE_ALGAE_VOLTAGE)
 
-        if (currentRequest is Request.SuperstructureRequest.Idle) {
+        if (currentRequest is SuperstructureRequest.Idle) {
           nextState = SuperstructureStates.CLEANUP_SCORE_ALGAE
         }
 
@@ -612,15 +625,87 @@ class Superstructure(
           }
         }
 
-        if (currentRequest is Request.SuperstructureRequest.Idle) {
+        if (currentRequest is SuperstructureRequest.Idle) {
           nextState = SuperstructureStates.IDLE
         }
       }
     }
 
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/superstructureLoopTimeMS",
+      (Clock.realTimestamp - superstructureStateMachineStartTime).inMilliseconds
+    )
+
     if (nextState != currentState) lastTransitionTime = Clock.fpgaTime
 
     currentState = nextState
+  }
+
+  fun requestIdleCommand(): Command {
+    val returnCommand = run{ SuperstructureRequest.Idle()}.until {
+      isAtRequestedState && currentState == SuperstructureStates.IDLE
+    }
+    returnCommand.name = "RequestIdleCommand"
+    return returnCommand
+  }
+
+  fun ejectCommand(): Command {
+    val returnCommand = run { currentRequest = SuperstructureRequest.Eject() }.until {
+      isAtRequestedState && currentState == SuperstructureStates.EJECT
+    }
+    returnCommand.name = "EjectCommand"
+    return returnCommand
+  }
+
+  //-------------------------------- Intake Commands --------------------------------
+  fun intakeCoral(): Command {
+    val returnCommand = runOnce {currentRequest = SuperstructureRequest.IntakeCoral() }.until { isAtRequestedState && currentState == SuperstructureStates.IDLE }
+    returnCommand.name = "intakeCoral"
+    return returnCommand
+  }
+
+  fun intakeAlgae(level: AlgaeIntakeLevel): Command {
+    val returnCommand = runOnce { currentRequest = SuperstructureRequest.IntakeAlgae(level) }.until {
+      isAtRequestedState && currentState == SuperstructureStates.INTAKE_ALGAE
+    }
+    returnCommand.name = "intakeAlgae"
+    return returnCommand
+  }
+
+  //-------------------------------- Prep Score Commands --------------------------------
+  fun prepScoreCoralCommand(level: CoralLevel):Command{
+    val returnCommand = runOnce{currentRequest = SuperstructureRequest.PrepScoreCoral(level)}.until{isAtRequestedState && currentState == SuperstructureStates.PREP_SCORE_CORAL}
+    returnCommand.name= "prepScoreCoralCommand"
+    return returnCommand
+  }
+
+  fun prepScoreAlgaeCommand(level: AlgaeScoringLevel): Command {
+    val returnCommand = runOnce{ currentRequest = SuperstructureRequest.PrepScoreAlgae(level) }.until{
+      isAtRequestedState && currentState == SuperstructureStates.PREP_SCORE_ALGAE
+    }
+    returnCommand.name = "prepScoreAlgaeCommand"
+    return returnCommand
+  }
+
+  //-------------------------------- Score Commands --------------------------------
+  fun scoreCommand() : Command {
+    val returnCommand = runOnce { currentRequest = SuperstructureRequest.Score() }.until {
+      isAtRequestedState && (currentState == SuperstructureStates.SCORE_CORAL || currentState == SuperstructureStates.SCORE_ALGAE)
+    }
+    returnCommand.name = "scoreCommand"
+    return returnCommand
+  }
+
+  //-------------------------------- Climb Commands --------------------------------
+  fun climbExtendCommand() : Command {
+    val returnCommand = run {
+      currentRequest = SuperstructureRequest.ExtendClimb()
+    }.until {
+      isAtRequestedState && currentState == SuperstructureStates.CLIMB_EXTEND
+    }
+
+    returnCommand.name = "ClimbExtendCommand"
+    return returnCommand
   }
 
   companion object {

@@ -38,10 +38,41 @@ object ControlBoard {
       }
     }
 
+  //    _=====_                               _=====_
+  //     / _____ \                             / _____ \
+  //   +.-'_____'-.---------------------------.-'_____'-.+
+  //  /   |     |  '.        S O N Y        .'  |  _  |   \
+  // / ___| /|\ |___ \                     / ___| /_\ |___ \
+  /// |      |      | ;  __           _   ; | _         _ | ;
+  //| | <---   ---> | | |__|         |_:> | ||_|       (_)| |
+  //| |___   |   ___| ;SELECT       START ; |___       ___| ;
+  //|\    | \|/ |    /  _     ___      _   \    | (X) |    /|
+  //| \   |_____|  .','" "', |___|  ,'" "', '.  |_____|  .' |
+  //|  '-.______.-' /       \ANALOG/       \  '-._____.-'   |
+  //|               |       |------|       |                |
+  //|              /\       /      \       /\               |
+  //|             /  '.___.'        '.___.'  \              |
+  //|            /                            \             |
+  // \          /                              \           /
+  //  \________/                                \_________/
+
   val slowMode: Boolean
     get() = driver.rightJoystickButton && driver.leftShoulderButton
 
+  val intakeCoral = Trigger { driver.rightTriggerAxis > 0.5 }
+  val score = Trigger { driver.leftTriggerAxis > 0.5 }
+  val climb = Trigger {driver.leftJoystickButton && driver.leftTriggerAxis > 0.5 }
+
+  val prepL1 = Trigger { !driver.rightJoystickButton && driver.xButton }
+  val prepL2 = Trigger { !driver.rightJoystickButton && driver.aButton }
+  val prepL3 = Trigger { !driver.rightJoystickButton && driver.bButton }
+  val prepL4 = Trigger { !driver.rightJoystickButton && driver.yButton }
+
+  val alignLeft = Trigger { driver.leftShoulderButton && !driver.rightShoulderButton }
+  val alignRight = Trigger { driver.rightShoulderButton && !driver.leftShoulderButton }
+  val alignAlgae = Trigger { driver.leftShoulderButton && driver.rightShoulderButton }
+
   val resetGyro = Trigger { driver.startButton && driver.selectButton }
   val forceIdle = Trigger { driver.dPadDown }
-  val manualReset = Trigger { driver.leftShoulderButton && driver.rightShoulderButton }
+  val eject = Trigger { driver.dPadLeft }
 }

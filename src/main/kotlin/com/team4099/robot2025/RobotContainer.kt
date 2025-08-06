@@ -11,6 +11,9 @@ import com.team4099.robot2025.config.constants.VisionConstants
 import com.team4099.robot2025.subsystems.Arm.Arm
 import com.team4099.robot2025.subsystems.Arm.ArmIOSIm
 import com.team4099.robot2025.subsystems.Arm.ArmIOTalon
+import com.team4099.robot2025.subsystems.canRange.CANRange
+import com.team4099.robot2025.subsystems.canRange.CANRangeIO
+import com.team4099.robot2025.subsystems.canRange.CANRangeReal
 import com.team4099.robot2025.subsystems.climber.Climber
 import com.team4099.robot2025.subsystems.climber.ClimberIOSim
 import com.team4099.robot2025.subsystems.climber.ClimberIOTalon
@@ -52,7 +55,21 @@ object RobotContainer {
   private val climber: Climber
   private val intake: Intake
   private val indexer: Indexer
+  private val canrange: CANRange
   val superstructure: Superstructure
+
+  //   . -- .
+  //  (      )
+  // ( (/oo\) )
+  //  ( \''/ )                               WW
+  //   ( \/ )      wwwwww                   /__\
+  //  (      )   w"ww  ww"w                | oo |   _WWWWW_
+  // (        ) W   o""o   W    (o)(o)    (|_()_|) /  o o  \   (+)(+)
+  //(          )W  ______  W  w"      "w    \__/ (|  __O__  |)/      \
+  // (        ) "w \_\/_/ w" W  -====-  W  /|\/|\  \ \___/ /  \ -==- /
+  //   ' -- '  ww""wwwwww""ww "w      w"  |||||||| /-------\   \    /
+  //    =  =    |||||||||||| w""""""""""w |||||||||=========| <\/\/\/>
+  //    =  =    ||||||||||||W            W|||||||||=========| /      \
 
   init {
     if (RobotBase.isReal()) {
@@ -64,6 +81,7 @@ object RobotContainer {
       climber = Climber(ClimberIOTalon)
       intake = Intake(IntakeIOTalonFX)
       indexer = Indexer(IndexerIOTalon)
+      canrange = CANRange(CANRangeReal)
 
       vision =
         Vision(
@@ -83,6 +101,7 @@ object RobotContainer {
       climber = Climber(ClimberIOSim)
       intake = Intake(IntakeIOSim)
       indexer = Indexer(IndexerIOSim)
+      canrange = CANRange(object: CANRangeIO {})
 
       vision = Vision(object : CameraIO {})
     }
@@ -96,7 +115,7 @@ object RobotContainer {
 
     superstructure =
       Superstructure(
-        drivetrain, vision, limelight, elevator, arm, armRollers, climber, intake, indexer
+        drivetrain, vision, limelight, elevator, arm, armRollers, climber, intake, indexer, canrange
       )
 
     limelight.poseSupplier = { drivetrain.odomTRobot }
@@ -144,7 +163,32 @@ object RobotContainer {
   // TODO fix
   fun requestIdle() {}
 
-  fun mapTeleopControls() {}
+  fun mapTeleopControls() {
+    ControlBoard.intakeCoral.whileTrue(superstructure.intakeCoral())
+
+    if (superstructure.theoreticalGamePieceArm == Constants.Universal.GamePiece.CORAL) {
+      ControlBoard.prepL1.whileTrue(superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L1))
+      ControlBoard.prepL2.whileTrue(superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L2))
+      ControlBoard.prepL3.whileTrue(superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L3))
+      ControlBoard.prepL4.whileTrue(superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L4))
+    } else {
+      ControlBoard.prepL1.whileTrue(superstructure.prepScoreAlgaeCommand(Constants.Universal.AlgaeScoringLevel.PROCESSOR))
+      ControlBoard.prepL2.whileTrue(superstructure.intakeAlgae(Constants.Universal.AlgaeIntakeLevel.GROUND))
+      ControlBoard.prepL3.whileTrue(superstructure.intakeAlgae(
+        if (vision.lastTrigVisionUpdate.targetTagID in Constants.Universal.highAlgaeReefTags) Constants.Universal.AlgaeIntakeLevel.L3
+        else Constants.Universal.AlgaeIntakeLevel.L2
+      ))
+      ControlBoard.prepL4.whileTrue(superstructure.prepScoreAlgaeCommand(Constants.Universal.AlgaeScoringLevel.BARGE))
+    }
+
+    ControlBoard.climb.whileTrue(superstructure.climbExtendCommand())
+
+    ControlBoard.score.whileTrue(superstructure.scoreCommand())
+
+    ControlBoard.resetGyro.whileTrue(ResetGyroYawCommand(drivetrain))
+    ControlBoard.forceIdle.whileTrue(superstructure.requestIdleCommand())
+    ControlBoard.eject.whileTrue(superstructure.ejectCommand())
+  }
 
   fun mapTestControls() {}
 

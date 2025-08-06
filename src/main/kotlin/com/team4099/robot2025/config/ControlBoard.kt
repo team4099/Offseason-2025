@@ -45,10 +45,10 @@ object ControlBoard {
   val score = Trigger { driver.leftTriggerAxis > 0.5 }
   val climb = Trigger { driver.dPadUp }
 
-  val prepL1 = Trigger { driver.xButton }
-  val prepL2 = Trigger { driver.aButton }
-  val prepL3 = Trigger { driver.bButton }
-  val prepL4 = Trigger { driver.yButton }
+  val prepL1OrProcessor = Trigger { driver.xButton }
+  val prepL2OrAlgaeGround = Trigger { driver.aButton }
+  val prepL3OrAlgaeReef = Trigger { driver.bButton }
+  val prepL4OrBarge = Trigger { driver.yButton }
 
   val alignLeft = Trigger { driver.leftShoulderButton && !driver.rightShoulderButton }
   val alignRight = Trigger { driver.rightShoulderButton && !driver.leftShoulderButton }

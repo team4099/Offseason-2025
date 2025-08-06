@@ -33,6 +33,7 @@ import com.team4099.robot2025.subsystems.intake.IntakeIOSim
 import com.team4099.robot2025.subsystems.intake.IntakeIOTalonFX
 import com.team4099.robot2025.subsystems.limelight.LimelightVision
 import com.team4099.robot2025.subsystems.limelight.LimelightVisionIO
+import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.driver.Jessika
@@ -156,50 +157,24 @@ object RobotContainer {
     drivetrain.swerveModules.forEach { it.setDriveBrakeMode(true) }
   }
 
-  // TODO fix
-  fun requestIdle() {}
+  fun requestIdle() {
+    superstructure.currentRequest = Request.SuperstructureRequest.Idle()
+  }
 
   fun mapTeleopControls() {
-    ControlBoard.intakeCoral.whileTrue(superstructure.intakeCoral())
+    ControlBoard.intakeCoral.whileTrue(superstructure.intakeCoralCommand())
     ControlBoard.score.whileTrue(superstructure.scoreCommand())
     ControlBoard.climb.whileTrue(superstructure.climbExtendCommand())
 
-    if (superstructure.theoreticalGamePieceArm == Constants.Universal.GamePiece.CORAL) {
-      ControlBoard.prepL1.whileTrue(
-        superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L1)
-      )
-      ControlBoard.prepL2.whileTrue(
-        superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L2)
-      )
-      ControlBoard.prepL3.whileTrue(
-        superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L3)
-      )
-      ControlBoard.prepL4.whileTrue(
-        superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L4)
-      )
+    ControlBoard.prepL1OrProcessor.whileTrue(superstructure.prepL1OrProcessorCommand())
+    ControlBoard.prepL2OrAlgaeGround.whileTrue(superstructure.prepL2OrAlgaeGroundCommand())
+    ControlBoard.prepL3OrAlgaeReef.whileTrue(superstructure.prepL3OrAlgaeReefCommand())
+    ControlBoard.prepL4OrBarge.whileTrue(superstructure.prepL4OrBargeCommand())
 
-      ControlBoard.alignLeft.whileTrue(object : Command() {}) // todo add auto align left
-      ControlBoard.alignRight.whileTrue(object : Command() {}) // todo add auto align right
-    } else {
-      ControlBoard.prepL1.whileTrue(
-        superstructure.prepScoreAlgaeCommand(Constants.Universal.AlgaeScoringLevel.PROCESSOR)
-      )
-      ControlBoard.prepL2.whileTrue(
-        superstructure.intakeAlgae(Constants.Universal.AlgaeIntakeLevel.GROUND)
-      )
-      ControlBoard.prepL3.whileTrue(
-        superstructure.intakeAlgae(
-          if (vision.lastTrigVisionUpdate.targetTagID in Constants.Universal.highAlgaeReefTags)
-            Constants.Universal.AlgaeIntakeLevel.L3
-          else Constants.Universal.AlgaeIntakeLevel.L2
-        )
-      )
-      ControlBoard.prepL4.whileTrue(
-        superstructure.prepScoreAlgaeCommand(Constants.Universal.AlgaeScoringLevel.BARGE)
-      )
-
-      ControlBoard.alignCenter.whileTrue(object : Command() {}) // todo add auto align center
-    }
+    // todo align commands need to change to utilize superstructure.theoreticalGamePieceArm
+    ControlBoard.alignLeft.whileTrue(object : Command() {}) // todo add auto align left
+    ControlBoard.alignRight.whileTrue(object : Command() {}) // todo add auto align right
+    ControlBoard.alignCenter.whileTrue(object : Command() {}) // todo add auto align center
 
     ControlBoard.resetGyro.whileTrue(ResetGyroYawCommand(drivetrain))
     ControlBoard.forceIdle.whileTrue(superstructure.requestIdleCommand())

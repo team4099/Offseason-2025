@@ -3,6 +3,7 @@ package com.team4099.robot2025.subsystems.superstructure
 import com.team4099.lib.hal.Clock
 import com.team4099.robot2025.config.constants.ArmConstants
 import com.team4099.robot2025.config.constants.ClimberConstants
+import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.ElevatorConstants
 import com.team4099.robot2025.config.constants.IntakeConstants
 import com.team4099.robot2025.subsystems.Arm.Arm
@@ -141,8 +142,6 @@ class Superstructure(
       "LoggedRobot/Subsystems/intakeLoopTimeMS",
       (Clock.realTimestamp - intakeStartTime).inMilliseconds
     )
-
-    val superstructureStateMachineStartTime = Clock.realTimestamp
 
     CustomLogger.recordOutput("Superstructure/currentRequest", currentRequest.javaClass.simpleName)
     CustomLogger.recordOutput("Superstructure/currentState", currentState.name)
@@ -626,11 +625,6 @@ class Superstructure(
       }
     }
 
-    CustomLogger.recordOutput(
-      "LoggedRobot/Subsystems/superstructureLoopTimeMS",
-      (Clock.realTimestamp - superstructureStateMachineStartTime).inMilliseconds
-    )
-
     if (nextState != currentState) lastTransitionTime = Clock.fpgaTime
 
     currentState = nextState
@@ -654,8 +648,42 @@ class Superstructure(
     return returnCommand
   }
 
+  // -------------------------------- Redirect Commands --------------------------------
+  fun prepL1OrProcessorCommand(): Command {
+    return when (theoreticalGamePieceArm) {
+      GamePiece.CORAL -> prepScoreCoralCommand(CoralLevel.L1)
+      else -> prepScoreAlgaeCommand(AlgaeScoringLevel.PROCESSOR)
+    }
+  }
+
+  fun prepL2OrAlgaeGroundCommand(): Command {
+    return when (theoreticalGamePieceArm) {
+      GamePiece.CORAL -> prepScoreCoralCommand(CoralLevel.L2)
+      else -> intakeAlgaeCommand(AlgaeIntakeLevel.GROUND)
+    }
+  }
+
+  fun prepL3OrAlgaeReefCommand(): Command {
+    return when (theoreticalGamePieceArm) {
+      GamePiece.CORAL -> prepScoreCoralCommand(CoralLevel.L3)
+      else ->
+        intakeAlgaeCommand(
+          if (vision.lastTrigVisionUpdate.targetTagID in Constants.Universal.highAlgaeReefTags)
+            AlgaeIntakeLevel.L3
+          else AlgaeIntakeLevel.L2
+        )
+    }
+  }
+
+  fun prepL4OrBargeCommand(): Command {
+    return when (theoreticalGamePieceArm) {
+      GamePiece.CORAL -> prepScoreCoralCommand(CoralLevel.L4)
+      else -> prepScoreAlgaeCommand(AlgaeScoringLevel.BARGE)
+    }
+  }
+
   // --------------------------------- Intake Commands ---------------------------------
-  fun intakeCoral(): Command {
+  fun intakeCoralCommand(): Command {
     val returnCommand =
       runOnce { currentRequest = SuperstructureRequest.IntakeCoral() }.until {
         isAtRequestedState && currentState == SuperstructureStates.IDLE
@@ -664,7 +692,7 @@ class Superstructure(
     return returnCommand
   }
 
-  fun intakeAlgae(level: AlgaeIntakeLevel): Command {
+  fun intakeAlgaeCommand(level: AlgaeIntakeLevel): Command {
     val returnCommand =
       runOnce { currentRequest = SuperstructureRequest.IntakeAlgae(level) }.until {
         isAtRequestedState && currentState == SuperstructureStates.INTAKE_ALGAE

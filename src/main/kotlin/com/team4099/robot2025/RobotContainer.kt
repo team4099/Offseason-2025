@@ -58,19 +58,6 @@ object RobotContainer {
   private val canrange: CANRange
   val superstructure: Superstructure
 
-  //   . -- .
-  //  (      )
-  // ( (/oo\) )
-  //  ( \''/ )                               WW
-  //   ( \/ )      wwwwww                   /__\
-  //  (      )   w"ww  ww"w                | oo |   _WWWWW_
-  // (        ) W   o""o   W    (o)(o)    (|_()_|) /  o o  \   (+)(+)
-  //(          )W  ______  W  w"      "w    \__/ (|  __O__  |)/      \
-  // (        ) "w \_\/_/ w" W  -====-  W  /|\/|\  \ \___/ /  \ -==- /
-  //   ' -- '  ww""wwwwww""ww "w      w"  |||||||| /-------\   \    /
-  //    =  =    |||||||||||| w""""""""""w |||||||||=========| <\/\/\/>
-  //    =  =    ||||||||||||W            W|||||||||=========| /      \
-
   init {
     if (RobotBase.isReal()) {
       drivetrain = Drivetrain(GyroIOPigeon2, DrivetrainIOReal)
@@ -165,6 +152,8 @@ object RobotContainer {
 
   fun mapTeleopControls() {
     ControlBoard.intakeCoral.whileTrue(superstructure.intakeCoral())
+    ControlBoard.score.whileTrue(superstructure.scoreCommand())
+    ControlBoard.climb.whileTrue(superstructure.climbExtendCommand())
 
     if (superstructure.theoreticalGamePieceArm == Constants.Universal.GamePiece.CORAL) {
       ControlBoard.prepL1.whileTrue(superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L1))
@@ -181,9 +170,7 @@ object RobotContainer {
       ControlBoard.prepL4.whileTrue(superstructure.prepScoreAlgaeCommand(Constants.Universal.AlgaeScoringLevel.BARGE))
     }
 
-    ControlBoard.climb.whileTrue(superstructure.climbExtendCommand())
-
-    ControlBoard.score.whileTrue(superstructure.scoreCommand())
+    /* TODO: auto align commands to go here */
 
     ControlBoard.resetGyro.whileTrue(ResetGyroYawCommand(drivetrain))
     ControlBoard.forceIdle.whileTrue(superstructure.requestIdleCommand())

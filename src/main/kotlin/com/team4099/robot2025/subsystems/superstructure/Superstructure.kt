@@ -97,8 +97,7 @@ class Superstructure(
     val armStartTime = Clock.realTimestamp
     arm.periodic()
     CustomLogger.recordOutput(
-      "LoggedRobot/Subsystems/armLoopTimeMS",
-      (Clock.realTimestamp - armStartTime).inMilliseconds
+      "LoggedRobot/Subsystems/armLoopTimeMS", (Clock.realTimestamp - armStartTime).inMilliseconds
     )
 
     val armRollersStartTime = Clock.realTimestamp
@@ -240,16 +239,12 @@ class Superstructure(
           else
             when (currentRequest) {
               is SuperstructureRequest.Home -> SuperstructureStates.HOME
-              is SuperstructureRequest.IntakeCoral ->
-                SuperstructureStates.GROUND_INTAKE_CORAL
+              is SuperstructureRequest.IntakeCoral -> SuperstructureStates.GROUND_INTAKE_CORAL
               is SuperstructureRequest.IntakeAlgae -> SuperstructureStates.INTAKE_ALGAE
-              is SuperstructureRequest.PrepScoreCoral ->
-                SuperstructureStates.PREP_SCORE_CORAL
-              is SuperstructureRequest.PrepScoreAlgae ->
-                SuperstructureStates.PREP_SCORE_ALGAE
+              is SuperstructureRequest.PrepScoreCoral -> SuperstructureStates.PREP_SCORE_CORAL
+              is SuperstructureRequest.PrepScoreAlgae -> SuperstructureStates.PREP_SCORE_ALGAE
               is SuperstructureRequest.ExtendClimb -> SuperstructureStates.CLIMB_EXTEND
-              is SuperstructureRequest.RetractClimb ->
-                SuperstructureStates.CLIMB_RETRACT
+              is SuperstructureRequest.RetractClimb -> SuperstructureStates.CLIMB_RETRACT
               is SuperstructureRequest.Eject -> SuperstructureStates.EJECT
               else -> currentState
             }
@@ -642,67 +637,81 @@ class Superstructure(
   }
 
   fun requestIdleCommand(): Command {
-    val returnCommand = run{ SuperstructureRequest.Idle()}.until {
-      isAtRequestedState && currentState == SuperstructureStates.IDLE
-    }
+    val returnCommand =
+      run { SuperstructureRequest.Idle() }.until {
+        isAtRequestedState && currentState == SuperstructureStates.IDLE
+      }
     returnCommand.name = "RequestIdleCommand"
     return returnCommand
   }
 
   fun ejectCommand(): Command {
-    val returnCommand = run { currentRequest = SuperstructureRequest.Eject() }.until {
-      isAtRequestedState && currentState == SuperstructureStates.EJECT
-    }
+    val returnCommand =
+      run { currentRequest = SuperstructureRequest.Eject() }.until {
+        isAtRequestedState && currentState == SuperstructureStates.EJECT
+      }
     returnCommand.name = "EjectCommand"
     return returnCommand
   }
 
-  //-------------------------------- Intake Commands --------------------------------
+  // --------------------------------- Intake Commands ---------------------------------
   fun intakeCoral(): Command {
-    val returnCommand = runOnce {currentRequest = SuperstructureRequest.IntakeCoral() }.until { isAtRequestedState && currentState == SuperstructureStates.IDLE }
+    val returnCommand =
+      runOnce { currentRequest = SuperstructureRequest.IntakeCoral() }.until {
+        isAtRequestedState && currentState == SuperstructureStates.IDLE
+      }
     returnCommand.name = "intakeCoral"
     return returnCommand
   }
 
   fun intakeAlgae(level: AlgaeIntakeLevel): Command {
-    val returnCommand = runOnce { currentRequest = SuperstructureRequest.IntakeAlgae(level) }.until {
-      isAtRequestedState && currentState == SuperstructureStates.INTAKE_ALGAE
-    }
+    val returnCommand =
+      runOnce { currentRequest = SuperstructureRequest.IntakeAlgae(level) }.until {
+        isAtRequestedState && currentState == SuperstructureStates.INTAKE_ALGAE
+      }
     returnCommand.name = "intakeAlgae"
     return returnCommand
   }
 
-  //-------------------------------- Prep Score Commands --------------------------------
-  fun prepScoreCoralCommand(level: CoralLevel):Command{
-    val returnCommand = runOnce{currentRequest = SuperstructureRequest.PrepScoreCoral(level)}.until{isAtRequestedState && currentState == SuperstructureStates.PREP_SCORE_CORAL}
-    returnCommand.name= "prepScoreCoralCommand"
+  // -------------------------------- Prep Score Commands --------------------------------
+  fun prepScoreCoralCommand(level: CoralLevel): Command {
+    val returnCommand =
+      runOnce { currentRequest = SuperstructureRequest.PrepScoreCoral(level) }.until {
+        isAtRequestedState && currentState == SuperstructureStates.PREP_SCORE_CORAL
+      }
+    returnCommand.name = "prepScoreCoralCommand"
     return returnCommand
   }
 
   fun prepScoreAlgaeCommand(level: AlgaeScoringLevel): Command {
-    val returnCommand = runOnce{ currentRequest = SuperstructureRequest.PrepScoreAlgae(level) }.until{
-      isAtRequestedState && currentState == SuperstructureStates.PREP_SCORE_ALGAE
-    }
+    val returnCommand =
+      runOnce { currentRequest = SuperstructureRequest.PrepScoreAlgae(level) }.until {
+        isAtRequestedState && currentState == SuperstructureStates.PREP_SCORE_ALGAE
+      }
     returnCommand.name = "prepScoreAlgaeCommand"
     return returnCommand
   }
 
-  //-------------------------------- Score Commands --------------------------------
-  fun scoreCommand() : Command {
-    val returnCommand = runOnce { currentRequest = SuperstructureRequest.Score() }.until {
-      isAtRequestedState && (currentState == SuperstructureStates.SCORE_CORAL || currentState == SuperstructureStates.SCORE_ALGAE)
-    }
+  // -------------------------------- Score Commands --------------------------------
+  fun scoreCommand(): Command {
+    val returnCommand =
+      runOnce { currentRequest = SuperstructureRequest.Score() }.until {
+        isAtRequestedState &&
+          (
+            currentState == SuperstructureStates.SCORE_CORAL ||
+              currentState == SuperstructureStates.SCORE_ALGAE
+            )
+      }
     returnCommand.name = "scoreCommand"
     return returnCommand
   }
 
-  //-------------------------------- Climb Commands --------------------------------
-  fun climbExtendCommand() : Command {
-    val returnCommand = run {
-      currentRequest = SuperstructureRequest.ExtendClimb()
-    }.until {
-      isAtRequestedState && currentState == SuperstructureStates.CLIMB_EXTEND
-    }
+  // -------------------------------- Climb Commands --------------------------------
+  fun climbExtendCommand(): Command {
+    val returnCommand =
+      run { currentRequest = SuperstructureRequest.ExtendClimb() }.until {
+        isAtRequestedState && currentState == SuperstructureStates.CLIMB_EXTEND
+      }
 
     returnCommand.name = "ClimbExtendCommand"
     return returnCommand

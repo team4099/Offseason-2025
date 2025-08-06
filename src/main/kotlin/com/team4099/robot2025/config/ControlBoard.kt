@@ -38,30 +38,12 @@ object ControlBoard {
       }
     }
 
-  //    _=====_                               _=====_
-  //     / _____ \                             / _____ \
-  //   +.-'_____'-.---------------------------.-'_____'-.+
-  //  /   |     |  '.        S O N Y        .'  |  _  |   \
-  // / ___| /|\ |___ \                     / ___| /_\ |___ \
-  /// |      |      | ;  __           _   ; | _         _ | ;
-  //| | <---   ---> | | |__|         |_:> | ||_|       (_)| |
-  //| |___   |   ___| ;SELECT       START ; |___       ___| ;
-  //|\    | \|/ |    /  _     ___      _   \    | (X) |    /|
-  //| \   |_____|  .','" "', |___|  ,'" "', '.  |_____|  .' |
-  //|  '-.______.-' /       \ANALOG/       \  '-._____.-'   |
-  //|               |       |------|       |                |
-  //|              /\       /      \       /\               |
-  //|             /  '.___.'        '.___.'  \              |
-  //|            /                            \             |
-  // \          /                              \           /
-  //  \________/                                \_________/
-
   val slowMode: Boolean
     get() = driver.rightJoystickButton && driver.leftShoulderButton
 
   val intakeCoral = Trigger { driver.rightTriggerAxis > 0.5 }
   val score = Trigger { driver.leftTriggerAxis > 0.5 }
-  val climb = Trigger {driver.leftJoystickButton && driver.leftTriggerAxis > 0.5 }
+  val climb = Trigger { driver.leftJoystickButton && driver.leftTriggerAxis > 0.5 }
 
   val prepL1 = Trigger { !driver.rightJoystickButton && driver.xButton }
   val prepL2 = Trigger { !driver.rightJoystickButton && driver.aButton }

@@ -34,7 +34,7 @@ sealed interface Request {
   //     F   | ' ___  ',._   .  /   '. \
   //     F   (.'`|| (-._\ '.  \-      '-\
   //     \ .-'  ( L `._ '\ '._ (
-  //snd  /'  |  /  '-._\      ''\
+  // snd  /'  |  /  '-._\      ''\
 
   sealed interface SuperstructureRequest : Request {
     class Idle() : SuperstructureRequest

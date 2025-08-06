@@ -88,7 +88,7 @@ object RobotContainer {
       climber = Climber(ClimberIOSim)
       intake = Intake(IntakeIOSim)
       indexer = Indexer(IndexerIOSim)
-      canrange = CANRange(object: CANRangeIO {})
+      canrange = CANRange(object : CANRangeIO {})
 
       vision = Vision(object : CameraIO {})
     }
@@ -102,7 +102,16 @@ object RobotContainer {
 
     superstructure =
       Superstructure(
-        drivetrain, vision, limelight, elevator, arm, armRollers, climber, intake, indexer, canrange
+        drivetrain,
+        vision,
+        limelight,
+        elevator,
+        arm,
+        armRollers,
+        climber,
+        intake,
+        indexer,
+        canrange
       )
 
     limelight.poseSupplier = { drivetrain.odomTRobot }
@@ -156,21 +165,41 @@ object RobotContainer {
     ControlBoard.climb.whileTrue(superstructure.climbExtendCommand())
 
     if (superstructure.theoreticalGamePieceArm == Constants.Universal.GamePiece.CORAL) {
-      ControlBoard.prepL1.whileTrue(superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L1))
-      ControlBoard.prepL2.whileTrue(superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L2))
-      ControlBoard.prepL3.whileTrue(superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L3))
-      ControlBoard.prepL4.whileTrue(superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L4))
-    } else {
-      ControlBoard.prepL1.whileTrue(superstructure.prepScoreAlgaeCommand(Constants.Universal.AlgaeScoringLevel.PROCESSOR))
-      ControlBoard.prepL2.whileTrue(superstructure.intakeAlgae(Constants.Universal.AlgaeIntakeLevel.GROUND))
-      ControlBoard.prepL3.whileTrue(superstructure.intakeAlgae(
-        if (vision.lastTrigVisionUpdate.targetTagID in Constants.Universal.highAlgaeReefTags) Constants.Universal.AlgaeIntakeLevel.L3
-        else Constants.Universal.AlgaeIntakeLevel.L2
-      ))
-      ControlBoard.prepL4.whileTrue(superstructure.prepScoreAlgaeCommand(Constants.Universal.AlgaeScoringLevel.BARGE))
-    }
+      ControlBoard.prepL1.whileTrue(
+        superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L1)
+      )
+      ControlBoard.prepL2.whileTrue(
+        superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L2)
+      )
+      ControlBoard.prepL3.whileTrue(
+        superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L3)
+      )
+      ControlBoard.prepL4.whileTrue(
+        superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L4)
+      )
 
-    /* TODO: auto align commands to go here */
+      ControlBoard.alignLeft.whileTrue(object : Command() {}) // todo add auto align left
+      ControlBoard.alignRight.whileTrue(object : Command() {}) // todo add auto align right
+    } else {
+      ControlBoard.prepL1.whileTrue(
+        superstructure.prepScoreAlgaeCommand(Constants.Universal.AlgaeScoringLevel.PROCESSOR)
+      )
+      ControlBoard.prepL2.whileTrue(
+        superstructure.intakeAlgae(Constants.Universal.AlgaeIntakeLevel.GROUND)
+      )
+      ControlBoard.prepL3.whileTrue(
+        superstructure.intakeAlgae(
+          if (vision.lastTrigVisionUpdate.targetTagID in Constants.Universal.highAlgaeReefTags)
+            Constants.Universal.AlgaeIntakeLevel.L3
+          else Constants.Universal.AlgaeIntakeLevel.L2
+        )
+      )
+      ControlBoard.prepL4.whileTrue(
+        superstructure.prepScoreAlgaeCommand(Constants.Universal.AlgaeScoringLevel.BARGE)
+      )
+
+      ControlBoard.alignCenter.whileTrue(object : Command() {}) // todo add auto align center
+    }
 
     ControlBoard.resetGyro.whileTrue(ResetGyroYawCommand(drivetrain))
     ControlBoard.forceIdle.whileTrue(superstructure.requestIdleCommand())

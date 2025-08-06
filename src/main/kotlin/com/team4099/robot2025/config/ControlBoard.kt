@@ -43,16 +43,16 @@ object ControlBoard {
 
   val intakeCoral = Trigger { driver.rightTriggerAxis > 0.5 }
   val score = Trigger { driver.leftTriggerAxis > 0.5 }
-  val climb = Trigger { driver.leftJoystickButton && driver.leftTriggerAxis > 0.5 }
+  val climb = Trigger { driver.dPadUp }
 
-  val prepL1 = Trigger { !driver.rightJoystickButton && driver.xButton }
-  val prepL2 = Trigger { !driver.rightJoystickButton && driver.aButton }
-  val prepL3 = Trigger { !driver.rightJoystickButton && driver.bButton }
-  val prepL4 = Trigger { !driver.rightJoystickButton && driver.yButton }
+  val prepL1 = Trigger { driver.xButton }
+  val prepL2 = Trigger { driver.aButton }
+  val prepL3 = Trigger { driver.bButton }
+  val prepL4 = Trigger { driver.yButton }
 
   val alignLeft = Trigger { driver.leftShoulderButton && !driver.rightShoulderButton }
   val alignRight = Trigger { driver.rightShoulderButton && !driver.leftShoulderButton }
-  val alignAlgae = Trigger { driver.leftShoulderButton && driver.rightShoulderButton }
+  val alignCenter = Trigger { driver.leftShoulderButton || driver.rightShoulderButton }
 
   val resetGyro = Trigger { driver.startButton && driver.selectButton }
   val forceIdle = Trigger { driver.dPadDown }

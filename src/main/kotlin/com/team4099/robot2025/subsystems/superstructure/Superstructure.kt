@@ -660,7 +660,7 @@ class Superstructure(
       runOnce { currentRequest = SuperstructureRequest.IntakeCoral() }.until {
         isAtRequestedState && currentState == SuperstructureStates.IDLE
       }
-    returnCommand.name = "intakeCoral"
+    returnCommand.name = "IntakeCoral"
     return returnCommand
   }
 
@@ -669,7 +669,7 @@ class Superstructure(
       runOnce { currentRequest = SuperstructureRequest.IntakeAlgae(level) }.until {
         isAtRequestedState && currentState == SuperstructureStates.INTAKE_ALGAE
       }
-    returnCommand.name = "intakeAlgae"
+    returnCommand.name = "IntakeAlgae"
     return returnCommand
   }
 
@@ -679,7 +679,7 @@ class Superstructure(
       runOnce { currentRequest = SuperstructureRequest.PrepScoreCoral(level) }.until {
         isAtRequestedState && currentState == SuperstructureStates.PREP_SCORE_CORAL
       }
-    returnCommand.name = "prepScoreCoralCommand"
+    returnCommand.name = "PrepScoreCoralCommand"
     return returnCommand
   }
 
@@ -688,7 +688,7 @@ class Superstructure(
       runOnce { currentRequest = SuperstructureRequest.PrepScoreAlgae(level) }.until {
         isAtRequestedState && currentState == SuperstructureStates.PREP_SCORE_ALGAE
       }
-    returnCommand.name = "prepScoreAlgaeCommand"
+    returnCommand.name = "PrepScoreAlgaeCommand"
     return returnCommand
   }
 
@@ -702,14 +702,14 @@ class Superstructure(
               currentState == SuperstructureStates.SCORE_ALGAE
             )
       }
-    returnCommand.name = "scoreCommand"
+    returnCommand.name = "ScoreCommand"
     return returnCommand
   }
 
   // -------------------------------- Climb Commands --------------------------------
   fun climbExtendCommand(): Command {
     val returnCommand =
-      run { currentRequest = SuperstructureRequest.ExtendClimb() }.until {
+      runOnce { currentRequest = SuperstructureRequest.ExtendClimb() }.until {
         isAtRequestedState && currentState == SuperstructureStates.CLIMB_EXTEND
       }
 

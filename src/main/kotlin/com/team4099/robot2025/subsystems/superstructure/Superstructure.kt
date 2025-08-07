@@ -495,15 +495,9 @@ class Superstructure(
             arm.currentRequest =
               Request.ArmRequest.ClosedLoop(
                 when (coralScoringLevel) {
-                  CoralLevel.L2 ->
-                    ArmTunableValues.Angles.l2PrepAngle.get() -
-                      ArmTunableValues.Angles.scoreOffset.get()
-                  CoralLevel.L3 ->
-                    ArmTunableValues.Angles.l3PrepAngle.get() -
-                      ArmTunableValues.Angles.scoreOffset.get()
-                  CoralLevel.L4 ->
-                    ArmTunableValues.Angles.l4PrepAngle.get() -
-                      ArmTunableValues.Angles.scoreOffset.get()
+                  CoralLevel.L2 -> ArmTunableValues.Angles.l2PrepAngle.get()
+                  CoralLevel.L3 -> ArmTunableValues.Angles.l3PrepAngle.get()
+                  CoralLevel.L4 -> ArmTunableValues.Angles.l4PrepAngle.get()
                   else -> ArmTunableValues.Angles.idleAngle.get()
                 } - ArmTunableValues.Angles.scoreOffset.get()
               )

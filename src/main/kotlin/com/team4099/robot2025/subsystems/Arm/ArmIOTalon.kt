@@ -100,7 +100,7 @@ object ArmIOTalon : ArmIO {
     motorAcelSignal = armTalon.acceleration
 
     absoluteEncoderSignal = absoluteEncoder.position
-
+    absoluteEncoder.configurator.apply(absoluteEncoderConfig)
     armTalon.configurator.apply(configs)
   }
 

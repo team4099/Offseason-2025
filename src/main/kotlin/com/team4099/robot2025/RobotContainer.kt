@@ -59,6 +59,9 @@ object RobotContainer {
   private val canrange: CANRange
   val superstructure: Superstructure
 
+  val rumbleState
+    get() = canrange.rumbleTrigger
+
   init {
     if (RobotBase.isReal()) {
       drivetrain = Drivetrain(GyroIOPigeon2, DrivetrainIOReal)
@@ -164,10 +167,11 @@ object RobotContainer {
   fun mapTeleopControls() {
     ControlBoard.intakeCoral.whileTrue(superstructure.intakeCoralCommand())
     ControlBoard.score.whileTrue(superstructure.scoreCommand())
-    ControlBoard.climb.whileTrue(superstructure.climbExtendCommand())
+    ControlBoard.climbExtend.whileTrue(superstructure.climbExtendCommand())
+    ControlBoard.climbRetract.whileTrue(superstructure.climbRetractCommand())
 
-    ControlBoard.prepL1OrProcessor.whileTrue(superstructure.prepL1OrProcessorCommand())
-    ControlBoard.prepL2OrAlgaeGround.whileTrue(superstructure.prepL2OrAlgaeGroundCommand())
+    ControlBoard.prepL1OrAlgaeGround.whileTrue(superstructure.prepL1OrAlgaeGroundCommand())
+    ControlBoard.prepL2OrProcessor.whileTrue(superstructure.prepL2OrProcessorCommand())
     ControlBoard.prepL3OrAlgaeReef.whileTrue(superstructure.prepL3OrAlgaeReefCommand())
     ControlBoard.prepL4OrBarge.whileTrue(superstructure.prepL4OrBargeCommand())
 

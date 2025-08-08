@@ -41,20 +41,21 @@ object ControlBoard {
   val slowMode: Boolean
     get() = driver.rightJoystickButton && driver.leftShoulderButton
 
-  val intakeCoral = Trigger { driver.rightTriggerAxis > 0.5 }
-  val score = Trigger { driver.leftTriggerAxis > 0.5 }
-  val climb = Trigger { driver.dPadUp }
+  val intakeCoral = Trigger { operator.rightTriggerAxis > 0.5 }
+  val score = Trigger { driver.rightTriggerAxis > 0.5 }
+  val climbExtend = Trigger { operator.dPadUp }
+  val climbRetract = Trigger { operator.startButton && operator.selectButton }
 
-  val prepL1OrProcessor = Trigger { driver.xButton }
-  val prepL2OrAlgaeGround = Trigger { driver.aButton }
-  val prepL3OrAlgaeReef = Trigger { driver.bButton }
-  val prepL4OrBarge = Trigger { driver.yButton }
+  val prepL1OrAlgaeGround = Trigger { operator.xButton }
+  val prepL2OrProcessor = Trigger { operator.aButton }
+  val prepL3OrAlgaeReef = Trigger { operator.bButton }
+  val prepL4OrBarge = Trigger { operator.yButton }
 
   val alignLeft = Trigger { driver.leftShoulderButton && !driver.rightShoulderButton }
   val alignRight = Trigger { driver.rightShoulderButton && !driver.leftShoulderButton }
   val alignCenter = Trigger { driver.leftShoulderButton || driver.rightShoulderButton }
 
   val resetGyro = Trigger { driver.startButton && driver.selectButton }
-  val forceIdle = Trigger { driver.dPadDown }
-  val eject = Trigger { driver.dPadLeft }
+  val forceIdle = Trigger { operator.dPadDown }
+  val eject = Trigger { operator.dPadLeft }
 }

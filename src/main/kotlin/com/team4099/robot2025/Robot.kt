@@ -3,6 +3,7 @@ package com.team4099.robot2025
 import com.team4099.lib.hal.Clock
 import com.team4099.robot2025.auto.AutonomousSelector
 import com.team4099.robot2025.auto.PathStore
+import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.util.Alert
 import com.team4099.robot2025.util.Alert.AlertType
@@ -194,6 +195,8 @@ object Robot : LoggedRobot() {
     CustomLogger.recordDebugOutput(
       "LoggedRobot/totalMS", (Clock.realTimestamp - startTime).inMilliseconds
     )
+
+    ControlBoard.rumbleConsumer.accept(RobotContainer.rumbleState)
 
     /*
     DebugLogger.recordDebugOutput("LoggedRobot/port0", port0.voltage)

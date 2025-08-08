@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.team4099.lib.units.base.inMilliseconds
 import org.team4099.lib.units.base.inches
+import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.volts
 import com.team4099.robot2025.config.constants.Constants.Universal.AlgaeIntakeLevel as AlgaeIntakeLevel
 import com.team4099.robot2025.config.constants.Constants.Universal.AlgaeScoringLevel as AlgaeScoringLevel
@@ -176,7 +177,7 @@ class Superstructure(
         }
       }
       SuperstructureStates.IDLE -> {
-        climber.currentRequest = Request.ClimberRequest.OpenLoop(0.0.volts, 0.0.volts)
+        climber.currentRequest = Request.ClimberRequest.ClosedLoop(0.0.degrees)
         intake.currentRequest =
           Request.IntakeRequest.TargetingPosition(
             IntakeTunableValues.idlePosition.get(), 0.0.volts
@@ -389,8 +390,6 @@ class Superstructure(
           ClimberConstants.Rollers.THRESHOLD_CURRENT_LIMIT
         ) {
           nextState = SuperstructureStates.CLIMB_RETRACT
-        } else if (climber.isAtTargetedPosition) {
-          nextState = SuperstructureStates.IDLE
         }
 
         when (currentRequest) {
@@ -418,7 +417,6 @@ class Superstructure(
         }
 
         when (currentRequest) {
-          is SuperstructureRequest.Idle -> SuperstructureStates.IDLE
           is SuperstructureRequest.ExtendClimb -> SuperstructureStates.CLIMB_EXTEND
         }
       }
@@ -643,17 +641,17 @@ class Superstructure(
   }
 
   // -------------------------------- Redirect Commands --------------------------------
-  fun prepL1OrProcessorCommand(): Command {
+  fun prepL1OrAlgaeGroundCommand(): Command {
     return when (theoreticalGamePieceArm) {
       GamePiece.CORAL -> prepScoreCoralCommand(CoralLevel.L1)
-      else -> prepScoreAlgaeCommand(AlgaeScoringLevel.PROCESSOR)
+      else -> intakeAlgaeCommand(AlgaeIntakeLevel.GROUND)
     }
   }
 
-  fun prepL2OrAlgaeGroundCommand(): Command {
+  fun prepL2OrProcessorCommand(): Command {
     return when (theoreticalGamePieceArm) {
       GamePiece.CORAL -> prepScoreCoralCommand(CoralLevel.L2)
-      else -> intakeAlgaeCommand(AlgaeIntakeLevel.GROUND)
+      else -> prepScoreAlgaeCommand(AlgaeScoringLevel.PROCESSOR)
     }
   }
 
@@ -736,6 +734,16 @@ class Superstructure(
       }
 
     returnCommand.name = "ClimbExtendCommand"
+    return returnCommand
+  }
+
+  fun climbRetractCommand(): Command {
+    val returnCommand =
+      runOnce { currentRequest = SuperstructureRequest.RetractClimb() }.until {
+        isAtRequestedState && currentState == SuperstructureStates.CLIMB_RETRACT
+      }
+
+    returnCommand.name = "ClimbRetractCommand"
     return returnCommand
   }
 

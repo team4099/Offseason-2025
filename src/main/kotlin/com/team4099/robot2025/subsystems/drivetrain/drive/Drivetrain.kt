@@ -316,7 +316,7 @@ class Drivetrain(val gyroIO: GyroIO, swerveModuleIOs: DrivetrainIO) : SubsystemB
       Pose3d(
         odomTRobot.x,
         odomTRobot.y,
-        1.0.meters,
+        0.0.meters,
         Rotation3d(gyroInputs.gyroRoll, gyroInputs.gyroPitch, gyroInputs.gyroYaw)
       )
         .pose3d

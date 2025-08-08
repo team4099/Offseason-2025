@@ -20,12 +20,21 @@ import com.team4099.robot2025.subsystems.limelight.LimelightVision
 import com.team4099.robot2025.subsystems.superstructure.Request.SuperstructureRequest
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.CustomLogger
+import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import org.littletonrobotics.junction.Logger
+import org.team4099.lib.geometry.Pose3d
+import org.team4099.lib.geometry.Rotation3d
+import org.team4099.lib.geometry.Transform3d
+import org.team4099.lib.geometry.Translation3d
+import org.team4099.lib.units.base.inInches
+import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.base.inMilliseconds
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.volts
+import kotlin.math.max
 import com.team4099.robot2025.config.constants.Constants.Universal.AlgaeIntakeLevel as AlgaeIntakeLevel
 import com.team4099.robot2025.config.constants.Constants.Universal.AlgaeScoringLevel as AlgaeScoringLevel
 import com.team4099.robot2025.config.constants.Constants.Universal.CoralLevel as CoralLevel
@@ -95,6 +104,18 @@ class Superstructure(
 
   private var lastTransitionTime = Clock.fpgaTime
 
+  private fun toDoubleArray(somePose: Pose3d): DoubleArray {
+    return doubleArrayOf(
+      somePose.x.inMeters,
+      somePose.y.inMeters,
+      somePose.z.inMeters,
+      somePose.rotation.rotation3d.quaternion.w,
+      somePose.rotation.rotation3d.quaternion.x,
+      somePose.rotation.rotation3d.quaternion.y,
+      somePose.rotation.rotation3d.quaternion.z
+    )
+  }
+
   override fun periodic() {
     val armStartTime = Clock.realTimestamp
     arm.periodic()
@@ -144,6 +165,104 @@ class Superstructure(
       (Clock.realTimestamp - intakeStartTime).inMilliseconds
     )
 
+    /**
+     * 0 - base stage (static) 1 - first stage 2 - carriage 3 - intake pivot 4 - intake mount
+     * (static) 5 - arm
+     */
+    Logger.recordOutput(
+      "SimulatedMechanisms/0",
+      toDoubleArray(
+        Pose3d()
+          .transformBy(
+            Transform3d(Translation3d(0.0.inches, 0.0.inches, 0.0.inches), Rotation3d())
+          )
+      )
+    )
+
+    Logger.recordOutput(
+      "SimulatedMechanisms/1",
+      toDoubleArray(
+        Pose3d()
+          .transformBy(
+            Transform3d(
+              Translation3d(
+                0.0.inches,
+                0.0.inches,
+                max(
+                  elevator.inputs.elevatorPosition.inInches -
+                    ElevatorConstants.FIRST_STAGE_HEIGHT.inInches,
+                  0.0
+                )
+                  .inches
+              ),
+              Rotation3d()
+            )
+          )
+      )
+    )
+
+    Logger.recordOutput(
+      "SimulatedMechanisms/2",
+      toDoubleArray(
+        Pose3d()
+          .transformBy(
+            Transform3d(
+              Translation3d(0.0.inches, 0.0.inches, elevator.inputs.elevatorPosition),
+              Rotation3d()
+            )
+          )
+      )
+    )
+
+    Logger.recordOutput(
+      "SimulatedMechanisms/3",
+      toDoubleArray(
+        Pose3d()
+          .transformBy(
+            Transform3d(
+              Translation3d(-12.25.inches, 0.0.inches, 12.187148.inches),
+              Rotation3d(
+                0.0.degrees,
+                IntakeConstants.ANGLES.INTAKE_ANGLE - intake.inputs.pivotPosition,
+                0.0.degrees
+              ) // model starts in intaking position
+            )
+          )
+      )
+    )
+
+    Logger.recordOutput(
+      "SimulatedMechanisms/4",
+      toDoubleArray(
+        Pose3d()
+          .transformBy(
+            Transform3d(Translation3d(0.0.inches, 0.0.inches, 0.0.inches), Rotation3d())
+          )
+      )
+    )
+
+    Logger.recordOutput(
+      "SimulatedMechanisms/5",
+      toDoubleArray(
+        Pose3d()
+          .transformBy(
+            Transform3d(
+              Translation3d(
+                0.0.inches,
+                0.0.inches,
+                elevator.inputs.elevatorPosition +
+                  ElevatorConstants.CARRIAGE_TO_BOTTOM_SIM
+              ),
+              Rotation3d(
+                0.0.degrees,
+                ArmConstants.ANGLES.SIM_MECH_OFFSET - arm.inputs.armPosition,
+                0.0.degrees
+              )
+            )
+          )
+      )
+    )
+
     CustomLogger.recordOutput("Superstructure/currentRequest", currentRequest.javaClass.simpleName)
     CustomLogger.recordOutput("Superstructure/currentState", currentState.name)
     CustomLogger.recordOutput("Superstructure/isAtAllTargetedPositions", isAtRequestedState)
@@ -156,7 +275,9 @@ class Superstructure(
     when (currentState) {
       // General States
       SuperstructureStates.UNINITIALIZED -> {
-        nextState = SuperstructureStates.HOME_PREP
+        nextState =
+          if (RobotBase.isSimulation()) SuperstructureStates.IDLE
+          else SuperstructureStates.HOME_PREP
       }
       SuperstructureStates.HOME_PREP -> {
         if (!elevator.clearsRobot) {
@@ -263,22 +384,26 @@ class Superstructure(
         }
       }
       SuperstructureStates.GROUND_INTAKE_CORAL_CLEANUP -> {
-        intake.currentRequest =
-          Request.IntakeRequest.TargetingPosition(
-            IntakeTunableValues.idlePosition.get(), IntakeConstants.Rollers.IDLE_VOLTAGE
-          )
-        indexer.currentRequest = Request.IndexerRequest.Idle()
+        if (RobotBase.isSimulation())
+          nextState = SuperstructureStates.IDLE // todo change to sim logic in future
+        else {
+          intake.currentRequest =
+            Request.IntakeRequest.TargetingPosition(
+              IntakeTunableValues.idlePosition.get(), IntakeConstants.Rollers.IDLE_VOLTAGE
+            )
+          indexer.currentRequest = Request.IndexerRequest.Idle()
 
-        if (intake.isAtTargetedPosition) {
-          nextState =
-            if (theoreticalGamePieceArm == GamePiece.NONE &&
-              theoreticalGamePieceHardstop ==
-              GamePiece.CORAL
-            ) { // if not holding a game piece, intake it now
-              SuperstructureStates.INTAKE_CORAL_INTO_ARM
-            } else { // if holding an algae or we got here interrupted (force idle)
-              SuperstructureStates.IDLE
-            }
+          if (intake.isAtTargetedPosition) {
+            nextState =
+              if (theoreticalGamePieceArm == GamePiece.NONE &&
+                theoreticalGamePieceHardstop ==
+                GamePiece.CORAL
+              ) { // if not holding a game piece, intake it now
+                SuperstructureStates.INTAKE_CORAL_INTO_ARM
+              } else { // if holding an algae or we got here interrupted (force idle)
+                SuperstructureStates.IDLE
+              }
+          }
         }
       }
       SuperstructureStates.INTAKE_CORAL_INTO_ARM -> {
@@ -624,7 +749,7 @@ class Superstructure(
 
   fun requestIdleCommand(): Command {
     val returnCommand =
-      run { SuperstructureRequest.Idle() }.until {
+      run { currentRequest = SuperstructureRequest.Idle() }.until {
         isAtRequestedState && currentState == SuperstructureStates.IDLE
       }
     returnCommand.name = "RequestIdleCommand"

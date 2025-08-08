@@ -3,6 +3,7 @@ package com.team4099.robot2025.subsystems.intake
 import com.team4099.lib.logging.LoggedTunableValue
 import com.team4099.robot2025.Robot
 import com.team4099.robot2025.config.constants.IntakeConstants
+import edu.wpi.first.wpilibj.RobotBase
 import org.team4099.lib.units.derived.Radian
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inDegrees
@@ -37,5 +38,5 @@ object IntakeTunableValues {
     )
 
   val idlePosition: LoggedTunableValue<Radian>
-    get() = if (Robot.isAutonomous) coralPosition else stowPosition
+    get() = if (RobotBase.isReal() && Robot.isAutonomous) coralPosition else stowPosition
 }

@@ -43,15 +43,15 @@ object IntakeConstants {
   val SIM_ACCELERATION = 400.degrees.perSecond.perSecond
 
   object ANGLES {
-    val INTAKE_ANGLE = 0.0.degrees
+    val INTAKE_ANGLE = 120.0.degrees
     val STOW_ANGLE = 0.0.degrees
   }
 
   object PID {
     // PID Constants
-    val SIM_PIVOT_KP: ProportionalGain<Radian, Volt> = 0.15.volts / 1.0.degrees
+    val SIM_PIVOT_KP: ProportionalGain<Radian, Volt> = 2.6.volts / 1.0.degrees
     val SIM_PIVOT_KI: IntegralGain<Radian, Volt> = 0.01.volts / (1.0.degrees * 1.0.seconds)
-    val SIM_PIVOT_KD: DerivativeGain<Radian, Volt> = 0.004.volts / 1.0.degrees.perSecond
+    val SIM_PIVOT_KD: DerivativeGain<Radian, Volt> = 0.1.volts / 1.0.degrees.perSecond
 
     val REAL_PIVOT_KP: ProportionalGain<Radian, Volt> = 7.volts / 1.0.degrees
     val REAL_PIVOT_KI: IntegralGain<Radian, Volt> = 0.0.volts / (1.0.degrees * 1.0.seconds)

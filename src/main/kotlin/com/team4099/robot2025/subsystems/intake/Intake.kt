@@ -57,6 +57,8 @@ class Intake(private val io: IntakeIO) : SubsystemBase() {
     CustomLogger.recordOutput("Intake/pivotTargetVoltage", pivotVoltageTarget.inVolts)
     CustomLogger.recordOutput("Intake/rollerVoltageTarget", rollerVoltageTarget.inVolts)
 
+    CustomLogger.recordOutput("Intake/isAtTargetedPosition", isAtTargetedPosition)
+
     when (currentState) {
       IntakeState.UNINITIALIZED -> {
         nextState = fromRequestToState(currentRequest)

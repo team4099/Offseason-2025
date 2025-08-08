@@ -39,6 +39,7 @@ object ElevatorConstants {
   val ELEVATOR_TOLERANCE = 0.2.inches
 
   val CARRIAGE_TO_BOTTOM = 11.0.inches
+  val CARRIAGE_TO_BOTTOM_SIM = 0.3.meters // idk why its diff but this works better for as
 
   object HEIGHTS {
     // note(nathan): make the best attempt to keep IDLE and IDLE_CORAL the same. it makes

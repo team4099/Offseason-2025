@@ -4,6 +4,7 @@ import org.team4099.lib.units.AngularAcceleration
 import org.team4099.lib.units.AngularVelocity
 import org.team4099.lib.units.base.grams
 import org.team4099.lib.units.base.inches
+import org.team4099.lib.units.base.pounds
 import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.meterSquared
@@ -19,6 +20,7 @@ object ArmConstants {
   val ARM_TOLERANCE = 1.0.degrees
   val ARM_LENGTH = 26.1362839.inches
   val ARM_MOMENT_OF_INERTIA = 0.01939647.kilo.grams.meterSquared
+  val ARM_MASS = 4.5520562.pounds
 
   val MIN_ROTATION = 0.0.degrees
   val MAX_ROTATION = 270.0.degrees
@@ -33,9 +35,9 @@ object ArmConstants {
     val REAL_KI = 0.0.volts / (1.degrees * 1.seconds)
     val REAL_KD = 0.0.volts / (1.degrees.perSecond)
 
-    val SIM_KP = 2.4.volts / 1.degrees
+    val SIM_KP = 0.625.volts / 1.degrees
     val SIM_KI = 0.0.volts / (1.degrees * 1.seconds)
-    val SIM_KD = 0.9.volts / (1.degrees.perSecond)
+    val SIM_KD = 0.035.volts / (1.degrees.perSecond)
 
     val KS = 0.0.volts
     val KV = ((1 / MAX_VELOCITY.inDegreesPerSecond).volts) / 1.0.degrees.perSecond //  0.037

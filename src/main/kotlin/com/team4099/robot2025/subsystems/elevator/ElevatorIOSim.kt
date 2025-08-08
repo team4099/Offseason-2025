@@ -39,7 +39,7 @@ object ElevatorIOSim : ElevatorIO {
       ElevatorConstants.SPOOL_DIAMETER.inMeters / 2.0,
       ElevatorConstants.DOWNWARDS_EXTENSION_LIMIT.inMeters,
       ElevatorConstants.UPWARDS_EXTENSION_LIMIT.inMeters,
-      true,
+      false,
       0.0
     )
 

@@ -8,14 +8,12 @@ import edu.wpi.first.wpilibj.simulation.BatterySim
 import edu.wpi.first.wpilibj.simulation.RoboRioSim
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim
 import org.team4099.lib.controller.ArmFeedforward
-import org.team4099.lib.controller.PIDController
 import org.team4099.lib.controller.ProfiledPIDController
 import org.team4099.lib.controller.TrapezoidProfile
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.celsius
 import org.team4099.lib.units.base.inKilograms
 import org.team4099.lib.units.base.inMeters
-import org.team4099.lib.units.base.inPounds
 import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.derived.AccelerationFeedforward
 import org.team4099.lib.units.derived.Angle
@@ -28,7 +26,6 @@ import org.team4099.lib.units.derived.StaticFeedforward
 import org.team4099.lib.units.derived.VelocityFeedforward
 import org.team4099.lib.units.derived.Volt
 import org.team4099.lib.units.derived.degrees
-import org.team4099.lib.units.derived.inKilogramsMeterSquared
 import org.team4099.lib.units.derived.inRadians
 import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.radians
@@ -40,7 +37,9 @@ object ArmIOSIm : ArmIO {
     SingleJointedArmSim(
       DCMotor.getKrakenX60Foc(1),
       1 / ArmConstants.GEAR_RATIO,
-      SingleJointedArmSim.estimateMOI(ArmConstants.ARM_LENGTH.inMeters, ArmConstants.ARM_MASS.inKilograms),
+      SingleJointedArmSim.estimateMOI(
+        ArmConstants.ARM_LENGTH.inMeters, ArmConstants.ARM_MASS.inKilograms
+      ),
       ArmConstants.ARM_LENGTH.inMeters,
       ArmConstants.MIN_ROTATION.inRadians,
       ArmConstants.MAX_ROTATION.inRadians,
@@ -55,9 +54,7 @@ object ArmIOSIm : ArmIO {
       ArmConstants.PID.SIM_KP,
       ArmConstants.PID.SIM_KI,
       ArmConstants.PID.SIM_KD,
-      TrapezoidProfile.Constraints(
-        ArmConstants.MAX_VELOCITY, ArmConstants.MAX_ACCELERATION
-      )
+      TrapezoidProfile.Constraints(ArmConstants.MAX_VELOCITY, ArmConstants.MAX_ACCELERATION)
     )
 
   private var armFeedforward =

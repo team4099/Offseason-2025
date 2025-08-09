@@ -39,6 +39,8 @@ import org.team4099.lib.units.derived.inDegrees
 import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.newtons
 import org.team4099.lib.units.derived.volts
+import org.team4099.lib.units.inRotationsPerSecond
+import org.team4099.lib.units.inRotationsPerSecondPerSecond
 import org.team4099.lib.units.perSecond
 
 object ClimberIOTalon : ClimberIO {
@@ -107,6 +109,11 @@ object ClimberIOTalon : ClimberIO {
       climberSensor.positionToRawUnits(ClimberConstants.FULLY_CLIMBED_ANGLE)
     climberConfiguration.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
       climberSensor.positionToRawUnits(ClimberConstants.FULLY_EXTENDED_ANGLE)
+
+    climberConfiguration.MotionMagic.MotionMagicCruiseVelocity =
+      ClimberConstants.MAX_VELOCITY.inRotationsPerSecond
+    climberConfiguration.MotionMagic.MotionMagicAcceleration =
+      ClimberConstants.MAX_ACCELERATION.inRotationsPerSecondPerSecond
 
     climberConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake
     climberConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive

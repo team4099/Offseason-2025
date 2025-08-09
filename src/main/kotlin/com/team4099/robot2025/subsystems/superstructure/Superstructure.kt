@@ -32,6 +32,7 @@ import org.team4099.lib.units.base.inInches
 import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.base.inMilliseconds
 import org.team4099.lib.units.base.inches
+import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.volts
 import kotlin.math.max
@@ -90,9 +91,9 @@ class Superstructure(
         }
         is SuperstructureRequest.Score -> {}
         else -> {
-          coralScoringLevel = CoralLevel.NONE
-          algaeIntakeLevel = AlgaeIntakeLevel.NONE
-          algaeScoringLevel = AlgaeScoringLevel.NONE
+          //          coralScoringLevel = CoralLevel.NONE
+          //          algaeIntakeLevel = AlgaeIntakeLevel.NONE
+          //          algaeScoringLevel = AlgaeScoringLevel.NONE
         }
       }
       field = value
@@ -167,16 +168,11 @@ class Superstructure(
 
     /**
      * 0 - base stage (static) 1 - first stage 2 - carriage 3 - intake pivot 4 - intake mount
-     * (static) 5 - arm
+     * (static) 5 - arm 6 - climb mount (static) 7 - climb pivot 8 - indexer (static)
      */
     Logger.recordOutput(
       "SimulatedMechanisms/0",
-      toDoubleArray(
-        Pose3d()
-          .transformBy(
-            Transform3d(Translation3d(0.0.inches, 0.0.inches, 0.0.inches), Rotation3d())
-          )
-      )
+      toDoubleArray(Pose3d().transformBy(Transform3d(Translation3d(), Rotation3d())))
     )
 
     Logger.recordOutput(
@@ -220,7 +216,7 @@ class Superstructure(
         Pose3d()
           .transformBy(
             Transform3d(
-              Translation3d(-12.25.inches, 0.0.inches, 12.187148.inches),
+              Translation3d((-12.25).inches, 0.0.inches, 12.187148.inches),
               Rotation3d(
                 0.0.degrees,
                 IntakeConstants.ANGLES.INTAKE_ANGLE - intake.inputs.pivotPosition,
@@ -233,12 +229,7 @@ class Superstructure(
 
     Logger.recordOutput(
       "SimulatedMechanisms/4",
-      toDoubleArray(
-        Pose3d()
-          .transformBy(
-            Transform3d(Translation3d(0.0.inches, 0.0.inches, 0.0.inches), Rotation3d())
-          )
-      )
+      toDoubleArray(Pose3d().transformBy(Transform3d(Translation3d(), Rotation3d())))
     )
 
     Logger.recordOutput(
@@ -261,6 +252,33 @@ class Superstructure(
             )
           )
       )
+    )
+
+    Logger.recordOutput(
+      "SimulatedMechanisms/6",
+      toDoubleArray(Pose3d().transformBy(Transform3d(Translation3d(), Rotation3d())))
+    )
+
+    Logger.recordOutput(
+      "SimulatedMechanisms/7",
+      toDoubleArray(
+        Pose3d()
+          .transformBy(
+            Transform3d(
+              Translation3d(0.008.meters, 0.35.meters, 0.373.meters),
+              Rotation3d(
+                ClimberConstants.FULLY_EXTENDED_ANGLE - climber.inputs.climberPosition,
+                0.0.degrees,
+                0.0.degrees
+              )
+            )
+          )
+      )
+    )
+
+    Logger.recordOutput(
+      "SimulatedMechanisms/8",
+      toDoubleArray(Pose3d().transformBy(Transform3d(Translation3d(), Rotation3d())))
     )
 
     CustomLogger.recordOutput("Superstructure/currentRequest", currentRequest.javaClass.simpleName)
@@ -298,7 +316,7 @@ class Superstructure(
         }
       }
       SuperstructureStates.IDLE -> {
-        climber.currentRequest = Request.ClimberRequest.ClosedLoop(0.0.degrees)
+        climber.currentRequest = Request.ClimberRequest.ClosedLoop(ClimberConstants.IDLE_ANGLE)
         intake.currentRequest =
           Request.IntakeRequest.TargetingPosition(
             IntakeTunableValues.idlePosition.get(), 0.0.volts
@@ -508,19 +526,23 @@ class Superstructure(
       SuperstructureStates.CLIMB_EXTEND -> { // for getting climb set-up (straight out)
         climber.currentRequest =
           Request.ClimberRequest.OpenLoop(
-            ClimberConstants.CLIMB_EXTEND_VOLTAGE, ClimberConstants.Rollers.CLASP_VOLTAGE
+            if (!climber.isFullyExtended) ClimberConstants.CLIMB_EXTEND_VOLTAGE else 0.0.volts,
+            ClimberConstants.Rollers.CLASP_VOLTAGE
           )
 
-        if (climber.inputs.rollersStatorCurrent >
+        if (RobotBase.isReal() &&
+          climber.inputs.rollersStatorCurrent >
           ClimberConstants.Rollers.THRESHOLD_CURRENT_LIMIT
         ) {
           nextState = SuperstructureStates.CLIMB_RETRACT
         }
 
-        when (currentRequest) {
-          is SuperstructureRequest.Idle -> SuperstructureStates.IDLE
-          is SuperstructureRequest.RetractClimb -> SuperstructureStates.CLIMB_RETRACT
-        }
+        nextState =
+          when (currentRequest) {
+            is SuperstructureRequest.Idle -> SuperstructureStates.IDLE
+            is SuperstructureRequest.RetractClimb -> SuperstructureStates.CLIMB_RETRACT
+            else -> currentState
+          }
       }
       SuperstructureStates.CLIMB_RETRACT -> { // for actually CLIMBING (retracting climb into robot)
         elevator.currentRequest =
@@ -529,7 +551,7 @@ class Superstructure(
 
         if (arm.isAtTargetedPosition && elevator.isAtTargetedPosition) {
           climber.currentRequest =
-            if (climber.isAtTargetedPosition) {
+            if (climber.isFullyClimbed) {
               Request.ClimberRequest.OpenLoop(
                 0.0.volts, // don't keep open looping or you'll stall out the motor
                 ClimberConstants.INTAKE_CAGE_VOLTAGE

@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.degrees
+import org.team4099.lib.units.derived.inDegrees
 import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.volts
 
@@ -34,9 +35,16 @@ class Climber(private val io: ClimberIO) : SubsystemBase() {
   private var rollersTargetVoltage: ElectricalPotential = 0.0.volts
 
   private var climberTargetPosition: Angle = 0.0.degrees
-  var isAtTargetedPosition: Boolean =
-    (inputs.climberPosition - ClimberConstants.FULLY_CLIMBED_ANGLE).absoluteValue <=
-      ClimberConstants.TARGET_TOLERANCE
+
+  val isFullyClimbed: Boolean
+    get() =
+      inputs.climberPosition - ClimberConstants.TARGET_TOLERANCE <=
+        ClimberConstants.FULLY_CLIMBED_ANGLE
+
+  val isFullyExtended: Boolean
+    get() =
+      inputs.climberPosition + ClimberConstants.TARGET_TOLERANCE >=
+        ClimberConstants.FULLY_EXTENDED_ANGLE
 
   init {
     if (RobotBase.isReal()) {
@@ -91,10 +99,15 @@ class Climber(private val io: ClimberIO) : SubsystemBase() {
     }
 
     CustomLogger.processInputs("Climber", inputs)
+
     CustomLogger.recordOutput("Climber/currentState", currentState.name)
     CustomLogger.recordOutput("Climber/requestedState", currentRequest.javaClass.simpleName)
+
     CustomLogger.recordOutput("Climber/climberTargetVoltage", climberTargetVoltage.inVolts)
     CustomLogger.recordOutput("Climber/rollersTargetVoltage", rollersTargetVoltage.inVolts)
+    CustomLogger.recordOutput("Climber/climberTargetPosition", climberTargetPosition.inDegrees)
+
+    CustomLogger.recordOutput("Climber/isFullyClimbed", isFullyClimbed)
 
     var nextState: ClimberState = currentState
 
@@ -104,6 +117,7 @@ class Climber(private val io: ClimberIO) : SubsystemBase() {
       }
       ClimberState.HOME -> {
         io.zeroEncoder()
+        nextState = fromRequestToState(currentRequest)
       }
       ClimberState.OPEN_LOOP -> {
         io.setClimberVoltage(climberTargetVoltage)
@@ -112,6 +126,7 @@ class Climber(private val io: ClimberIO) : SubsystemBase() {
       }
       ClimberState.CLOSED_LOOP -> {
         io.setClimberPosition(climberTargetPosition)
+        nextState = fromRequestToState(currentRequest)
       }
     }
 

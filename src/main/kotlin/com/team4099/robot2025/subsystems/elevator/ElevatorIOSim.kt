@@ -101,7 +101,8 @@ object ElevatorIOSim : ElevatorIO {
   override fun setPosition(position: Length) {
     elevatorPIDController.setGoal(position)
     val pidOutput = elevatorPIDController.calculate(elevatorSim.positionMeters.meters)
-    val ffOutput = elevatorFFController.calculate(elevatorSim.velocityMetersPerSecond.meters.perSecond)
+    val ffOutput =
+      elevatorFFController.calculate(elevatorSim.velocityMetersPerSecond.meters.perSecond)
     setVoltage(pidOutput + ffOutput)
   }
 

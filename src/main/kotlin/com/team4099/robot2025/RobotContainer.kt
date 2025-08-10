@@ -39,6 +39,7 @@ import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.driver.Jessika
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.Commands
 import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.derived.Angle
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
@@ -170,10 +171,18 @@ object RobotContainer {
     ControlBoard.climbExtend.whileTrue(superstructure.climbExtendCommand())
     ControlBoard.climbRetract.whileTrue(superstructure.climbRetractCommand())
 
-    ControlBoard.prepL1OrAlgaeGround.whileTrue(superstructure.prepL1OrAlgaeGroundCommand())
-    ControlBoard.prepL2OrProcessor.whileTrue(superstructure.prepL2OrProcessorCommand())
-    ControlBoard.prepL3OrAlgaeReef.whileTrue(superstructure.prepL3OrAlgaeReefCommand())
-    ControlBoard.prepL4OrBarge.whileTrue(superstructure.prepL4OrBargeCommand())
+    ControlBoard.prepL1OrAlgaeGround.whileTrue(
+      Commands.deferredProxy { superstructure.prepL1OrAlgaeGroundCommand() }
+    )
+    ControlBoard.prepL2OrProcessor.whileTrue(
+      Commands.deferredProxy { superstructure.prepL2OrProcessorCommand() }
+    )
+    ControlBoard.prepL3OrAlgaeReef.whileTrue(
+      Commands.deferredProxy { superstructure.prepL3OrAlgaeReefCommand() }
+    )
+    ControlBoard.prepL4OrBarge.whileTrue(
+      Commands.deferredProxy { superstructure.prepL4OrBargeCommand() }
+    )
 
     // todo align commands need to change to utilize superstructure.theoreticalGamePieceArm
     ControlBoard.alignLeft.whileTrue(object : Command() {}) // todo add auto align left

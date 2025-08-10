@@ -166,17 +166,9 @@ class Superstructure(
       (Clock.realTimestamp - intakeStartTime).inMilliseconds
     )
 
-    /**
-     * 0 - base stage (static) 1 - first stage 2 - carriage 3 - intake pivot 4 - intake mount
-     * (static) 5 - arm 6 - climb mount (static) 7 - climb pivot 8 - indexer (static)
-     */
+    /** 0 - first stage 1 - carriage 2 - intake pivot 3 - arm 4 - climb pivot */
     Logger.recordOutput(
       "SimulatedMechanisms/0",
-      toDoubleArray(Pose3d().transformBy(Transform3d(Translation3d(), Rotation3d())))
-    )
-
-    Logger.recordOutput(
-      "SimulatedMechanisms/1",
       toDoubleArray(
         Pose3d()
           .transformBy(
@@ -198,7 +190,7 @@ class Superstructure(
     )
 
     Logger.recordOutput(
-      "SimulatedMechanisms/2",
+      "SimulatedMechanisms/1",
       toDoubleArray(
         Pose3d()
           .transformBy(
@@ -211,12 +203,12 @@ class Superstructure(
     )
 
     Logger.recordOutput(
-      "SimulatedMechanisms/3",
+      "SimulatedMechanisms/2",
       toDoubleArray(
         Pose3d()
           .transformBy(
             Transform3d(
-              Translation3d((-12.25).inches, 0.0.inches, 12.187148.inches),
+              Translation3d((-11.75).inches, 0.0.inches, 12.5747.inches),
               Rotation3d(
                 0.0.degrees,
                 IntakeConstants.ANGLES.INTAKE_ANGLE - intake.inputs.pivotPosition,
@@ -228,12 +220,7 @@ class Superstructure(
     )
 
     Logger.recordOutput(
-      "SimulatedMechanisms/4",
-      toDoubleArray(Pose3d().transformBy(Transform3d(Translation3d(), Rotation3d())))
-    )
-
-    Logger.recordOutput(
-      "SimulatedMechanisms/5",
+      "SimulatedMechanisms/3",
       toDoubleArray(
         Pose3d()
           .transformBy(
@@ -255,12 +242,7 @@ class Superstructure(
     )
 
     Logger.recordOutput(
-      "SimulatedMechanisms/6",
-      toDoubleArray(Pose3d().transformBy(Transform3d(Translation3d(), Rotation3d())))
-    )
-
-    Logger.recordOutput(
-      "SimulatedMechanisms/7",
+      "SimulatedMechanisms/4",
       toDoubleArray(
         Pose3d()
           .transformBy(
@@ -274,11 +256,6 @@ class Superstructure(
             )
           )
       )
-    )
-
-    Logger.recordOutput(
-      "SimulatedMechanisms/8",
-      toDoubleArray(Pose3d().transformBy(Transform3d(Translation3d(), Rotation3d())))
     )
 
     CustomLogger.recordOutput("Superstructure/currentRequest", currentRequest.javaClass.simpleName)
@@ -568,40 +545,45 @@ class Superstructure(
         }
       }
       SuperstructureStates.PREP_SCORE_CORAL -> {
-        elevator.currentRequest =
+        arm.currentRequest =
           when (coralScoringLevel) {
             CoralLevel.L1 ->
-              Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.L1Height.get())
+              Request.ArmRequest.ClosedLoop(
+                ArmTunableValues.Angles.l1PrepAngle.get(),
+              )
             CoralLevel.L2 ->
-              Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.L2Height.get())
+              Request.ArmRequest.ClosedLoop(
+                ArmTunableValues.Angles.l2PrepAngle.get(),
+              )
             CoralLevel.L3 ->
-              Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.L3Height.get())
+              Request.ArmRequest.ClosedLoop(
+                ArmTunableValues.Angles.l3PrepAngle.get(),
+              )
             CoralLevel.L4 ->
-              Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.L4Height.get())
-            else ->
-              Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.idleHeight.get())
+              Request.ArmRequest.ClosedLoop(
+                ArmTunableValues.Angles.l4PrepAngle.get(),
+              )
+            else -> Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleCoralAngle.get())
           }
 
-        if (elevator.clearsRobot) {
-          arm.currentRequest =
+        // if l1, l2, arm needs to move all the way to make sure it doesnt hit battery or cradle
+        if (arm.inputs.armPosition >= ArmConstants.ANGLES.ARM_GUARENTEED_OVER_BATTERY ||
+          !(coralScoringLevel == CoralLevel.L1 || coralScoringLevel == CoralLevel.L2)
+        ) {
+          elevator.currentRequest =
             when (coralScoringLevel) {
               CoralLevel.L1 ->
-                Request.ArmRequest.ClosedLoop(
-                  ArmTunableValues.Angles.l1PrepAngle.get(),
-                )
+                Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.L1Height.get())
               CoralLevel.L2 ->
-                Request.ArmRequest.ClosedLoop(
-                  ArmTunableValues.Angles.l2PrepAngle.get(),
-                )
+                Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.L2Height.get())
               CoralLevel.L3 ->
-                Request.ArmRequest.ClosedLoop(
-                  ArmTunableValues.Angles.l3PrepAngle.get(),
-                )
+                Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.L3Height.get())
               CoralLevel.L4 ->
-                Request.ArmRequest.ClosedLoop(
-                  ArmTunableValues.Angles.l4PrepAngle.get(),
+                Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.L4Height.get())
+              else ->
+                Request.ElevatorRequest.ClosedLoop(
+                  ElevatorTunableValues.Heights.idleHeight.get()
                 )
-              else -> Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleCoralAngle.get())
             }
         }
 
@@ -611,7 +593,7 @@ class Superstructure(
               nextState = SuperstructureStates.SCORE_CORAL
           }
           is SuperstructureRequest.Idle -> {
-            nextState = SuperstructureStates.IDLE
+            nextState = SuperstructureStates.CLEANUP_SCORE_CORAL
           }
         }
       }
@@ -669,7 +651,11 @@ class Superstructure(
           CoralLevel.L1, CoralLevel.L2 -> {
             // if arm went straight down now, it'd hit the trough. raise elevator
             elevator.currentRequest =
-              Request.ElevatorRequest.ClosedLoop(ElevatorConstants.HEIGHTS.LOW_SCORE_OFFSET)
+              Request.ElevatorRequest.ClosedLoop(
+                if (theoreticalGamePieceArm == GamePiece.NONE)
+                  ElevatorTunableValues.Heights.idleHeight.get()
+                else ElevatorTunableValues.Heights.idleCoralHeight.get()
+              )
             if (elevator.isAtTargetedPosition) {
               arm.currentRequest =
                 Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleAngle.get())

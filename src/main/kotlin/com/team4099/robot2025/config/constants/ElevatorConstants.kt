@@ -42,8 +42,8 @@ object ElevatorConstants {
   val CARRIAGE_TO_BOTTOM_SIM = 0.3.meters // idk why its diff but this works better for as
 
   object HEIGHTS {
-    // note(nathan): make the best attempt to keep IDLE and IDLE_CORAL the same. it makes
-    // transitions faster :)
+    // note(nathan): make the best attempt to keep IDLE and IDLE_CORAL the same.
+    // IDLE and IDLE_CORAL should be high enough that arm CLEARS TROUGH during movement ( > 21 in)
     val IDLE = 22.42.inches
     val IDLE_CORAL = 22.42.inches
     val IDLE_ALGAE = 11.9.inches

@@ -478,7 +478,7 @@ class Superstructure(
           }
         }
 
-        if (armRollers.hasAlgae) {
+        if (RobotBase.isReal() && armRollers.hasAlgae) {
           theoreticalGamePieceArm = GamePiece.ALGAE
         }
 
@@ -514,12 +514,10 @@ class Superstructure(
           nextState = SuperstructureStates.CLIMB_RETRACT
         }
 
-        nextState =
-          when (currentRequest) {
-            is SuperstructureRequest.Idle -> SuperstructureStates.IDLE
-            is SuperstructureRequest.RetractClimb -> SuperstructureStates.CLIMB_RETRACT
-            else -> currentState
-          }
+        when (currentRequest) {
+          is SuperstructureRequest.Idle -> nextState = SuperstructureStates.IDLE
+          is SuperstructureRequest.RetractClimb -> nextState = SuperstructureStates.CLIMB_RETRACT
+        }
       }
       SuperstructureStates.CLIMB_RETRACT -> { // for actually CLIMBING (retracting climb into robot)
         elevator.currentRequest =

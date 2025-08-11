@@ -802,7 +802,7 @@ class Superstructure(
 
   fun prepL4OrBargeCommand(): Command {
     return ConditionalCommand(
-      prepScoreCoralCommand(CoralLevel.L2), prepScoreAlgaeCommand(AlgaeScoringLevel.BARGE)
+      prepScoreCoralCommand(CoralLevel.L4), prepScoreAlgaeCommand(AlgaeScoringLevel.BARGE)
     ) {
       theoreticalGamePieceArm == GamePiece.CORAL
     }

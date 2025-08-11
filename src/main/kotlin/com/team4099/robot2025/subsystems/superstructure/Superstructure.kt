@@ -22,6 +22,7 @@ import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.littletonrobotics.junction.Logger
 import org.team4099.lib.geometry.Pose3d
@@ -773,35 +774,37 @@ class Superstructure(
 
   // -------------------------------- Redirect Commands --------------------------------
   fun prepL1OrAlgaeGroundCommand(): Command {
-    return when (theoreticalGamePieceArm) {
-      GamePiece.CORAL -> prepScoreCoralCommand(CoralLevel.L1)
-      else -> intakeAlgaeCommand(AlgaeIntakeLevel.GROUND)
+    return ConditionalCommand(
+      prepScoreCoralCommand(CoralLevel.L1), intakeAlgaeCommand(AlgaeIntakeLevel.GROUND)
+    ) {
+      theoreticalGamePieceArm == GamePiece.CORAL
     }
   }
 
   fun prepL2OrProcessorCommand(): Command {
-    return when (theoreticalGamePieceArm) {
-      GamePiece.CORAL -> prepScoreCoralCommand(CoralLevel.L2)
-      else -> prepScoreAlgaeCommand(AlgaeScoringLevel.PROCESSOR)
+    return ConditionalCommand(
+      prepScoreCoralCommand(CoralLevel.L2), prepScoreAlgaeCommand(AlgaeScoringLevel.PROCESSOR)
+    ) {
+      theoreticalGamePieceArm == GamePiece.CORAL
     }
   }
 
   fun prepL3OrAlgaeReefCommand(): Command {
-    return when (theoreticalGamePieceArm) {
-      GamePiece.CORAL -> prepScoreCoralCommand(CoralLevel.L3)
-      else ->
-        intakeAlgaeCommand(
-          if (vision.lastTrigVisionUpdate.targetTagID in Constants.Universal.highAlgaeReefTags)
-            AlgaeIntakeLevel.L3
-          else AlgaeIntakeLevel.L2
-        )
-    }
+    return ConditionalCommand(
+      prepScoreCoralCommand(CoralLevel.L3),
+      intakeAlgaeCommand(
+        if (vision.lastTrigVisionUpdate.targetTagID in Constants.Universal.highAlgaeReefTags)
+          AlgaeIntakeLevel.L3
+        else AlgaeIntakeLevel.L2
+      )
+    ) { theoreticalGamePieceArm == GamePiece.CORAL }
   }
 
   fun prepL4OrBargeCommand(): Command {
-    return when (theoreticalGamePieceArm) {
-      GamePiece.CORAL -> prepScoreCoralCommand(CoralLevel.L4)
-      else -> prepScoreAlgaeCommand(AlgaeScoringLevel.BARGE)
+    return ConditionalCommand(
+      prepScoreCoralCommand(CoralLevel.L2), prepScoreAlgaeCommand(AlgaeScoringLevel.BARGE)
+    ) {
+      theoreticalGamePieceArm == GamePiece.CORAL
     }
   }
 

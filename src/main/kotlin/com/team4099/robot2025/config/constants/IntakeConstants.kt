@@ -70,5 +70,6 @@ object IntakeConstants {
     val SUPPLY_CURRENT_LIMIT = 40.amps
 
     val INTAKE_VOLTAGE = 1.0.volts
+    val EJECT_VOLTAGE = -(3.0).volts
   }
 }

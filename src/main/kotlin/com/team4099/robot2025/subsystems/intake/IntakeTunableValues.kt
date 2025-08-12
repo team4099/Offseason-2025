@@ -36,6 +36,12 @@ object IntakeTunableValues {
       IntakeConstants.Rollers.INTAKE_VOLTAGE,
       Pair({ it.inVolts }, { it.volts })
     )
+  val ejectRollerVoltage =
+    LoggedTunableValue(
+      "intake/ejectRollerVoltage",
+      IntakeConstants.Rollers.EJECT_VOLTAGE,
+      Pair({ it.inVolts }, { it.volts })
+    )
 
   val idlePosition: LoggedTunableValue<Radian>
     get() = if (RobotBase.isReal() && Robot.isAutonomous) coralPosition else stowPosition

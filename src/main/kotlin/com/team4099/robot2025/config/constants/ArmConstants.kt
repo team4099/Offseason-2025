@@ -35,13 +35,13 @@ object ArmConstants {
     val REAL_KI = 0.0.volts / (1.degrees * 1.seconds)
     val REAL_KD = 0.0.volts / (1.degrees.perSecond)
 
-    val SIM_KP = 0.625.volts / 1.degrees
-    val SIM_KI = 0.0.volts / (1.degrees * 1.seconds)
-    val SIM_KD = 0.035.volts / (1.degrees.perSecond)
+    val SIM_KP = .885.volts / 1.degrees
+    val SIM_KI = 0.1.volts / (1.degrees * 1.seconds)
+    val SIM_KD = 0.28.volts / (1.degrees.perSecond)
 
     val KS = 0.0.volts
     val KV = ((1 / MAX_VELOCITY.inDegreesPerSecond).volts) / 1.0.degrees.perSecond //  0.037
-    val KA = (0.0.volts) / 1.0.degrees.perSecond.perSecond // 0.0025
+    val KA = (1.0.volts) / 1.0.degrees.perSecond.perSecond // 0.0025
 
     val KV_ADD = (0.0.volts) / 1.0.degrees.perSecond //  0.037
 

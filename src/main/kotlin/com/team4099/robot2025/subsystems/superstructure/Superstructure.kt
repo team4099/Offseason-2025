@@ -515,7 +515,6 @@ class Superstructure(
           is SuperstructureRequest.RetractClimb -> nextState = SuperstructureStates.CLIMB_RETRACT
         }
       }
-
       SuperstructureStates.CLIMB_RETRACT -> { // for actually CLIMBING (retracting climb into robot)
         elevator.currentRequest =
           Request.ElevatorRequest.ClosedLoop(ElevatorConstants.HEIGHTS.CLIMB_HEIGHT)
@@ -589,7 +588,7 @@ class Superstructure(
             lastPrepLevel = coralScoringLevel
           }
         }
-
+        lastPrepLevel = coralScoringLevel
         when (currentRequest) {
           is SuperstructureRequest.Score -> {
             if (elevator.isAtTargetedPosition && arm.isAtTargetedPosition)
@@ -601,6 +600,8 @@ class Superstructure(
         }
       }
       SuperstructureStates.SCORE_CORAL -> {
+        lastPrepLevel = CoralLevel.NONE
+
         when (coralScoringLevel) {
           CoralLevel.L1 -> {
             // do NOT move arm here...

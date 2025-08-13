@@ -90,12 +90,7 @@ class Superstructure(
         is SuperstructureRequest.PrepScoreAlgae -> {
           algaeScoringLevel = value.level
         }
-        is SuperstructureRequest.Score -> {}
-        else -> {
-          //          coralScoringLevel = CoralLevel.NONE
-          //          algaeIntakeLevel = AlgaeIntakeLevel.NONE
-          //          algaeScoringLevel = AlgaeScoringLevel.NONE
-        }
+        else -> {}
       }
       field = value
     }
@@ -301,7 +296,7 @@ class Superstructure(
         climber.currentRequest = Request.ClimberRequest.ClosedLoop(ClimberConstants.IDLE_ANGLE)
         intake.currentRequest =
           Request.IntakeRequest.TargetingPosition(
-            IntakeTunableValues.idlePosition.get(), 0.0.volts
+            IntakeTunableValues.idlePosition.get(), IntakeTunableValues.idleRollerVoltage.get()
           )
         indexer.currentRequest = Request.IndexerRequest.Idle()
 
@@ -528,20 +523,14 @@ class Superstructure(
 
         if (arm.isAtTargetedPosition && elevator.isAtTargetedPosition) {
           climber.currentRequest =
-            if (climber.isFullyClimbed) {
-              Request.ClimberRequest.OpenLoop(
-                0.0.volts, // don't keep open looping or you'll stall out the motor
-                ClimberConstants.INTAKE_CAGE_VOLTAGE
-              )
-            } else {
-              Request.ClimberRequest.OpenLoop(
-                ClimberConstants.CLIMB_RETRACT_VOLTAGE, ClimberConstants.INTAKE_CAGE_VOLTAGE
-              )
-            }
+            Request.ClimberRequest.OpenLoop(
+              if (climber.isFullyClimbed) 0.0.volts else ClimberConstants.CLIMB_RETRACT_VOLTAGE,
+              ClimberConstants.INTAKE_CAGE_VOLTAGE
+            )
         }
 
         when (currentRequest) {
-          is SuperstructureRequest.ExtendClimb -> SuperstructureStates.CLIMB_EXTEND
+          is SuperstructureRequest.ExtendClimb -> nextState = SuperstructureStates.CLIMB_EXTEND
         }
       }
       SuperstructureStates.PREP_SCORE_CORAL -> {
@@ -688,28 +677,23 @@ class Superstructure(
       }
       SuperstructureStates.PREP_SCORE_ALGAE -> {
         elevator.currentRequest =
-          when (algaeScoringLevel) {
-            AlgaeScoringLevel.PROCESSOR ->
-              Request.ElevatorRequest.ClosedLoop(
-                ElevatorTunableValues.Heights.processorHeight.get()
-              )
-            AlgaeScoringLevel.BARGE ->
-              Request.ElevatorRequest.ClosedLoop(
-                ElevatorTunableValues.Heights.bargeHeight.get()
-              )
-            else ->
-              Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.idleHeight.get())
-          }
+          Request.ElevatorRequest.ClosedLoop(
+            when (algaeScoringLevel) {
+              AlgaeScoringLevel.PROCESSOR -> ElevatorTunableValues.Heights.processorHeight.get()
+              AlgaeScoringLevel.BARGE -> ElevatorTunableValues.Heights.bargeHeight.get()
+              else -> ElevatorTunableValues.Heights.idleHeight.get()
+            }
+          )
 
         if (elevator.clearsRobot) {
           arm.currentRequest =
-            when (algaeScoringLevel) {
-              AlgaeScoringLevel.PROCESSOR ->
-                Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.processorAngle.get())
-              AlgaeScoringLevel.BARGE ->
-                Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.bargeAngle.get())
-              else -> Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleCoralAngle.get())
-            }
+            Request.ArmRequest.ClosedLoop(
+              when (algaeScoringLevel) {
+                AlgaeScoringLevel.PROCESSOR -> ArmTunableValues.Angles.processorAngle.get()
+                AlgaeScoringLevel.BARGE -> ArmTunableValues.Angles.bargeAngle.get()
+                else -> ArmTunableValues.Angles.idleCoralAngle.get()
+              }
+            )
         }
 
         when (currentRequest) {

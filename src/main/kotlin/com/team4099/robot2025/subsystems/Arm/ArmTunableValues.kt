@@ -131,5 +131,12 @@ object ArmTunableValues {
         ArmConstants.ANGLES.SCORE_ANGLE_OFFSET,
         Pair({ it.inDegrees }, { it.degrees })
       )
+
+    val movingBetweenReefLevelsAngles =
+      LoggedTunableValue(
+        "arm/movingBetweenReefLevelsAngles",
+        ArmConstants.ANGLES.MOVING_BETWEEN_REEF_LEVELS_ANGLE,
+        Pair({ it.inDegrees }, { it.degrees })
+      )
   }
 }

@@ -17,7 +17,7 @@ object ArmConstants {
   val VOLTAGE_COMPENSATION = 12.0.volts
   val ENCODER_TO_MECHANISM_GEAR_RATIO = 1.0 / 2.0
 
-  val ARM_TOLERANCE = 1.0.degrees
+  val ARM_TOLERANCE = 2.0.degrees // todo tune and make smaller
   val ARM_LENGTH = 26.1362839.inches
   val ARM_MOMENT_OF_INERTIA = 0.01939647.kilo.grams.meterSquared
   val ARM_MASS = 4.5520562.pounds
@@ -35,13 +35,13 @@ object ArmConstants {
     val REAL_KI = 0.0.volts / (1.degrees * 1.seconds)
     val REAL_KD = 0.0.volts / (1.degrees.perSecond)
 
-    val SIM_KP = .885.volts / 1.degrees
-    val SIM_KI = 0.1.volts / (1.degrees * 1.seconds)
-    val SIM_KD = 0.28.volts / (1.degrees.perSecond)
+    val SIM_KP = 0.75.volts / 1.degrees
+    val SIM_KI = 0.0.volts / (1.degrees * 1.seconds)
+    val SIM_KD = 0.02.volts / (1.degrees.perSecond)
 
     val KS = 0.0.volts
     val KV = ((1 / MAX_VELOCITY.inDegreesPerSecond).volts) / 1.0.degrees.perSecond //  0.037
-    val KA = (1.0.volts) / 1.0.degrees.perSecond.perSecond // 0.0025
+    val KA = (0.001.volts) / 1.0.degrees.perSecond.perSecond // 0.0025
 
     val KV_ADD = (0.0.volts) / 1.0.degrees.perSecond //  0.037
 
@@ -59,7 +59,7 @@ object ArmConstants {
     val IDLE_CORAL_ANGLE = 0.0.degrees
     val IDLE_ALGAE_ANGLE = 180.0.degrees
 
-    val L1_PREP_ANGLE = 74.0.degrees
+    val L1_PREP_ANGLE = 70.0.degrees
     val L2_PREP_ANGLE = 123.26.degrees
     val L3_PREP_ANGLE = 123.26.degrees
     val L4_PREP_ANGLE = 127.68.degrees
@@ -76,5 +76,7 @@ object ArmConstants {
     val ARM_GUARENTEED_OVER_BATTERY = 45.0.degrees
 
     val SIM_MECH_OFFSET = 90.0.degrees
+
+    val MOVING_BETWEEN_REEF_LEVELS_ANGLE = 180.0.degrees
   }
 }

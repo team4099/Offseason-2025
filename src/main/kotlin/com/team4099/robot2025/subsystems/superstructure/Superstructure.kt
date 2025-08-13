@@ -520,6 +520,7 @@ class Superstructure(
           is SuperstructureRequest.RetractClimb -> nextState = SuperstructureStates.CLIMB_RETRACT
         }
       }
+
       SuperstructureStates.CLIMB_RETRACT -> { // for actually CLIMBING (retracting climb into robot)
         elevator.currentRequest =
           Request.ElevatorRequest.ClosedLoop(ElevatorConstants.HEIGHTS.CLIMB_HEIGHT)

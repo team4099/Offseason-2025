@@ -203,7 +203,7 @@ object ClimberIOTalon : ClimberIO {
       VoltageOut(
         clamp(
           voltage,
-          -ClimberConstants.CLIMBER_VOLTAGE_COMPENSATION,
+          0.0.volts,
           ClimberConstants.CLIMBER_VOLTAGE_COMPENSATION
         )
           .inVolts

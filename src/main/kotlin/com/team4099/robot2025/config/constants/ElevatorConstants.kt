@@ -49,7 +49,7 @@ object ElevatorConstants {
     val IDLE_ALGAE = 11.9.inches
     val CLIMB_HEIGHT = 25.0.inches
 
-    val INTAKE_CORAL = 14.66.inches // todo remeasure
+    val INTAKE_CORAL = 16.25.inches // todo remeasure
     val INTAKE_ALGAE_GROUND = 11.0.inches - CARRIAGE_TO_BOTTOM
     val INTAKE_ALGAE_LOW = 34.56.inches - CARRIAGE_TO_BOTTOM
     val INTAKE_ALGAE_HIGH = 50.46.inches - CARRIAGE_TO_BOTTOM

@@ -183,6 +183,9 @@ object RobotContainer {
     ControlBoard.resetGyro.whileTrue(ResetGyroYawCommand(drivetrain))
     ControlBoard.forceIdle.whileTrue(superstructure.requestIdleCommand())
     ControlBoard.eject.whileTrue(superstructure.ejectCommand())
+
+    ControlBoard.test.onTrue(superstructure.overrideFlag(true))
+    ControlBoard.test.onFalse(superstructure.overrideFlag(false))
   }
 
   fun mapTestControls() {}

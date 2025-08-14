@@ -58,16 +58,14 @@ class Superstructure(
   private val canrange: CANRange
 ) : SubsystemBase() {
 
-  var theoreticalGamePieceArm: GamePiece = GamePiece.CORAL // preload !!
-  var theoreticalGamePieceHardstop: GamePiece = GamePiece.NONE
+  private var overrideFlagForSim = false
 
-  //    get() {
-  //      if (rollers.hasCoral || ramp.hasCoral) {
-  //        return GamePiece.CORAL
-  //      } else {
-  //        return field
-  //      }
-  //    } add this later :)
+  var theoreticalGamePieceArm: GamePiece = GamePiece.CORAL // preload !!
+  val theoreticalGamePieceHardstop: GamePiece
+    get() =
+      if (canrange.inputs.isDetected || (RobotBase.isSimulation() && overrideFlagForSim))
+        GamePiece.CORAL
+      else GamePiece.NONE
 
   private var lastCoralScoringLevel: CoralLevel = CoralLevel.NONE
   private var coralScoringLevel: CoralLevel = CoralLevel.NONE
@@ -78,6 +76,7 @@ class Superstructure(
   private var lastAlgaeScoringLevel: AlgaeScoringLevel = AlgaeScoringLevel.NONE
   private var algaeScoringLevel: AlgaeScoringLevel = AlgaeScoringLevel.NONE
   private var lastPrepLevel: CoralLevel = CoralLevel.NONE
+
   var currentRequest: SuperstructureRequest = SuperstructureRequest.Idle()
     set(value) {
       when (value) {
@@ -350,20 +349,24 @@ class Superstructure(
         // idle to request transitions
         nextState =
           // if you were holding a coral but dropped it
-          if (theoreticalGamePieceArm != GamePiece.ALGAE &&
+          if (theoreticalGamePieceArm == GamePiece.NONE &&
             theoreticalGamePieceHardstop == GamePiece.CORAL
           )
             SuperstructureStates.INTAKE_CORAL_INTO_ARM
-          else if (currentRequest is SuperstructureRequest.PrepScoreAlgae &&
-            theoreticalGamePieceArm == GamePiece.ALGAE
-          )
-            SuperstructureStates.PREP_SCORE_ALGAE
           else
             when (currentRequest) {
               is SuperstructureRequest.Home -> SuperstructureStates.HOME
               is SuperstructureRequest.IntakeCoral -> SuperstructureStates.GROUND_INTAKE_CORAL
-              is SuperstructureRequest.IntakeAlgae -> SuperstructureStates.INTAKE_ALGAE
+              is SuperstructureRequest.IntakeAlgae -> {
+                if (theoreticalGamePieceArm == GamePiece.NONE) SuperstructureStates.INTAKE_ALGAE
+                else currentState
+              }
               is SuperstructureRequest.PrepScoreCoral -> SuperstructureStates.PREP_SCORE_CORAL
+              is SuperstructureRequest.PrepScoreAlgae -> {
+                if (theoreticalGamePieceArm == GamePiece.ALGAE)
+                  SuperstructureStates.PREP_SCORE_ALGAE
+                else currentState
+              }
               is SuperstructureRequest.ExtendClimb -> SuperstructureStates.CLIMB_EXTEND
               is SuperstructureRequest.RetractClimb -> SuperstructureStates.CLIMB_RETRACT
               is SuperstructureRequest.Eject -> SuperstructureStates.EJECT
@@ -381,30 +384,27 @@ class Superstructure(
         if (theoreticalGamePieceHardstop == GamePiece.CORAL ||
           currentRequest is SuperstructureRequest.Idle
         ) {
+          currentRequest = SuperstructureRequest.Idle()
           nextState = SuperstructureStates.GROUND_INTAKE_CORAL_CLEANUP
         }
       }
       SuperstructureStates.GROUND_INTAKE_CORAL_CLEANUP -> {
-        if (RobotBase.isSimulation())
-          nextState = SuperstructureStates.IDLE // todo change to sim logic in future
-        else {
-          intake.currentRequest =
-            Request.IntakeRequest.TargetingPosition(
-              IntakeTunableValues.idlePosition.get(), IntakeConstants.Rollers.IDLE_VOLTAGE
-            )
-          indexer.currentRequest = Request.IndexerRequest.Idle()
+        intake.currentRequest =
+          Request.IntakeRequest.TargetingPosition(
+            IntakeTunableValues.idlePosition.get(), IntakeConstants.Rollers.IDLE_VOLTAGE
+          )
+        indexer.currentRequest = Request.IndexerRequest.Idle()
 
-          if (intake.isAtTargetedPosition) {
-            nextState =
-              if (theoreticalGamePieceArm == GamePiece.NONE &&
-                theoreticalGamePieceHardstop ==
-                GamePiece.CORAL
-              ) { // if not holding a game piece, intake it now
-                SuperstructureStates.INTAKE_CORAL_INTO_ARM
-              } else { // if holding an algae or we got here interrupted (force idle)
-                SuperstructureStates.IDLE
-              }
-          }
+        if (intake.isAtTargetedPosition) {
+          nextState =
+            if (theoreticalGamePieceArm == GamePiece.NONE &&
+              theoreticalGamePieceHardstop ==
+              GamePiece.CORAL
+            ) { // if not holding a game piece, intake it now
+              SuperstructureStates.INTAKE_CORAL_INTO_ARM
+            } else { // if holding an algae or we got here interrupted (force idle)
+              SuperstructureStates.IDLE
+            }
         }
       }
       SuperstructureStates.INTAKE_CORAL_INTO_ARM -> {
@@ -419,7 +419,9 @@ class Superstructure(
           armRollers.currentRequest =
             ArmRollersRequest.OpenLoop(ArmRollersConstants.INTAKE_CORAL_VOLTAGE)
 
-          if (armRollers.hasCoral) {
+          if (RobotBase.isReal() && armRollers.hasCoral ||
+            RobotBase.isSimulation() && !overrideFlagForSim
+          ) {
             theoreticalGamePieceArm = GamePiece.CORAL
           }
         }
@@ -483,13 +485,16 @@ class Superstructure(
           }
         }
 
-        if (RobotBase.isReal() && armRollers.hasAlgae) {
+        if (RobotBase.isReal() && armRollers.hasAlgae ||
+          RobotBase.isSimulation() && overrideFlagForSim
+        ) {
           theoreticalGamePieceArm = GamePiece.ALGAE
         }
 
         if (currentRequest is SuperstructureRequest.Idle ||
           arm.isAtTargetedPosition && theoreticalGamePieceArm == GamePiece.ALGAE
         ) {
+          currentRequest = SuperstructureRequest.Idle()
           nextState = SuperstructureStates.CLEANUP_INTAKE_ALGAE
         }
       }
@@ -617,7 +622,7 @@ class Superstructure(
               nextState = SuperstructureStates.CLEANUP_SCORE_CORAL
             }
           }
-          CoralLevel.L2, CoralLevel.L3, CoralLevel.L4 -> {
+          else -> {
             // arm only should move a little down; if we went all the way it would hit trough in l2
             armRollers.currentRequest =
               ArmRollersRequest.OpenLoop(ArmRollersConstants.OUTTAKE_CORAL_VOLTAGE)
@@ -641,10 +646,6 @@ class Superstructure(
               theoreticalGamePieceArm = GamePiece.NONE
               nextState = SuperstructureStates.CLEANUP_SCORE_CORAL
             }
-          }
-          else -> {
-            // todo note(nathan): idek what to put here tbh
-            nextState = SuperstructureStates.CLEANUP_SCORE_CORAL
           }
         }
       }
@@ -684,16 +685,14 @@ class Superstructure(
             }
           )
 
-        if (elevator.clearsRobot) {
-          arm.currentRequest =
-            Request.ArmRequest.ClosedLoop(
-              when (algaeScoringLevel) {
-                AlgaeScoringLevel.PROCESSOR -> ArmTunableValues.Angles.processorAngle.get()
-                AlgaeScoringLevel.BARGE -> ArmTunableValues.Angles.bargeAngle.get()
-                else -> ArmTunableValues.Angles.idleCoralAngle.get()
-              }
-            )
-        }
+        arm.currentRequest =
+          Request.ArmRequest.ClosedLoop(
+            when (algaeScoringLevel) {
+              AlgaeScoringLevel.PROCESSOR -> ArmTunableValues.Angles.processorAngle.get()
+              AlgaeScoringLevel.BARGE -> ArmTunableValues.Angles.bargeAngle.get()
+              else -> ArmTunableValues.Angles.idleCoralAngle.get()
+            }
+          )
 
         when (currentRequest) {
           is SuperstructureRequest.Idle -> nextState = SuperstructureStates.IDLE
@@ -751,6 +750,7 @@ class Superstructure(
         }
 
         if (currentRequest is SuperstructureRequest.Idle) {
+          theoreticalGamePieceArm = GamePiece.NONE
           nextState = SuperstructureStates.IDLE
         }
       }
@@ -885,6 +885,14 @@ class Superstructure(
       }
 
     returnCommand.name = "ClimbRetractCommand"
+    return returnCommand
+  }
+
+  // -------------------------------- Test Commands --------------------------------
+  fun overrideFlag(setOverride: Boolean): Command {
+    val returnCommand = runOnce { if (RobotBase.isSimulation()) overrideFlagForSim = setOverride }
+
+    returnCommand.name = "OverrideFlagCommand"
     return returnCommand
   }
 

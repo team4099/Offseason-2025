@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.team4099.lib.units.base.seconds
 
 class CANRange(val io: CANRangeIO) : SubsystemBase() {
-  private val inputs = CANRangeIO.CANRangeIOInputs()
+  val inputs = CANRangeIO.CANRangeIOInputs()
   var rumbleTrigger = false
   var rumbleTime = (-1337).seconds
 

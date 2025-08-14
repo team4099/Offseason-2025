@@ -58,4 +58,6 @@ object ControlBoard {
   val resetGyro = Trigger { driver.startButton && driver.selectButton }
   val forceIdle = Trigger { operator.dPadDown }
   val eject = Trigger { operator.dPadLeft }
+
+  val test = Trigger { operator.dPadRight }
 }

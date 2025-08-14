@@ -201,12 +201,7 @@ object ClimberIOTalon : ClimberIO {
   override fun setClimberVoltage(voltage: ElectricalPotential) {
     climberTalon.setControl(
       VoltageOut(
-        clamp(
-          voltage,
-          -ClimberConstants.CLIMBER_VOLTAGE_COMPENSATION,
-          ClimberConstants.CLIMBER_VOLTAGE_COMPENSATION
-        )
-          .inVolts
+        clamp(voltage, 0.0.volts, ClimberConstants.CLIMBER_VOLTAGE_COMPENSATION).inVolts
       )
     )
   }

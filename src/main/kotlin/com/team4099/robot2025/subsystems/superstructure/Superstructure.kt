@@ -292,7 +292,7 @@ class Superstructure(
         }
       }
       SuperstructureStates.IDLE -> {
-        climber.currentRequest = Request.ClimberRequest.ClosedLoop(ClimberConstants.IDLE_ANGLE)
+        climber.currentRequest = Request.ClimberRequest.OpenLoop(0.0.volts, 0.0.volts)
         intake.currentRequest =
           Request.IntakeRequest.TargetingPosition(
             IntakeTunableValues.idlePosition.get(), IntakeTunableValues.idleRollerVoltage.get()
@@ -502,40 +502,40 @@ class Superstructure(
         nextState = SuperstructureStates.IDLE
       }
       SuperstructureStates.CLIMB_EXTEND -> { // for getting climb set-up (straight out)
+        elevator.currentRequest =
+          Request.ElevatorRequest.ClosedLoop(ElevatorConstants.HEIGHTS.CLIMB_HEIGHT)
+        arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.CLIMB_ANGLE)
+
         climber.currentRequest =
           Request.ClimberRequest.OpenLoop(
             if (!climber.isFullyExtended) ClimberConstants.CLIMB_EXTEND_VOLTAGE else 0.0.volts,
-            ClimberConstants.Rollers.CLASP_VOLTAGE
+            ClimberConstants.ROLLERS.CLASP_VOLTAGE
           )
 
         if (RobotBase.isReal() &&
           climber.inputs.rollersStatorCurrent >
-          ClimberConstants.Rollers.THRESHOLD_CURRENT_LIMIT
+          ClimberConstants.ROLLERS.THRESHOLD_CURRENT_LIMIT &&
+          elevator.isAtTargetedPosition &&
+          arm.isAtTargetedPosition
         ) {
           nextState = SuperstructureStates.CLIMB_RETRACT
         }
 
         when (currentRequest) {
           is SuperstructureRequest.Idle -> nextState = SuperstructureStates.IDLE
-          is SuperstructureRequest.RetractClimb -> nextState = SuperstructureStates.CLIMB_RETRACT
+          is SuperstructureRequest.RetractClimb ->
+            if (elevator.isAtTargetedPosition && arm.isAtTargetedPosition)
+              nextState = SuperstructureStates.CLIMB_RETRACT
         }
       }
       SuperstructureStates.CLIMB_RETRACT -> { // for actually CLIMBING (retracting climb into robot)
-        elevator.currentRequest =
-          Request.ElevatorRequest.ClosedLoop(ElevatorConstants.HEIGHTS.CLIMB_HEIGHT)
-        arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.CLIMB_ANGLE)
+        climber.currentRequest =
+          Request.ClimberRequest.OpenLoop(
+            if (climber.isFullyClimbed) 0.0.volts else ClimberConstants.CLIMB_RETRACT_VOLTAGE,
+            ClimberConstants.ROLLERS.CLASP_VOLTAGE
+          )
 
-        if (arm.isAtTargetedPosition && elevator.isAtTargetedPosition) {
-          climber.currentRequest =
-            Request.ClimberRequest.OpenLoop(
-              if (climber.isFullyClimbed) 0.0.volts else ClimberConstants.CLIMB_RETRACT_VOLTAGE,
-              ClimberConstants.INTAKE_CAGE_VOLTAGE
-            )
-        }
-
-        when (currentRequest) {
-          is SuperstructureRequest.ExtendClimb -> nextState = SuperstructureStates.CLIMB_EXTEND
-        }
+        // note(nathan): so... we're stuck here... heh...
       }
       SuperstructureStates.PREP_SCORE_CORAL -> {
         // if moving from one prep level to another

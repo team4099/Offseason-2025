@@ -50,11 +50,11 @@ object ClimberIOSim : ClimberIO {
     FlywheelSim(
       LinearSystemId.createFlywheelSystem(
         DCMotor.getKrakenX60(1),
-        ClimberConstants.Rollers.INERTIA.inKilogramsMeterSquared,
-        1 / ClimberConstants.Rollers.GEAR_RATIO
+        ClimberConstants.ROLLERS.INERTIA.inKilogramsMeterSquared,
+        1 / ClimberConstants.ROLLERS.GEAR_RATIO
       ),
       DCMotor.getKrakenX60(1),
-      1 / ClimberConstants.Rollers.GEAR_RATIO
+      1 / ClimberConstants.ROLLERS.GEAR_RATIO
     )
 
   private var climberPIDController =
@@ -95,8 +95,8 @@ object ClimberIOSim : ClimberIO {
     val rollersClampedVoltage =
       clamp(
         voltage,
-        -ClimberConstants.Rollers.VOLTAGE_COMPENSATION,
-        ClimberConstants.Rollers.VOLTAGE_COMPENSATION
+        -ClimberConstants.ROLLERS.VOLTAGE_COMPENSATION,
+        ClimberConstants.ROLLERS.VOLTAGE_COMPENSATION
       )
 
     rollersSim.setInputVoltage(rollersClampedVoltage.inVolts)
@@ -107,7 +107,7 @@ object ClimberIOSim : ClimberIO {
     targetPosition = position
     // Rollers should constantly clasp to the bars while climber is moving
     setClimberVoltage(climberPIDController.calculate(climberSim.angleRads.radians, position))
-    setRollersVoltage(ClimberConstants.Rollers.CLASP_VOLTAGE)
+    setRollersVoltage(ClimberConstants.ROLLERS.CLASP_VOLTAGE)
   }
 
   override fun updateInputs(inputs: ClimberIO.ClimberInputs) {

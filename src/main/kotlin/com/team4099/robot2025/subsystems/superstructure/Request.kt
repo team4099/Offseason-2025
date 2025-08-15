@@ -95,5 +95,6 @@ sealed interface Request {
   sealed interface IndexerRequest : Request {
     class Idle : IndexerRequest
     class Index : IndexerRequest
+    class Eject : IndexerRequest
   }
 }

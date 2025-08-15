@@ -737,6 +737,7 @@ class Superstructure(
             IntakeTunableValues.coralPosition.get(),
             IntakeTunableValues.ejectRollerVoltage.get()
           )
+        indexer.currentRequest = Request.IndexerRequest.Eject()
 
         if (!elevator.clearsRobot) {
           elevator.currentRequest =

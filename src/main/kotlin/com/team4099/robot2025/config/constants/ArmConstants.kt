@@ -19,8 +19,8 @@ object ArmConstants {
 
   val ARM_TOLERANCE = 2.0.degrees // todo tune and make smaller
   val ARM_LENGTH = 26.1362839.inches
-  val ARM_MOMENT_OF_INERTIA = 0.01939647.kilo.grams.meterSquared
-  val ARM_MASS = 4.5520562.pounds
+  val ARM_MOMENT_OF_INERTIA = 0.00503098.kilo.grams.meterSquared
+  val ARM_MASS = 4.5796764.pounds
 
   val MIN_ROTATION = 0.0.degrees
   val MAX_ROTATION = 270.0.degrees

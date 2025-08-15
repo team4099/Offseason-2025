@@ -18,8 +18,7 @@ object ElevatorConstants {
   val VOLTAGE_COMPENSATION: ElectricalPotential = 12.0.volts
   val SPOOL_DIAMETER: Length = 2.0.inches
   val GEAR_RATIO: Double = 12.0 / 48.0
-  val CARRIAGE_MASS: Mass =
-    15.0.pounds // semi-accurate, tbf this value is only used in sim so its whatever
+  val CARRIAGE_MASS: Mass = 7.2911706.pounds + ArmConstants.ARM_MASS
 
   val STATOR_CURRENT_LIMIT = 60.0.amps
   val SUPPLY_CURRENT_LIMIT = 60.0.amps
@@ -67,7 +66,7 @@ object ElevatorConstants {
     val PROCESSOR = 24.4.inches - CARRIAGE_TO_BOTTOM
     val BARGE = 70.38.inches - CARRIAGE_TO_BOTTOM
 
-    // not to be confused with LOW_SCORE_OFFSET, this is to make sure arm doesn't hit battery
+    // this is to make sure arm doesn't hit battery
     // note(nathan): the following should always be true statements (please please please don't
     // change 👍👍👍👍👍)
     // CLEARS_ROBOT < IDLE
@@ -75,10 +74,7 @@ object ElevatorConstants {
     val CLEARS_ROBOT =
       16.5.inches // todo update with final robot to make sure nothing breaks !!!!!!
 
-    // not to be confused with CLEARS_ROBOT, this is to ensure arm doesn't hit trough
-    val LOW_SCORE_OFFSET = L2 + 7.0.inches
-
-    val EJECT = LOW_SCORE_OFFSET
+    val EJECT = IDLE_CORAL
   }
 
   object PID {

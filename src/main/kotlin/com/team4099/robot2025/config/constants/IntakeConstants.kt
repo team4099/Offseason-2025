@@ -1,6 +1,7 @@
 package com.team4099.robot2025.config.constants
 
 import org.team4099.lib.units.base.amps
+import org.team4099.lib.units.base.grams
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.pounds
 import org.team4099.lib.units.base.seconds
@@ -10,18 +11,19 @@ import org.team4099.lib.units.derived.ProportionalGain
 import org.team4099.lib.units.derived.Radian
 import org.team4099.lib.units.derived.Volt
 import org.team4099.lib.units.derived.degrees
+import org.team4099.lib.units.derived.meterSquared
 import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.perSecond
 
 object IntakeConstants {
   val ZERO_OFFSET = 0.0.degrees
-  val PIVOT_GEAR_RATIO = 20.0 / 1.0
+  val PIVOT_GEAR_RATIO = (8.0 / 40.0) * (16.0 / 50.0) * (16.0 / 42.0)
 
   val INTAKE_TOLERANCE = 1.0.degrees
 
-  val PIVOT_INERTIA = 17.586.pounds * 1.0.inches.squared
-  val PIVOT_LENGTH = 13.51441.inches
+  val PIVOT_INERTIA = 6.75267323.grams.meterSquared
+  val PIVOT_LENGTH = 19.414122.inches
   val PIVOT_MAX_ANGLE = 145.0.degrees
   val PIVOT_MIN_ANGLE = 0.0.degrees
 

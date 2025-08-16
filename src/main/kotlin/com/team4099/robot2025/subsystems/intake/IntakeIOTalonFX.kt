@@ -1,6 +1,5 @@
 package com.team4099.robot2025.subsystems.intake
 
-import IntakeIO
 import com.ctre.phoenix6.BaseStatusSignal
 import com.ctre.phoenix6.StatusSignal
 import com.ctre.phoenix6.configs.TalonFXConfiguration

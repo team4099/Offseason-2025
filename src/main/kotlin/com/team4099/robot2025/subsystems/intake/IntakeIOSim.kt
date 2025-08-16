@@ -1,6 +1,5 @@
 package com.team4099.robot2025.subsystems.intake
 
-import IntakeIO
 import com.team4099.lib.math.clamp
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.IntakeConstants

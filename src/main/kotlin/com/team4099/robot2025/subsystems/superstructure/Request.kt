@@ -1,5 +1,6 @@
 package com.team4099.robot2025.subsystems.superstructure
 
+import com.team4099.robot2025.config.constants.Constants
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import org.team4099.lib.units.AngularVelocity
 import org.team4099.lib.units.LinearVelocity
@@ -8,6 +9,28 @@ import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.ElectricalPotential
 
 sealed interface Request {
+  sealed interface SuperstructureRequest : Request {
+    class Idle() : SuperstructureRequest
+
+    class Home() : SuperstructureRequest
+
+    class ExtendClimb() : SuperstructureRequest
+
+    class RetractClimb() : SuperstructureRequest
+
+    class IntakeCoral() : SuperstructureRequest
+
+    class Eject() : SuperstructureRequest
+
+    class IntakeAlgae(val level: Constants.Universal.AlgaeIntakeLevel) : SuperstructureRequest
+
+    class PrepScoreAlgae(val level: Constants.Universal.AlgaeScoringLevel) : SuperstructureRequest
+
+    class PrepScoreCoral(val level: Constants.Universal.CoralLevel) : SuperstructureRequest
+
+    class Score() : SuperstructureRequest
+  }
+
   sealed interface DrivetrainRequest : Request {
     class OpenLoop(
       val angularVelocity: AngularVelocity,
@@ -40,7 +63,7 @@ sealed interface Request {
 
   sealed interface ArmRequest : Request {
     class OpenLoop(val armVoltage: ElectricalPotential) : ArmRequest
-    class ClosedLoop(val armPosition: Angle, val armTolerance: Angle) : ArmRequest
+    class ClosedLoop(val armPosition: Angle) : ArmRequest
     class Home() : ArmRequest
   }
 
@@ -72,5 +95,6 @@ sealed interface Request {
   sealed interface IndexerRequest : Request {
     class Idle : IndexerRequest
     class Index : IndexerRequest
+    class Eject : IndexerRequest
   }
 }

@@ -53,6 +53,10 @@ class Indexer(val io: IndexerIO) : SubsystemBase() {
 
         nextState = fromRequestToState(currentRequest)
       }
+      IndexerState.EJECT -> {
+        io.setVoltage(IndexerConstants.SPIT_VOLTAGE)
+        nextState = fromRequestToState(currentRequest)
+      }
     }
     currentState = nextState
   }
@@ -61,12 +65,14 @@ class Indexer(val io: IndexerIO) : SubsystemBase() {
     enum class IndexerState {
       UNINITIALIZED,
       IDLE,
-      INDEX
+      INDEX,
+      EJECT
     }
     fun fromRequestToState(request: Request.IndexerRequest): IndexerState {
       return when (request) {
         is Request.IndexerRequest.Idle -> IndexerState.IDLE
         is Request.IndexerRequest.Index -> IndexerState.INDEX
+        is Request.IndexerRequest.Eject -> IndexerState.EJECT
       }
     }
   }

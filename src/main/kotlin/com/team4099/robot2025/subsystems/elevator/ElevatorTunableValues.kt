@@ -147,5 +147,12 @@ object ElevatorTunableValues {
         ElevatorConstants.HEIGHTS.EJECT,
         Pair({ it.inInches }, { it.inches })
       )
+
+    val l1InitHeight =
+      LoggedTunableValue(
+        "Elevator/l1InitHeight",
+        ElevatorConstants.HEIGHTS.L1_INIT,
+        Pair({ it.inInches }, { it.inches })
+      )
   }
 }

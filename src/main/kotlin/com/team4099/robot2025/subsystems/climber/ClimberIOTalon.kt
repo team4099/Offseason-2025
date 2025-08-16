@@ -39,9 +39,11 @@ import org.team4099.lib.units.derived.inDegrees
 import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.newtons
 import org.team4099.lib.units.derived.volts
+import org.team4099.lib.units.inRotationsPerSecond
+import org.team4099.lib.units.inRotationsPerSecondPerSecond
 import org.team4099.lib.units.perSecond
 
-class ClimberIOTalon : ClimberIO {
+object ClimberIOTalon : ClimberIO {
   private val climberTalon: TalonFX = TalonFX(Constants.Climber.CLIMBER_MOTOR_ID)
   private val climberConfiguration: TalonFXConfiguration = TalonFXConfiguration()
   private val climberSensor =
@@ -54,8 +56,8 @@ class ClimberIOTalon : ClimberIO {
   private val rollersSensor =
     ctreAngularMechanismSensor(
       rollersTalon,
-      ClimberConstants.Rollers.GEAR_RATIO,
-      ClimberConstants.Rollers.VOLTAGE_COMPENSATION
+      ClimberConstants.ROLLERS.GEAR_RATIO,
+      ClimberConstants.ROLLERS.VOLTAGE_COMPENSATION
     )
 
   private val motionMagicConfig: MotionMagicConfigs = climberConfiguration.MotionMagic
@@ -106,10 +108,18 @@ class ClimberIOTalon : ClimberIO {
     climberConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
       climberSensor.positionToRawUnits(ClimberConstants.FULLY_CLIMBED_ANGLE)
     climberConfiguration.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-      climberSensor.positionToRawUnits(ClimberConstants.FULLY_RETRACTED_ANGLE)
+      climberSensor.positionToRawUnits(ClimberConstants.FULLY_EXTENDED_ANGLE)
+
+    climberConfiguration.MotionMagic.MotionMagicCruiseVelocity =
+      ClimberConstants.MAX_VELOCITY.inRotationsPerSecond
+    climberConfiguration.MotionMagic.MotionMagicAcceleration =
+      ClimberConstants.MAX_ACCELERATION.inRotationsPerSecondPerSecond
 
     climberConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake
     climberConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive
+
+    climberConfiguration.Voltage.PeakReverseVoltage = 0.0 // note(nathan): ratcheting
+
     climberTalon.configurator.apply(climberConfiguration)
 
     climberStatorCurrentSignal = climberTalon.statorCurrent
@@ -127,9 +137,9 @@ class ClimberIOTalon : ClimberIO {
     rollersTalon.clearStickyFaults()
 
     rollersConfiguration.CurrentLimits.StatorCurrentLimit =
-      ClimberConstants.Rollers.STATOR_CURRENT_LIMIT.inAmperes
+      ClimberConstants.ROLLERS.STATOR_CURRENT_LIMIT.inAmperes
     rollersConfiguration.CurrentLimits.SupplyCurrentLimit =
-      ClimberConstants.Rollers.SUPPLY_CURRENT_LIMIT.inAmperes
+      ClimberConstants.ROLLERS.SUPPLY_CURRENT_LIMIT.inAmperes
     rollersConfiguration.CurrentLimits.StatorCurrentLimitEnable = false
     rollersConfiguration.CurrentLimits.SupplyCurrentLimitEnable = false
     rollersConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
@@ -192,14 +202,10 @@ class ClimberIOTalon : ClimberIO {
   }
 
   override fun setClimberVoltage(voltage: ElectricalPotential) {
+    // ratcheting can't go backwards
     climberTalon.setControl(
       VoltageOut(
-        clamp(
-          voltage,
-          -ClimberConstants.CLIMBER_VOLTAGE_COMPENSATION,
-          ClimberConstants.CLIMBER_VOLTAGE_COMPENSATION
-        )
-          .inVolts
+        clamp(voltage, 0.0.volts, ClimberConstants.CLIMBER_VOLTAGE_COMPENSATION).inVolts
       )
     )
   }
@@ -209,8 +215,8 @@ class ClimberIOTalon : ClimberIO {
       VoltageOut(
         clamp(
           voltage,
-          -ClimberConstants.Rollers.VOLTAGE_COMPENSATION,
-          ClimberConstants.Rollers.VOLTAGE_COMPENSATION
+          -ClimberConstants.ROLLERS.VOLTAGE_COMPENSATION,
+          ClimberConstants.ROLLERS.VOLTAGE_COMPENSATION
         )
           .inVolts
       )
@@ -227,7 +233,7 @@ class ClimberIOTalon : ClimberIO {
     )
 
     // Rollers should constantly clasp to the bars while climber is moving
-    setRollersVoltage(ClimberConstants.Rollers.CLASP_VOLTAGE)
+    setRollersVoltage(ClimberConstants.ROLLERS.CLASP_VOLTAGE)
   }
 
   private fun updateSignals() {

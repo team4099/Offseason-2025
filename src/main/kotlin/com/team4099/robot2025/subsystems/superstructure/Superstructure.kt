@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import kotlin.math.abs
 import org.littletonrobotics.junction.Logger
 import org.team4099.lib.geometry.Pose3d
 import org.team4099.lib.geometry.Rotation3d
@@ -37,6 +38,7 @@ import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.volts
 import kotlin.math.max
+import org.team4099.lib.units.derived.inDegrees
 import com.team4099.robot2025.config.constants.Constants.Universal.AlgaeIntakeLevel as AlgaeIntakeLevel
 import com.team4099.robot2025.config.constants.Constants.Universal.AlgaeScoringLevel as AlgaeScoringLevel
 import com.team4099.robot2025.config.constants.Constants.Universal.CoralLevel as CoralLevel
@@ -244,7 +246,7 @@ class Superstructure(
             Transform3d(
               Translation3d(0.008.meters, 0.35.meters, 0.373.meters),
               Rotation3d(
-                ClimberConstants.FULLY_EXTENDED_ANGLE - climber.inputs.climberPosition,
+                -abs(climber.inputs.climberPosition.inDegrees - ClimberConstants.FULLY_EXTENDED_ANGLE.inDegrees).degrees,
                 0.0.degrees,
                 0.0.degrees
               )
@@ -347,31 +349,30 @@ class Superstructure(
         }
 
         // idle to request transitions
+        if (theoreticalGamePieceArm == GamePiece.NONE &&
+          theoreticalGamePieceHardstop == GamePiece.CORAL) {
+          currentRequest = SuperstructureRequest.IntakeCoral()
+          nextState = SuperstructureStates.INTAKE_CORAL_INTO_ARM
+        } else
         nextState =
-          // if you were holding a coral but dropped it
-          if (theoreticalGamePieceArm == GamePiece.NONE &&
-            theoreticalGamePieceHardstop == GamePiece.CORAL
-          )
-            SuperstructureStates.INTAKE_CORAL_INTO_ARM
-          else
-            when (currentRequest) {
-              is SuperstructureRequest.Home -> SuperstructureStates.HOME
-              is SuperstructureRequest.IntakeCoral -> SuperstructureStates.GROUND_INTAKE_CORAL
-              is SuperstructureRequest.IntakeAlgae -> {
-                if (theoreticalGamePieceArm == GamePiece.NONE) SuperstructureStates.INTAKE_ALGAE
-                else currentState
-              }
-              is SuperstructureRequest.PrepScoreCoral -> SuperstructureStates.PREP_SCORE_CORAL
-              is SuperstructureRequest.PrepScoreAlgae -> {
-                if (theoreticalGamePieceArm == GamePiece.ALGAE)
-                  SuperstructureStates.PREP_SCORE_ALGAE
-                else currentState
-              }
-              is SuperstructureRequest.ExtendClimb -> SuperstructureStates.CLIMB_EXTEND
-              is SuperstructureRequest.RetractClimb -> SuperstructureStates.CLIMB_RETRACT
-              is SuperstructureRequest.Eject -> SuperstructureStates.EJECT
-              else -> currentState
+          when (currentRequest) {
+            is SuperstructureRequest.Home -> SuperstructureStates.HOME
+            is SuperstructureRequest.IntakeCoral -> SuperstructureStates.GROUND_INTAKE_CORAL
+            is SuperstructureRequest.IntakeAlgae -> {
+              if (theoreticalGamePieceArm == GamePiece.NONE) SuperstructureStates.INTAKE_ALGAE
+              else currentState
             }
+            is SuperstructureRequest.PrepScoreCoral -> SuperstructureStates.PREP_SCORE_CORAL
+            is SuperstructureRequest.PrepScoreAlgae -> {
+              if (theoreticalGamePieceArm == GamePiece.ALGAE)
+                SuperstructureStates.PREP_SCORE_ALGAE
+              else currentState
+            }
+            is SuperstructureRequest.ExtendClimb -> SuperstructureStates.CLIMB_EXTEND
+            is SuperstructureRequest.RetractClimb -> SuperstructureStates.CLIMB_RETRACT
+            is SuperstructureRequest.Eject -> SuperstructureStates.EJECT
+            else -> currentState
+          }
       }
       SuperstructureStates.GROUND_INTAKE_CORAL -> {
         intake.currentRequest =
@@ -381,7 +382,9 @@ class Superstructure(
           )
         indexer.currentRequest = Request.IndexerRequest.Index()
 
-        if (theoreticalGamePieceHardstop == GamePiece.CORAL ||
+        if (currentRequest is SuperstructureRequest.Eject) {
+          nextState = SuperstructureStates.EJECT
+        } else if (theoreticalGamePieceHardstop == GamePiece.CORAL ||
           currentRequest is SuperstructureRequest.Idle
         ) {
           currentRequest = SuperstructureRequest.Idle()
@@ -426,9 +429,12 @@ class Superstructure(
           }
         }
 
-        if (currentRequest is SuperstructureRequest.Idle ||
+        if (currentRequest is SuperstructureRequest.Eject) {
+          nextState = SuperstructureStates.EJECT
+        } else if (currentRequest is SuperstructureRequest.Idle ||
           arm.isAtTargetedPosition && theoreticalGamePieceArm == GamePiece.CORAL
         ) {
+          currentRequest = SuperstructureRequest.Idle()
           nextState = SuperstructureStates.IDLE
         }
       }
@@ -491,7 +497,9 @@ class Superstructure(
           theoreticalGamePieceArm = GamePiece.ALGAE
         }
 
-        if (currentRequest is SuperstructureRequest.Idle ||
+        if (currentRequest is SuperstructureRequest.Eject) {
+          nextState = SuperstructureStates.EJECT
+        } else if (currentRequest is SuperstructureRequest.Idle ||
           arm.isAtTargetedPosition && theoreticalGamePieceArm == GamePiece.ALGAE
         ) {
           currentRequest = SuperstructureRequest.Idle()

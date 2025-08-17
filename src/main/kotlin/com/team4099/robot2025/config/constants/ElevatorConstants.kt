@@ -23,13 +23,13 @@ object ElevatorConstants {
   val STATOR_CURRENT_LIMIT = 60.0.amps
   val SUPPLY_CURRENT_LIMIT = 60.0.amps
 
-  val HOMING_APPLIED_VOLTAGE = -1.0.volts
+  val HOMING_APPLIED_VOLTAGE = (-1.0).volts
   val HOMING_STALL_CURRENT = 15.0.amps
   val HOMING_STALL_TIME_THRESHOLD = 0.15.seconds
 
-  val UPWARDS_EXTENSION_LIMIT: Length = 59.375000.inches
+  val UPWARDS_EXTENSION_LIMIT: Length = 59.25.inches
   val DOWNWARDS_EXTENSION_LIMIT: Length = 0.inches
-  val FIRST_STAGE_HEIGHT: Length = 25.125000.inches
+  val FIRST_STAGE_HEIGHT: Length = 26.125.inches
 
   // TODO: check?
   val MAX_VELOCITY: LinearVelocity = 144.85.inches.perSecond
@@ -64,7 +64,7 @@ object ElevatorConstants {
     val ZERO_TO_HOME_THRESHOLD = 0.0.inches
 
     val PROCESSOR = 24.4.inches - CARRIAGE_TO_BOTTOM
-    val BARGE = 70.38.inches - CARRIAGE_TO_BOTTOM
+    val BARGE = UPWARDS_EXTENSION_LIMIT - 0.25.inches
 
     // this is to make sure arm doesn't hit battery
     // note(nathan): the following should always be true statements (please please please don't

@@ -24,11 +24,9 @@ import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
-import kotlin.math.abs
 import org.littletonrobotics.junction.Logger
 import org.team4099.lib.geometry.Pose3d
 import org.team4099.lib.geometry.Rotation3d
-import org.team4099.lib.geometry.Transform3d
 import org.team4099.lib.geometry.Translation3d
 import org.team4099.lib.units.base.inInches
 import org.team4099.lib.units.base.inMeters
@@ -36,9 +34,10 @@ import org.team4099.lib.units.base.inMilliseconds
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.degrees
-import org.team4099.lib.units.derived.volts
-import kotlin.math.max
 import org.team4099.lib.units.derived.inDegrees
+import org.team4099.lib.units.derived.volts
+import kotlin.math.abs
+import kotlin.math.max
 import com.team4099.robot2025.config.constants.Constants.Universal.AlgaeIntakeLevel as AlgaeIntakeLevel
 import com.team4099.robot2025.config.constants.Constants.Universal.AlgaeScoringLevel as AlgaeScoringLevel
 import com.team4099.robot2025.config.constants.Constants.Universal.CoralLevel as CoralLevel
@@ -167,91 +166,79 @@ class Superstructure(
     Logger.recordOutput(
       "SimulatedMechanisms/0",
       toDoubleArray(
-        Pose3d()
-          .transformBy(
-            Transform3d(
-              Translation3d(
-                0.0.inches,
-                0.0.inches,
-                max(
-                  elevator.inputs.elevatorPosition.inInches -
-                    ElevatorConstants.FIRST_STAGE_HEIGHT.inInches,
-                  0.0
-                )
-                  .inches
-              ),
-              Rotation3d()
+        Pose3d(
+          Translation3d(
+            0.0.inches,
+            0.0.inches,
+            max(
+              elevator.inputs.elevatorPosition.inInches -
+                ElevatorConstants.FIRST_STAGE_HEIGHT.inInches,
+              0.0
             )
-          )
+              .inches
+          ),
+          Rotation3d()
+        )
       )
     )
 
     Logger.recordOutput(
       "SimulatedMechanisms/1",
       toDoubleArray(
-        Pose3d()
-          .transformBy(
-            Transform3d(
-              Translation3d(0.0.inches, 0.0.inches, elevator.inputs.elevatorPosition),
-              Rotation3d()
-            )
-          )
+        Pose3d(
+          Translation3d(0.0.inches, 0.0.inches, elevator.inputs.elevatorPosition),
+          Rotation3d()
+        )
       )
     )
 
     Logger.recordOutput(
       "SimulatedMechanisms/2",
       toDoubleArray(
-        Pose3d()
-          .transformBy(
-            Transform3d(
-              Translation3d((-11.75).inches, 0.0.inches, 12.5747.inches),
-              Rotation3d(
-                0.0.degrees,
-                IntakeConstants.ANGLES.INTAKE_ANGLE - intake.inputs.pivotPosition,
-                0.0.degrees
-              ) // model starts in intaking position
-            )
-          )
+        Pose3d(
+          Translation3d((-11.75).inches, 0.0.inches, 12.5747.inches),
+          Rotation3d(
+            0.0.degrees,
+            IntakeConstants.ANGLES.INTAKE_ANGLE - intake.inputs.pivotPosition,
+            0.0.degrees
+          ) // model starts in intaking position
+        )
       )
     )
 
     Logger.recordOutput(
       "SimulatedMechanisms/3",
       toDoubleArray(
-        Pose3d()
-          .transformBy(
-            Transform3d(
-              Translation3d(
-                0.0.inches,
-                0.0.inches,
-                elevator.inputs.elevatorPosition +
-                  ElevatorConstants.CARRIAGE_TO_BOTTOM_SIM
-              ),
-              Rotation3d(
-                0.0.degrees,
-                ArmConstants.ANGLES.SIM_MECH_OFFSET - arm.inputs.armPosition,
-                0.0.degrees
-              )
-            )
+        Pose3d(
+          Translation3d(
+            0.0.inches,
+            0.0.inches,
+            elevator.inputs.elevatorPosition + ElevatorConstants.CARRIAGE_TO_BOTTOM_SIM
+          ),
+          Rotation3d(
+            0.0.degrees,
+            ArmConstants.ANGLES.SIM_MECH_OFFSET - arm.inputs.armPosition,
+            0.0.degrees
           )
+        )
       )
     )
 
     Logger.recordOutput(
       "SimulatedMechanisms/4",
       toDoubleArray(
-        Pose3d()
-          .transformBy(
-            Transform3d(
-              Translation3d(0.008.meters, 0.35.meters, 0.373.meters),
-              Rotation3d(
-                -abs(climber.inputs.climberPosition.inDegrees - ClimberConstants.FULLY_EXTENDED_ANGLE.inDegrees).degrees,
-                0.0.degrees,
-                0.0.degrees
-              )
+        Pose3d(
+          Translation3d(0.008.meters, 0.35.meters, 0.373.meters),
+          Rotation3d(
+            -abs(
+              climber.inputs.climberPosition.inDegrees -
+                ClimberConstants.FULLY_EXTENDED_ANGLE.inDegrees
             )
+              .degrees,
+            0.0.degrees,
+            0.0.degrees
           )
+        )
       )
     )
 
@@ -350,29 +337,30 @@ class Superstructure(
 
         // idle to request transitions
         if (theoreticalGamePieceArm == GamePiece.NONE &&
-          theoreticalGamePieceHardstop == GamePiece.CORAL) {
+          theoreticalGamePieceHardstop == GamePiece.CORAL
+        ) {
           currentRequest = SuperstructureRequest.IntakeCoral()
           nextState = SuperstructureStates.INTAKE_CORAL_INTO_ARM
         } else
-        nextState =
-          when (currentRequest) {
-            is SuperstructureRequest.Home -> SuperstructureStates.HOME
-            is SuperstructureRequest.IntakeCoral -> SuperstructureStates.GROUND_INTAKE_CORAL
-            is SuperstructureRequest.IntakeAlgae -> {
-              if (theoreticalGamePieceArm == GamePiece.NONE) SuperstructureStates.INTAKE_ALGAE
-              else currentState
+          nextState =
+            when (currentRequest) {
+              is SuperstructureRequest.Home -> SuperstructureStates.HOME
+              is SuperstructureRequest.IntakeCoral -> SuperstructureStates.GROUND_INTAKE_CORAL
+              is SuperstructureRequest.IntakeAlgae -> {
+                if (theoreticalGamePieceArm == GamePiece.NONE) SuperstructureStates.INTAKE_ALGAE
+                else currentState
+              }
+              is SuperstructureRequest.PrepScoreCoral -> SuperstructureStates.PREP_SCORE_CORAL
+              is SuperstructureRequest.PrepScoreAlgae -> {
+                if (theoreticalGamePieceArm == GamePiece.ALGAE)
+                  SuperstructureStates.PREP_SCORE_ALGAE
+                else currentState
+              }
+              is SuperstructureRequest.ExtendClimb -> SuperstructureStates.CLIMB_EXTEND
+              is SuperstructureRequest.RetractClimb -> SuperstructureStates.CLIMB_RETRACT
+              is SuperstructureRequest.Eject -> SuperstructureStates.EJECT
+              else -> currentState
             }
-            is SuperstructureRequest.PrepScoreCoral -> SuperstructureStates.PREP_SCORE_CORAL
-            is SuperstructureRequest.PrepScoreAlgae -> {
-              if (theoreticalGamePieceArm == GamePiece.ALGAE)
-                SuperstructureStates.PREP_SCORE_ALGAE
-              else currentState
-            }
-            is SuperstructureRequest.ExtendClimb -> SuperstructureStates.CLIMB_EXTEND
-            is SuperstructureRequest.RetractClimb -> SuperstructureStates.CLIMB_RETRACT
-            is SuperstructureRequest.Eject -> SuperstructureStates.EJECT
-            else -> currentState
-          }
       }
       SuperstructureStates.GROUND_INTAKE_CORAL -> {
         intake.currentRequest =

@@ -230,11 +230,15 @@ class Superstructure(
         Pose3d(
           Translation3d(0.008.meters, 0.35.meters, 0.373.meters),
           Rotation3d(
-            -abs(
-              climber.inputs.climberPosition.inDegrees -
+            -(
+              -ClimberConstants.SIM_CLIMBED_ANGLE.inDegrees *
+                abs(
+                  climber.inputs.climberPosition.inDegrees -
+                    ClimberConstants.FULLY_EXTENDED_ANGLE.inDegrees
+                ) /
                 ClimberConstants.FULLY_EXTENDED_ANGLE.inDegrees
-            )
-              .degrees,
+              )
+              .degrees, // ratchet to mechanism math
             0.0.degrees,
             0.0.degrees
           )

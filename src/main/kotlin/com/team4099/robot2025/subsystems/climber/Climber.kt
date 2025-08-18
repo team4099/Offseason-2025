@@ -38,7 +38,7 @@ class Climber(private val io: ClimberIO) : SubsystemBase() {
 
   val isFullyClimbed: Boolean
     get() =
-      inputs.climberPosition - ClimberConstants.TARGET_TOLERANCE <=
+      inputs.climberPosition - ClimberConstants.TARGET_TOLERANCE >=
         ClimberConstants.FULLY_CLIMBED_ANGLE
 
   val isFullyExtended: Boolean
@@ -108,6 +108,7 @@ class Climber(private val io: ClimberIO) : SubsystemBase() {
     CustomLogger.recordOutput("Climber/climberTargetPosition", climberTargetPosition.inDegrees)
 
     CustomLogger.recordOutput("Climber/isFullyClimbed", isFullyClimbed)
+    CustomLogger.recordOutput("Climber/isFullyExtended", isFullyExtended)
 
     var nextState: ClimberState = currentState
 

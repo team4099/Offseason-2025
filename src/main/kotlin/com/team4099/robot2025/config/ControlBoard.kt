@@ -43,8 +43,8 @@ object ControlBoard {
 
   val intakeCoral = Trigger { operator.rightTriggerAxis > 0.5 }
   val score = Trigger { driver.rightTriggerAxis > 0.5 }
-  val climbExtend = Trigger { operator.dPadUp }
-  val climbRetract = Trigger { operator.startButton && operator.selectButton }
+  val climbExtend = Trigger { operator.startButton }
+  val climbRetract = Trigger { operator.selectButton }
 
   val prepL1OrAlgaeGround = Trigger { operator.xButton }
   val prepL2OrProcessor = Trigger { operator.aButton }

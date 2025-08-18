@@ -40,8 +40,8 @@ object ClimberIOSim : ClimberIO {
       1 / ClimberConstants.GEAR_RATIO,
       ClimberConstants.INERTIA.inKilogramsMeterSquared,
       ClimberConstants.LENGTH.inMeters,
+      ClimberConstants.IDLE_ANGLE.inRadians,
       ClimberConstants.FULLY_CLIMBED_ANGLE.inRadians,
-      ClimberConstants.FULLY_EXTENDED_ANGLE.inRadians,
       false,
       ClimberConstants.IDLE_ANGLE.inRadians
     )

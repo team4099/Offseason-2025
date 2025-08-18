@@ -38,12 +38,12 @@ class Climber(private val io: ClimberIO) : SubsystemBase() {
 
   val isFullyClimbed: Boolean
     get() =
-      inputs.climberPosition - ClimberConstants.TARGET_TOLERANCE >=
+      inputs.climberPosition + ClimberConstants.TARGET_TOLERANCE >=
         ClimberConstants.FULLY_CLIMBED_ANGLE
 
   val isFullyExtended: Boolean
     get() =
-      inputs.climberPosition - ClimberConstants.TARGET_TOLERANCE >=
+      inputs.climberPosition + ClimberConstants.TARGET_TOLERANCE >=
         ClimberConstants.FULLY_EXTENDED_ANGLE
 
   init {

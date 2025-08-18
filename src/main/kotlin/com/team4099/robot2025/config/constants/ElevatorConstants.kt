@@ -20,8 +20,8 @@ object ElevatorConstants {
   val GEAR_RATIO: Double = 12.0 / 48.0
   val CARRIAGE_MASS: Mass = 7.2911706.pounds + ArmConstants.ARM_MASS
 
-  val STATOR_CURRENT_LIMIT = 60.0.amps
-  val SUPPLY_CURRENT_LIMIT = 60.0.amps
+  val STATOR_CURRENT_LIMIT = 40.0.amps
+  val SUPPLY_CURRENT_LIMIT = 40.0.amps
 
   val HOMING_APPLIED_VOLTAGE = (-1.0).volts
   val HOMING_STALL_CURRENT = 15.0.amps

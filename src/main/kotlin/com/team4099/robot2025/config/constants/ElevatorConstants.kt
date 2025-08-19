@@ -72,7 +72,7 @@ object ElevatorConstants {
     // CLEARS_ROBOT < IDLE
     // CLEARS_ROBOT < IDLE_CORAL
     val CLEARS_ROBOT =
-      16.5.inches // todo update with final robot to make sure nothing breaks !!!!!!
+      18.0.inches // todo update with final robot to make sure nothing breaks !!!!!!
 
     val EJECT = IDLE_CORAL
   }

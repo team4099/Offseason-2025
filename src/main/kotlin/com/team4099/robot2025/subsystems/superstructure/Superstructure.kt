@@ -281,8 +281,13 @@ class Superstructure(
         elevator.currentRequest = Request.ElevatorRequest.Home()
 
         if (elevator.isHomed) {
-          nextState = SuperstructureStates.IDLE
+          nextState =
+            if (Constants.Tuning.TUNING_MODE) SuperstructureStates.TUNING
+            else SuperstructureStates.IDLE
         }
+      }
+      SuperstructureStates.TUNING -> {
+        if (currentRequest is SuperstructureRequest.Idle) nextState = SuperstructureStates.IDLE
       }
       SuperstructureStates.IDLE -> {
         climber.currentRequest = Request.ClimberRequest.OpenLoop(0.0.volts, 0.0.volts)
@@ -894,6 +899,7 @@ class Superstructure(
   companion object {
     enum class SuperstructureStates {
       UNINITIALIZED,
+      TUNING,
       HOME_PREP,
       HOME,
       IDLE,

@@ -1,3 +1,5 @@
+package com.team4099.robot2025.subsystems.intake
+
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 import org.team4099.lib.units.base.amps

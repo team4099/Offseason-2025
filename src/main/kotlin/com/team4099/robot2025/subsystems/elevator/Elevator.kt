@@ -21,6 +21,11 @@ class Elevator(private val io: ElevatorIO) : SubsystemBase() {
   val lowerLimitReached: Boolean
     get() = inputs.elevatorPosition <= ElevatorConstants.DOWNWARDS_EXTENSION_LIMIT
 
+  val clearsRobot: Boolean
+    get() =
+      inputs.elevatorPosition - ElevatorConstants.ELEVATOR_TOLERANCE >=
+        ElevatorConstants.HEIGHTS.CLEARS_ROBOT
+
   var isHomed = false
     private set
 
@@ -59,19 +64,22 @@ class Elevator(private val io: ElevatorIO) : SubsystemBase() {
       ElevatorTunableValues.kP.initDefault(ElevatorConstants.PID.REAL_KP)
       ElevatorTunableValues.kI.initDefault(ElevatorConstants.PID.REAL_KI)
       ElevatorTunableValues.kD.initDefault(ElevatorConstants.PID.REAL_KD)
+
+      ElevatorTunableValues.kGFirst.initDefault(ElevatorConstants.PID.KG_FIRST_STAGE)
+      ElevatorTunableValues.kGSecond.initDefault(ElevatorConstants.PID.KG_SECOND_STAGE)
     } else {
       isHomed = true
 
       ElevatorTunableValues.kP.initDefault(ElevatorConstants.PID.SIM_KP)
       ElevatorTunableValues.kI.initDefault(ElevatorConstants.PID.SIM_KI)
       ElevatorTunableValues.kD.initDefault(ElevatorConstants.PID.SIM_KD)
+
+      ElevatorTunableValues.kGFirst.initDefault(ElevatorConstants.PID.KG_SIM)
     }
 
     ElevatorTunableValues.kS.initDefault(ElevatorConstants.PID.KS)
     ElevatorTunableValues.kV.initDefault(ElevatorConstants.PID.KV)
     ElevatorTunableValues.kA.initDefault(ElevatorConstants.PID.KA)
-    ElevatorTunableValues.kGFirst.initDefault(ElevatorConstants.PID.KG_FIRST_STAGE)
-    ElevatorTunableValues.kGSecond.initDefault(ElevatorConstants.PID.KG_SECOND_STAGE)
 
     io.configPID(
       ElevatorTunableValues.kP.get(),

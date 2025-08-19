@@ -1,3 +1,6 @@
+package com.team4099.robot2025.subsystems.intake
+
+import com.team4099.robot2025.config.constants.IntakeConstants
 import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj2.command.SubsystemBase
@@ -35,6 +38,14 @@ class Intake(private val io: IntakeIO) : SubsystemBase() {
       field = value
     }
 
+  val isAtTargetedPosition: Boolean
+    get() =
+      (
+        currentRequest is Request.IntakeRequest.TargetingPosition &&
+          (inputs.pivotPosition - pivotPositionTarget).absoluteValue <=
+          IntakeConstants.INTAKE_TOLERANCE
+        )
+
   override fun periodic() {
     io.updateInputs(inputs)
     CustomLogger.processInputs("Intake", inputs)
@@ -45,6 +56,8 @@ class Intake(private val io: IntakeIO) : SubsystemBase() {
     CustomLogger.recordOutput("Intake/pivotTargetPosition", pivotPositionTarget.inDegrees)
     CustomLogger.recordOutput("Intake/pivotTargetVoltage", pivotVoltageTarget.inVolts)
     CustomLogger.recordOutput("Intake/rollerVoltageTarget", rollerVoltageTarget.inVolts)
+
+    CustomLogger.recordOutput("Intake/isAtTargetedPosition", isAtTargetedPosition)
 
     when (currentState) {
       IntakeState.UNINITIALIZED -> {

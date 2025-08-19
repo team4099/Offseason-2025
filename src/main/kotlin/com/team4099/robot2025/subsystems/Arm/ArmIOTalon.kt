@@ -102,6 +102,7 @@ object ArmIOTalon : ArmIO {
     absoluteEncoderSignal = absoluteEncoder.position
 
     armTalon.configurator.apply(configs)
+    absoluteEncoder.configurator.apply(absoluteEncoderConfig)
   }
 
   override fun updateInputs(inputs: ArmIO.ArmIOInputs) {
@@ -125,12 +126,11 @@ object ArmIOTalon : ArmIO {
     kI: IntegralGain<Radian, Volt>,
     kD: DerivativeGain<Radian, Volt>
   ) {
-    val PIDConfig = slot0Configs
-    PIDConfig.kP = kP.inVoltsPerRadian
-    PIDConfig.kI = kI.inVoltsPerRadianSeconds
-    PIDConfig.kD = kD.inVoltsPerRadianPerSecond
+    slot0Configs.kP = kP.inVoltsPerRadian
+    slot0Configs.kI = kI.inVoltsPerRadianSeconds
+    slot0Configs.kD = kD.inVoltsPerRadianPerSecond
 
-    armTalon.configurator.apply(PIDConfig)
+    armTalon.configurator.apply(slot0Configs)
   }
 
   override fun configFF(
@@ -139,14 +139,12 @@ object ArmIOTalon : ArmIO {
     kV: VelocityFeedforward<Radian, Volt>,
     kA: AccelerationFeedforward<Radian, Volt>,
   ) {
-    val FFConfig = slot0Configs
+    slot0Configs.kG = kG.inVolts
+    slot0Configs.kS = kS.inVolts
+    slot0Configs.kA = kA.inVoltsPerRadiansPerSecondPerSecond
+    slot0Configs.kV = kV.inVoltsPerRadianPerSecond
 
-    FFConfig.kG = kG.inVolts
-    FFConfig.kS = kS.inVolts
-    FFConfig.kA = kA.inVoltsPerRadiansPerSecondPerSecond
-    FFConfig.kV = kV.inVoltsPerRadianPerSecond
-
-    armTalon.configurator.apply(FFConfig)
+    armTalon.configurator.apply(slot0Configs)
   }
 
   override fun zeroEncoder() {

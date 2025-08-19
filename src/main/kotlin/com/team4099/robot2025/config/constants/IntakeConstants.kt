@@ -1,6 +1,7 @@
 package com.team4099.robot2025.config.constants
 
 import org.team4099.lib.units.base.amps
+import org.team4099.lib.units.base.grams
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.pounds
 import org.team4099.lib.units.base.seconds
@@ -10,23 +11,26 @@ import org.team4099.lib.units.derived.ProportionalGain
 import org.team4099.lib.units.derived.Radian
 import org.team4099.lib.units.derived.Volt
 import org.team4099.lib.units.derived.degrees
+import org.team4099.lib.units.derived.meterSquared
 import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.perSecond
 
 object IntakeConstants {
   val ZERO_OFFSET = 0.0.degrees
-  val PIVOT_GEAR_RATIO = 20.0 / 1.0
+  val PIVOT_GEAR_RATIO = (8.0 / 40.0) * (16.0 / 50.0) * (16.0 / 42.0)
 
-  val PIVOT_INERTIA = 17.586.pounds * 1.0.inches.squared
-  val PIVOT_LENGTH = 13.51441.inches
+  val INTAKE_TOLERANCE = 1.0.degrees
+
+  val PIVOT_INERTIA = 6.75267323.grams.meterSquared
+  val PIVOT_LENGTH = 19.414122.inches
   val PIVOT_MAX_ANGLE = 145.0.degrees
   val PIVOT_MIN_ANGLE = 0.0.degrees
 
   // Feedforward Constants
   val PIVOT_KA = 0.0.volts / 1.0.radians.perSecond.perSecond
   val PIVOT_KV = 0.0.volts / 1.0.radians.perSecond
-  val PIVOT_KG = 0.15.volts
+  val PIVOT_KG = 0.0.volts
   val PIVOT_KS = 0.0.volts
 
   val STATOR_CURRENT_LIMIT = 60.amps
@@ -40,11 +44,16 @@ object IntakeConstants {
   val SIM_VELOCITY = 400.degrees.perSecond
   val SIM_ACCELERATION = 400.degrees.perSecond.perSecond
 
+  object ANGLES {
+    val INTAKE_ANGLE = 120.0.degrees
+    val STOW_ANGLE = 0.0.degrees
+  }
+
   object PID {
     // PID Constants
-    val SIM_PIVOT_KP: ProportionalGain<Radian, Volt> = 0.15.volts / 1.0.degrees
-    val SIM_PIVOT_KI: IntegralGain<Radian, Volt> = 0.01.volts / (1.0.degrees * 1.0.seconds)
-    val SIM_PIVOT_KD: DerivativeGain<Radian, Volt> = 0.004.volts / 1.0.degrees.perSecond
+    val SIM_PIVOT_KP: ProportionalGain<Radian, Volt> = 1.0.volts / 1.0.degrees
+    val SIM_PIVOT_KI: IntegralGain<Radian, Volt> = 0.0.volts / (1.0.degrees * 1.0.seconds)
+    val SIM_PIVOT_KD: DerivativeGain<Radian, Volt> = 0.0.volts / 1.0.degrees.perSecond
 
     val REAL_PIVOT_KP: ProportionalGain<Radian, Volt> = 7.volts / 1.0.degrees
     val REAL_PIVOT_KI: IntegralGain<Radian, Volt> = 0.0.volts / (1.0.degrees * 1.0.seconds)
@@ -55,9 +64,14 @@ object IntakeConstants {
     val GEAR_RATIO = 1 / 1.0
     val INERTIA = 5.141e-13.pounds * 1.0.inches.squared
 
+    val IDLE_VOLTAGE = 0.volts
+
     val VOLTAGE_COMPENSATION = 12.volts
 
     val STATOR_CURRENT_LIMIT = 40.amps
     val SUPPLY_CURRENT_LIMIT = 40.amps
+
+    val INTAKE_VOLTAGE = 1.0.volts
+    val EJECT_VOLTAGE = -(3.0).volts
   }
 }

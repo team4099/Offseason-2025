@@ -4,11 +4,15 @@ import com.team4099.lib.math.clamp
 import com.team4099.robot2025.config.constants.ArmConstants
 import com.team4099.robot2025.config.constants.Constants
 import edu.wpi.first.math.system.plant.DCMotor
+import edu.wpi.first.wpilibj.simulation.BatterySim
+import edu.wpi.first.wpilibj.simulation.RoboRioSim
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim
 import org.team4099.lib.controller.ArmFeedforward
-import org.team4099.lib.controller.PIDController
+import org.team4099.lib.controller.ProfiledPIDController
+import org.team4099.lib.controller.TrapezoidProfile
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.celsius
+import org.team4099.lib.units.base.inKilograms
 import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.derived.AccelerationFeedforward
@@ -22,7 +26,6 @@ import org.team4099.lib.units.derived.StaticFeedforward
 import org.team4099.lib.units.derived.VelocityFeedforward
 import org.team4099.lib.units.derived.Volt
 import org.team4099.lib.units.derived.degrees
-import org.team4099.lib.units.derived.inKilogramsMeterSquared
 import org.team4099.lib.units.derived.inRadians
 import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.radians
@@ -33,8 +36,10 @@ object ArmIOSIm : ArmIO {
   val armSim =
     SingleJointedArmSim(
       DCMotor.getKrakenX60Foc(1),
-      1 / ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO,
-      ArmConstants.ARM_MOMENT_OF_INERTIA.inKilogramsMeterSquared,
+      1 / ArmConstants.GEAR_RATIO,
+      SingleJointedArmSim.estimateMOI(
+        ArmConstants.ARM_LENGTH.inMeters, ArmConstants.ARM_MASS.inKilograms
+      ),
       ArmConstants.ARM_LENGTH.inMeters,
       ArmConstants.MIN_ROTATION.inRadians,
       ArmConstants.MAX_ROTATION.inRadians,
@@ -45,10 +50,11 @@ object ArmIOSIm : ArmIO {
   var armTargetPos = -1337.degrees
 
   private val armController =
-    PIDController(
+    ProfiledPIDController(
       ArmConstants.PID.SIM_KP,
       ArmConstants.PID.SIM_KI,
       ArmConstants.PID.SIM_KD,
+      TrapezoidProfile.Constraints(ArmConstants.MAX_VELOCITY, ArmConstants.MAX_ACCELERATION)
     )
 
   private var armFeedforward =
@@ -61,7 +67,7 @@ object ArmIOSIm : ArmIO {
   override fun updateInputs(inputs: ArmIO.ArmIOInputs) {
     armSim.update(Constants.Universal.LOOP_PERIOD_TIME.inSeconds)
 
-    inputs.armPosition = armTargetPos
+    inputs.armPosition = armSim.angleRads.radians
     inputs.armVelocity = armSim.velocityRadPerSec.radians.perSecond
     inputs.armSupplyCurrent = 0.amps
     inputs.armAppliedVoltage = appliedVoltage
@@ -69,6 +75,10 @@ object ArmIOSIm : ArmIO {
     inputs.armTemperature = 0.0.celsius
 
     inputs.isSimulated = true
+
+    RoboRioSim.setVInVoltage(
+      BatterySim.calculateDefaultBatteryLoadedVoltage(armSim.currentDrawAmps)
+    )
   }
 
   override fun setVoltage(targetVoltage: ElectricalPotential) {

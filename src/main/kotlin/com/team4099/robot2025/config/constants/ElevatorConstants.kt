@@ -18,19 +18,18 @@ object ElevatorConstants {
   val VOLTAGE_COMPENSATION: ElectricalPotential = 12.0.volts
   val SPOOL_DIAMETER: Length = 2.0.inches
   val GEAR_RATIO: Double = 12.0 / 48.0
-  val CARRIAGE_MASS: Mass =
-    15.0.pounds // semi-accurate, tbf this value is only used in sim so its whatever
+  val CARRIAGE_MASS: Mass = 7.2911706.pounds + ArmConstants.ARM_MASS
 
-  val STATOR_CURRENT_LIMIT = 60.0.amps
-  val SUPPLY_CURRENT_LIMIT = 60.0.amps
+  val STATOR_CURRENT_LIMIT = 40.0.amps
+  val SUPPLY_CURRENT_LIMIT = 40.0.amps
 
-  val HOMING_APPLIED_VOLTAGE = -1.0.volts
+  val HOMING_APPLIED_VOLTAGE = (-1.0).volts
   val HOMING_STALL_CURRENT = 15.0.amps
   val HOMING_STALL_TIME_THRESHOLD = 0.15.seconds
 
-  val UPWARDS_EXTENSION_LIMIT: Length = 59.375000.inches
+  val UPWARDS_EXTENSION_LIMIT: Length = 59.25.inches
   val DOWNWARDS_EXTENSION_LIMIT: Length = 0.inches
-  val FIRST_STAGE_HEIGHT: Length = 25.125000.inches
+  val FIRST_STAGE_HEIGHT: Length = 26.125.inches
 
   // TODO: check?
   val MAX_VELOCITY: LinearVelocity = 144.85.inches.perSecond
@@ -38,25 +37,44 @@ object ElevatorConstants {
 
   val ELEVATOR_TOLERANCE = 0.2.inches
 
+  val CARRIAGE_TO_BOTTOM = 11.0.inches
+  val CARRIAGE_TO_BOTTOM_SIM = 0.3.meters // idk why its diff but this works better for as
+
   object HEIGHTS {
-    val IDLE = 0.0.inches
-    val IDLE_CORAL = 0.0.inches
-    val IDLE_ALGAE = 0.0.inches
+    // note(nathan): make the best attempt to keep IDLE and IDLE_CORAL the same.
+    // IDLE and IDLE_CORAL should be high enough that arm CLEARS TROUGH during movement ( > 21 in)
+    val IDLE = 22.42.inches
+    val IDLE_CORAL = 22.42.inches
+    val IDLE_ALGAE = 11.9.inches
+    val CLIMB_HEIGHT = 25.0.inches
 
-    val INTAKE_CORAL = 0.0.inches
-    val INTAKE_ALGAE_GROUND = 0.0.inches
-    val INTAKE_ALGAE_LOW = 0.0.inches
-    val INTAKE_ALGAE_HIGH = 0.0.inches
+    val INTAKE_CORAL = 16.25.inches // todo remeasure
+    val INTAKE_ALGAE_GROUND = 11.0.inches - CARRIAGE_TO_BOTTOM
+    val INTAKE_ALGAE_LOW = 34.56.inches - CARRIAGE_TO_BOTTOM
+    val INTAKE_ALGAE_HIGH = 50.46.inches - CARRIAGE_TO_BOTTOM
 
-    val L1 = 0.0.inches
-    val L2 = 0.0.inches
-    val L3 = 0.0.inches
-    val L4 = 0.0.inches
+    val L1 = 28.25.inches - CARRIAGE_TO_BOTTOM - 0.5.inches
+    val L2 = 24.4.inches - CARRIAGE_TO_BOTTOM
+    val L3 = 40.25.inches - CARRIAGE_TO_BOTTOM
+    val L4 = 63.03.inches - CARRIAGE_TO_BOTTOM
 
-    val PROCESSOR = 0.0.inches
-    val BARGE = 0.0.inches
+    // prevent clipping rising up to L1
+    val L1_INIT = L1 + 4.0.inches
 
-    val EJECT = 0.0.inches
+    val ZERO_TO_HOME_THRESHOLD = 0.0.inches
+
+    val PROCESSOR = 24.4.inches - CARRIAGE_TO_BOTTOM
+    val BARGE = UPWARDS_EXTENSION_LIMIT - 0.25.inches
+
+    // this is to make sure arm doesn't hit battery
+    // note(nathan): the following should always be true statements (please please please don't
+    // change 👍👍👍👍👍)
+    // CLEARS_ROBOT < IDLE
+    // CLEARS_ROBOT < IDLE_CORAL
+    val CLEARS_ROBOT =
+      18.0.inches // todo update with final robot to make sure nothing breaks !!!!!!
+
+    val EJECT = IDLE_CORAL
   }
 
   object PID {
@@ -65,16 +83,17 @@ object ElevatorConstants {
     val REAL_KI = 0.0.volts / (1.inches * 1.seconds)
     val REAL_KD = 0.0.volts / (1.inches.perSecond)
 
-    val SIM_KP = 2.4.volts / 1.inches
+    val SIM_KP = 1.95.volts / 1.inches
     val SIM_KI = 0.0.volts / (1.inches * 1.seconds)
-    val SIM_KD = 0.9.volts / (1.inches.perSecond)
+    val SIM_KD = 0.23.volts / (1.inches.perSecond)
 
     val KS = 0.0.volts
     val KV = ((1 / MAX_VELOCITY.inMetersPerSecond).volts) / 1.0.meters.perSecond //  0.037
-    val KA = (0.0.volts) / 1.0.meters.perSecond.perSecond // 0.0025
+    val KA = (2.0.volts) / 1.0.meters.perSecond.perSecond // 0.0025
 
     val KV_ADD = (0.0.volts) / 1.0.meters.perSecond //  0.037
 
+    val KG_SIM = 0.3.volts
     val KG_FIRST_STAGE = 0.0.volts
     val KG_SECOND_STAGE = 0.0.volts
   }

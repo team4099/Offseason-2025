@@ -2,11 +2,13 @@ package com.team4099.robot2025.subsystems.Arm
 
 import com.team4099.robot2025.config.constants.ArmConstants
 import com.team4099.robot2025.subsystems.superstructure.Request
+import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.SubsystemBase
-import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.degrees
+import org.team4099.lib.units.derived.inDegrees
+import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.volts
 
 class Arm(val io: ArmIO) : SubsystemBase() {
@@ -21,7 +23,12 @@ class Arm(val io: ArmIO) : SubsystemBase() {
   private var lastArmPositionTarget = -1337.0.degrees
   private var armPositionTarget = 0.0.degrees
 
-  private var armToleranceRequested: Angle = ArmConstants.ARM_TOLERANCE
+  val isAtTargetedPosition: Boolean
+    get() =
+      (
+        currentRequest is Request.ArmRequest.ClosedLoop &&
+          (inputs.armPosition - armPositionTarget).absoluteValue <= ArmConstants.ARM_TOLERANCE
+        )
 
   var currentRequest: Request.ArmRequest = Request.ArmRequest.Home()
     set(value) {
@@ -31,7 +38,6 @@ class Arm(val io: ArmIO) : SubsystemBase() {
         }
         is Request.ArmRequest.ClosedLoop -> {
           armPositionTarget = value.armPosition
-          armToleranceRequested = value.armTolerance
         }
         else -> {}
       }
@@ -74,6 +80,16 @@ class Arm(val io: ArmIO) : SubsystemBase() {
 
   override fun periodic() {
     io.updateInputs(inputs)
+
+    CustomLogger.processInputs("Arm", inputs)
+
+    CustomLogger.recordOutput("Arm/currentState", currentState.name)
+
+    CustomLogger.recordOutput("Arm/currentRequest", currentRequest.javaClass.simpleName)
+    CustomLogger.recordOutput("Arm/isAtTargetPosition", isAtTargetedPosition)
+
+    CustomLogger.recordOutput("Arm/targetVoltage", armTargetVoltage.inVolts)
+    CustomLogger.recordOutput("Arm/targetPosition", armPositionTarget.inDegrees)
 
     if (ArmTunableValues.armkP.hasChanged() ||
       ArmTunableValues.armkI.hasChanged() ||

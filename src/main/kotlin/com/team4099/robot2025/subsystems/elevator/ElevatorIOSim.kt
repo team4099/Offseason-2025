@@ -39,7 +39,7 @@ object ElevatorIOSim : ElevatorIO {
       ElevatorConstants.SPOOL_DIAMETER.inMeters / 2.0,
       ElevatorConstants.DOWNWARDS_EXTENSION_LIMIT.inMeters,
       ElevatorConstants.UPWARDS_EXTENSION_LIMIT.inMeters,
-      true,
+      false,
       0.0
     )
 
@@ -55,18 +55,10 @@ object ElevatorIOSim : ElevatorIO {
       )
     )
 
-  private var elevatorFFControllerFirstStage =
+  private var elevatorFFController =
     ElevatorFeedforward(
       ElevatorConstants.PID.KS,
-      ElevatorConstants.PID.KG_FIRST_STAGE,
-      ElevatorConstants.PID.KV,
-      ElevatorConstants.PID.KA
-    )
-
-  private var elevatorFFControllerSecondStage =
-    ElevatorFeedforward(
-      ElevatorConstants.PID.KS,
-      ElevatorConstants.PID.KG_SECOND_STAGE,
+      ElevatorConstants.PID.KG_SIM,
       ElevatorConstants.PID.KV,
       ElevatorConstants.PID.KA
     )
@@ -110,15 +102,7 @@ object ElevatorIOSim : ElevatorIO {
     elevatorPIDController.setGoal(position)
     val pidOutput = elevatorPIDController.calculate(elevatorSim.positionMeters.meters)
     val ffOutput =
-      if (elevatorSim.positionMeters < ElevatorConstants.FIRST_STAGE_HEIGHT.inMeters) {
-        elevatorFFControllerFirstStage.calculate(
-          elevatorSim.velocityMetersPerSecond.meters.perSecond
-        )
-      } else {
-        elevatorFFControllerSecondStage.calculate(
-          elevatorSim.velocityMetersPerSecond.meters.perSecond
-        )
-      }
+      elevatorFFController.calculate(elevatorSim.velocityMetersPerSecond.meters.perSecond)
     setVoltage(pidOutput + ffOutput)
   }
 
@@ -147,7 +131,6 @@ object ElevatorIOSim : ElevatorIO {
     kA: AccelerationFeedforward<Meter, Volt>
   ) {
     // why is there no set method for ElevatorFeedforward lol
-    elevatorFFControllerFirstStage = ElevatorFeedforward(kS, kGFirstStage, kV, kA)
-    elevatorFFControllerSecondStage = ElevatorFeedforward(kS, kGSecondStage, kV, kA)
+    elevatorFFController = ElevatorFeedforward(kS, kGFirstStage, kV, kA)
   }
 }

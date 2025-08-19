@@ -5,9 +5,12 @@ import com.team4099.robot2025.config.constants.ClimberConstants
 import com.team4099.robot2025.config.constants.Constants
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.math.system.plant.LinearSystemId
+import edu.wpi.first.wpilibj.simulation.BatterySim
 import edu.wpi.first.wpilibj.simulation.FlywheelSim
+import edu.wpi.first.wpilibj.simulation.RoboRioSim
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim
-import org.team4099.lib.controller.PIDController
+import org.team4099.lib.controller.ProfiledPIDController
+import org.team4099.lib.controller.TrapezoidProfile
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.celsius
 import org.team4099.lib.units.base.inMeters
@@ -30,33 +33,38 @@ import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.perMinute
 import org.team4099.lib.units.perSecond
 
-class ClimberIOSim : ClimberIO {
+object ClimberIOSim : ClimberIO {
   private val climberSim: SingleJointedArmSim =
     SingleJointedArmSim(
       DCMotor.getKrakenX60(1),
       1 / ClimberConstants.GEAR_RATIO,
       ClimberConstants.INERTIA.inKilogramsMeterSquared,
       ClimberConstants.LENGTH.inMeters,
-      ClimberConstants.FULLY_RETRACTED_ANGLE.inRadians,
+      ClimberConstants.IDLE_ANGLE.inRadians,
       ClimberConstants.FULLY_CLIMBED_ANGLE.inRadians,
-      true,
-      0.0
+      false,
+      ClimberConstants.IDLE_ANGLE.inRadians
     )
 
   private val rollersSim: FlywheelSim =
     FlywheelSim(
       LinearSystemId.createFlywheelSystem(
         DCMotor.getKrakenX60(1),
-        ClimberConstants.Rollers.INERTIA.inKilogramsMeterSquared,
-        1 / ClimberConstants.Rollers.GEAR_RATIO
+        ClimberConstants.ROLLERS.INERTIA.inKilogramsMeterSquared,
+        1 / ClimberConstants.ROLLERS.GEAR_RATIO
       ),
       DCMotor.getKrakenX60(1),
-      1 / ClimberConstants.Rollers.GEAR_RATIO
+      1 / ClimberConstants.ROLLERS.GEAR_RATIO
     )
 
   private var climberPIDController =
-    PIDController(
-      ClimberConstants.PID.KP_SIM, ClimberConstants.PID.KI_SIM, ClimberConstants.PID.KD_SIM
+    ProfiledPIDController(
+      ClimberConstants.PID.KP_SIM,
+      ClimberConstants.PID.KI_SIM,
+      ClimberConstants.PID.KD_SIM,
+      TrapezoidProfile.Constraints(
+        ClimberConstants.MAX_VELOCITY, ClimberConstants.MAX_ACCELERATION
+      )
     )
 
   private var targetPosition: Angle = 0.0.degrees
@@ -87,8 +95,8 @@ class ClimberIOSim : ClimberIO {
     val rollersClampedVoltage =
       clamp(
         voltage,
-        -ClimberConstants.Rollers.VOLTAGE_COMPENSATION,
-        ClimberConstants.Rollers.VOLTAGE_COMPENSATION
+        -ClimberConstants.ROLLERS.VOLTAGE_COMPENSATION,
+        ClimberConstants.ROLLERS.VOLTAGE_COMPENSATION
       )
 
     rollersSim.setInputVoltage(rollersClampedVoltage.inVolts)
@@ -99,7 +107,7 @@ class ClimberIOSim : ClimberIO {
     targetPosition = position
     // Rollers should constantly clasp to the bars while climber is moving
     setClimberVoltage(climberPIDController.calculate(climberSim.angleRads.radians, position))
-    setRollersVoltage(ClimberConstants.Rollers.CLASP_VOLTAGE)
+    setRollersVoltage(ClimberConstants.ROLLERS.CLASP_VOLTAGE)
   }
 
   override fun updateInputs(inputs: ClimberIO.ClimberInputs) {
@@ -118,5 +126,11 @@ class ClimberIOSim : ClimberIO {
     inputs.rollersStatorCurrent = rollersSim.currentDrawAmps.amps
     inputs.rollersSupplyCurrent = 0.0.amps
     inputs.rollersTemperature = 0.0.celsius
+
+    RoboRioSim.setVInVoltage(
+      BatterySim.calculateDefaultBatteryLoadedVoltage(climberSim.currentDrawAmps)
+    )
   }
+
+  override fun zeroEncoder() {}
 }

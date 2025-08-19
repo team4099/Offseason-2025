@@ -11,6 +11,7 @@ import org.team4099.lib.units.derived.Radian
 import org.team4099.lib.units.derived.Volt
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.volts
+import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.perSecond
 
 object ClimberConstants {
@@ -18,19 +19,26 @@ object ClimberConstants {
   val STATOR_CURRENT_LIMIT = 40.0.amps
   val SUPPLY_CURRENT_LIMIT = 40.0.amps
   val THRESHOLD_CURRENT_LIMIT = 0.0.amps // todo: figure out
-  val CLIMB_EXTEND_VOLTAGE = 4.0.volts
-  val CLIMB_RETRACT_VOLTAGE = (-4.0).volts
 
-  val FULLY_CLIMBED_ANGLE = 90.0.degrees
-  val FULLY_RETRACTED_ANGLE = 0.0.degrees
+  val CLIMB_EXTEND_VOLTAGE = 1.5.volts
+  val CLIMB_RETRACT_VOLTAGE = 1.5.volts
+
+  val FULLY_CLIMBED_ANGLE = 540.0.degrees // TODO remeasure
+  val FULLY_EXTENDED_ANGLE = 270.0.degrees // TODO remeasure
+  val IDLE_ANGLE = 0.0.degrees
+
+  val SIM_CLIMBED_ANGLE = 100.0.degrees
 
   val LENGTH = 10.879905.inches
   val INERTIA = 7.370097.pounds * 1.0.inches.squared
-  val GEAR_RATIO = (1.0 / 12.0) * (18.0 / 68.0)
+  val GEAR_RATIO = (8.0 / 54.0) * (18.0 / 60.0)
 
   val TARGET_TOLERANCE = 3.0.degrees
 
-  object Rollers {
+  val MAX_VELOCITY = 180.degrees.perSecond
+  val MAX_ACCELERATION = 180.degrees.perSecond.perSecond
+
+  object ROLLERS {
     val CLASP_VOLTAGE = 5.0.volts
     val GEAR_RATIO = 12.0 / 15.0
     val INERTIA = 0.1419193.pounds * 3.0.inches.squared
@@ -45,12 +53,12 @@ object ClimberConstants {
     val KI_REAL: IntegralGain<Radian, Volt> = 0.0.volts / (1.0.degrees * 1.0.seconds)
     val KD_REAL: DerivativeGain<Radian, Volt> = 0.0.volts / 1.0.degrees.perSecond
 
-    val KP_SIM = 0.0.volts / 1.0.degrees
+    val KP_SIM = 0.4.volts / 1.0.degrees
     val KI_SIM = 0.0.volts / (1.0.degrees * 1.0.seconds)
     val KD_SIM = 0.0.volts / 1.0.degrees.perSecond
 
     val KS = 0.0.volts
-    val KV = 0.0.volts / 1.0.degrees.perSecond
+    val KV = ((1 / MAX_VELOCITY.inDegreesPerSecond).volts) / 1.0.degrees.perSecond
     val KA = 0.0.volts / 1.0.degrees.perSecond.perSecond
 
     val KG_DEFAULT = 0.0.volts

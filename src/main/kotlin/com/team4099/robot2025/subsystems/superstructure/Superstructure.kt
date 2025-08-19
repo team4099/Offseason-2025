@@ -267,7 +267,9 @@ class Superstructure(
           else SuperstructureStates.HOME_PREP
       }
       SuperstructureStates.HOME_PREP -> {
-        if (!elevator.clearsRobot) {
+        if (!elevator.clearsRobot &&
+          arm.inputs.armPosition < ArmConstants.ANGLES.ARM_GUARENTEED_OVER_BATTERY
+        ) {
           elevator.currentRequest =
             Request.ElevatorRequest.ClosedLoop(ElevatorConstants.HEIGHTS.CLEARS_ROBOT)
         } else {

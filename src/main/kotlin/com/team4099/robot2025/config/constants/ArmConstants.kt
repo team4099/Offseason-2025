@@ -73,7 +73,7 @@ object ArmConstants {
 
     val SCORE_ANGLE_OFFSET = 30.0.degrees
 
-    val ARM_GUARENTEED_OVER_BATTERY = 45.0.degrees
+    val ARM_GUARENTEED_OVER_BATTERY = 60.0.degrees
 
     val SIM_MECH_OFFSET = 90.0.degrees
 

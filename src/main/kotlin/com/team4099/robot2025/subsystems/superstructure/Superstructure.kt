@@ -347,31 +347,35 @@ class Superstructure(
         }
 
         // idle to request transitions
-        nextState =
-          if (theoreticalGamePieceArm == GamePiece.NONE &&
-            theoreticalGamePieceHardstop == GamePiece.CORAL
-          ) {
-            currentRequest = SuperstructureRequest.IntakeCoral()
-            SuperstructureStates.INTAKE_CORAL_INTO_ARM
-          } else
-            when (currentRequest) {
-              is SuperstructureRequest.Home -> SuperstructureStates.HOME
-              is SuperstructureRequest.IntakeCoral -> SuperstructureStates.GROUND_INTAKE_CORAL
-              is SuperstructureRequest.IntakeAlgae -> {
-                if (theoreticalGamePieceArm == GamePiece.NONE) SuperstructureStates.INTAKE_ALGAE
-                else currentState
+        if (elevator.isAtTargetedPosition && arm.isAtTargetedPosition)
+          nextState =
+            if (theoreticalGamePieceArm == GamePiece.NONE &&
+              theoreticalGamePieceHardstop == GamePiece.CORAL
+            ) {
+              currentRequest = SuperstructureRequest.IntakeCoral()
+              SuperstructureStates.INTAKE_CORAL_INTO_ARM
+            } else
+              when (currentRequest) {
+                is SuperstructureRequest.Home -> SuperstructureStates.HOME_PREP
+                is SuperstructureRequest.IntakeCoral ->
+                  SuperstructureStates.GROUND_INTAKE_CORAL
+                is SuperstructureRequest.IntakeAlgae -> {
+                  if (theoreticalGamePieceArm == GamePiece.NONE)
+                    SuperstructureStates.INTAKE_ALGAE
+                  else currentState
+                }
+                is SuperstructureRequest.PrepScoreCoral ->
+                  SuperstructureStates.PREP_SCORE_CORAL
+                is SuperstructureRequest.PrepScoreAlgae -> {
+                  if (theoreticalGamePieceArm == GamePiece.ALGAE)
+                    SuperstructureStates.PREP_SCORE_ALGAE
+                  else currentState
+                }
+                is SuperstructureRequest.ExtendClimb -> SuperstructureStates.CLIMB_EXTEND
+                is SuperstructureRequest.RetractClimb -> SuperstructureStates.CLIMB_RETRACT
+                is SuperstructureRequest.Eject -> SuperstructureStates.EJECT
+                else -> currentState
               }
-              is SuperstructureRequest.PrepScoreCoral -> SuperstructureStates.PREP_SCORE_CORAL
-              is SuperstructureRequest.PrepScoreAlgae -> {
-                if (theoreticalGamePieceArm == GamePiece.ALGAE)
-                  SuperstructureStates.PREP_SCORE_ALGAE
-                else currentState
-              }
-              is SuperstructureRequest.ExtendClimb -> SuperstructureStates.CLIMB_EXTEND
-              is SuperstructureRequest.RetractClimb -> SuperstructureStates.CLIMB_RETRACT
-              is SuperstructureRequest.Eject -> SuperstructureStates.EJECT
-              else -> currentState
-            }
       }
       SuperstructureStates.GROUND_INTAKE_CORAL -> {
         intake.currentRequest =

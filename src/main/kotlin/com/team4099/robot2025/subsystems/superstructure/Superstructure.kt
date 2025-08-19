@@ -340,13 +340,13 @@ class Superstructure(
         }
 
         // idle to request transitions
-        if (theoreticalGamePieceArm == GamePiece.NONE &&
-          theoreticalGamePieceHardstop == GamePiece.CORAL
-        ) {
-          currentRequest = SuperstructureRequest.IntakeCoral()
-          nextState = SuperstructureStates.INTAKE_CORAL_INTO_ARM
-        } else
-          nextState =
+        nextState =
+          if (theoreticalGamePieceArm == GamePiece.NONE &&
+            theoreticalGamePieceHardstop == GamePiece.CORAL
+          ) {
+            currentRequest = SuperstructureRequest.IntakeCoral()
+            SuperstructureStates.INTAKE_CORAL_INTO_ARM
+          } else
             when (currentRequest) {
               is SuperstructureRequest.Home -> SuperstructureStates.HOME
               is SuperstructureRequest.IntakeCoral -> SuperstructureStates.GROUND_INTAKE_CORAL
@@ -574,10 +574,8 @@ class Superstructure(
               )
 
             // if l1, l2, arm needs to move all the way to make sure it doesnt hit battery or cradle
-            if ((
-              arm.inputs.armPosition >= ArmConstants.ANGLES.ARM_GUARENTEED_OVER_BATTERY ||
-                !(coralScoringLevel == CoralLevel.L1 || coralScoringLevel == CoralLevel.L2)
-              )
+            if (arm.inputs.armPosition >= ArmConstants.ANGLES.ARM_GUARENTEED_OVER_BATTERY ||
+              !(coralScoringLevel == CoralLevel.L1 || coralScoringLevel == CoralLevel.L2)
             ) {
               elevator.currentRequest =
                 Request.ElevatorRequest.ClosedLoop(
@@ -718,16 +716,7 @@ class Superstructure(
         }
       }
       SuperstructureStates.CLEANUP_SCORE_ALGAE -> {
-        nextState =
-          if (theoreticalGamePieceArm == GamePiece.NONE &&
-            theoreticalGamePieceHardstop == GamePiece.CORAL
-          ) {
-            // dw, intake_coral_into_arm deals with the transition
-            SuperstructureStates.INTAKE_CORAL_INTO_ARM
-          } else {
-            // idle should deal with it
-            SuperstructureStates.IDLE
-          }
+        nextState = SuperstructureStates.IDLE
       }
       SuperstructureStates.EJECT -> {
         lastPrepLevel = CoralLevel.NONE
@@ -798,14 +787,19 @@ class Superstructure(
   }
 
   fun prepL3OrAlgaeReefCommand(): Command {
-    return ConditionalCommand(
-      prepScoreCoralCommand(CoralLevel.L3),
-      intakeAlgaeCommand(
-        if (vision.lastTrigVisionUpdate.targetTagID in Constants.Universal.highAlgaeReefTags)
-          AlgaeIntakeLevel.L3
-        else AlgaeIntakeLevel.L2
-      )
-    ) { theoreticalGamePieceArm == GamePiece.CORAL }
+    val returnCommand =
+      ConditionalCommand(
+        prepScoreCoralCommand(CoralLevel.L3),
+        intakeAlgaeCommand(
+          if (vision.lastTrigVisionUpdate.targetTagID in
+            Constants.Universal.highAlgaeReefTags
+          )
+            AlgaeIntakeLevel.L3
+          else AlgaeIntakeLevel.L2
+        )
+      ) { theoreticalGamePieceArm == GamePiece.CORAL }
+    returnCommand.addRequirements(vision)
+    return returnCommand
   }
 
   fun prepL4OrBargeCommand(): Command {

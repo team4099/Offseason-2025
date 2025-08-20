@@ -145,7 +145,7 @@ class FollowChoreoPath(val drivetrain: Drivetrain, val trajectory: Trajectory<Sw
         .transformBy(drivetrain.fieldTRobot.asTransform2d())
         .pose2d
 
-    CustomLogger.recordOutput("FollowChoreoPath/desiredStatePose2d", desiredState.pose)
+    drivetrain.targetPose = Pose2d(desiredState.pose)
 
     val nextDriveState = swerveDriveController.calculate(poseReference, desiredState)
     drivetrain.currentRequest = DrivetrainRequest.ClosedLoop(nextDriveState)

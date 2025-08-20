@@ -77,8 +77,6 @@ object ArmConstants {
 
     val ARM_GUARENTEED_OVER_BATTERY = 60.0.degrees
 
-    val SIM_MECH_OFFSET = 90.0.degrees
-
     val MOVING_BETWEEN_REEF_LEVELS_ANGLE = 180.0.degrees
   }
 }

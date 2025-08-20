@@ -1,17 +1,21 @@
 package com.team4099.robot2025.auto
 
 import com.team4099.robot2025.auto.mode.ExamplePathAuto
+import com.team4099.robot2025.auto.mode.ThreeL4LeftAuto
 import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
 import com.team4099.robot2025.subsystems.vision.Vision
+import com.team4099.robot2025.util.AllianceFlipUtil
 import edu.wpi.first.networktables.GenericEntry
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.InstantCommand
+import edu.wpi.first.wpilibj2.command.WaitCommand
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser
 import org.team4099.lib.units.base.Time
+import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.seconds
 
 object AutonomousSelector {
@@ -28,6 +32,13 @@ object AutonomousSelector {
     //    orientationChooser.addOption("Left", 90.degrees)
     //    orientationChooser.addOption("Right", 270.degrees)
     //    autoTab.add("Starting Orientation", orientationChooser)
+
+    autonomousModeChooser
+      .addOption( // This is an example auto similarly to -1337 it is a placeholder so it should
+        // not be used
+        "Example Auto DO NOT RUN AT COMPETITION",
+        AutonomousMode.EXAMPLE_AUTO
+      )
 
     autonomousModeChooser.addOption(
       "Three L4 Auto from Processor Side (Default)", AutonomousMode.THREE_L4_LEFT_AUTO
@@ -70,40 +81,25 @@ object AutonomousSelector {
     val mode = autonomousModeChooser.get()
 
     when (mode) {
-      //      // Delete this when real autos are made
-      //      AutonomousMode.THREE_L4_HOME_AUTO ->
-      //        return WaitCommand(waitTime.inSeconds)
-      //          .andThen({
-      //            drivetrain.tempZeroGyroYaw(
-      //              AllianceFlipUtil.apply(ThreeL4HomeAuto.startingPose).rotation
-      //            )
-      //            drivetrain.resetFieldFrameEstimator(
-      //              AllianceFlipUtil.apply(ThreeL4HomeAuto.startingPose)
-      //            )
-      //          })
-      //          .andThen(ThreeL4HomeAuto(drivetrain, elevator, superstructure, vision))
-      //      AutonomousMode.THREE_L4_LEFT_AUTO ->
-      //        return WaitCommand(waitTime.inSeconds)
-      //          .andThen({
-      //            drivetrain.tempZeroGyroYaw(
-      //              AllianceFlipUtil.apply(ThreeL4LeftAuto.startingPose).rotation
-      //            )
-      //            drivetrain.resetFieldFrameEstimator(
-      //              AllianceFlipUtil.apply(ThreeL4LeftAuto.startingPose)
-      //            )
-      //          })
-      //          .andThen(ThreeL4LeftAuto(drivetrain, elevator, superstructure, vision))
-      //      AutonomousMode.THREE_L4_RIGHT_AUTO ->
-      //        return WaitCommand(waitTime.inSeconds)
-      //          .andThen({
-      //            drivetrain.tempZeroGyroYaw(
-      //              AllianceFlipUtil.apply(ThreeL4RightAuto.startingPose).rotation
-      //            )
-      //            drivetrain.resetFieldFrameEstimator(
-      //              AllianceFlipUtil.apply(ThreeL4RightAuto.startingPose)
-      //            )
-      //          })
-      //          .andThen(ThreeL4RightAuto(drivetrain, elevator, superstructure, vision))
+      AutonomousMode.EXAMPLE_AUTO ->
+        return WaitCommand(waitTime.inSeconds)
+          .andThen({
+            drivetrain.resetFieldFrameEstimator(
+              AllianceFlipUtil.apply(ExamplePathAuto.startingPose)
+            )
+          })
+          .andThen(ExamplePathAuto(drivetrain = drivetrain))
+      AutonomousMode.THREE_L4_LEFT_AUTO ->
+        return WaitCommand(waitTime.inSeconds)
+          .andThen({
+            drivetrain.tempZeroGyroYaw(
+              AllianceFlipUtil.apply(ThreeL4LeftAuto.startingPose).rotation
+            )
+            drivetrain.resetFieldFrameEstimator(
+              AllianceFlipUtil.apply(ThreeL4LeftAuto.startingPose)
+            )
+          })
+          .andThen(ThreeL4LeftAuto(drivetrain, elevator, superstructure, vision))
       else -> return InstantCommand()
     }
   }
@@ -114,6 +110,7 @@ object AutonomousSelector {
 
   private enum class AutonomousMode {
     // Delete this when real autos are made
+    EXAMPLE_AUTO,
     THREE_L4_HOME_AUTO,
     THREE_L4_LEFT_AUTO,
     THREE_L4_RIGHT_AUTO

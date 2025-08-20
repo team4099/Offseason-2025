@@ -211,13 +211,13 @@ class Superstructure(
       toDoubleArray(
         Pose3d(
           Translation3d(
-            0.0.inches,
-            0.0.inches,
-            elevator.inputs.elevatorPosition + ElevatorConstants.CARRIAGE_TO_BOTTOM_SIM
+            1.0.inches,
+            (-5.0).inches,
+            elevator.inputs.elevatorPosition + ArmConstants.SIM_HEIGHT_OFFSET
           ),
           Rotation3d(
             0.0.degrees,
-            ArmConstants.ANGLES.SIM_MECH_OFFSET - arm.inputs.armPosition,
+            -arm.inputs.armPosition,
             0.0.degrees
           )
         )

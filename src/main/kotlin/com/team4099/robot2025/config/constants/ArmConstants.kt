@@ -30,6 +30,8 @@ object ArmConstants {
   val MAX_VELOCITY: AngularVelocity = 270.0.degrees.perSecond
   val MAX_ACCELERATION: AngularAcceleration = 270.0.degrees.perSecond.perSecond
 
+  val SIM_HEIGHT_OFFSET = 13.437.inches
+
   object PID {
     val REAL_KP = 0.0.volts / 1.degrees
     val REAL_KI = 0.0.volts / (1.degrees * 1.seconds)

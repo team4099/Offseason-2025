@@ -88,7 +88,7 @@ object AutonomousSelector {
               AllianceFlipUtil.apply(ExamplePathAuto.startingPose)
             )
           })
-          .andThen(ExamplePathAuto(drivetrain = drivetrain))
+          .andThen(ExamplePathAuto(drivetrain))
       AutonomousMode.THREE_L4_LEFT_AUTO ->
         return WaitCommand(waitTime.inSeconds)
           .andThen({

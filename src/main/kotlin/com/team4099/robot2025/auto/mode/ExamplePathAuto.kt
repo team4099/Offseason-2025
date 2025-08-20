@@ -16,12 +16,12 @@ class ExamplePathAuto(val drivetrain: Drivetrain) : SequentialCommandGroup() {
 
     addCommands(
       WaitCommand(0.5),
-      FollowChoreoPath(drivetrain, trajectory)
+      FollowChoreoPath(drivetrain, trajectory),
     )
   }
 
   companion object {
-    val trajectory = Choreo.loadTrajectory<SwerveSample>("Example/NewPath.traj").get()
+    val trajectory = Choreo.loadTrajectory<SwerveSample>("Example/ExamplePath.traj").get()
     val startingPose =
       Pose2d(trajectory.getInitialPose(FMSData.allianceColor == DriverStation.Alliance.Red).get())
   }

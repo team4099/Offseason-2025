@@ -1,8 +1,6 @@
 package com.team4099.robot2025.commands.drivetrain
 
 import com.team4099.lib.logging.LoggedTunableValue
-import com.team4099.lib.math.asPose2d
-import com.team4099.lib.math.asTransform2d
 import com.team4099.lib.trajectory.CustomHolonomicDriveController
 import com.team4099.lib.trajectory.CustomTrajectoryGenerator
 import com.team4099.lib.trajectory.FieldWaypoint
@@ -25,8 +23,6 @@ import org.team4099.lib.geometry.Translation2d
 import org.team4099.lib.hal.Clock
 import org.team4099.lib.units.Velocity
 import org.team4099.lib.units.base.Meter
-import org.team4099.lib.units.base.inMeters
-import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.base.seconds
@@ -35,7 +31,6 @@ import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inMetersPerSecondPerMeter
 import org.team4099.lib.units.derived.inMetersPerSecondPerMeterSeconds
 import org.team4099.lib.units.derived.inMetersPerSecondPerMetersPerSecond
-import org.team4099.lib.units.derived.inRadians
 import org.team4099.lib.units.derived.inRadiansPerSecondPerRadian
 import org.team4099.lib.units.derived.inRadiansPerSecondPerRadianPerSecond
 import org.team4099.lib.units.derived.inRadiansPerSecondPerRadianSeconds
@@ -46,7 +41,6 @@ import org.team4099.lib.units.derived.perRadian
 import org.team4099.lib.units.derived.perRadianPerSecond
 import org.team4099.lib.units.derived.perRadianSeconds
 import org.team4099.lib.units.derived.radians
-import org.team4099.lib.units.inRadiansPerSecond
 import org.team4099.lib.units.perSecond
 import kotlin.math.PI
 import com.team4099.robot2025.subsystems.superstructure.Request.DrivetrainRequest as DrivetrainRequest

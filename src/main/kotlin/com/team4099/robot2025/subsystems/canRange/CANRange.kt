@@ -1,6 +1,7 @@
 package com.team4099.robot2025.subsystems.canRange
 
 import com.team4099.lib.hal.Clock
+import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.team4099.lib.units.base.seconds
 
@@ -12,9 +13,12 @@ class CANRange(val io: CANRangeIO) : SubsystemBase() {
   override fun periodic() {
     io.updateInputs(inputs)
 
+    CustomLogger.processInputs("CANRange", inputs)
+    CustomLogger.recordOutput("CANRange/rumbleTrigger", rumbleTrigger)
+
     if (inputs.isDetected && (!rumbleTrigger || Clock.fpgaTime - rumbleTime < 0.5.seconds)) {
+      if (!rumbleTrigger) rumbleTime = Clock.fpgaTime
       rumbleTrigger = true
-      rumbleTime = Clock.fpgaTime
     } else if (!inputs.isDetected) {
       rumbleTrigger = false
     }

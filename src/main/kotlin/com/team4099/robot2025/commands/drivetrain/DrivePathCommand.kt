@@ -1,6 +1,8 @@
 package com.team4099.robot2025.commands.drivetrain
 
 import com.team4099.lib.logging.LoggedTunableValue
+import com.team4099.lib.math.asPose2d
+import com.team4099.lib.math.asTransform2d
 import com.team4099.lib.trajectory.CustomHolonomicDriveController
 import com.team4099.lib.trajectory.CustomTrajectoryGenerator
 import com.team4099.lib.trajectory.FieldWaypoint
@@ -23,6 +25,8 @@ import org.team4099.lib.geometry.Translation2d
 import org.team4099.lib.hal.Clock
 import org.team4099.lib.units.Velocity
 import org.team4099.lib.units.base.Meter
+import org.team4099.lib.units.base.inMeters
+import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.base.seconds
@@ -31,6 +35,7 @@ import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inMetersPerSecondPerMeter
 import org.team4099.lib.units.derived.inMetersPerSecondPerMeterSeconds
 import org.team4099.lib.units.derived.inMetersPerSecondPerMetersPerSecond
+import org.team4099.lib.units.derived.inRadians
 import org.team4099.lib.units.derived.inRadiansPerSecondPerRadian
 import org.team4099.lib.units.derived.inRadiansPerSecondPerRadianPerSecond
 import org.team4099.lib.units.derived.inRadiansPerSecondPerRadianSeconds
@@ -41,6 +46,7 @@ import org.team4099.lib.units.derived.perRadian
 import org.team4099.lib.units.derived.perRadianPerSecond
 import org.team4099.lib.units.derived.perRadianSeconds
 import org.team4099.lib.units.derived.radians
+import org.team4099.lib.units.inRadiansPerSecond
 import org.team4099.lib.units.perSecond
 import kotlin.math.PI
 import com.team4099.robot2025.subsystems.superstructure.Request.DrivetrainRequest as DrivetrainRequest
@@ -207,7 +213,84 @@ private constructor(
 
     trajCurTime = Clock.fpgaTime - trajStartTime
     val (nextDriveRequest, targetPose) = generatedTrajectory.sample(trajCurTime)
+
+    var robotPoseInSelectedFrame: Pose2d = drivePoseSupplier()
+    if (pathFrame == stateFrame) {
+      lastSampledPose = targetPose
+      when (stateFrame) {
+        FrameType.FIELD -> {
+          CustomLogger.recordOutput("Pathfollow/fieldTRobotTargetVisualized", targetPose.pose2d)
+          CustomLogger.recordOutput("Pathfollow/fieldTRobot", robotPoseInSelectedFrame.pose2d)
+        }
+        FrameType.ODOMETRY -> {
+          CustomLogger.recordOutput("Pathfollow/odomTRobotTargetVisualized", targetPose.pose2d)
+          CustomLogger.recordOutput("Pathfollow/odomTRobot", robotPoseInSelectedFrame.pose2d)
+        }
+      }
+
+      //        pathTransform.inverse().asPose2d().transformBy(targetHolonomicPose.asTransform2d())
+    } else {
+      when (pathFrame) {
+        FrameType.ODOMETRY -> {
+          // TODO (saraansh) we disallow this, not possible to get to. remove or find use case
+          lastSampledPose = odoTField.inverse().asPose2d().transformBy(targetPose.asTransform2d())
+        }
+        FrameType.FIELD -> {
+          // robotPose is currently odomTrobot we want fieldTRobot. we obtain that via fieldTodo x
+          // odoTRobot
+          robotPoseInSelectedFrame =
+            odoTField.inverse().asPose2d().transformBy(robotPoseInSelectedFrame.asTransform2d())
+          lastSampledPose = odoTField.asPose2d().transformBy(targetPose.asTransform2d())
+
+          CustomLogger.recordOutput("Pathfollow/fieldTRobotTargetVisualized", targetPose.pose2d)
+          CustomLogger.recordOutput("Pathfollow/fieldTRobot", robotPoseInSelectedFrame.pose2d)
+        }
+      }
+    }
+
+    /*
+    drivetrain.setOpenLoop(
+        nextDriveState.omegaRadiansPerSecond.radians.perSecond,
+        nextDriveState.vxMetersPerSecond.meters.perSecond to nextDriveState.vyMetersPerSecond.meters.perSecond,
+        ChassisAccels(xAccel, yAccel, 0.0.radians.perSecond.perSecond).chassisAccelsWPILIB,
+        true
+      )
+
+     */
+
     drivetrain.currentRequest = nextDriveRequest
+
+    CustomLogger.recordDebugOutput(
+      "Pathfollow/thetaPIDPositionErrorRadians", thetaPID.error.inRadians
+    )
+
+    CustomLogger.recordDebugOutput("Pathfollow/xPIDPositionErrorMeters", xPID.error.inMeters)
+    CustomLogger.recordDebugOutput("Pathfollow/yPIDPositionErrorMeters", yPID.error.inMeters)
+    CustomLogger.recordDebugOutput(
+      "Pathfollow/thetaPIDVelocityErrorRadians", thetaPID.errorDerivative.inRadiansPerSecond
+    )
+
+    CustomLogger.recordDebugOutput(
+      "Pathfollow/xAccelMetersPerSecondPerSecond",
+      nextDriveRequest.chassisAccels.vxMetersPerSecond
+    )
+    CustomLogger.recordDebugOutput(
+      "Pathfollow/yAccelMetersPerSecondPerSecond",
+      nextDriveRequest.chassisAccels.vyMetersPerSecond
+    )
+
+    CustomLogger.recordDebugOutput("Pathfollow/Start Time", trajStartTime.inSeconds)
+    CustomLogger.recordDebugOutput("Pathfollow/Current Time", trajCurTime.inSeconds)
+    CustomLogger.recordDebugOutput(
+      "Pathfollow/Desired Angle in Degrees", targetPose.pose2d.rotation.degrees
+    )
+
+    CustomLogger.recordDebugOutput("Pathfollow/isAtReference", swerveDriveController.atReference())
+    CustomLogger.recordDebugOutput(
+      "Pathfollow/trajectoryTimeSeconds", generatedTrajectory.totalTime.inSeconds
+    )
+
+    CustomLogger.recordDebugOutput("ActiveCommands/DrivePathCommand", true)
 
     if (thetakP.hasChanged()) thetaPID.proportionalGain = thetakP.get()
     if (thetakI.hasChanged()) thetaPID.integralGain = thetakI.get()

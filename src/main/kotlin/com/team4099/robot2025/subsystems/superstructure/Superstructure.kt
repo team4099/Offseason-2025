@@ -801,13 +801,11 @@ class Superstructure(
     val returnCommand =
       ConditionalCommand(
         prepScoreCoralCommand(CoralLevel.L3),
-        intakeAlgaeCommand(
-          if (vision.lastTrigVisionUpdate.targetTagID in
-            Constants.Universal.highAlgaeReefTags
-          )
-            AlgaeIntakeLevel.L3
-          else AlgaeIntakeLevel.L2
-        )
+        ConditionalCommand(
+          intakeAlgaeCommand(AlgaeIntakeLevel.L3), intakeAlgaeCommand(AlgaeIntakeLevel.L2)
+        ) {
+          vision.lastTrigVisionUpdate.targetTagID in Constants.Universal.highAlgaeReefTags
+        }
       ) { theoreticalGamePieceArm == GamePiece.CORAL }
     returnCommand.addRequirements(vision)
     return returnCommand

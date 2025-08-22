@@ -1,5 +1,6 @@
 package com.team4099.robot2025.auto
 
+import com.team4099.robot2025.auto.mode.CenterL4Barge
 import com.team4099.robot2025.auto.mode.ExamplePathAuto
 import com.team4099.robot2025.auto.mode.ThreeL4LeftAuto
 import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
@@ -47,6 +48,8 @@ object AutonomousSelector {
     autonomousModeChooser.addOption(
       "Three L4 Auto from Far Side", AutonomousMode.THREE_L4_RIGHT_AUTO
     )
+
+    autonomousModeChooser.addOption("Center L4 + 2 Barge", AutonomousMode.CENTER_L4_BARGE)
 
     autoTab.add("Mode", autonomousModeChooser.sendableChooser).withSize(4, 2).withPosition(2, 0)
 
@@ -100,6 +103,14 @@ object AutonomousSelector {
             )
           })
           .andThen(ThreeL4LeftAuto(drivetrain, elevator, superstructure, vision))
+      AutonomousMode.CENTER_L4_BARGE ->
+        return WaitCommand(waitTime.inSeconds)
+          .andThen({
+            drivetrain.resetFieldFrameEstimator(
+              AllianceFlipUtil.apply(CenterL4Barge.startingPose)
+            )
+          })
+          .andThen(CenterL4Barge(drivetrain, elevator, superstructure, vision))
       else -> return InstantCommand()
     }
   }
@@ -113,6 +124,7 @@ object AutonomousSelector {
     EXAMPLE_AUTO,
     THREE_L4_HOME_AUTO,
     THREE_L4_LEFT_AUTO,
-    THREE_L4_RIGHT_AUTO
+    THREE_L4_RIGHT_AUTO,
+    CENTER_L4_BARGE
   }
 }

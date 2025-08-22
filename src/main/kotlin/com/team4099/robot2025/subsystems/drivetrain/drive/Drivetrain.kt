@@ -41,7 +41,6 @@ import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inDegrees
-import org.team4099.lib.units.derived.inRadians
 import org.team4099.lib.units.derived.inRotation2ds
 import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.derived.volts
@@ -298,19 +297,12 @@ class Drivetrain(val gyroIO: GyroIO, swerveModuleIOs: DrivetrainIO) : SubsystemB
     )
 
     Logger.processInputs("Drivetrain/Gyro", gyroInputs)
-    Logger.recordOutput(
-      VisionConstants.POSE_TOPIC_NAME,
-      doubleArrayOf(odomTRobot.x.inMeters, odomTRobot.y.inMeters, odomTRobot.rotation.inRadians)
-    )
+    Logger.recordOutput(VisionConstants.POSE_TOPIC_NAME, odomTRobot.pose2d)
     Logger.recordOutput("" + "FieldRelativePose/robotPose", fieldTRobot.pose2d)
 
     Logger.recordOutput("Drivetrain/ModuleStates", *measuredStates)
     Logger.recordOutput("Drivetrain/setPointStates", *setPointStates.toTypedArray())
 
-    Logger.recordOutput(
-      VisionConstants.POSE_TOPIC_NAME,
-      doubleArrayOf(odomTRobot.x.inMeters, odomTRobot.y.inMeters, odomTRobot.rotation.inRadians)
-    )
     Logger.recordOutput(
       "Odometry/pose3d",
       Pose3d(
@@ -324,10 +316,7 @@ class Drivetrain(val gyroIO: GyroIO, swerveModuleIOs: DrivetrainIO) : SubsystemB
 
     Logger.recordOutput("FieldFrameEstimator/odomTField", odomTField.transform2d)
 
-    Logger.recordOutput(
-      "Odometry/targetPose",
-      doubleArrayOf(targetPose.x.inMeters, targetPose.y.inMeters, targetPose.rotation.inRadians)
-    )
+    Logger.recordOutput("Odometry/targetPose", targetPose.pose2d)
 
     Logger.recordOutput(
       "LoggedRobot/Subsystems/DrivetrainLoopTimeMS",

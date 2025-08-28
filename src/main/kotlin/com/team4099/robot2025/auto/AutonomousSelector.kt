@@ -2,6 +2,7 @@ package com.team4099.robot2025.auto
 
 import com.team4099.robot2025.auto.mode.CenterL4Barge
 import com.team4099.robot2025.auto.mode.ExamplePathAuto
+import com.team4099.robot2025.auto.mode.ThreeL4CoralStation
 import com.team4099.robot2025.auto.mode.ThreeL4LeftAuto
 import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
 import com.team4099.robot2025.subsystems.elevator.Elevator
@@ -50,6 +51,10 @@ object AutonomousSelector {
     )
 
     autonomousModeChooser.addOption("Center L4 + 2 Barge", AutonomousMode.CENTER_L4_BARGE)
+
+    autonomousModeChooser.addOption(
+      "Three L4 From Coral Station", AutonomousMode.THREE_L4_CORAL_STATION
+    )
 
     autoTab.add("Mode", autonomousModeChooser.sendableChooser).withSize(4, 2).withPosition(2, 0)
 
@@ -111,6 +116,13 @@ object AutonomousSelector {
             )
           })
           .andThen(CenterL4Barge(drivetrain, elevator, superstructure, vision))
+      AutonomousMode.THREE_L4_CORAL_STATION ->
+        return WaitCommand(waitTime.inSeconds)
+          .andThen({
+            drivetrain.resetFieldFrameEstimator(
+              AllianceFlipUtil.apply(ThreeL4CoralStation.startingPose)
+            )
+          })
       else -> return InstantCommand()
     }
   }
@@ -125,6 +137,7 @@ object AutonomousSelector {
     THREE_L4_HOME_AUTO,
     THREE_L4_LEFT_AUTO,
     THREE_L4_RIGHT_AUTO,
-    CENTER_L4_BARGE
+    CENTER_L4_BARGE,
+    THREE_L4_CORAL_STATION
   }
 }

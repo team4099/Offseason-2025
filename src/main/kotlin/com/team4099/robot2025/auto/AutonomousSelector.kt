@@ -123,6 +123,7 @@ object AutonomousSelector {
               AllianceFlipUtil.apply(ThreeL4CoralStation.startingPose)
             )
           })
+          .andThen(ThreeL4CoralStation(drivetrain, elevator, superstructure, vision))
       else -> return InstantCommand()
     }
   }

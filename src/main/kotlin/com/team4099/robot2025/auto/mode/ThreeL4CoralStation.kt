@@ -54,9 +54,9 @@ class ThreeL4CoralStation(
       // ---------- 2: L4 TO CORAL STATION ----------
 
       ParallelCommandGroup(
-        FollowChoreoPath(drivetrain, trajectory2),
-        superstructure.intakeCoralCommand()
-      ).withTimeout(3.0),
+        FollowChoreoPath(drivetrain, trajectory2), superstructure.intakeCoralCommand()
+      )
+        .withTimeout(3.0),
       runOnce({ drivetrain.resetFieldFrameEstimator(AllianceFlipUtil.apply(pose3)) }),
 
       // ---------- 3: CORAL STATION TO L4 ----------
@@ -83,9 +83,9 @@ class ThreeL4CoralStation(
       // ---------- 4: L4 TO CORAL STATION ----------
 
       ParallelCommandGroup(
-        FollowChoreoPath(drivetrain, trajectory4),
-        superstructure.intakeCoralCommand()
-      ).withTimeout(3.0),
+        FollowChoreoPath(drivetrain, trajectory4), superstructure.intakeCoralCommand()
+      )
+        .withTimeout(3.0),
       runOnce({ drivetrain.resetFieldFrameEstimator(AllianceFlipUtil.apply(pose5)) }),
 
       // ---------- 5: CORAL STATION TO L4 ----------

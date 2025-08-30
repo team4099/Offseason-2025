@@ -48,7 +48,7 @@ object Constants {
       PROCESSOR
     }
 
-    val highAlgaeReefTags = intArrayOf(7, 9, 11, 18, 20, 22)
+    val HIGH_ALGAE_REEF_TAGS = intArrayOf(7, 9, 11, 18, 20, 22)
   }
 
   object AprilTagIds {

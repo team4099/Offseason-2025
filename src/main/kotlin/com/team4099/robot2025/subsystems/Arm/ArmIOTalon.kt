@@ -114,8 +114,11 @@ object ArmIOTalon : ArmIO {
 
   override fun updateInputs(inputs: ArmIO.ArmIOInputs) {
     inputs.armPosition =
-      absoluteEncoderPositionSignal.valueAsDouble.rotations - ArmConstants.ENCODER_ANGLE_OFFSET
-    inputs.armVelocity = absoluteEncoderVelocitySignal.valueAsDouble.rotations.perSecond
+      absoluteEncoderPositionSignal.valueAsDouble.rotations *
+      ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO - ArmConstants.ENCODER_ANGLE_OFFSET
+    inputs.armVelocity =
+      absoluteEncoderVelocitySignal.valueAsDouble.rotations.perSecond *
+      ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO
 
     inputs.armTorque = armTalon.torqueCurrent.valueAsDouble
     inputs.armAppliedVoltage = motorVoltageSignal.valueAsDouble.volts
@@ -158,7 +161,8 @@ object ArmIOTalon : ArmIO {
 
   override fun zeroEncoder() {
     armTalon.setPosition(
-      absoluteEncoderPositionSignal.valueAsDouble - ArmConstants.ENCODER_ANGLE_OFFSET.inRotations
+      absoluteEncoderPositionSignal.valueAsDouble * ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO -
+        ArmConstants.ENCODER_ANGLE_OFFSET.inRotations
     )
   }
 

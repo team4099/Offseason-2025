@@ -16,6 +16,8 @@ import org.team4099.lib.units.perSecond
 object ArmConstants {
   val VOLTAGE_COMPENSATION = 12.0.volts
   val ENCODER_TO_MECHANISM_GEAR_RATIO = 1.0 / 2.0
+  // what the angle of the cancoder is when the arm is 0 in +x direction (above intake)
+  val ENCODER_ANGLE_OFFSET = 0.0.degrees
 
   val ARM_TOLERANCE = 2.0.degrees // todo tune and make smaller
   val ARM_LENGTH = 26.1362839.inches

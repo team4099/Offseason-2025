@@ -144,7 +144,6 @@ class CustomTrajectory(
         val targetPose = Pose2d(desiredState.pose)
 
         Request.DrivetrainRequest.ClosedLoop(nextDriveState) to targetPose
-        // (d, d)
       }
     }
   }

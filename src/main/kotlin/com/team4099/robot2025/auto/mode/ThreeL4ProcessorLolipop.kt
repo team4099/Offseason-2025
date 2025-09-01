@@ -123,15 +123,15 @@ class ThreeL4ProcessorLolipop(
 
   companion object {
     private val firstTrajectory =
-      Choreo.loadTrajectory<SwerveSample>("/ThreeL4ProcessorLolipop/First Path").get()
+      Choreo.loadTrajectory<SwerveSample>("ThreeL4ProcessorLolipop/1CenterToL4.traj").get()
     private val secondTrajectory =
-      Choreo.loadTrajectory<SwerveSample>("/ThreeL4ProcessorLolipop/Second Path").get()
+      Choreo.loadTrajectory<SwerveSample>("ThreeL4ProcessorLolipop/2L4ToBottom.traj").get()
     private val thirdTrajectory =
-      Choreo.loadTrajectory<SwerveSample>("/ThreeL4ProcessorLolipop/Third Path").get()
+      Choreo.loadTrajectory<SwerveSample>("ThreeL4ProcessorLolipop/3BottomToL4.traj").get()
     private val fourthTrajectory =
-      Choreo.loadTrajectory<SwerveSample>("/ThreeL4ProcessorLolipop/Fourth Path").get()
+      Choreo.loadTrajectory<SwerveSample>("ThreeL4ProcessorLolipop/4L4ToMiddle.traj").get()
     private val fifthTrajectory =
-      Choreo.loadTrajectory<SwerveSample>("/ThreeL4ProcessorLolipop/Fifth Path").get()
+      Choreo.loadTrajectory<SwerveSample>("ThreeL4ProcessorLolipop/5MiddleToL4.traj").get()
 
     val startingPose = Pose2d(firstTrajectory.getInitialPose(false).get())
     val secondPose = Pose2d(secondTrajectory.getInitialPose(false).get())

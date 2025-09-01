@@ -29,7 +29,6 @@ import org.team4099.lib.geometry.Pose3d
 import org.team4099.lib.geometry.Rotation3d
 import org.team4099.lib.geometry.Translation3d
 import org.team4099.lib.units.base.inInches
-import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.base.inMilliseconds
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.meters
@@ -101,18 +100,6 @@ class Superstructure(
 
   private var lastTransitionTime = Clock.fpgaTime
 
-  private fun toDoubleArray(somePose: Pose3d): DoubleArray {
-    return doubleArrayOf(
-      somePose.x.inMeters,
-      somePose.y.inMeters,
-      somePose.z.inMeters,
-      somePose.rotation.rotation3d.quaternion.w,
-      somePose.rotation.rotation3d.quaternion.x,
-      somePose.rotation.rotation3d.quaternion.y,
-      somePose.rotation.rotation3d.quaternion.z
-    )
-  }
-
   override fun periodic() {
     val armStartTime = Clock.realTimestamp
     arm.periodic()
@@ -165,85 +152,80 @@ class Superstructure(
     /** 0 - first stage 1 - carriage 2 - intake pivot 3 - arm 4 - climb pivot */
     Logger.recordOutput(
       "SimulatedMechanisms/0",
-      toDoubleArray(
-        Pose3d(
-          Translation3d(
-            0.0.inches,
-            0.0.inches,
-            max(
-              elevator.inputs.elevatorPosition.inInches -
-                ElevatorConstants.FIRST_STAGE_HEIGHT.inInches,
-              0.0
-            )
-              .inches
-          ),
-          Rotation3d()
-        )
+      Pose3d(
+        Translation3d(
+          0.0.inches,
+          0.0.inches,
+          max(
+            elevator.inputs.elevatorPosition.inInches -
+              ElevatorConstants.FIRST_STAGE_HEIGHT.inInches,
+            0.0
+          )
+            .inches
+        ),
+        Rotation3d()
       )
+        .pose3d
     )
 
     Logger.recordOutput(
       "SimulatedMechanisms/1",
-      toDoubleArray(
-        Pose3d(
-          Translation3d(0.0.inches, 0.0.inches, elevator.inputs.elevatorPosition),
-          Rotation3d()
-        )
+      Pose3d(
+        Translation3d(0.0.inches, 0.0.inches, elevator.inputs.elevatorPosition),
+        Rotation3d()
       )
+        .pose3d
     )
 
     Logger.recordOutput(
       "SimulatedMechanisms/2",
-      toDoubleArray(
-        Pose3d(
-          Translation3d((-11.75).inches, 0.0.inches, 12.5747.inches),
-          Rotation3d(
-            0.0.degrees,
-            IntakeConstants.ANGLES.INTAKE_ANGLE - intake.inputs.pivotPosition,
-            0.0.degrees
-          ) // model starts in intaking position
-        )
+      Pose3d(
+        Translation3d((-11.75).inches, 0.0.inches, 12.5747.inches),
+        Rotation3d(
+          0.0.degrees,
+          IntakeConstants.ANGLES.INTAKE_ANGLE - intake.inputs.pivotPosition,
+          0.0.degrees
+        ) // model starts in intaking position
       )
+        .pose3d
     )
 
     Logger.recordOutput(
       "SimulatedMechanisms/3",
-      toDoubleArray(
-        Pose3d(
-          Translation3d(
-            0.0.inches,
-            0.0.inches,
-            elevator.inputs.elevatorPosition + ElevatorConstants.CARRIAGE_TO_BOTTOM_SIM
-          ),
-          Rotation3d(
-            0.0.degrees,
-            ArmConstants.ANGLES.SIM_MECH_OFFSET - arm.inputs.armPosition,
-            0.0.degrees
-          )
+      Pose3d(
+        Translation3d(
+          0.0.inches,
+          0.0.inches,
+          elevator.inputs.elevatorPosition + ElevatorConstants.CARRIAGE_TO_BOTTOM_SIM
+        ),
+        Rotation3d(
+          0.0.degrees,
+          ArmConstants.ANGLES.SIM_MECH_OFFSET - arm.inputs.armPosition,
+          0.0.degrees
         )
       )
+        .pose3d
     )
 
     Logger.recordOutput(
       "SimulatedMechanisms/4",
-      toDoubleArray(
-        Pose3d(
-          Translation3d(0.008.meters, 0.35.meters, 0.373.meters),
-          Rotation3d(
-            -(
-              -ClimberConstants.SIM_CLIMBED_ANGLE.inDegrees *
-                abs(
-                  climber.inputs.climberPosition.inDegrees -
-                    ClimberConstants.FULLY_EXTENDED_ANGLE.inDegrees
-                ) /
-                ClimberConstants.FULLY_EXTENDED_ANGLE.inDegrees
-              )
-              .degrees, // ratchet to mechanism math
-            0.0.degrees,
-            0.0.degrees
-          )
+      Pose3d(
+        Translation3d(0.008.meters, 0.35.meters, 0.373.meters),
+        Rotation3d(
+          -(
+            -ClimberConstants.SIM_CLIMBED_ANGLE.inDegrees *
+              abs(
+                climber.inputs.climberPosition.inDegrees -
+                  ClimberConstants.FULLY_EXTENDED_ANGLE.inDegrees
+              ) /
+              ClimberConstants.FULLY_EXTENDED_ANGLE.inDegrees
+            )
+            .degrees, // ratchet to mechanism math
+          0.0.degrees,
+          0.0.degrees
         )
       )
+        .pose3d
     )
 
     CustomLogger.recordOutput("Superstructure/currentRequest", currentRequest.javaClass.simpleName)
@@ -798,17 +780,14 @@ class Superstructure(
   }
 
   fun prepL3OrAlgaeReefCommand(): Command {
-    val returnCommand =
+    return ConditionalCommand(
+      prepScoreCoralCommand(CoralLevel.L3),
       ConditionalCommand(
-        prepScoreCoralCommand(CoralLevel.L3),
-        ConditionalCommand(
-          intakeAlgaeCommand(AlgaeIntakeLevel.L3), intakeAlgaeCommand(AlgaeIntakeLevel.L2)
-        ) {
-          vision.lastTrigVisionUpdate.targetTagID in Constants.Universal.highAlgaeReefTags
-        }
-      ) { theoreticalGamePieceArm == GamePiece.CORAL }
-    returnCommand.addRequirements(vision)
-    return returnCommand
+        intakeAlgaeCommand(AlgaeIntakeLevel.L3), intakeAlgaeCommand(AlgaeIntakeLevel.L2)
+      ) {
+        vision.lastTrigVisionUpdate.targetTagID in Constants.Universal.HIGH_ALGAE_REEF_TAGS
+      }
+    ) { theoreticalGamePieceArm == GamePiece.CORAL }
   }
 
   fun prepL4OrBargeCommand(): Command {

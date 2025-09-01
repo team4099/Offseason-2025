@@ -20,10 +20,10 @@ import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.base.inSeconds
 
 class ThreeL4CoralStation(
-  drivetrain: Drivetrain,
-  elevator: Elevator,
-  superstructure: Superstructure,
-  vision: Vision
+  val drivetrain: Drivetrain,
+  val elevator: Elevator,
+  val superstructure: Superstructure,
+  val vision: Vision
 ) : SequentialCommandGroup() {
 
   init {

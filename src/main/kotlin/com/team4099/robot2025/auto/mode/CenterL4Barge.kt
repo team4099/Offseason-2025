@@ -32,6 +32,8 @@ class CenterL4Barge(
     addRequirements(drivetrain)
 
     addCommands(
+      // ---------- 1: CENTER TO L4 ----------
+
       FollowChoreoPath(drivetrain, firstTrajectory),
       ParallelCommandGroup(
         superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L4),
@@ -55,6 +57,9 @@ class CenterL4Barge(
             )
           )
       ),
+
+      // ---------- 2: L4 TO ALGAE REEF INTAKE ----------
+
       FollowChoreoPath(drivetrain, secondTrajectory),
       ParallelCommandGroup(
         superstructure.intakeAlgaeCommand(Constants.Universal.AlgaeIntakeLevel.L2),
@@ -76,6 +81,9 @@ class CenterL4Barge(
             )
           )
       ),
+
+      // ---------- 3: REEF TO NET ----------
+
       ParallelCommandGroup(
         FollowChoreoPath(drivetrain, thirdTrajectory),
         WaitCommand(0.5)
@@ -87,6 +95,9 @@ class CenterL4Barge(
       ),
       superstructure.scoreCommand(),
       WaitCommand(RollersConstants.GAMEPIECE_SPITOUT_THRESHOLD.inSeconds * 1.5),
+
+      // ---------- 4: NET TO ALGAE REEF INTAKE ----------
+
       FollowChoreoPath(drivetrain, fourthTrajectory),
       ParallelCommandGroup(
         superstructure.intakeAlgaeCommand(Constants.Universal.AlgaeIntakeLevel.L2),
@@ -108,6 +119,9 @@ class CenterL4Barge(
             )
           )
       ),
+
+      // ---------- 5: REEF TO NET ----------
+
       ParallelCommandGroup(
         FollowChoreoPath(drivetrain, fifthTrajectory),
         WaitCommand(0.5)

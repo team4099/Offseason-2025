@@ -27,8 +27,10 @@ class ThreeL4ProcessorLolipop(
 ) : SequentialCommandGroup() {
   init {
     addRequirements(drivetrain)
+
     addCommands(
-      WaitCommand(.1),
+      // ---------- 1: CENTER TO L4 ----------
+
       FollowChoreoPath(drivetrain, firstTrajectory),
       ParallelCommandGroup(
         WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds)
@@ -52,9 +54,15 @@ class ThreeL4ProcessorLolipop(
           ),
         superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L4)
       ),
+
+      // ---------- 2: L4 TO BOTTOM LOLLI' ----------
+
       ParallelCommandGroup(
         FollowChoreoPath(drivetrain, secondTrajectory), superstructure.intakeCoralCommand()
       ),
+
+      // ---------- 3: BOTTOM LOLLI' TO L4 ----------
+
       FollowChoreoPath(drivetrain, thirdTrajectory),
       ParallelCommandGroup(
         WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds)
@@ -78,9 +86,15 @@ class ThreeL4ProcessorLolipop(
           ),
         superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L4)
       ),
+
+      // ---------- 4: L4 TO MIDDLE LOLLI' ----------
+
       ParallelCommandGroup(
         FollowChoreoPath(drivetrain, fourthTrajectory), superstructure.intakeCoralCommand()
       ),
+
+      // ---------- 5: MIDDLE LOLLI' TO L4 ----------
+
       FollowChoreoPath(drivetrain, fifthTrajectory),
       ParallelCommandGroup(
         WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds)

@@ -26,8 +26,13 @@ class ReefAlignCommand(
   val elevator: Elevator,
   val superstructure: Superstructure,
   val vision: Vision,
-  val branchID: Int
+  val branchID: BRANCH_ID
 ) : Command() {
+
+  enum class BRANCH_ID {
+    LEFT,
+    RIGHT
+  }
 
   lateinit var command: TargetTagCommand
   var scored = false
@@ -45,14 +50,14 @@ class ReefAlignCommand(
     if (DriverStation.getAlliance().isPresent) {
       if (FMSData.isBlue) {
         horizontalOffset =
-          if (branchID == 0) {
+          if (branchID == BRANCH_ID.LEFT) {
             VisionConstants.BLUE_REEF_TAG_Y_ALIGNMENTS[tagID]?.first ?: 0.inches
           } else {
             VisionConstants.BLUE_REEF_TAG_Y_ALIGNMENTS[tagID]?.second ?: 0.inches
           }
       } else {
         horizontalOffset =
-          if (branchID == 0) {
+          if (branchID == BRANCH_ID.LEFT) {
             VisionConstants.RED_REEF_TAG_Y_ALIGNMENTS[tagID]?.first ?: 0.inches
           } else {
             VisionConstants.RED_REEF_TAG_Y_ALIGNMENTS[tagID]?.second ?: 0.inches

@@ -6,15 +6,14 @@ import com.team4099.robot2025.commands.drivetrain.FollowChoreoPath
 import com.team4099.robot2025.commands.drivetrain.ReefAlignCommand
 import com.team4099.robot2025.commands.drivetrain.TargetTagCommand
 import com.team4099.robot2025.config.ControlBoard
+import com.team4099.robot2025.config.constants.ArmConstants
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.RollersConstants
 import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
 import com.team4099.robot2025.subsystems.vision.Vision
-import com.team4099.robot2025.util.AllianceFlipUtil
 import com.team4099.robot2025.util.driver.Jessika
-import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import edu.wpi.first.wpilibj2.command.WaitCommand
@@ -36,19 +35,15 @@ class CenterL4Barge(
       FollowChoreoPath(drivetrain, firstTrajectory),
       ParallelCommandGroup(
         superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L4),
-        WaitCommand(1.5)
+        WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds)
           .andThen(
             ReefAlignCommand(
               driver = Jessika(),
               {
-                ControlBoard.forward.smoothDeadband(
-                  Constants.Joysticks.THROTTLE_DEADBAND
-                )
+                ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND)
               },
               {
-                ControlBoard.strafe.smoothDeadband(
-                  Constants.Joysticks.THROTTLE_DEADBAND
-                )
+                ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND)
               },
               { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
               { ControlBoard.slowMode },
@@ -56,30 +51,22 @@ class CenterL4Barge(
               elevator,
               superstructure,
               vision,
-              1
+              ReefAlignCommand.BRANCH_ID.RIGHT
             )
           )
-      )
-        .withTimeout(3.0),
-      runOnce({
-        drivetrain.resetFieldFrameEstimator(AllianceFlipUtil.apply(secondPose))
-      }), // reset pose after path
+      ),
       FollowChoreoPath(drivetrain, secondTrajectory),
       ParallelCommandGroup(
         superstructure.intakeAlgaeCommand(Constants.Universal.AlgaeIntakeLevel.L2),
-        WaitCommand(1.5)
+        WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds)
           .andThen(
             TargetTagCommand(
               driver = Jessika(),
               {
-                ControlBoard.forward.smoothDeadband(
-                  Constants.Joysticks.THROTTLE_DEADBAND
-                )
+                ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND)
               },
               {
-                ControlBoard.strafe.smoothDeadband(
-                  Constants.Joysticks.THROTTLE_DEADBAND
-                )
+                ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND)
               },
               { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
               { ControlBoard.slowMode },
@@ -88,11 +75,7 @@ class CenterL4Barge(
               0.inches
             )
           )
-      )
-        .withTimeout(3.0),
-      runOnce({
-        drivetrain.resetFieldFrameEstimator(AllianceFlipUtil.apply(thirdPose))
-      }), // reset pose after path
+      ),
       ParallelCommandGroup(
         FollowChoreoPath(drivetrain, thirdTrajectory),
         WaitCommand(0.5)
@@ -102,28 +85,20 @@ class CenterL4Barge(
             )
           )
       ),
-      superstructure
-        .scoreCommand()
-        .withTimeout(RollersConstants.GAMEPIECE_SPITOUT_THRESHOLD.inSeconds * 1.5),
-      runOnce({
-        drivetrain.resetFieldFrameEstimator(AllianceFlipUtil.apply(fourthPose))
-      }), // reset pose after path
+      superstructure.scoreCommand(),
+      WaitCommand(RollersConstants.GAMEPIECE_SPITOUT_THRESHOLD.inSeconds * 1.5),
       FollowChoreoPath(drivetrain, fourthTrajectory),
       ParallelCommandGroup(
         superstructure.intakeAlgaeCommand(Constants.Universal.AlgaeIntakeLevel.L2),
-        WaitCommand(1.5)
+        WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds)
           .andThen(
             TargetTagCommand(
               driver = Jessika(),
               {
-                ControlBoard.forward.smoothDeadband(
-                  Constants.Joysticks.THROTTLE_DEADBAND
-                )
+                ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND)
               },
               {
-                ControlBoard.strafe.smoothDeadband(
-                  Constants.Joysticks.THROTTLE_DEADBAND
-                )
+                ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND)
               },
               { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
               { ControlBoard.slowMode },
@@ -132,11 +107,7 @@ class CenterL4Barge(
               0.inches
             )
           )
-      )
-        .withTimeout(3.0),
-      runOnce({
-        drivetrain.resetFieldFrameEstimator(AllianceFlipUtil.apply(fifthPose))
-      }), // reset pose after path
+      ),
       ParallelCommandGroup(
         FollowChoreoPath(drivetrain, fifthTrajectory),
         WaitCommand(0.5)

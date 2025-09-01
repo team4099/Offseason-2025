@@ -3,7 +3,7 @@ package com.team4099.robot2025.auto
 import com.team4099.robot2025.auto.mode.CenterL4Barge
 import com.team4099.robot2025.auto.mode.ExamplePathAuto
 import com.team4099.robot2025.auto.mode.ThreeL4CoralStation
-import com.team4099.robot2025.auto.mode.ThreeL4LeftAuto
+import com.team4099.robot2025.auto.mode.ThreeL4ProcessorLolipop
 import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
@@ -42,19 +42,13 @@ object AutonomousSelector {
         AutonomousMode.EXAMPLE_AUTO
       )
 
-    autonomousModeChooser.addOption(
-      "Three L4 Auto from Processor Side (Default)", AutonomousMode.THREE_L4_LEFT_AUTO
-    )
-
-    autonomousModeChooser.addOption(
-      "Three L4 Auto from Far Side", AutonomousMode.THREE_L4_RIGHT_AUTO
-    )
-
     autonomousModeChooser.addOption("Center L4 + 2 Barge", AutonomousMode.CENTER_L4_BARGE)
 
     autonomousModeChooser.addOption(
       "Three L4 From Coral Station", AutonomousMode.THREE_L4_CORAL_STATION
     )
+
+    autonomousModeChooser.addOption("Three L4 from Lollipops", AutonomousMode.THREE_L4_LOLLIPOP)
 
     autoTab.add("Mode", autonomousModeChooser.sendableChooser).withSize(4, 2).withPosition(2, 0)
 
@@ -97,17 +91,6 @@ object AutonomousSelector {
             )
           })
           .andThen(ExamplePathAuto(drivetrain))
-      AutonomousMode.THREE_L4_LEFT_AUTO ->
-        return WaitCommand(waitTime.inSeconds)
-          .andThen({
-            drivetrain.tempZeroGyroYaw(
-              AllianceFlipUtil.apply(ThreeL4LeftAuto.startingPose).rotation
-            )
-            drivetrain.resetFieldFrameEstimator(
-              AllianceFlipUtil.apply(ThreeL4LeftAuto.startingPose)
-            )
-          })
-          .andThen(ThreeL4LeftAuto(drivetrain, elevator, superstructure, vision))
       AutonomousMode.CENTER_L4_BARGE ->
         return WaitCommand(waitTime.inSeconds)
           .andThen({
@@ -124,6 +107,14 @@ object AutonomousSelector {
             )
           })
           .andThen(ThreeL4CoralStation(drivetrain, elevator, superstructure, vision))
+      AutonomousMode.THREE_L4_LOLLIPOP ->
+        return WaitCommand(waitTime.inSeconds)
+          .andThen({
+            drivetrain.resetFieldFrameEstimator(
+              AllianceFlipUtil.apply(ThreeL4ProcessorLolipop.startingPose)
+            )
+          })
+          .andThen(ThreeL4ProcessorLolipop(drivetrain, elevator, superstructure, vision))
       else -> return InstantCommand()
     }
   }
@@ -135,10 +126,8 @@ object AutonomousSelector {
   private enum class AutonomousMode {
     // Delete this when real autos are made
     EXAMPLE_AUTO,
-    THREE_L4_HOME_AUTO,
-    THREE_L4_LEFT_AUTO,
-    THREE_L4_RIGHT_AUTO,
     CENTER_L4_BARGE,
-    THREE_L4_CORAL_STATION
+    THREE_L4_CORAL_STATION,
+    THREE_L4_LOLLIPOP
   }
 }

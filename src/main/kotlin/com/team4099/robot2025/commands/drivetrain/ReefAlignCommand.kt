@@ -11,6 +11,7 @@ import com.team4099.robot2025.util.CustomLogger
 import com.team4099.robot2025.util.FMSData
 import com.team4099.robot2025.util.driver.DriverProfile
 import edu.wpi.first.wpilibj.DriverStation
+import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import org.team4099.lib.units.base.Time
 import org.team4099.lib.units.base.inches
@@ -102,7 +103,7 @@ class ReefAlignCommand(
     //      ElevatorConstants
     //        .PREP_L4_HEIGHT && // just so it doesn't tip when driving and logic stays the same
     //      DriverStation.isAutonomous()
-    return false
+    return RobotBase.isSimulation()
   }
 
   override fun end(interrupted: Boolean) {

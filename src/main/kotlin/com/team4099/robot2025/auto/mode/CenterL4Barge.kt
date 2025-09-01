@@ -35,27 +35,19 @@ class CenterL4Barge(
       // ---------- 1: CENTER TO L4 ----------
 
       FollowChoreoPath(drivetrain, firstTrajectory),
-      ParallelCommandGroup(
-        superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L4),
-        WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds)
-          .andThen(
-            ReefAlignCommand(
-              driver = Jessika(),
-              {
-                ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND)
-              },
-              {
-                ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND)
-              },
-              { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-              { ControlBoard.slowMode },
-              drivetrain,
-              elevator,
-              superstructure,
-              vision,
-              ReefAlignCommand.BRANCH_ID.RIGHT
-            )
-          )
+      superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L4),
+      WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds),
+      ReefAlignCommand(
+        driver = Jessika(),
+        { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
+        { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
+        { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
+        { ControlBoard.slowMode },
+        drivetrain,
+        elevator,
+        superstructure,
+        vision,
+        ReefAlignCommand.BRANCH_ID.RIGHT
       ),
 
       // ---------- 2: L4 TO ALGAE REEF INTAKE ----------

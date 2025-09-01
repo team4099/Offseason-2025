@@ -330,7 +330,7 @@ class TargetTagCommand(
   }
 
   override fun isFinished(): Boolean {
-    return false
+    return RobotBase.isSimulation()
   }
 
   override fun end(interrupted: Boolean) {

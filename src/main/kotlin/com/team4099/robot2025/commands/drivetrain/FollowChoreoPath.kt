@@ -3,15 +3,12 @@ package com.team4099.robot2025.commands.drivetrain
 import choreo.trajectory.SwerveSample
 import choreo.trajectory.Trajectory
 import com.team4099.lib.logging.LoggedTunableValue
-import com.team4099.lib.math.asPose2d
-import com.team4099.lib.math.asTransform2d
 import com.team4099.lib.trajectory.CustomHolonomicDriveController
 import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
 import com.team4099.robot2025.subsystems.superstructure.Request.DrivetrainRequest
+import com.team4099.robot2025.util.AllianceFlipUtil
 import com.team4099.robot2025.util.CustomLogger
-import com.team4099.robot2025.util.FMSData
-import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import org.team4099.lib.controller.PIDController
@@ -133,17 +130,16 @@ class FollowChoreoPath(val drivetrain: Drivetrain, val trajectory: Trajectory<Sw
     trajCurTime = Clock.fpgaTime - trajStartTime
 
     val desiredState =
-      trajectory
-        .sampleAt(trajCurTime.inSeconds, FMSData.allianceColor == DriverStation.Alliance.Red)
-        .get()
+      trajectory.sampleAt(trajCurTime.inSeconds, AllianceFlipUtil.shouldFlip()).get()
 
     val poseReference =
-      drivetrain
-        .odomTField
-        .inverse()
-        .asPose2d()
-        .transformBy(drivetrain.fieldTRobot.asTransform2d())
-        .pose2d
+      //      drivetrain
+      //        .odomTField
+      //        .inverse()
+      //        .asPose2d()
+      //        .transformBy(drivetrain.fieldTRobot.asTransform2d())
+      //        .pose2d
+      drivetrain.odomTRobot.pose2d
 
     drivetrain.targetPose = Pose2d(desiredState.pose)
 
@@ -169,8 +165,7 @@ class FollowChoreoPath(val drivetrain: Drivetrain, val trajectory: Trajectory<Sw
   }
 
   override fun isFinished(): Boolean {
-    trajCurTime = Clock.fpgaTime - trajStartTime
-    return trajCurTime > trajectory.totalTime.seconds
+    return Clock.fpgaTime - trajStartTime > trajectory.totalTime.seconds + 0.5.seconds
   }
 
   override fun end(interrupted: Boolean) {

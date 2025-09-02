@@ -44,7 +44,7 @@ object ArmIOSIm : ArmIO {
       ArmConstants.MIN_ROTATION.inRadians,
       ArmConstants.MAX_ROTATION.inRadians,
       true,
-      0.0
+      ArmConstants.MIN_ROTATION.inRadians
     )
 
   var armTargetPos = -1337.degrees

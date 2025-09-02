@@ -7,10 +7,12 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage
 import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.CANcoder
 import com.ctre.phoenix6.hardware.TalonFX
+import com.ctre.phoenix6.signals.GravityTypeValue
 import com.team4099.lib.math.clamp
 import com.team4099.robot2025.config.constants.ArmConstants
 import com.team4099.robot2025.config.constants.Constants
 import edu.wpi.first.units.measure.AngularAcceleration
+import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Voltage
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.celsius
@@ -27,6 +29,7 @@ import org.team4099.lib.units.derived.VelocityFeedforward
 import org.team4099.lib.units.derived.Volt
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inDegrees
+import org.team4099.lib.units.derived.inRotations
 import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.inVoltsPerRadian
 import org.team4099.lib.units.derived.inVoltsPerRadianPerSecond
@@ -43,8 +46,6 @@ import edu.wpi.first.units.measure.Temperature as WPITemp
 
 object ArmIOTalon : ArmIO {
   private val armTalon: TalonFX = TalonFX(Constants.Arm.ARM_MOTOR_ID)
-
-  private val armConfig: TalonFXConfiguration = TalonFXConfiguration()
 
   private val absoluteEncoder: CANcoder = CANcoder(Constants.Arm.CANCODER_ID)
 
@@ -66,7 +67,8 @@ object ArmIOTalon : ArmIO {
   var dutyCycleSignal: StatusSignal<Double>
   var motorTorqueSignal: StatusSignal<WPICurrent>
   var motorVoltageSignal: StatusSignal<Voltage>
-  var absoluteEncoderSignal: StatusSignal<WPIAngle>
+  var absoluteEncoderPositionSignal: StatusSignal<WPIAngle>
+  var absoluteEncoderVelocitySignal: StatusSignal<AngularVelocity>
   var motorAcelSignal: StatusSignal<AngularAcceleration>
 
   init {
@@ -91,6 +93,8 @@ object ArmIOTalon : ArmIO {
     configs.MotionMagic.MotionMagicAcceleration =
       ArmConstants.MAX_ACCELERATION.inDegreesPerSecondPerSecond
 
+    configs.Slot0.GravityType = GravityTypeValue.Arm_Cosine
+
     statorCurrentSignal = armTalon.statorCurrent
     supplyCurrentSignal = armTalon.supplyCurrent
     tempSignal = armTalon.deviceTemp
@@ -99,15 +103,23 @@ object ArmIOTalon : ArmIO {
     motorVoltageSignal = armTalon.motorVoltage
     motorAcelSignal = armTalon.acceleration
 
-    absoluteEncoderSignal = absoluteEncoder.position
+    absoluteEncoderPositionSignal = absoluteEncoder.position
+    absoluteEncoderVelocitySignal = absoluteEncoder.velocity
 
     armTalon.configurator.apply(configs)
     absoluteEncoder.configurator.apply(absoluteEncoderConfig)
+
+    zeroEncoder()
   }
 
   override fun updateInputs(inputs: ArmIO.ArmIOInputs) {
-    inputs.armPosition = absoluteEncoderSignal.valueAsDouble.degrees
-    inputs.armVelocity = absoluteEncoder.velocity.valueAsDouble.degrees.perSecond
+    inputs.armPosition =
+      absoluteEncoderPositionSignal.valueAsDouble.rotations *
+      ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO + ArmConstants.ENCODER_ANGLE_OFFSET
+    inputs.armVelocity =
+      absoluteEncoderVelocitySignal.valueAsDouble.rotations.perSecond *
+      ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO
+
     inputs.armTorque = armTalon.torqueCurrent.valueAsDouble
     inputs.armAppliedVoltage = motorVoltageSignal.valueAsDouble.volts
     inputs.armDutyCycle = dutyCycleSignal.valueAsDouble.volts
@@ -148,7 +160,10 @@ object ArmIOTalon : ArmIO {
   }
 
   override fun zeroEncoder() {
-    absoluteEncoder.setPosition(0.0)
+    armTalon.setPosition(
+      absoluteEncoderPositionSignal.valueAsDouble * ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO +
+        ArmConstants.ENCODER_ANGLE_OFFSET.inRotations
+    )
   }
 
   override fun setVoltage(targetVoltage: ElectricalPotential) {

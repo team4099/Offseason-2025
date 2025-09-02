@@ -15,17 +15,19 @@ import org.team4099.lib.units.perSecond
 
 object ArmConstants {
   val VOLTAGE_COMPENSATION = 12.0.volts
-  val ENCODER_TO_MECHANISM_GEAR_RATIO = 1.0 / 2.0
+  // what armPosition is when the arm is 0 in +x direction (above intake)
+  val ENCODER_ANGLE_OFFSET = 0.0.degrees
 
   val ARM_TOLERANCE = 2.0.degrees // todo tune and make smaller
   val ARM_LENGTH = 26.1362839.inches
   val ARM_MOMENT_OF_INERTIA = 0.00503098.kilo.grams.meterSquared
   val ARM_MASS = 4.5796764.pounds
 
-  val MIN_ROTATION = 0.0.degrees
-  val MAX_ROTATION = 270.0.degrees
+  val MIN_ROTATION = -90.degrees
+  val MAX_ROTATION = -270.0.degrees
 
   val GEAR_RATIO = (14.0 / 62.0) * (26.0 / 54.0)
+  val ENCODER_TO_MECHANISM_GEAR_RATIO = -1.0 // rotation is inverted 😭😭😭😭😭
 
   val MAX_VELOCITY: AngularVelocity = 270.0.degrees.perSecond
   val MAX_ACCELERATION: AngularAcceleration = 270.0.degrees.perSecond.perSecond
@@ -48,35 +50,37 @@ object ArmConstants {
     val KG = 0.0.volts
   }
 
+  // all angles were originally measured from cw down, so the -(value + 90) adjusts it properly to
+  // be ccw horizontal
   object ANGLES {
-    val IDLE_ANGLE = 0.0.degrees
-    val EJECT_ANGLE = 60.0.degrees
-    val HOME_ANGLE = 180.0.degrees
-    val CLIMB_ANGLE = 90.0.degrees
+    val IDLE_ANGLE = -(0.0.degrees + 90.degrees)
+    val EJECT_ANGLE = -(60.0.degrees + 90.degrees)
+    val HOME_ANGLE = -(180.0.degrees + 90.degrees)
+    val CLIMB_ANGLE = -(90.0.degrees + 90.degrees)
 
-    val INTAKE_CORAL_ANGLE = 0.0.degrees
+    val INTAKE_CORAL_ANGLE = -(0.0.degrees + 90.degrees)
 
-    val IDLE_CORAL_ANGLE = 0.0.degrees
-    val IDLE_ALGAE_ANGLE = 180.0.degrees
+    val IDLE_CORAL_ANGLE = -(0.0.degrees + 90.degrees)
+    val IDLE_ALGAE_ANGLE = -(180.0.degrees + 90.degrees)
 
-    val L1_PREP_ANGLE = 70.0.degrees
-    val L2_PREP_ANGLE = 123.26.degrees
-    val L3_PREP_ANGLE = 123.26.degrees
-    val L4_PREP_ANGLE = 127.68.degrees
+    val L1_PREP_ANGLE = -(70.0.degrees + 90.degrees)
+    val L2_PREP_ANGLE = -(123.26.degrees + 90.degrees)
+    val L3_PREP_ANGLE = -(123.26.degrees + 90.degrees)
+    val L4_PREP_ANGLE = -(127.68.degrees + 90.degrees)
 
-    val BARGE_ANGLE = 152.17.degrees
-    val PROCESSOR_ANGLE = 70.0.degrees
+    val BARGE_ANGLE = -(152.17.degrees + 90.degrees)
+    val PROCESSOR_ANGLE = -(70.0.degrees + 90.degrees)
 
-    val ALGAE_GROUND_INTAKE_ANGLE = 79.62.degrees
-    val ALGAE_LOW_INTAKE_ANGLE = 90.0.degrees
-    val ALGAE_HIGH_INTAKE_ANGLE = 90.0.degrees
+    val ALGAE_GROUND_INTAKE_ANGLE = -(79.62.degrees + 90.degrees)
+    val ALGAE_LOW_INTAKE_ANGLE = -(90.0.degrees + 90.degrees)
+    val ALGAE_HIGH_INTAKE_ANGLE = -(90.0.degrees + 90.degrees)
 
-    val SCORE_ANGLE_OFFSET = 30.0.degrees
+    val SCORE_ANGLE_OFFSET = -(30.0.degrees + 90.degrees)
 
-    val ARM_GUARENTEED_OVER_BATTERY = 60.0.degrees
+    val ARM_GUARENTEED_OVER_BATTERY = -(60.0.degrees + 90.degrees)
 
     val SIM_MECH_OFFSET = 90.0.degrees
 
-    val MOVING_BETWEEN_REEF_LEVELS_ANGLE = 180.0.degrees
+    val MOVING_BETWEEN_REEF_LEVELS_ANGLE = -(180.0.degrees + 90.degrees)
   }
 }

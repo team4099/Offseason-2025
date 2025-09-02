@@ -17,7 +17,7 @@ import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.perSecond
 
 object IntakeConstants {
-  val ZERO_OFFSET = 0.0.degrees
+  val ZERO_OFFSET = ANGLES.STOW_ANGLE
   val PIVOT_GEAR_RATIO = (8.0 / 40.0) * (16.0 / 50.0) * (16.0 / 42.0)
 
   val INTAKE_TOLERANCE = 1.0.degrees
@@ -45,8 +45,8 @@ object IntakeConstants {
   val SIM_ACCELERATION = 400.degrees.perSecond.perSecond
 
   object ANGLES {
-    val INTAKE_ANGLE = 120.0.degrees
-    val STOW_ANGLE = 0.0.degrees
+    val INTAKE_ANGLE = (-27.5).degrees
+    val STOW_ANGLE = 107.5.degrees
   }
 
   object PID {

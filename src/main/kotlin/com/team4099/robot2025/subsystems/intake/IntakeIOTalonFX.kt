@@ -190,15 +190,6 @@ object IntakeIOTalonFX : IntakeIO {
   }
 
   override fun zeroEncoder() {
-    /*
-    var angleToZero =
-      (absoluteEncoder.position.valueAsDouble).rotations / ArmConstants.ARM_GEAR_RATIO
-
-    CustomLogger.recordOutput("Arm/angleToZero", angleToZero.inDegrees)
-    armTalon.setPosition(angleToZero.inRotations)
-
-     */
-
     pivotTalon.setPosition(pivotSensor.positionToRawUnits(IntakeConstants.ZERO_OFFSET))
   }
 

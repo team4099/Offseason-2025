@@ -46,6 +46,7 @@ class ThreeL4CoralStation(
         vision,
         ReefAlignCommand.BRANCH_ID.RIGHT
       ),
+      WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds),
 
       // ---------- 2: L4 TO CORAL STATION ----------
 
@@ -70,6 +71,7 @@ class ThreeL4CoralStation(
         vision,
         ReefAlignCommand.BRANCH_ID.RIGHT
       ),
+      WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds),
 
       // ---------- 4: L4 TO CORAL STATION ----------
 

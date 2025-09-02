@@ -49,29 +49,22 @@ class CenterL4Barge(
         vision,
         ReefAlignCommand.BRANCH_ID.RIGHT
       ),
+      WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds),
 
       // ---------- 2: L4 TO ALGAE REEF INTAKE ----------
 
       FollowChoreoPath(drivetrain, secondTrajectory),
-      ParallelCommandGroup(
-        superstructure.intakeAlgaeCommand(Constants.Universal.AlgaeIntakeLevel.L2),
-        WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds)
-          .andThen(
-            TargetTagCommand(
-              driver = Jessika(),
-              {
-                ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND)
-              },
-              {
-                ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND)
-              },
-              { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-              { ControlBoard.slowMode },
-              drivetrain,
-              vision,
-              0.inches
-            )
-          )
+      superstructure.intakeAlgaeCommand(Constants.Universal.AlgaeIntakeLevel.L2),
+      WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds),
+      TargetTagCommand(
+        driver = Jessika(),
+        { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
+        { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
+        { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
+        { ControlBoard.slowMode },
+        drivetrain,
+        vision,
+        0.inches
       ),
 
       // ---------- 3: REEF TO NET ----------
@@ -91,25 +84,17 @@ class CenterL4Barge(
       // ---------- 4: NET TO ALGAE REEF INTAKE ----------
 
       FollowChoreoPath(drivetrain, fourthTrajectory),
-      ParallelCommandGroup(
-        superstructure.intakeAlgaeCommand(Constants.Universal.AlgaeIntakeLevel.L2),
-        WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds)
-          .andThen(
-            TargetTagCommand(
-              driver = Jessika(),
-              {
-                ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND)
-              },
-              {
-                ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND)
-              },
-              { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-              { ControlBoard.slowMode },
-              drivetrain,
-              vision,
-              0.inches
-            )
-          )
+      superstructure.intakeAlgaeCommand(Constants.Universal.AlgaeIntakeLevel.L2),
+      WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds),
+      TargetTagCommand(
+        driver = Jessika(),
+        { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
+        { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
+        { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
+        { ControlBoard.slowMode },
+        drivetrain,
+        vision,
+        0.inches
       ),
 
       // ---------- 5: REEF TO NET ----------
@@ -123,7 +108,7 @@ class CenterL4Barge(
             )
           )
       ),
-      superstructure.scoreCommand()
+      superstructure.scoreCommand(),
     )
   }
 

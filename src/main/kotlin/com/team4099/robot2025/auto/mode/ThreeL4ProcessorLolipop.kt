@@ -46,6 +46,7 @@ class ThreeL4ProcessorLolipop(
         vision,
         ReefAlignCommand.BRANCH_ID.RIGHT
       ),
+      WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds),
 
       // ---------- 2: L4 TO BOTTOM LOLLI' ----------
 
@@ -70,6 +71,7 @@ class ThreeL4ProcessorLolipop(
         vision,
         ReefAlignCommand.BRANCH_ID.RIGHT
       ),
+      WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds),
 
       // ---------- 4: L4 TO MIDDLE LOLLI' ----------
 
@@ -93,7 +95,7 @@ class ThreeL4ProcessorLolipop(
         superstructure,
         vision,
         ReefAlignCommand.BRANCH_ID.LEFT
-      )
+      ),
     )
   }
 

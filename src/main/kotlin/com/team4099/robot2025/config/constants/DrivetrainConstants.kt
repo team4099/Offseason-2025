@@ -39,8 +39,8 @@ object DrivetrainConstants {
 
   const val WHEEL_COUNT = 4
   val WHEEL_DIAMETER = (2 * 2).inches
-  val DRIVETRAIN_LENGTH = 30.inches
-  val DRIVETRAIN_WIDTH = 30.inches
+  val DRIVETRAIN_LENGTH = 28.5.inches
+  val DRIVETRAIN_WIDTH = 28.5.inches
 
   val DOCKING_GYRO_SETPOINT = 0.0.degrees
   val DOCKING_GYRO_TOLERANCE = 2.5.degrees

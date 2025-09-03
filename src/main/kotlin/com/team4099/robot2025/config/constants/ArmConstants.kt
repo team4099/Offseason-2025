@@ -32,6 +32,8 @@ object ArmConstants {
   val MAX_VELOCITY: AngularVelocity = 270.0.degrees.perSecond
   val MAX_ACCELERATION: AngularAcceleration = 270.0.degrees.perSecond.perSecond
 
+  val TIME_TO_GOAL = 0.5.seconds
+
   object PID {
     val REAL_KP = 0.0.volts / 1.degrees
     val REAL_KI = 0.0.volts / (1.degrees * 1.seconds)

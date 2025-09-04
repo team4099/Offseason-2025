@@ -1,5 +1,6 @@
 package com.team4099.robot2025
 
+import com.pathplanner.lib.commands.FollowPathCommand
 import com.team4099.lib.hal.Clock
 import com.team4099.robot2025.auto.AutonomousSelector
 import com.team4099.robot2025.auto.PathStore
@@ -149,6 +150,8 @@ object Robot : LoggedRobot() {
         .withPosition(0, 1)
         .withWidget(BuiltInWidgets.kTextView)
         .entry
+
+    FollowPathCommand.warmupCommand().schedule()
   }
 
   override fun autonomousInit() {

@@ -72,6 +72,8 @@ class Drivetrain(val gyroIO: GyroIO, swerveModuleIOs: DrivetrainIO) : SubsystemB
 
   private var isFieldOriented = true
 
+  var chassisState: ChassisSpeeds = ChassisSpeeds()
+
   var targetedChassisSpeeds = edu.wpi.first.math.kinematics.ChassisSpeeds(0.0, 0.0, 0.0)
     private set
 
@@ -255,8 +257,7 @@ class Drivetrain(val gyroIO: GyroIO, swerveModuleIOs: DrivetrainIO) : SubsystemB
           swerveModules[i].inputs.steeringPosition.inRotation2ds
         )
     }
-    val chassisState: ChassisSpeeds =
-      ChassisSpeeds(swerveDriveKinematics.toChassisSpeeds(measuredStates))
+    chassisState = ChassisSpeeds(swerveDriveKinematics.toChassisSpeeds(measuredStates))
     val fieldVelCalculated =
       Translation2d(
         chassisState.vx.inMetersPerSecond.meters, chassisState.vy.inMetersPerSecond.meters

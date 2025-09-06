@@ -4,7 +4,6 @@ import com.pathplanner.lib.commands.FollowPathCommand
 import com.pathplanner.lib.path.PathPlannerPath
 import com.pathplanner.lib.path.Waypoint
 import com.pathplanner.lib.util.DriveFeedforwards
-import com.team4099.lib.hal.Clock
 import com.team4099.lib.logging.LoggedTunableValue
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.DrivetrainConstants
@@ -23,9 +22,7 @@ import org.team4099.lib.pplib.PathPlannerHolonomicDriveController.Companion.Path
 import org.team4099.lib.pplib.PathPlannerHolonomicDriveController.Companion.RobotConfig
 import org.team4099.lib.pplib.PathPlannerRotationPID
 import org.team4099.lib.pplib.PathPlannerTranslationPID
-import org.team4099.lib.units.base.Time
 import org.team4099.lib.units.base.meters
-import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.inMetersPerSecondPerMeter
 import org.team4099.lib.units.derived.inMetersPerSecondPerMeterSeconds
 import org.team4099.lib.units.derived.inMetersPerSecondPerMetersPerSecond
@@ -53,7 +50,6 @@ import edu.wpi.first.math.geometry.Pose2d as WPIPose2d
  * @property poses List of poses for the path to go through. **WARNING: The rotation of each pose
  * should be the direction of travel, NOT the rotation of the swerve chassis. See
  * [PathPlanner documentation](https://pathplanner.dev/pplib-create-a-path-on-the-fly.html)**
- * @property timeout Time it takes for the command to interrupt, even if path is not complete.
  * @property goalEndState Goal end state for chassis.
  */
 class DrivePathOTF(
@@ -63,13 +59,11 @@ class DrivePathOTF(
   private val turn: DoubleSupplier,
   private val poseReferenceSupplier: Supplier<WPIPose2d>,
   private val poses: List<Supplier<Pose2d>>,
-  private val timeout: Time,
   private val goalEndState: GoalEndState
 ) : Command() {
   private val DRIVE_ESCAPE_THRESHOLD = 0.4
   private val TURN_ESCAPE_THRESHOLD = 0.4
 
-  private var startTime: Time = 0.0.seconds
   private lateinit var command: FollowPathCommand
 
   private val thetakP =
@@ -138,8 +132,6 @@ class DrivePathOTF(
   }
 
   override fun initialize() {
-    startTime = Clock.fpgaTime
-
     val waypoints: List<Waypoint> =
       PathPlannerPath.waypointsFromPoses(
         listOf(poseReferenceSupplier.get()) + poses.map { pose2d -> pose2d.get().pose2d }
@@ -177,33 +169,32 @@ class DrivePathOTF(
           ),
           // fl, fr, bl, br
           Translation2d(
-            DrivetrainConstants.DRIVETRAIN_LENGTH / 2 -
+            DrivetrainConstants.DRIVETRAIN_LENGTH / 2.0 -
               DrivetrainConstants.WHEEL_DIAMETER / 2.0,
-            -DrivetrainConstants.DRIVETRAIN_WIDTH / 2 +
+            -DrivetrainConstants.DRIVETRAIN_WIDTH / 2.0 +
               DrivetrainConstants.WHEEL_DIAMETER / 2.0
           ),
           Translation2d(
-            DrivetrainConstants.DRIVETRAIN_LENGTH / 2 -
+            DrivetrainConstants.DRIVETRAIN_LENGTH / 2.0 -
               DrivetrainConstants.WHEEL_DIAMETER / 2.0,
-            DrivetrainConstants.DRIVETRAIN_WIDTH / 2 -
+            DrivetrainConstants.DRIVETRAIN_WIDTH / 2.0 -
               DrivetrainConstants.WHEEL_DIAMETER / 2.0
           ),
           Translation2d(
-            -DrivetrainConstants.DRIVETRAIN_LENGTH / 2 +
+            -DrivetrainConstants.DRIVETRAIN_LENGTH / 2.0 +
               DrivetrainConstants.WHEEL_DIAMETER / 2.0,
-            -DrivetrainConstants.DRIVETRAIN_WIDTH / 2 +
+            -DrivetrainConstants.DRIVETRAIN_WIDTH / 2.0 +
               DrivetrainConstants.WHEEL_DIAMETER / 2.0
           ),
           Translation2d(
-            -DrivetrainConstants.DRIVETRAIN_LENGTH / 2 +
+            -DrivetrainConstants.DRIVETRAIN_LENGTH / 2.0 +
               DrivetrainConstants.WHEEL_DIAMETER / 2.0,
-            DrivetrainConstants.DRIVETRAIN_WIDTH / 2 -
+            DrivetrainConstants.DRIVETRAIN_WIDTH / 2.0 -
               DrivetrainConstants.WHEEL_DIAMETER / 2.0
           )
         )
           .ppllibRobotConfig,
         { AllianceFlipUtil.shouldFlip() },
-        // idt u need to add drivetrain as a requirement since this command already has that
       )
 
     command.initialize()
@@ -211,16 +202,13 @@ class DrivePathOTF(
 
   override fun execute() {
     command.execute()
-
-    if (driveX.asDouble >= DRIVE_ESCAPE_THRESHOLD ||
-      driveY.asDouble >= DRIVE_ESCAPE_THRESHOLD ||
-      turn.asDouble >= TURN_ESCAPE_THRESHOLD
-    )
-      end(interrupted = true)
   }
 
   override fun isFinished(): Boolean {
-    return Clock.fpgaTime - startTime > timeout || command.isFinished
+    return command.isFinished ||
+      driveX.asDouble >= DRIVE_ESCAPE_THRESHOLD ||
+      driveY.asDouble >= DRIVE_ESCAPE_THRESHOLD ||
+      turn.asDouble >= TURN_ESCAPE_THRESHOLD
   }
 
   override fun end(interrupted: Boolean) {

@@ -3,6 +3,7 @@ package com.team4099.robot2025
 import com.team4099.robot2023.subsystems.vision.camera.CameraIO
 import com.team4099.robot2023.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.auto.AutonomousSelector
+import com.team4099.robot2025.commands.drivetrain.DrivePathOTF
 import com.team4099.robot2025.commands.drivetrain.ResetGyroYawCommand
 import com.team4099.robot2025.commands.drivetrain.TeleopDriveCommand
 import com.team4099.robot2025.config.ControlBoard
@@ -39,8 +40,16 @@ import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.driver.Jessika
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.ConditionalCommand
+import edu.wpi.first.wpilibj2.command.InstantCommand
+import org.team4099.lib.geometry.Pose2d
+import org.team4099.lib.pplib.PathPlannerHolonomicDriveController
 import org.team4099.lib.smoothDeadband
+import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.Angle
+import org.team4099.lib.units.derived.radians
+import org.team4099.lib.units.perSecond
+import java.util.function.Supplier
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersIOSim
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOTalon as ArmRollersIOTalon
@@ -184,8 +193,26 @@ object RobotContainer {
     ControlBoard.forceIdle.whileTrue(superstructure.requestIdleCommand())
     ControlBoard.eject.whileTrue(superstructure.ejectCommand())
 
-    ControlBoard.test.onTrue(superstructure.overrideFlag(true))
-    ControlBoard.test.onFalse(superstructure.overrideFlag(false))
+    ControlBoard.test.onTrue(
+      ConditionalCommand(
+        DrivePathOTF(
+          drivetrain,
+          { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
+          { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
+          { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
+          { drivetrain.odomTRobot.pose2d },
+          listOf(
+            Supplier { Pose2d(2.92.meters, 1.26.meters, 0.34.radians) },
+            Supplier { Pose2d(6.2.meters, 2.0.meters, 1.46.radians) },
+            Supplier { Pose2d(6.4.meters, 4.04.meters, 3.14.radians) }
+          ),
+          PathPlannerHolonomicDriveController.Companion.GoalEndState(
+            0.0.meters.perSecond, 3.14.radians
+          )
+        ),
+        InstantCommand()
+      ) { RobotBase.isSimulation() }
+    )
   }
 
   fun mapTestControls() {}

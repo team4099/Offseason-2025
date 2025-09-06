@@ -9,6 +9,7 @@ import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
 import com.team4099.robot2025.util.AllianceFlipUtil
+import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.wpilibj.RobotBase
@@ -23,9 +24,11 @@ import org.team4099.lib.pplib.PathPlannerHolonomicDriveController.Companion.Robo
 import org.team4099.lib.pplib.PathPlannerRotationPID
 import org.team4099.lib.pplib.PathPlannerTranslationPID
 import org.team4099.lib.units.base.meters
+import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.inMetersPerSecondPerMeter
 import org.team4099.lib.units.derived.inMetersPerSecondPerMeterSeconds
 import org.team4099.lib.units.derived.inMetersPerSecondPerMetersPerSecond
+import org.team4099.lib.units.derived.inRadians
 import org.team4099.lib.units.derived.inRadiansPerSecondPerRadian
 import org.team4099.lib.units.derived.inRadiansPerSecondPerRadianPerSecond
 import org.team4099.lib.units.derived.inRadiansPerSecondPerRadianSeconds
@@ -42,14 +45,16 @@ import java.util.function.Supplier
 import edu.wpi.first.math.geometry.Pose2d as WPIPose2d
 
 /**
- * @property drivetrain Drivetrain.
+ * @property drivetrain
  * @property driveX
  * @property driveY
  * @property turn
  * @property poseReferenceSupplier Supplier of current drivetrain pose.
  * @property poses List of poses for the path to go through. **WARNING: The rotation of each pose
  * should be the direction of travel, NOT the rotation of the swerve chassis. See
- * [PathPlanner documentation](https://pathplanner.dev/pplib-create-a-path-on-the-fly.html)**
+ * [PathPlanner documentation](https://pathplanner.dev/pplib-create-a-path-on-the-fly.html)**. These
+ * values can be fetched from the heading field when creating a path in PathPlanner.
+ * @property initialHeading Initial heading for the path. Does not need to be super precise.
  * @property goalEndState Goal end state for chassis.
  */
 class DrivePathOTF(
@@ -59,6 +64,7 @@ class DrivePathOTF(
   private val turn: DoubleSupplier,
   private val poseReferenceSupplier: Supplier<WPIPose2d>,
   private val poses: List<Supplier<Pose2d>>,
+  private val initialHeading: Angle,
   private val goalEndState: GoalEndState
 ) : Command() {
   private val DRIVE_ESCAPE_THRESHOLD = 0.4
@@ -109,6 +115,8 @@ class DrivePathOTF(
     )
 
   private val ppHolonomicDriveController: PathPlannerHolonomicDriveController
+  private val robotConfig: RobotConfig
+  private val pathConstraints: PathConstraints
 
   init {
     addRequirements(drivetrain)
@@ -129,71 +137,76 @@ class DrivePathOTF(
         PathPlannerRotationPID(thetakP.get(), thetakI.get(), thetakD.get()),
         Constants.Universal.LOOP_PERIOD_TIME
       )
+
+    robotConfig =
+      RobotConfig(
+        Constants.Universal.ROBOT_WEIGHT,
+        Constants.Universal.ROBOT_MOI,
+        ModuleConfig(
+          DrivetrainConstants.WHEEL_DIAMETER / 2.0,
+          DrivetrainConstants.DRIVE_SETPOINT_MAX,
+          DrivetrainConstants.NITRILE_WHEEL_COF,
+          DCMotor.getKrakenX60(1)
+            .withReduction(1.0 / DrivetrainConstants.DRIVE_SENSOR_GEAR_RATIO),
+          DrivetrainConstants.DRIVE_SUPPLY_CURRENT_LIMIT,
+          1
+        ),
+        // fl, fr, bl, br
+        Translation2d(
+          DrivetrainConstants.DRIVETRAIN_LENGTH / 2.0 -
+            DrivetrainConstants.WHEEL_DIAMETER / 2.0,
+          -DrivetrainConstants.DRIVETRAIN_WIDTH / 2.0 +
+            DrivetrainConstants.WHEEL_DIAMETER / 2.0
+        ),
+        Translation2d(
+          DrivetrainConstants.DRIVETRAIN_LENGTH / 2.0 -
+            DrivetrainConstants.WHEEL_DIAMETER / 2.0,
+          DrivetrainConstants.DRIVETRAIN_WIDTH / 2.0 -
+            DrivetrainConstants.WHEEL_DIAMETER / 2.0
+        ),
+        Translation2d(
+          -DrivetrainConstants.DRIVETRAIN_LENGTH / 2.0 +
+            DrivetrainConstants.WHEEL_DIAMETER / 2.0,
+          -DrivetrainConstants.DRIVETRAIN_WIDTH / 2.0 +
+            DrivetrainConstants.WHEEL_DIAMETER / 2.0
+        ),
+        Translation2d(
+          -DrivetrainConstants.DRIVETRAIN_LENGTH / 2.0 +
+            DrivetrainConstants.WHEEL_DIAMETER / 2.0,
+          DrivetrainConstants.DRIVETRAIN_WIDTH / 2.0 -
+            DrivetrainConstants.WHEEL_DIAMETER / 2.0
+        )
+      )
+
+    pathConstraints =
+      PathConstraints(
+        DrivetrainConstants.DRIVE_SETPOINT_MAX,
+        DrivetrainConstants.MAX_AUTO_ACCEL,
+        DrivetrainConstants.STEERING_VEL_MAX,
+        DrivetrainConstants.STEERING_ACCEL_MAX
+      )
   }
 
   override fun initialize() {
     val waypoints: List<Waypoint> =
       PathPlannerPath.waypointsFromPoses(
-        listOf(poseReferenceSupplier.get()) + poses.map { pose2d -> pose2d.get().pose2d }
+        buildList(capacity = poses.size + 1) {
+          val pose = poseReferenceSupplier.get()
+          add(WPIPose2d(pose.x, pose.y, Rotation2d(initialHeading.inRadians)))
+          addAll(poses.map { it.get().pose2d })
+        }
       )
 
     command =
       FollowPathCommand(
         PathPlannerPath(
-          waypoints,
-          PathConstraints(
-            DrivetrainConstants.DRIVE_SETPOINT_MAX,
-            DrivetrainConstants.MAX_AUTO_ACCEL,
-            DrivetrainConstants.STEERING_VEL_MAX,
-            DrivetrainConstants.STEERING_ACCEL_MAX
-          )
-            .pplibConstraints,
-          null,
-          goalEndState.pplibGoalEndState
+          waypoints, pathConstraints.pplibConstraints, null, goalEndState.pplibGoalEndState
         ),
         poseReferenceSupplier,
         { drivetrain.chassisState.chassisSpeedsWPILIB },
         { speeds: ChassisSpeeds, _: DriveFeedforwards -> drivetrain.setClosedLoop(speeds) },
         ppHolonomicDriveController.pplibController,
-        RobotConfig(
-          Constants.Universal.ROBOT_WEIGHT,
-          Constants.Universal.ROBOT_MOI,
-          ModuleConfig(
-            DrivetrainConstants.WHEEL_DIAMETER / 2.0,
-            DrivetrainConstants.DRIVE_SETPOINT_MAX,
-            DrivetrainConstants.NITRILE_WHEEL_COF,
-            DCMotor.getKrakenX60(1)
-              .withReduction(1.0 / DrivetrainConstants.DRIVE_SENSOR_GEAR_RATIO),
-            DrivetrainConstants.DRIVE_SUPPLY_CURRENT_LIMIT,
-            1
-          ),
-          // fl, fr, bl, br
-          Translation2d(
-            DrivetrainConstants.DRIVETRAIN_LENGTH / 2.0 -
-              DrivetrainConstants.WHEEL_DIAMETER / 2.0,
-            -DrivetrainConstants.DRIVETRAIN_WIDTH / 2.0 +
-              DrivetrainConstants.WHEEL_DIAMETER / 2.0
-          ),
-          Translation2d(
-            DrivetrainConstants.DRIVETRAIN_LENGTH / 2.0 -
-              DrivetrainConstants.WHEEL_DIAMETER / 2.0,
-            DrivetrainConstants.DRIVETRAIN_WIDTH / 2.0 -
-              DrivetrainConstants.WHEEL_DIAMETER / 2.0
-          ),
-          Translation2d(
-            -DrivetrainConstants.DRIVETRAIN_LENGTH / 2.0 +
-              DrivetrainConstants.WHEEL_DIAMETER / 2.0,
-            -DrivetrainConstants.DRIVETRAIN_WIDTH / 2.0 +
-              DrivetrainConstants.WHEEL_DIAMETER / 2.0
-          ),
-          Translation2d(
-            -DrivetrainConstants.DRIVETRAIN_LENGTH / 2.0 +
-              DrivetrainConstants.WHEEL_DIAMETER / 2.0,
-            DrivetrainConstants.DRIVETRAIN_WIDTH / 2.0 -
-              DrivetrainConstants.WHEEL_DIAMETER / 2.0
-          )
-        )
-          .ppllibRobotConfig,
+        robotConfig.ppllibRobotConfig,
         { AllianceFlipUtil.shouldFlip() },
       )
 

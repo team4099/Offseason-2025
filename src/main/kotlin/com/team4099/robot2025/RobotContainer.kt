@@ -207,6 +207,7 @@ object RobotContainer {
             Supplier { Pose2d(6.1.meters, 2.996.meters, 87.degrees) },
             Supplier { Pose2d(6.1.meters, 4.093.meters, 90.degrees) }
           ),
+          0.0.degrees,
           PathPlannerHolonomicDriveController.Companion.GoalEndState(
             0.0.meters.perSecond, 3.14.radians
           )

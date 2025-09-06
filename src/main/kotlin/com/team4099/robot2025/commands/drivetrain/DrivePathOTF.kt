@@ -142,7 +142,7 @@ class DrivePathOTF(
         PathPlannerPath(
           waypoints,
           PathConstraints(
-            DrivetrainConstants.MAX_AUTO_VEL,
+            DrivetrainConstants.DRIVE_SETPOINT_MAX,
             DrivetrainConstants.MAX_AUTO_ACCEL,
             DrivetrainConstants.STEERING_VEL_MAX,
             DrivetrainConstants.STEERING_ACCEL_MAX

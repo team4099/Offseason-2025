@@ -47,6 +47,7 @@ import org.team4099.lib.pplib.PathPlannerHolonomicDriveController
 import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.Angle
+import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.perSecond
 import java.util.function.Supplier
@@ -202,9 +203,9 @@ object RobotContainer {
           { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
           { drivetrain.odomTRobot.pose2d },
           listOf(
-            Supplier { Pose2d(2.92.meters, 1.26.meters, 0.34.radians) },
-            Supplier { Pose2d(6.2.meters, 2.0.meters, 1.46.radians) },
-            Supplier { Pose2d(6.4.meters, 4.04.meters, 3.14.radians) }
+            Supplier { Pose2d(4.748.meters, 1.56.meters, 27.216.degrees) },
+            Supplier { Pose2d(6.1.meters, 2.996.meters, 87.degrees) },
+            Supplier { Pose2d(6.1.meters, 4.093.meters, 90.degrees) }
           ),
           PathPlannerHolonomicDriveController.Companion.GoalEndState(
             0.0.meters.perSecond, 3.14.radians

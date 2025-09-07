@@ -68,7 +68,7 @@ class SwerveModuleIOTalon(
   private val driveSensor =
     ctreLinearMechanismSensor(
       driveFalcon,
-      DrivetrainConstants.DRIVE_SENSOR_GEAR_RATIO,
+      DrivetrainConstants.MK4_DRIVE_SENSOR_GEAR_RATIO,
       DrivetrainConstants.WHEEL_DIAMETER,
       DrivetrainConstants.DRIVE_COMPENSATION_VOLTAGE
     )
@@ -200,7 +200,7 @@ class SwerveModuleIOTalon(
       driveFalcon.position.value *
         (PI) *
         DrivetrainConstants.WHEEL_DIAMETER.inMeters *
-        DrivetrainConstants.DRIVE_SENSOR_GEAR_RATIO
+        DrivetrainConstants.MK4_DRIVE_SENSOR_GEAR_RATIO
     )
     Logger.recordOutput("$label/drivePositionUnits", driveSensor.position.inMeters)
     inputs.drivePosition = driveSensor.position

@@ -17,6 +17,8 @@ import com.team4099.robot2025.subsystems.canRange.CANRangeReal
 import com.team4099.robot2025.subsystems.climber.Climber
 import com.team4099.robot2025.subsystems.climber.ClimberIOSim
 import com.team4099.robot2025.subsystems.climber.ClimberIOTalon
+import com.team4099.robot2025.subsystems.drivetrain.PheonixDrive.CommandSwerveDrivetrain
+import com.team4099.robot2025.subsystems.drivetrain.PheonixDrive.TunerConstants
 import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
 import com.team4099.robot2025.subsystems.drivetrain.drive.DrivetrainIOReal
 import com.team4099.robot2025.subsystems.drivetrain.drive.DrivetrainIOSim
@@ -47,7 +49,7 @@ import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOTalon as ArmRoller
 import com.team4099.robot2025.subsystems.superstructure.Request.DrivetrainRequest as DrivetrainRequest
 
 object RobotContainer {
-  private val drivetrain: Drivetrain
+  private val drivetrain: CommandSwerveDrivetrain
   private val limelight: LimelightVision
   private val vision: Vision
   private val elevator: Elevator
@@ -64,7 +66,7 @@ object RobotContainer {
 
   init {
     if (RobotBase.isReal()) {
-      drivetrain = Drivetrain(GyroIOPigeon2, DrivetrainIOReal)
+      drivetrain = TunerConstants.createDrivetrain();
       limelight = LimelightVision(object : LimelightVisionIO {})
       elevator = Elevator(ElevatorIOTalon)
       arm = Arm(ArmIOTalon)
@@ -84,7 +86,8 @@ object RobotContainer {
           )
         )
     } else {
-      drivetrain = Drivetrain(object : GyroIO {}, DrivetrainIOSim)
+      //figure this out cause idt this is right?
+      drivetrain = TunerConstants.createDrivetrain();
       limelight = LimelightVision(object : LimelightVisionIO {})
       elevator = Elevator(ElevatorIOSim)
       arm = Arm(ArmIOSIm)

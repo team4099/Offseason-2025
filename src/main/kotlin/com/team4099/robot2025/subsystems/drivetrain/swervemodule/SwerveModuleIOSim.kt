@@ -53,7 +53,7 @@ class SwerveModuleIOSim(override val label: String) : SwerveModuleIO {
       LinearSystemId.createFlywheelSystem(
         DCMotor.getKrakenX60(1),
         DrivetrainConstants.DRIVE_WHEEL_INERTIA.inKilogramsMeterSquared,
-        1 / DrivetrainConstants.DRIVE_SENSOR_GEAR_RATIO
+        1 / DrivetrainConstants.MK4_DRIVE_SENSOR_GEAR_RATIO
       ),
       DCMotor.getKrakenX60(1)
     )

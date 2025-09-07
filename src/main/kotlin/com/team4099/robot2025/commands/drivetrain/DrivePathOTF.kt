@@ -202,7 +202,7 @@ class DrivePathOTF(
         PathPlannerPath(
           waypoints, pathConstraints.pplibConstraints, null, goalEndState.pplibGoalEndState
         ),
-        poseReferenceSupplier,
+        { AllianceFlipUtil.apply(Pose2d(poseReferenceSupplier.get())).pose2d },
         { drivetrain.chassisState.chassisSpeedsWPILIB },
         { speeds: ChassisSpeeds, _: DriveFeedforwards -> drivetrain.setClosedLoop(speeds) },
         ppHolonomicDriveController.pplibController,

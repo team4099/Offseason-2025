@@ -107,6 +107,7 @@ object RobotContainer {
       vision = Vision(object : CameraIO {})
     }
 
+
     vision.setDataInterfaces(
       { drivetrain.fieldTRobot },
       { drivetrain.addVisionData(it) },
@@ -202,14 +203,10 @@ object RobotContainer {
           { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
           { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
           { drivetrain.odomTRobot.pose2d },
-          listOf(
-            Supplier { Pose2d(4.748.meters, 1.56.meters, 27.216.degrees) },
-            Supplier { Pose2d(6.1.meters, 2.996.meters, 87.degrees) },
-            Supplier { Pose2d(6.1.meters, 4.093.meters, 90.degrees) }
-          ),
+          VisionConstants.OTF_PATHS[vision.lastTrigVisionUpdate.targetTagID]!!,
           0.0.degrees,
           PathPlannerHolonomicDriveController.Companion.GoalEndState(
-            0.0.meters.perSecond, 3.14.radians
+            0.0.meters.perSecond, -45.degrees
           )
         ),
         InstantCommand()

@@ -1,5 +1,6 @@
 package com.team4099.robot2025
 
+import com.ctre.phoenix6.signals.NeutralModeValue
 import com.team4099.robot2023.subsystems.vision.camera.CameraIO
 import com.team4099.robot2023.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.auto.AutonomousSelector
@@ -17,13 +18,8 @@ import com.team4099.robot2025.subsystems.canRange.CANRangeReal
 import com.team4099.robot2025.subsystems.climber.Climber
 import com.team4099.robot2025.subsystems.climber.ClimberIOSim
 import com.team4099.robot2025.subsystems.climber.ClimberIOTalon
-import com.team4099.robot2025.subsystems.drivetrain.PheonixDrive.CommandSwerveDrivetrain
+import com.team4099.robot2025.subsystems.drivetrain.PheonixDrive.CommandSwerveDrive
 import com.team4099.robot2025.subsystems.drivetrain.PheonixDrive.TunerConstants
-import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
-import com.team4099.robot2025.subsystems.drivetrain.drive.DrivetrainIOReal
-import com.team4099.robot2025.subsystems.drivetrain.drive.DrivetrainIOSim
-import com.team4099.robot2025.subsystems.drivetrain.gyro.GyroIO
-import com.team4099.robot2025.subsystems.drivetrain.gyro.GyroIOPigeon2
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOSim
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOTalon
@@ -39,17 +35,18 @@ import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.driver.Jessika
+import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
+import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.derived.Angle
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersIOSim
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOTalon as ArmRollersIOTalon
-import com.team4099.robot2025.subsystems.superstructure.Request.DrivetrainRequest as DrivetrainRequest
 
 object RobotContainer {
-  private val drivetrain: CommandSwerveDrivetrain
+  private val drivetrain: CommandSwerveDrive = TunerConstants.createDrivetrain()
   private val limelight: LimelightVision
   private val vision: Vision
   private val elevator: Elevator
@@ -66,7 +63,6 @@ object RobotContainer {
 
   init {
     if (RobotBase.isReal()) {
-      drivetrain = TunerConstants.createDrivetrain();
       limelight = LimelightVision(object : LimelightVisionIO {})
       elevator = Elevator(ElevatorIOTalon)
       arm = Arm(ArmIOTalon)
@@ -86,8 +82,7 @@ object RobotContainer {
           )
         )
     } else {
-      //figure this out cause idt this is right?
-      drivetrain = TunerConstants.createDrivetrain();
+      // figure this out cause idt this is right?
       limelight = LimelightVision(object : LimelightVisionIO {})
       elevator = Elevator(ElevatorIOSim)
       arm = Arm(ArmIOSIm)
@@ -100,12 +95,12 @@ object RobotContainer {
       vision = Vision(object : CameraIO {})
     }
 
-    vision.setDataInterfaces(
-      { drivetrain.fieldTRobot },
-      { drivetrain.addVisionData(it) },
-      { drivetrain.addSpeakerVisionData(it) }
-    )
-    vision.drivetrainOdometry = { drivetrain.odomTRobot }
+    //    vision.setDataInterfaces(
+    //      { drivetrain.fieldTRobot },
+    //      { drivetrain.addVisionData(it) },
+    //      { drivetrain.addSpeakerVisionData(it) }
+    //    )
+    //    vision.drivetrainOdometry = { drivetrain.odomTRobot }
 
     superstructure =
       Superstructure(
@@ -121,7 +116,7 @@ object RobotContainer {
         canrange
       )
 
-    limelight.poseSupplier = { drivetrain.odomTRobot }
+    limelight.poseSupplier = { Pose2d(drivetrain.state.Pose) }
   }
 
   fun mapDefaultCommands() {
@@ -136,31 +131,12 @@ object RobotContainer {
       )
   }
 
-  fun zeroSteering() {
-    drivetrain.zeroSteering()
-  }
-
   fun zeroSensors(isInAutonomous: Boolean = false) {
-    drivetrain.currentRequest = DrivetrainRequest.ZeroSensors(isInAutonomous)
+    drivetrain.resetRotation(Rotation2d())
   }
 
-  fun zeroAngle(toAngle: Angle) {
-    drivetrain.zeroGyroYaw(toAngle)
-  }
-
-  fun setSteeringCoastMode() {
-    drivetrain.swerveModules.forEach { it.setSteeringBrakeMode(false) }
-  }
-  fun setSteeringBrakeMode() {
-    drivetrain.swerveModules.forEach { it.setSteeringBrakeMode(true) }
-  }
-
-  fun setDriveCoastMode() {
-    drivetrain.swerveModules.forEach { it.setDriveBrakeMode(false) }
-  }
-
-  fun setDriveBrakeMode() {
-    drivetrain.swerveModules.forEach { it.setDriveBrakeMode(true) }
+  fun setDriveBrakeMode(neutralModeValue: NeutralModeValue = NeutralModeValue.Brake) {
+    drivetrain.configNeutralMode(neutralModeValue)
   }
 
   fun requestIdle() {

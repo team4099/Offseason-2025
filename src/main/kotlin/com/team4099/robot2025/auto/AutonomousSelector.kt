@@ -4,7 +4,7 @@ import com.team4099.robot2025.auto.mode.CenterL4Barge
 import com.team4099.robot2025.auto.mode.ExamplePathAuto
 import com.team4099.robot2025.auto.mode.ThreeL4CoralStation
 import com.team4099.robot2025.auto.mode.ThreeL4ProcessorLolipop
-import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
+import com.team4099.robot2025.subsystems.drivetrain.PheonixDrive.CommandSwerveDrive
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
 import com.team4099.robot2025.subsystems.vision.Vision
@@ -75,7 +75,7 @@ object AutonomousSelector {
     get() = secondaryWaitInAuto.getDouble(0.0).seconds
 
   fun getCommand(
-    drivetrain: Drivetrain,
+    drivetrain: CommandSwerveDrive,
     elevator: Elevator,
     superstructure: Superstructure,
     vision: Vision
@@ -86,32 +86,28 @@ object AutonomousSelector {
       AutonomousMode.EXAMPLE_AUTO ->
         return WaitCommand(waitTime.inSeconds)
           .andThen({
-            drivetrain.resetFieldFrameEstimator(
-              AllianceFlipUtil.apply(ExamplePathAuto.startingPose)
-            )
+            drivetrain.resetPose(AllianceFlipUtil.apply(ExamplePathAuto.startingPose).pose2d)
           })
           .andThen(ExamplePathAuto(drivetrain))
       AutonomousMode.CENTER_L4_BARGE ->
         return WaitCommand(waitTime.inSeconds)
           .andThen({
-            drivetrain.resetFieldFrameEstimator(
-              AllianceFlipUtil.apply(CenterL4Barge.startingPose)
-            )
+            drivetrain.resetPose(AllianceFlipUtil.apply(CenterL4Barge.startingPose).pose2d)
           })
           .andThen(CenterL4Barge(drivetrain, elevator, superstructure, vision))
       AutonomousMode.THREE_L4_CORAL_STATION ->
         return WaitCommand(waitTime.inSeconds)
           .andThen({
-            drivetrain.resetFieldFrameEstimator(
-              AllianceFlipUtil.apply(ThreeL4CoralStation.startingPose)
+            drivetrain.resetPose(
+              AllianceFlipUtil.apply(ThreeL4CoralStation.startingPose).pose2d
             )
           })
           .andThen(ThreeL4CoralStation(drivetrain, elevator, superstructure, vision))
       AutonomousMode.THREE_L4_LOLLIPOP ->
         return WaitCommand(waitTime.inSeconds)
           .andThen({
-            drivetrain.resetFieldFrameEstimator(
-              AllianceFlipUtil.apply(ThreeL4ProcessorLolipop.startingPose)
+            drivetrain.resetPose(
+              AllianceFlipUtil.apply(ThreeL4ProcessorLolipop.startingPose).pose2d
             )
           })
           .andThen(ThreeL4ProcessorLolipop(drivetrain, elevator, superstructure, vision))
@@ -119,7 +115,7 @@ object AutonomousSelector {
     }
   }
 
-  fun getLoadingCommand(drivetrain: Drivetrain): Command {
+  fun getLoadingCommand(drivetrain: CommandSwerveDrive): Command {
     return ExamplePathAuto(drivetrain)
   }
 

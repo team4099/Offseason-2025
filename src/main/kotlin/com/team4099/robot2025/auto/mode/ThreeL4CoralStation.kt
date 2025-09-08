@@ -7,7 +7,7 @@ import com.team4099.robot2025.commands.drivetrain.ReefAlignCommand
 import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.ArmConstants
 import com.team4099.robot2025.config.constants.Constants
-import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
+import com.team4099.robot2025.subsystems.drivetrain.PheonixDrive.CommandSwerveDrive
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
 import com.team4099.robot2025.subsystems.vision.Vision
@@ -20,7 +20,7 @@ import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.base.inSeconds
 
 class ThreeL4CoralStation(
-  val drivetrain: Drivetrain,
+  val drivetrain: CommandSwerveDrive,
   val elevator: Elevator,
   val superstructure: Superstructure,
   val vision: Vision

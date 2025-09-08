@@ -106,8 +106,13 @@ class TargetTagCommand(
       )
     )
 
-  private val request =
+  private val requestFieldCentric =
     SwerveRequest.FieldCentric()
+      .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
+      .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
+
+  private val requestRobotCentric =
+    SwerveRequest.RobotCentric()
       .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
       .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
 
@@ -292,7 +297,7 @@ class TargetTagCommand(
       if (thetaPID.error.absoluteValue > 5.degrees) {
         val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
         drivetrain.setControl(
-          request
+          requestFieldCentric
             .withVelocityX(speed.first.inMetersPerSecond)
             .withVelocityY(speed.second.inMetersPerSecond)
             .withRotationalRate(thetaFeedback.inRadiansPerSecond)
@@ -331,7 +336,7 @@ class TargetTagCommand(
           hypot(driveVector.first.inMetersPerSecond, driveVector.second.inMetersPerSecond)
 
         drivetrain.setControl(
-          request
+          requestRobotCentric
             .withVelocityX(xFeedBack.inMetersPerSecond)
             .withVelocityY(yFeedback.inMetersPerSecond)
             .withRotationalRate(thetaFeedback.inRadiansPerSecond)
@@ -351,7 +356,7 @@ class TargetTagCommand(
 
     val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
     drivetrain.setControl(
-      request
+      requestFieldCentric
         .withVelocityX(speed.first.inMetersPerSecond)
         .withVelocityY(speed.second.inMetersPerSecond)
         .withRotationalRate(

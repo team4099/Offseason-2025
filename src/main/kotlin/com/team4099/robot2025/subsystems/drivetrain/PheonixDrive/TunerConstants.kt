@@ -24,7 +24,6 @@ import org.team4099.lib.units.LinearVelocity
 import org.team4099.lib.units.base.Length
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.inAmperes
-import org.team4099.lib.units.base.inInches
 import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.derived.Angle
@@ -40,6 +39,7 @@ import org.team4099.lib.units.derived.inVoltsPerMetersPerSecondPerSecond
 import org.team4099.lib.units.derived.inVoltsPerRadian
 import org.team4099.lib.units.derived.inVoltsPerRadianPerSecond
 import org.team4099.lib.units.derived.inVoltsPerRadianSeconds
+import org.team4099.lib.units.derived.inVoltsPerRadiansPerSecond
 import org.team4099.lib.units.derived.rotations
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.inMetersPerSecond
@@ -55,6 +55,7 @@ object TunerConstants {
       .withKP(DrivetrainConstants.PID.STEERING_KP.inVoltsPerRadian)
       .withKI(DrivetrainConstants.PID.STEERING_KI.inVoltsPerRadianSeconds)
       .withKD(DrivetrainConstants.PID.STEERING_KD.inVoltsPerRadianPerSecond)
+      .withKV(DrivetrainConstants.PID.STEERING_KFF.inVoltsPerRadiansPerSecond)
       .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
 
   // When using closed-loop control, the drive motor uses the control
@@ -221,8 +222,8 @@ object TunerConstants {
         kFrontLeftDriveMotorId,
         kFrontLeftEncoderId,
         kFrontLeftEncoderOffset.inRotations,
-        kFrontLeftXPos.inInches,
-        kFrontLeftYPos.inInches,
+        kFrontLeftXPos.inMeters,
+        kFrontLeftYPos.inMeters,
         kInvertLeftSide,
         kFrontLeftSteerMotorInverted,
         kFrontLeftEncoderInverted
@@ -234,8 +235,8 @@ object TunerConstants {
         kFrontRightDriveMotorId,
         kFrontRightEncoderId,
         kFrontRightEncoderOffset.inRadians,
-        kFrontRightXPos.inInches,
-        kFrontRightYPos.inInches,
+        kFrontRightXPos.inMeters,
+        kFrontRightYPos.inMeters,
         kInvertRightSide,
         kFrontRightSteerMotorInverted,
         kFrontRightEncoderInverted
@@ -247,8 +248,8 @@ object TunerConstants {
         kBackLeftDriveMotorId,
         kBackLeftEncoderId,
         kBackLeftEncoderOffset.inRotations,
-        kBackLeftXPos.inInches,
-        kBackLeftYPos.inInches,
+        kBackLeftXPos.inMeters,
+        kBackLeftYPos.inMeters,
         kInvertLeftSide,
         kBackLeftSteerMotorInverted,
         kBackLeftEncoderInverted
@@ -260,8 +261,8 @@ object TunerConstants {
         kBackRightDriveMotorId,
         kBackRightEncoderId,
         kBackRightEncoderOffset.inRadians,
-        kBackRightXPos.inInches,
-        kBackRightYPos.inInches,
+        kBackRightXPos.inMeters,
+        kBackRightYPos.inMeters,
         kInvertRightSide,
         kBackRightSteerMotorInverted,
         kBackRightEncoderInverted
@@ -269,7 +270,7 @@ object TunerConstants {
 
   /**
    * Creates a CommandSwerveDrivetrain instance. This should only be called once in your robot
-   * program,.
+   * program.
    */
   fun createDrivetrain(): CommandSwerveDrive {
     return CommandSwerveDrive(CTREDrivetrainConstants!!, FrontLeft, FrontRight, BackLeft, BackRight)

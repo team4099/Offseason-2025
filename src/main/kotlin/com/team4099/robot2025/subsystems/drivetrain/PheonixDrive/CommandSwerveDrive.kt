@@ -6,6 +6,7 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants
 import com.ctre.phoenix6.swerve.SwerveModuleConstants
 import com.ctre.phoenix6.swerve.SwerveRequest
 import com.team4099.robot2025.subsystems.drivetrain.PheonixDrive.TunerConstants.TunerSwerveDrivetrain
+import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.math.Matrix
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
@@ -30,19 +31,19 @@ import java.util.function.Supplier
  * be used in command-based projects.
  */
 class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
-  private var m_simNotifier: Notifier? = null
-  private var m_lastSimTime = 0.0
+  private var simNotifier: Notifier? = null
+  private var lastSimTime = 0.0
 
   /* Keep track if we've ever applied the operator perspective before or not */
-  private var m_hasAppliedOperatorPerspective = false
+  private var hasAppliedOperatorPerspective = false
 
   /* Swerve requests to apply during SysId characterization */
-  private val m_translationCharacterization = SwerveRequest.SysIdSwerveTranslation()
-  private val m_steerCharacterization = SwerveRequest.SysIdSwerveSteerGains()
-  private val m_rotationCharacterization = SwerveRequest.SysIdSwerveRotation()
+  private val translationCharacterization = SwerveRequest.SysIdSwerveTranslation()
+  private val steerCharacterization = SwerveRequest.SysIdSwerveSteerGains()
+  private val rotationCharacterization = SwerveRequest.SysIdSwerveRotation()
 
   /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
-  private val m_sysIdRoutineTranslation =
+  private val sysIdRoutineTranslation =
     SysIdRoutine(
       SysIdRoutine.Config(
         null, // Use default ramp rate (1 V/s)
@@ -55,7 +56,7 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
       ),
       Mechanism(
         Consumer { output: Voltage? ->
-          setControl(m_translationCharacterization.withVolts(output))
+          setControl(translationCharacterization.withVolts(output))
         },
         null,
         this
@@ -75,7 +76,7 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
         }
       ),
       Mechanism(
-        Consumer { volts: Voltage? -> setControl(m_steerCharacterization.withVolts(volts)) },
+        Consumer { volts: Voltage? -> setControl(steerCharacterization.withVolts(volts)) },
         null,
         this
       )
@@ -105,9 +106,7 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
       Mechanism(
         Consumer { output: Voltage? ->
           /* output is actually radians per second, but SysId only supports "volts" */
-          setControl(
-            m_rotationCharacterization.withRotationalRate(output!!.`in`(Units.Volts))
-          )
+          setControl(rotationCharacterization.withRotationalRate(output!!.`in`(Units.Volts)))
           /* also log the requested output for SysId */
           SignalLogger.writeDouble("Rotational_Rate", output.`in`(Units.Volts))
         },
@@ -117,7 +116,7 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
     )
 
   /* The SysId routine to test */
-  private val m_sysIdRoutineToApply = m_sysIdRoutineTranslation
+  private val sysIdRoutineToApply = sysIdRoutineTranslation
 
   /**
    * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -209,7 +208,7 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
    * @return Command to run
    */
   fun sysIdQuasistatic(direction: SysIdRoutine.Direction?): Command? {
-    return m_sysIdRoutineToApply.quasistatic(direction)
+    return sysIdRoutineToApply.quasistatic(direction)
   }
 
   /**
@@ -220,7 +219,7 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
    * @return Command to run
    */
   fun sysIdDynamic(direction: SysIdRoutine.Direction?): Command? {
-    return m_sysIdRoutineToApply.dynamic(direction)
+    return sysIdRoutineToApply.dynamic(direction)
   }
 
   override fun periodic() {
@@ -231,7 +230,7 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
      * Otherwise, only check and apply the operator perspective if the DS is disabled.
      * This ensures driving behavior doesn't change until an explicit disable event occurs during testing.
      */
-    if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
+    if (!hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
       DriverStation.getAlliance()
         .ifPresent(
           Consumer { allianceColor: Alliance? ->
@@ -239,28 +238,30 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
               if (allianceColor == Alliance.Red) kRedAlliancePerspectiveRotation
               else kBlueAlliancePerspectiveRotation
             )
-            m_hasAppliedOperatorPerspective = true
+            hasAppliedOperatorPerspective = true
           }
         )
     }
+
+    CustomLogger.recordOutput("Odometry/pose", state.Pose)
   }
 
   private fun startSimThread() {
-    m_lastSimTime = Utils.getCurrentTimeSeconds()
+    lastSimTime = Utils.getCurrentTimeSeconds()
 
     /* Run simulation at a faster rate so PID gains behave more reasonably */
-    m_simNotifier =
+    simNotifier =
       Notifier(
         Runnable {
           val currentTime = Utils.getCurrentTimeSeconds()
-          val deltaTime = currentTime - m_lastSimTime
-          m_lastSimTime = currentTime
+          val deltaTime = currentTime - lastSimTime
+          lastSimTime = currentTime
 
           /* use the measured time delta, get battery voltage from WPILib */
           updateSimState(deltaTime, RobotController.getBatteryVoltage())
         }
       )
-    m_simNotifier!!.startPeriodic(kSimLoopPeriod)
+    simNotifier!!.startPeriodic(kSimLoopPeriod)
   }
 
   /**

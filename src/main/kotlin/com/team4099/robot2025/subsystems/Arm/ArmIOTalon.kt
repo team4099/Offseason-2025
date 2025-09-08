@@ -2,7 +2,6 @@ package com.team4099.robot2025.subsystems.Arm
 
 import com.ctre.phoenix6.StatusSignal
 import com.ctre.phoenix6.configs.CANcoderConfiguration
-import com.ctre.phoenix6.configs.MagnetSensorConfigs
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.controls.MotionMagicVoltage
 import com.ctre.phoenix6.controls.VoltageOut
@@ -110,7 +109,8 @@ object ArmIOTalon : ArmIO {
 
     absoluteEncoderConfig.MagnetSensor.MagnetOffset = ArmConstants.ENCODER_ANGLE_OFFSET.inRotations
     absoluteEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive
-    absoluteEncoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = ArmConstants.CANCODER_DISCONTINUITY_POINT
+    absoluteEncoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint =
+      ArmConstants.CANCODER_DISCONTINUITY_POINT
 
     armTalon.configurator.apply(configs)
     absoluteEncoder.configurator.apply(absoluteEncoderConfig)

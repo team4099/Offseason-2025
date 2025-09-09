@@ -75,11 +75,15 @@ object RobotContainer {
       vision =
         Vision(
           CameraIOPhotonvision(
-            VisionConstants.CAMERA_NAMES[0], VisionConstants.CAMERA_TRANSFORMS[0]
+            VisionConstants.CAMERA_NAMES[0],
+            VisionConstants.CAMERA_TRANSFORMS[0],
+            drivetrain::addVisionMeasurement
           ),
           CameraIOPhotonvision(
-            VisionConstants.CAMERA_NAMES[1], VisionConstants.CAMERA_TRANSFORMS[1]
-          )
+            VisionConstants.CAMERA_NAMES[1],
+            VisionConstants.CAMERA_TRANSFORMS[1],
+            drivetrain::addVisionMeasurement
+          ),
         )
     } else {
       // figure this out cause idt this is right?
@@ -94,13 +98,6 @@ object RobotContainer {
 
       vision = Vision(object : CameraIO {})
     }
-
-    //    vision.setDataInterfaces(
-    //      { drivetrain.fieldTRobot },
-    //      { drivetrain.addVisionData(it) },
-    //      { drivetrain.addSpeakerVisionData(it) }
-    //    )
-    //    vision.drivetrainOdometry = { drivetrain.odomTRobot }
 
     superstructure =
       Superstructure(

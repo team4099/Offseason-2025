@@ -5,6 +5,7 @@ import com.ctre.phoenix6.Utils
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants
 import com.ctre.phoenix6.swerve.SwerveModuleConstants
 import com.ctre.phoenix6.swerve.SwerveRequest
+import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.subsystems.drivetrain.PheonixDrive.TunerConstants.TunerSwerveDrivetrain
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.math.Matrix
@@ -23,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Subsystem
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism
+import org.team4099.lib.units.base.inSeconds
 import java.util.function.Consumer
 import java.util.function.Supplier
 
@@ -299,7 +301,7 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
   }
 
   companion object {
-    private const val kSimLoopPeriod = 0.005 // 5 ms
+    private val kSimLoopPeriod = Constants.Universal.LOOP_PERIOD_TIME.inSeconds
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private val kBlueAlliancePerspectiveRotation: Rotation2d = Rotation2d.kZero

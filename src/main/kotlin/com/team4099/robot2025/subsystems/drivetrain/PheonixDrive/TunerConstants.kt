@@ -3,11 +3,13 @@ package com.team4099.robot2025.subsystems.drivetrain.PheonixDrive
 import com.ctre.phoenix6.CANBus
 import com.ctre.phoenix6.configs.CANcoderConfiguration
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs
+import com.ctre.phoenix6.configs.MotorOutputConfigs
 import com.ctre.phoenix6.configs.Pigeon2Configuration
 import com.ctre.phoenix6.configs.Slot0Configs
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.hardware.CANcoder
 import com.ctre.phoenix6.hardware.TalonFX
+import com.ctre.phoenix6.signals.NeutralModeValue
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue
 import com.ctre.phoenix6.swerve.SwerveDrivetrain
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants
@@ -21,6 +23,7 @@ import edu.wpi.first.math.Matrix
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
 import org.team4099.lib.units.LinearVelocity
+import org.team4099.lib.units.base.Current
 import org.team4099.lib.units.base.Length
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.inAmperes
@@ -89,11 +92,22 @@ object TunerConstants {
 
   // The stator current at which the wheels start to slip;
   // This needs to be tuned to your individual robot
-  private val kSlipCurrent: org.team4099.lib.units.base.Current = 120.amps // Units.Amps.of(120.0)
+  // TODO check this
+  private val kSlipCurrent: Current = 120.amps // Units.Amps.of(120.0)
 
   // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
   // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
-  private val driveInitialConfigs = TalonFXConfiguration()
+  private val driveInitialConfigs =
+    TalonFXConfiguration()
+      .withCurrentLimits(
+        CurrentLimitsConfigs()
+          .withStatorCurrentLimit(DrivetrainConstants.DRIVE_STATOR_CURRENT_LIMIT.inAmperes)
+          .withStatorCurrentLimitEnable(true)
+          .withSupplyCurrentLimit(
+            DrivetrainConstants.STEERING_SUPPLY_CURRENT_LIMIT.inAmperes
+          )
+          .withSupplyCurrentLimitEnable(true)
+      )
   private val steerInitialConfigs: TalonFXConfiguration? =
     TalonFXConfiguration()
       .withCurrentLimits(
@@ -102,7 +116,14 @@ object TunerConstants {
           // stator current limit to help avoid brownouts without impacting performance.
           .withStatorCurrentLimit(DrivetrainConstants.DRIVE_STATOR_CURRENT_LIMIT.inAmperes)
           .withStatorCurrentLimitEnable(true)
+          .withSupplyCurrentLimit(
+            DrivetrainConstants.STEERING_SUPPLY_CURRENT_LIMIT.inAmperes
+          )
+          .withSupplyCurrentLimitEnable(true)
       )
+      // setting brake might be unneccessary but whatever
+      .withMotorOutput(MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake))
+
   private val encoderInitialConfigs = CANcoderConfiguration()
 
   // Configs for the Pigeon 2; leave this null to skip applying Pigeon 2 configs
@@ -122,8 +143,10 @@ object TunerConstants {
 
   private const val kDriveGearRatio =
     1.0 / DrivetrainConstants.MK4_DRIVE_SENSOR_GEAR_RATIO // 5.902777777777778
-  private const val kSteerGearRatio =
+  private const val kSteerGearRatioMK4N =
     1.0 / DrivetrainConstants.MK4N_STEERING_SENSOR_GEAR_RATIO // 18.75
+  private const val kSteerGearRatioMK4I =
+    1.0 / DrivetrainConstants.MK4I_STEERING_SENSOR_GEAR_RATIO // 21.4285714286
   private val kWheelRadius: Length = DrivetrainConstants.WHEEL_DIAMETER / 2
 
   private const val kInvertLeftSide = false
@@ -151,7 +174,6 @@ object TunerConstants {
       SwerveModuleConstantsFactory<
         TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>()
         .withDriveMotorGearRatio(kDriveGearRatio)
-        .withSteerMotorGearRatio(kSteerGearRatio)
         .withCouplingGearRatio(kCoupleRatio)
         .withWheelRadius(kWheelRadius.inMeters)
         .withSteerMotorGains(steerGains)
@@ -217,56 +239,60 @@ object TunerConstants {
 
   val FrontLeft:
     SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>? =
-      ConstantCreator.createModuleConstants(
-        kFrontLeftSteerMotorId,
-        kFrontLeftDriveMotorId,
-        kFrontLeftEncoderId,
-        kFrontLeftEncoderOffset.inRotations,
-        kFrontLeftXPos.inMeters,
-        kFrontLeftYPos.inMeters,
-        kInvertLeftSide,
-        kFrontLeftSteerMotorInverted,
-        kFrontLeftEncoderInverted
-      )
+      ConstantCreator.withSteerMotorGearRatio(kSteerGearRatioMK4N)
+        .createModuleConstants(
+          kFrontLeftSteerMotorId,
+          kFrontLeftDriveMotorId,
+          kFrontLeftEncoderId,
+          kFrontLeftEncoderOffset.inRotations,
+          kFrontLeftXPos.inMeters,
+          kFrontLeftYPos.inMeters,
+          kInvertLeftSide,
+          kFrontLeftSteerMotorInverted,
+          kFrontLeftEncoderInverted
+        )
   val FrontRight:
     SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>? =
-      ConstantCreator.createModuleConstants(
-        kFrontRightSteerMotorId,
-        kFrontRightDriveMotorId,
-        kFrontRightEncoderId,
-        kFrontRightEncoderOffset.inRadians,
-        kFrontRightXPos.inMeters,
-        kFrontRightYPos.inMeters,
-        kInvertRightSide,
-        kFrontRightSteerMotorInverted,
-        kFrontRightEncoderInverted
-      )
+      ConstantCreator.withSteerMotorGearRatio(kSteerGearRatioMK4N)
+        .createModuleConstants(
+          kFrontRightSteerMotorId,
+          kFrontRightDriveMotorId,
+          kFrontRightEncoderId,
+          kFrontRightEncoderOffset.inRadians,
+          kFrontRightXPos.inMeters,
+          kFrontRightYPos.inMeters,
+          kInvertRightSide,
+          kFrontRightSteerMotorInverted,
+          kFrontRightEncoderInverted
+        )
   val BackLeft:
     SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>? =
-      ConstantCreator.createModuleConstants(
-        kBackLeftSteerMotorId,
-        kBackLeftDriveMotorId,
-        kBackLeftEncoderId,
-        kBackLeftEncoderOffset.inRotations,
-        kBackLeftXPos.inMeters,
-        kBackLeftYPos.inMeters,
-        kInvertLeftSide,
-        kBackLeftSteerMotorInverted,
-        kBackLeftEncoderInverted
-      )
+      ConstantCreator.withSteerMotorGearRatio(kSteerGearRatioMK4I)
+        .createModuleConstants(
+          kBackLeftSteerMotorId,
+          kBackLeftDriveMotorId,
+          kBackLeftEncoderId,
+          kBackLeftEncoderOffset.inRotations,
+          kBackLeftXPos.inMeters,
+          kBackLeftYPos.inMeters,
+          kInvertLeftSide,
+          kBackLeftSteerMotorInverted,
+          kBackLeftEncoderInverted
+        )
   val BackRight:
     SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>? =
-      ConstantCreator.createModuleConstants(
-        kBackRightSteerMotorId,
-        kBackRightDriveMotorId,
-        kBackRightEncoderId,
-        kBackRightEncoderOffset.inRadians,
-        kBackRightXPos.inMeters,
-        kBackRightYPos.inMeters,
-        kInvertRightSide,
-        kBackRightSteerMotorInverted,
-        kBackRightEncoderInverted
-      )
+      ConstantCreator.withSteerMotorGearRatio(kSteerGearRatioMK4I)
+        .createModuleConstants(
+          kBackRightSteerMotorId,
+          kBackRightDriveMotorId,
+          kBackRightEncoderId,
+          kBackRightEncoderOffset.inRadians,
+          kBackRightXPos.inMeters,
+          kBackRightYPos.inMeters,
+          kInvertRightSide,
+          kBackRightSteerMotorInverted,
+          kBackRightEncoderInverted
+        )
 
   /**
    * Creates a CommandSwerveDrivetrain instance. This should only be called once in your robot

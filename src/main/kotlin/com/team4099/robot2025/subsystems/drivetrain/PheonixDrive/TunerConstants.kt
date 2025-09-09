@@ -267,7 +267,7 @@ object TunerConstants {
         )
   val BackLeft:
     SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>? =
-      ConstantCreator.withSteerMotorGearRatio(kSteerGearRatioMK4I)
+      ConstantCreator.withSteerMotorGearRatio(kSteerGearRatioMK4N)
         .createModuleConstants(
           kBackLeftSteerMotorId,
           kBackLeftDriveMotorId,
@@ -281,7 +281,7 @@ object TunerConstants {
         )
   val BackRight:
     SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>? =
-      ConstantCreator.withSteerMotorGearRatio(kSteerGearRatioMK4I)
+      ConstantCreator.withSteerMotorGearRatio(kSteerGearRatioMK4N)
         .createModuleConstants(
           kBackRightSteerMotorId,
           kBackRightDriveMotorId,

@@ -1,13 +1,14 @@
 package com.team4099.robot2025.subsystems.Arm
 
 import com.ctre.phoenix6.StatusSignal
-import com.ctre.phoenix6.configs.MagnetSensorConfigs
+import com.ctre.phoenix6.configs.CANcoderConfiguration
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.controls.MotionMagicVoltage
 import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.CANcoder
 import com.ctre.phoenix6.hardware.TalonFX
 import com.ctre.phoenix6.signals.GravityTypeValue
+import com.ctre.phoenix6.signals.SensorDirectionValue
 import com.team4099.lib.math.clamp
 import com.team4099.robot2025.config.constants.ArmConstants
 import com.team4099.robot2025.config.constants.Constants
@@ -49,7 +50,7 @@ object ArmIOTalon : ArmIO {
 
   private val absoluteEncoder: CANcoder = CANcoder(Constants.Arm.CANCODER_ID)
 
-  private val absoluteEncoderConfig: MagnetSensorConfigs = MagnetSensorConfigs()
+  private val absoluteEncoderConfig: CANcoderConfiguration = CANcoderConfiguration()
 
   private val motionMagicControl: MotionMagicVoltage = MotionMagicVoltage(-1337.degrees.inDegrees)
 
@@ -106,6 +107,11 @@ object ArmIOTalon : ArmIO {
     absoluteEncoderPositionSignal = absoluteEncoder.absolutePosition
     absoluteEncoderVelocitySignal = absoluteEncoder.velocity
 
+    absoluteEncoderConfig.MagnetSensor.MagnetOffset = ArmConstants.ENCODER_ANGLE_OFFSET.inRotations
+    absoluteEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive
+    absoluteEncoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint =
+      ArmConstants.CANCODER_DISCONTINUITY_POINT
+
     armTalon.configurator.apply(configs)
     absoluteEncoder.configurator.apply(absoluteEncoderConfig)
 
@@ -115,7 +121,7 @@ object ArmIOTalon : ArmIO {
   override fun updateInputs(inputs: ArmIO.ArmIOInputs) {
     inputs.armPosition =
       absoluteEncoderPositionSignal.valueAsDouble.rotations *
-      ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO + ArmConstants.ENCODER_ANGLE_OFFSET
+      ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO
     inputs.armVelocity =
       absoluteEncoderVelocitySignal.valueAsDouble.rotations.perSecond *
       ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO
@@ -161,8 +167,7 @@ object ArmIOTalon : ArmIO {
 
   override fun zeroEncoder() {
     armTalon.setPosition(
-      absoluteEncoderPositionSignal.valueAsDouble * ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO +
-        ArmConstants.ENCODER_ANGLE_OFFSET.inRotations
+      absoluteEncoderPositionSignal.valueAsDouble * ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO
     )
   }
 

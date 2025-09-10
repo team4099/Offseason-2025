@@ -3,12 +3,12 @@ package com.team4099.robot2025.auto.mode
 import choreo.Choreo
 import choreo.trajectory.SwerveSample
 import com.team4099.robot2025.commands.drivetrain.FollowChoreoPath
-import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
+import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import edu.wpi.first.wpilibj2.command.WaitCommand
 import org.team4099.lib.geometry.Pose2d
 
-class ExamplePathAuto(val drivetrain: Drivetrain) : SequentialCommandGroup() {
+class ExamplePathAuto(val drivetrain: CommandSwerveDrive) : SequentialCommandGroup() {
   init {
     addRequirements(drivetrain)
 

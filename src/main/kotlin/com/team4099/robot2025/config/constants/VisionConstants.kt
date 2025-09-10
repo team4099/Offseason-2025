@@ -1,5 +1,9 @@
 package com.team4099.robot2025.config.constants
 
+import edu.wpi.first.math.Matrix
+import edu.wpi.first.math.VecBuilder
+import edu.wpi.first.math.numbers.N1
+import edu.wpi.first.math.numbers.N3
 import org.team4099.lib.geometry.Rotation3d
 import org.team4099.lib.geometry.Transform3d
 import org.team4099.lib.geometry.Translation3d
@@ -76,6 +80,11 @@ object VisionConstants {
     )
 
   val CAMERA_NAMES = listOf("raven_1", "raven_2")
+
+  // x, y, θ
+  // TODO tune
+  val singleTagStdDevs: Matrix<N3?, N1?> = VecBuilder.fill(4.0, 4.0, 8.0)
+  val multiTagStdDevs: Matrix<N3?, N1?> = VecBuilder.fill(0.5, 0.5, 1.0)
 
   object Limelight {
     val LIMELIGHT_NAME = "limelight-owl"

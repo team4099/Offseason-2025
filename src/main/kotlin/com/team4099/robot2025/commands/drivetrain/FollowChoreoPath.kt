@@ -2,13 +2,14 @@ package com.team4099.robot2025.commands.drivetrain
 
 import choreo.trajectory.SwerveSample
 import choreo.trajectory.Trajectory
+import com.ctre.phoenix6.swerve.SwerveRequest
 import com.team4099.lib.logging.LoggedTunableValue
 import com.team4099.lib.trajectory.CustomHolonomicDriveController
 import com.team4099.robot2025.config.constants.DrivetrainConstants
-import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
-import com.team4099.robot2025.subsystems.superstructure.Request.DrivetrainRequest
+import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
 import com.team4099.robot2025.util.AllianceFlipUtil
 import com.team4099.robot2025.util.CustomLogger
+import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import org.team4099.lib.controller.PIDController
@@ -38,8 +39,10 @@ import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.perSecond
 import kotlin.math.PI
 
-class FollowChoreoPath(val drivetrain: Drivetrain, val trajectory: Trajectory<SwerveSample>) :
-  Command() {
+class FollowChoreoPath(
+  val drivetrain: CommandSwerveDrive,
+  val trajectory: Trajectory<SwerveSample>
+) : Command() {
 
   private val xPID: PIDController<Meter, Velocity<Meter>>
   private val yPID: PIDController<Meter, Velocity<Meter>>
@@ -92,6 +95,8 @@ class FollowChoreoPath(val drivetrain: Drivetrain, val trajectory: Trajectory<Sw
 
   val swerveDriveController: CustomHolonomicDriveController
 
+  val request = SwerveRequest.ApplyRobotSpeeds()
+
   init {
     addRequirements(drivetrain)
 
@@ -139,12 +144,10 @@ class FollowChoreoPath(val drivetrain: Drivetrain, val trajectory: Trajectory<Sw
       //        .asPose2d()
       //        .transformBy(drivetrain.fieldTRobot.asTransform2d())
       //        .pose2d
-      drivetrain.odomTRobot.pose2d
-
-    drivetrain.targetPose = Pose2d(desiredState.pose)
+      drivetrain.state.Pose
 
     val nextDriveState = swerveDriveController.calculate(poseReference, desiredState)
-    drivetrain.currentRequest = DrivetrainRequest.ClosedLoop(nextDriveState)
+    drivetrain.setControl(request.withSpeeds(nextDriveState))
 
     if (thetakP.hasChanged()) thetaPID.proportionalGain = thetakP.get()
     if (thetakI.hasChanged()) thetaPID.integralGain = thetakI.get()
@@ -170,9 +173,7 @@ class FollowChoreoPath(val drivetrain: Drivetrain, val trajectory: Trajectory<Sw
 
   override fun end(interrupted: Boolean) {
     CustomLogger.recordDebugOutput("ActiveCommands/FollowChoreoPath", false)
-    drivetrain.currentRequest =
-      DrivetrainRequest.OpenLoop(
-        0.0.radians.perSecond, Pair(0.0.meters.perSecond, 0.0.meters.perSecond)
-      )
+
+    drivetrain.setControl(request.withSpeeds(ChassisSpeeds()))
   }
 }

@@ -10,7 +10,7 @@ import com.team4099.robot2025.subsystems.Arm.Arm
 import com.team4099.robot2025.subsystems.Arm.ArmTunableValues
 import com.team4099.robot2025.subsystems.canRange.CANRange
 import com.team4099.robot2025.subsystems.climber.Climber
-import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
+import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.elevator.ElevatorTunableValues
 import com.team4099.robot2025.subsystems.indexer.Indexer
@@ -46,7 +46,7 @@ import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.superstructure.Request.RollersRequest as ArmRollersRequest
 
 class Superstructure(
-  private val drivetrain: Drivetrain,
+  private val drivetrain: CommandSwerveDrive,
   private val vision: Vision,
   private val limelight: LimelightVision,
   private val elevator: Elevator,

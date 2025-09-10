@@ -1,4 +1,4 @@
-package com.team4099.robot2025.subsystems.drivetrain.PheonixDrive
+package com.team4099.robot2025.subsystems.drivetrain.ctre_drive
 
 import com.ctre.phoenix6.SignalLogger
 import com.ctre.phoenix6.Utils
@@ -6,7 +6,7 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants
 import com.ctre.phoenix6.swerve.SwerveModuleConstants
 import com.ctre.phoenix6.swerve.SwerveRequest
 import com.team4099.robot2025.config.constants.Constants
-import com.team4099.robot2025.subsystems.drivetrain.PheonixDrive.TunerConstants.TunerSwerveDrivetrain
+import com.team4099.robot2025.subsystems.drivetrain.ctre_drive.TunerConstants.TunerSwerveDrivetrain
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.math.Matrix
 import edu.wpi.first.math.geometry.Pose2d

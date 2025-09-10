@@ -1,6 +1,6 @@
 package com.team4099.robot2025.commands.drivetrain
 
-import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
+import com.team4099.robot2025.subsystems.drivetrain.thrifty_drive.Drivetrain
 import edu.wpi.first.wpilibj2.command.Command
 import org.team4099.lib.units.base.feet
 import org.team4099.lib.units.derived.degrees

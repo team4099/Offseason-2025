@@ -1,4 +1,4 @@
-package com.team4099.robot2025.subsystems.drivetrain.PheonixDrive
+package com.team4099.robot2025.subsystems.drivetrain.ctre_drive
 
 import com.ctre.phoenix6.CANBus
 import com.ctre.phoenix6.configs.CANcoderConfiguration
@@ -197,7 +197,7 @@ object TunerConstants {
   private const val kFrontLeftDriveMotorId = 17
   private const val kFrontLeftSteerMotorId = 21
   private const val kFrontLeftEncoderId = 15
-  private val kFrontLeftEncoderOffset: Angle = 0.228759765625.rotations
+  private val kFrontLeftEncoderOffset = 0.228759765625.rotations
   private const val kFrontLeftSteerMotorInverted = true
   private const val kFrontLeftEncoderInverted = false
 
@@ -208,7 +208,7 @@ object TunerConstants {
   private const val kFrontRightDriveMotorId = 12
   private const val kFrontRightSteerMotorId = 22
   private const val kFrontRightEncoderId = 16
-  private val kFrontRightEncoderOffset: Angle = 0.1640625.rotations
+  private val kFrontRightEncoderOffset = -0.832518.rotations
   private const val kFrontRightSteerMotorInverted = true
   private const val kFrontRightEncoderInverted = false
 
@@ -219,7 +219,7 @@ object TunerConstants {
   private const val kBackLeftDriveMotorId = 13
   private const val kBackLeftSteerMotorId = 23
   private const val kBackLeftEncoderId = 17
-  private val kBackLeftEncoderOffset: Angle = -0.215087890625.rotations
+  private val kBackLeftEncoderOffset = -0.215087890625.rotations
   private const val kBackLeftSteerMotorInverted = true
   private const val kBackLeftEncoderInverted = false
 
@@ -230,7 +230,7 @@ object TunerConstants {
   private const val kBackRightDriveMotorId = 14
   private const val kBackRightSteerMotorId = 24
   private const val kBackRightEncoderId = 18
-  private val kBackRightEncoderOffset: Angle = -0.384765625.rotations
+  private val kBackRightEncoderOffset = -0.382084.rotations // don't use units because we don't know conversions
   private const val kBackRightSteerMotorInverted = true
   private const val kBackRightEncoderInverted = false
 
@@ -258,7 +258,7 @@ object TunerConstants {
           kFrontRightSteerMotorId,
           kFrontRightDriveMotorId,
           kFrontRightEncoderId,
-          kFrontRightEncoderOffset.inRadians,
+          kFrontRightEncoderOffset.inRotations,
           kFrontRightXPos.inMeters,
           kFrontRightYPos.inMeters,
           kInvertRightSide,
@@ -286,7 +286,7 @@ object TunerConstants {
           kBackRightSteerMotorId,
           kBackRightDriveMotorId,
           kBackRightEncoderId,
-          kBackRightEncoderOffset.inRadians,
+          kBackRightEncoderOffset.inRotations,
           kBackRightXPos.inMeters,
           kBackRightYPos.inMeters,
           kInvertRightSide,

@@ -1,4 +1,4 @@
-package com.team4099.robot2025.subsystems.drivetrain.drive
+package com.team4099.robot2025.subsystems.drivetrain.thrifty_drive
 
 import com.ctre.phoenix6.hardware.CANcoder
 import com.ctre.phoenix6.hardware.TalonFX

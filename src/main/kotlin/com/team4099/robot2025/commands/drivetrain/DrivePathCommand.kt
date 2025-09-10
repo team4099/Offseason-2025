@@ -9,7 +9,7 @@ import com.team4099.lib.trajectory.FieldWaypoint
 import com.team4099.lib.trajectory.OdometryWaypoint
 import com.team4099.lib.trajectory.Waypoint
 import com.team4099.robot2025.config.constants.DrivetrainConstants
-import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
+import com.team4099.robot2025.subsystems.drivetrain.thrifty_drive.Drivetrain
 import com.team4099.robot2025.util.CustomLogger
 import com.team4099.robot2025.util.CustomTrajectory
 import com.team4099.robot2025.util.FrameType

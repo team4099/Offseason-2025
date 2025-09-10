@@ -1,9 +1,10 @@
 package com.team4099.robot2025.commands.drivetrain
 
+import com.ctre.phoenix6.swerve.SwerveModule
+import com.ctre.phoenix6.swerve.SwerveRequest
 import com.team4099.lib.logging.LoggedTunableValue
 import com.team4099.robot2025.config.constants.DrivetrainConstants
-import com.team4099.robot2025.subsystems.drivetrain.thrifty_drive.Drivetrain
-import com.team4099.robot2025.subsystems.superstructure.Request
+import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
 import com.team4099.robot2025.util.CustomLogger
 import com.team4099.robot2025.util.driver.DriverProfile
 import edu.wpi.first.wpilibj.RobotBase
@@ -23,6 +24,8 @@ import org.team4099.lib.units.derived.perDegreePerSecond
 import org.team4099.lib.units.derived.perDegreeSeconds
 import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.inDegreesPerSecond
+import org.team4099.lib.units.inMetersPerSecond
+import org.team4099.lib.units.inRadiansPerSecond
 import org.team4099.lib.units.perSecond
 import kotlin.math.PI
 
@@ -32,7 +35,7 @@ class TargetAngleCommand(
   val driveY: () -> Double,
   val turn: () -> Double,
   val slowMode: () -> Boolean,
-  val drivetrain: Drivetrain,
+  val drivetrain: CommandSwerveDrive,
   val targetAngle: () -> Angle
 ) : Command() {
 
@@ -57,6 +60,11 @@ class TargetAngleCommand(
         { it.degrees.perSecond.perDegreePerSecond }
       )
     )
+
+  private val request =
+    SwerveRequest.FieldCentric()
+      .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
+      .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
 
   init {
     addRequirements(drivetrain)
@@ -110,20 +118,21 @@ class TargetAngleCommand(
 
     drivetrain.defaultCommand.end(true)
     CustomLogger.recordDebugOutput("ActiveCommands/TargetAngleCommand", true)
-    Logger.recordOutput(
-      "Testing/CurrentDrivetrainRotation", drivetrain.odomTRobot.rotation.inDegrees
-    )
+    Logger.recordOutput("Testing/CurrentDrivetrainRotation", drivetrain.state.Pose.rotation.degrees)
 
-    val thetaFeedback = thetaPID.calculate(drivetrain.odomTRobot.rotation, targetAngle())
+    val thetaFeedback =
+      thetaPID.calculate(drivetrain.state.Pose.rotation.radians.radians, targetAngle())
     CustomLogger.recordDebugOutput("Testing/error", thetaPID.error.inDegrees)
     CustomLogger.recordDebugOutput("Testing/thetaFeedback", thetaFeedback.inDegreesPerSecond)
 
-    drivetrain.currentRequest =
-      Request.DrivetrainRequest.OpenLoop(
-        thetaFeedback,
-        driver.driveSpeedClampedSupplier(driveX, driveY, slowMode),
-        fieldOriented = true
-      )
+    val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
+
+    drivetrain.setControl(
+      request
+        .withVelocityX(speed.first.inMetersPerSecond)
+        .withVelocityY(speed.second.inMetersPerSecond)
+        .withRotationalRate(thetaFeedback.inRadiansPerSecond)
+    )
   }
 
   override fun isFinished(): Boolean {
@@ -132,11 +141,14 @@ class TargetAngleCommand(
 
   override fun end(interrupted: Boolean) {
     CustomLogger.recordDebugOutput("ActiveCommands/TargetAngleCommand", false)
-    drivetrain.currentRequest =
-      Request.DrivetrainRequest.OpenLoop(
-        driver.rotationSpeedClampedSupplier(turn, slowMode),
-        driver.driveSpeedClampedSupplier(driveX, driveY, slowMode),
-        fieldOriented = true
-      )
+    val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
+    drivetrain.setControl(
+      request
+        .withVelocityX(speed.first.inMetersPerSecond)
+        .withVelocityY(speed.second.inMetersPerSecond)
+        .withRotationalRate(
+          driver.rotationSpeedClampedSupplier(turn, slowMode).inRadiansPerSecond
+        )
+    )
   }
 }

@@ -6,7 +6,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest
 import com.team4099.lib.logging.LoggedTunableValue
 import com.team4099.lib.trajectory.CustomHolonomicDriveController
 import com.team4099.robot2025.config.constants.DrivetrainConstants
-import com.team4099.robot2025.subsystems.drivetrain.ctre_drive.CommandSwerveDrive
+import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
 import com.team4099.robot2025.util.AllianceFlipUtil
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.math.kinematics.ChassisSpeeds
@@ -95,6 +95,8 @@ class FollowChoreoPath(
 
   val swerveDriveController: CustomHolonomicDriveController
 
+  val request = SwerveRequest.ApplyRobotSpeeds()
+
   init {
     addRequirements(drivetrain)
 
@@ -144,10 +146,8 @@ class FollowChoreoPath(
       //        .pose2d
       drivetrain.state.Pose
 
-    //    drivetrain.targetPose = Pose2d(desiredState.pose)
-
     val nextDriveState = swerveDriveController.calculate(poseReference, desiredState)
-    drivetrain.setControl(SwerveRequest.ApplyRobotSpeeds().withSpeeds(nextDriveState))
+    drivetrain.setControl(request.withSpeeds(nextDriveState))
 
     if (thetakP.hasChanged()) thetaPID.proportionalGain = thetakP.get()
     if (thetakI.hasChanged()) thetaPID.integralGain = thetakI.get()
@@ -174,6 +174,6 @@ class FollowChoreoPath(
   override fun end(interrupted: Boolean) {
     CustomLogger.recordDebugOutput("ActiveCommands/FollowChoreoPath", false)
 
-    drivetrain.setControl(SwerveRequest.ApplyRobotSpeeds().withSpeeds(ChassisSpeeds()))
+    drivetrain.setControl(request.withSpeeds(ChassisSpeeds()))
   }
 }

@@ -1,4 +1,4 @@
-package com.team4099.robot2025.subsystems.drivetrain.ctre_drive
+package com.team4099.robot2025.subsystems.drivetrain
 
 import com.ctre.phoenix6.CANBus
 import com.ctre.phoenix6.configs.CANcoderConfiguration
@@ -29,11 +29,9 @@ import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.inAmperes
 import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.base.inches
-import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.MomentOfInertia
 import org.team4099.lib.units.derived.inKilogramsMeterSquared
-import org.team4099.lib.units.derived.inRadians
 import org.team4099.lib.units.derived.inRotations
 import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.inVoltsPerMeters
@@ -230,7 +228,8 @@ object TunerConstants {
   private const val kBackRightDriveMotorId = 14
   private const val kBackRightSteerMotorId = 24
   private const val kBackRightEncoderId = 18
-  private val kBackRightEncoderOffset = -0.382084.rotations // don't use units because we don't know conversions
+  private val kBackRightEncoderOffset =
+    -0.382084.rotations // don't use units because we don't know conversions
   private const val kBackRightSteerMotorInverted = true
   private const val kBackRightEncoderInverted = false
 

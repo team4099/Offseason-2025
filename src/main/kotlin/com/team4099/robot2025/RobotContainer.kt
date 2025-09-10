@@ -18,8 +18,8 @@ import com.team4099.robot2025.subsystems.canRange.CANRangeIO
 import com.team4099.robot2025.subsystems.climber.Climber
 import com.team4099.robot2025.subsystems.climber.ClimberIO
 import com.team4099.robot2025.subsystems.climber.ClimberIOSim
-import com.team4099.robot2025.subsystems.drivetrain.ctre_drive.CommandSwerveDrive
-import com.team4099.robot2025.subsystems.drivetrain.ctre_drive.TunerConstants
+import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
+import com.team4099.robot2025.subsystems.drivetrain.TunerConstants
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.elevator.ElevatorIO
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOSim
@@ -85,7 +85,6 @@ object RobotContainer {
           ),
         )
     } else {
-      // figure this out cause idt this is right?
       limelight = LimelightVision(object : LimelightVisionIO {})
       elevator = Elevator(ElevatorIOSim)
       arm = Arm(ArmIOSIm)

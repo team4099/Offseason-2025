@@ -1,6 +1,6 @@
 package com.team4099.robot2025.commands.characterization
 
-import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
+import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
 import com.team4099.utils.PolynomialRegression
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
@@ -17,7 +17,7 @@ import java.util.function.Consumer
 import java.util.function.Supplier
 
 class FeedForwardCharacterizationCommand(
-  val drivetrain: Drivetrain,
+  val drivetrain: CommandSwerveDrive,
   val voltageConsumer: Consumer<ElectricalPotential>,
   val velocitySupplier: Supplier<LinearVelocity>
 ) : Command() {
@@ -37,7 +37,7 @@ class FeedForwardCharacterizationCommand(
   }
 
   override fun execute() {
-    drivetrain.swerveModules.forEach { it.zeroSteering() }
+    drivetrain.modules.forEach { it.resetPosition() }
 
     if (timer.get() < startDelay.inSeconds) {
       voltageConsumer.accept(0.volts)

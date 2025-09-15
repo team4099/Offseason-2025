@@ -23,6 +23,7 @@ import com.team4099.robot2025.subsystems.drivetrain.TunerConstants
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.elevator.ElevatorIO
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOSim
+import com.team4099.robot2025.subsystems.elevator.ElevatorIOTalon
 import com.team4099.robot2025.subsystems.indexer.Indexer
 import com.team4099.robot2025.subsystems.indexer.IndexerIO
 import com.team4099.robot2025.subsystems.indexer.IndexerIOSim
@@ -63,7 +64,7 @@ object RobotContainer {
   init {
     if (RobotBase.isReal()) {
       limelight = LimelightVision(object : LimelightVisionIO {})
-      elevator = Elevator(object : ElevatorIO {})
+      elevator = Elevator(ElevatorIOTalon)
       arm = Arm(object : ArmIO {})
       armRollers = ArmRollers(object : RollersIO {})
       climber = Climber(object : ClimberIO {})
@@ -72,18 +73,7 @@ object RobotContainer {
       canrange = CANRange(object : CANRangeIO {})
 
       vision =
-        Vision(
-          CameraIOPhotonvision(
-            VisionConstants.CAMERA_NAMES[0],
-            VisionConstants.CAMERA_TRANSFORMS[0],
-            drivetrain::addVisionMeasurement
-          ),
-          CameraIOPhotonvision(
-            VisionConstants.CAMERA_NAMES[1],
-            VisionConstants.CAMERA_TRANSFORMS[1],
-            drivetrain::addVisionMeasurement
-          ),
-        )
+        Vision(object : CameraIO {} )
     } else {
       limelight = LimelightVision(object : LimelightVisionIO {})
       elevator = Elevator(ElevatorIOSim)

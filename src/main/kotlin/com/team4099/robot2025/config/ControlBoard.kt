@@ -41,7 +41,9 @@ object ControlBoard {
   val slowMode: Boolean
     get() = driver.rightJoystickButton && driver.leftShoulderButton
 
-  val intakeCoral = Trigger { operator.rightTriggerAxis > 0.5 }
+//  val intakeCoral = Trigger { operator.rightTriggerAxis > 0.5 }
+//  val score = Trigger { driver.rightTriggerAxis > 0.5 }
+  val intakeCoral = Trigger { driver.leftTriggerAxis > 0.5 }
   val score = Trigger { driver.rightTriggerAxis > 0.5 }
   val climbExtend = Trigger { operator.startButton }
   val climbRetract = Trigger { operator.selectButton }

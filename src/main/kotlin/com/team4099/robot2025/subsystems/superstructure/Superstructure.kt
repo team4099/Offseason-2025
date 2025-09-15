@@ -249,16 +249,10 @@ class Superstructure(
           else SuperstructureStates.HOME_PREP
       }
       SuperstructureStates.HOME_PREP -> {
-        if (!elevator.clearsRobot &&
-          arm.inputs.armPosition < ArmConstants.ANGLES.ARM_GUARENTEED_OVER_BATTERY
-        ) {
-          elevator.currentRequest =
-            Request.ElevatorRequest.ClosedLoop(ElevatorConstants.HEIGHTS.CLEARS_ROBOT)
-        } else {
-          arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.HOME_ANGLE)
-          if (arm.isAtTargetedPosition) {
-            nextState = SuperstructureStates.HOME
-          }
+        arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.HOME_ANGLE)
+
+        if (arm.isAtTargetedPosition) {
+          nextState = SuperstructureStates.HOME
         }
       }
       SuperstructureStates.HOME -> {

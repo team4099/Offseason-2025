@@ -56,7 +56,7 @@ object Constants {
   }
 
   object Tuning {
-    const val TUNING_MODE = false
+    const val TUNING_MODE = true
     const val DEBUGING_MODE = false
     const val SIMULATE_DRIFT = false
     const val DRIFT_CONSTANT = 0.001
@@ -116,8 +116,8 @@ object Constants {
 
   // leader is right motor and follower is left
   object Elevator {
-    const val LEADER_MOTOR_ID = 42 // right
-    const val FOLLOWER_MOTOR_ID = 41 // left
+    const val LEADER_MOTOR_ID = 41 // right
+    const val FOLLOWER_MOTOR_ID = 42 // left
   }
 
   object Gyro {

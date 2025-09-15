@@ -8,6 +8,7 @@ import org.team4099.lib.units.base.pounds
 import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.meterSquared
+import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.kilo
@@ -16,7 +17,7 @@ import org.team4099.lib.units.perSecond
 object ArmConstants {
   val VOLTAGE_COMPENSATION = 12.0.volts
   // what armPosition is when the arm is 0 in +x direction (above intake)
-  val ENCODER_ANGLE_OFFSET = 0.0.degrees
+  val ENCODER_ANGLE_OFFSET = 0.474.radians
 
   val ARM_TOLERANCE = 2.0.degrees // todo tune and make smaller
   val ARM_LENGTH = 26.1362839.inches

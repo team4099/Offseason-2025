@@ -4,6 +4,7 @@ import com.pathplanner.lib.commands.FollowPathCommand
 import com.team4099.lib.hal.Clock
 import com.team4099.robot2025.auto.AutonomousSelector
 import com.team4099.robot2025.auto.PathStore
+import com.team4099.robot2025.commands.drivetrain.DrivePathOTF
 import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.util.Alert
@@ -130,6 +131,9 @@ object Robot : LoggedRobot() {
     PathStore
     RobotContainer.mapDefaultCommands()
 
+    // init commands that have long startup
+    DrivePathOTF.warmupCommand()
+
     // Set the scheduler to log events for command initialize, interrupt, finish
     CommandScheduler.getInstance().onCommandInitialize { command: Command ->
       Logger.recordOutput("/ActiveCommands/${command.name}", true)
@@ -155,8 +159,6 @@ object Robot : LoggedRobot() {
   }
 
   override fun autonomousInit() {
-    RobotContainer.setSteeringCoastMode()
-
     val autonCommandWithWait =
       runOnce({ RobotContainer.zeroSensors(isInAutonomous = true) }).andThen(autonomousCommand)
     autonCommandWithWait?.schedule()
@@ -215,7 +217,6 @@ object Robot : LoggedRobot() {
     RobotContainer.getAutonomousCommand().cancel()
     RobotContainer.requestIdle()
     RobotContainer.setDriveBrakeMode()
-    RobotContainer.setSteeringCoastMode()
     if (Constants.Tuning.TUNING_MODE) {
       RobotContainer.mapTunableCommands()
     }

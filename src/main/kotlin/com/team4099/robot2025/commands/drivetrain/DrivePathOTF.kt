@@ -1,5 +1,7 @@
 package com.team4099.robot2025.commands.drivetrain
 
+import com.ctre.phoenix6.swerve.SwerveModule
+import com.ctre.phoenix6.swerve.SwerveRequest
 import com.pathplanner.lib.commands.FollowPathCommand
 import com.pathplanner.lib.path.PathPlannerPath
 import com.pathplanner.lib.path.Waypoint
@@ -7,7 +9,7 @@ import com.pathplanner.lib.util.DriveFeedforwards
 import com.team4099.lib.logging.LoggedTunableValue
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.DrivetrainConstants
-import com.team4099.robot2025.subsystems.drivetrain.drive.Drivetrain
+import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
 import com.team4099.robot2025.util.AllianceFlipUtil
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
@@ -58,7 +60,7 @@ import edu.wpi.first.math.geometry.Pose2d as WPIPose2d
  * @property goalEndState Goal end state for chassis.
  */
 class DrivePathOTF(
-  private val drivetrain: Drivetrain,
+  private val drivetrain: CommandSwerveDrive,
   private val driveX: DoubleSupplier,
   private val driveY: DoubleSupplier,
   private val turn: DoubleSupplier,
@@ -118,6 +120,11 @@ class DrivePathOTF(
   private val robotConfig: RobotConfig
   private val pathConstraints: PathConstraints
 
+  private var request =
+    SwerveRequest.ApplyRobotSpeeds()
+      .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
+      .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
+
   init {
     addRequirements(drivetrain)
 
@@ -147,7 +154,7 @@ class DrivePathOTF(
           DrivetrainConstants.DRIVE_SETPOINT_MAX,
           DrivetrainConstants.NITRILE_WHEEL_COF,
           DCMotor.getKrakenX60(1)
-            .withReduction(1.0 / DrivetrainConstants.DRIVE_SENSOR_GEAR_RATIO),
+            .withReduction(1.0 / DrivetrainConstants.MK4_DRIVE_SENSOR_GEAR_RATIO),
           DrivetrainConstants.DRIVE_SUPPLY_CURRENT_LIMIT,
           1
         ),
@@ -203,8 +210,15 @@ class DrivePathOTF(
           waypoints, pathConstraints.pplibConstraints, null, goalEndState.pplibGoalEndState
         ),
         { AllianceFlipUtil.apply(Pose2d(poseReferenceSupplier.get())).pose2d },
-        { drivetrain.chassisState.chassisSpeedsWPILIB },
-        { speeds: ChassisSpeeds, _: DriveFeedforwards -> drivetrain.setClosedLoop(speeds) },
+        { drivetrain.state.Speeds },
+        { speeds: ChassisSpeeds, ff: DriveFeedforwards ->
+          drivetrain.setControl(
+            request
+              .withSpeeds(speeds)
+              .withWheelForceFeedforwardsX(ff.robotRelativeForcesX())
+              .withWheelForceFeedforwardsY(ff.robotRelativeForcesY())
+          )
+        },
         ppHolonomicDriveController.pplibController,
         robotConfig.ppllibRobotConfig,
         { AllianceFlipUtil.shouldFlip() },
@@ -229,5 +243,11 @@ class DrivePathOTF(
     // goalendstate has velocity < 0.1 mps and with that, determines whether or not the drivetrain
     // should stop moving. tl;dr: we don't have to set drivetrain.closedloop again
     command.end(interrupted)
+  }
+
+  companion object {
+    fun warmupCommand() {
+      FollowPathCommand.warmupCommand()
+    }
   }
 }

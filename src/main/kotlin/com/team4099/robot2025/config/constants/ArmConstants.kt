@@ -27,7 +27,9 @@ object ArmConstants {
   val MAX_ROTATION = -270.0.degrees
 
   val GEAR_RATIO = (14.0 / 62.0) * (26.0 / 54.0)
-  val ENCODER_TO_MECHANISM_GEAR_RATIO = -1.0 // rotation is inverted 😭😭😭😭😭
+  val ENCODER_TO_MECHANISM_GEAR_RATIO = 1.0
+
+  const val CANCODER_DISCONTINUITY_POINT = 0.0
 
   val MAX_VELOCITY: AngularVelocity = 270.0.degrees.perSecond
   val MAX_ACCELERATION: AngularAcceleration = 270.0.degrees.perSecond.perSecond

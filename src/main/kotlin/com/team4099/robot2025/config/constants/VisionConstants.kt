@@ -1,5 +1,9 @@
 package com.team4099.robot2025.config.constants
 
+import edu.wpi.first.math.Matrix
+import edu.wpi.first.math.VecBuilder
+import edu.wpi.first.math.numbers.N1
+import edu.wpi.first.math.numbers.N3
 import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.geometry.Rotation3d
 import org.team4099.lib.geometry.Transform3d
@@ -28,33 +32,39 @@ object VisionConstants {
       22 to 120.degrees
     )
 
-  val OTF_PATHS = mapOf(
-21 to listOf(
-  Supplier{ Pose2d(6.33.meters, 4.223.meters, 123.89.degrees)},
-  Supplier{ Pose2d(2.29.meters,6.201.meters, -175.206.degrees )}
-),
-
-    20 to listOf(
-      Supplier{ Pose2d(5.382.meters, 5.382.meters, 136.757.degrees)},
-      Supplier{ Pose2d(1.606.meters,6.512.meters, 179.377.degrees )}
-    ),
-    19 to listOf(
-      Supplier{ Pose2d(3.872.meters, 5.505.meters, 155.914.degrees)},
-      Supplier{ Pose2d(1.606.meters,6.512.meters, 157.332.degrees )}
-    ),
-    18 to listOf(
-      Supplier{ Pose2d(2.889.meters, 4.103.meters, 116.913.degrees)},
-      Supplier{ Pose2d(1.606.meters,6.512.meters, 117.615.degrees )}
-    ),
-    10 to listOf(
-      Supplier{ Pose2d(6.33.meters, 4.223.meters, 123.89.degrees)},
-      Supplier{ Pose2d(2.29.meters,6.201.meters, -175.206.degrees )}
-    ),
-    7 to listOf(
-      Supplier{ Pose2d(2.889.meters, 4.103.meters, 116.913.degrees)},
-      Supplier{ Pose2d(1.606.meters,6.512.meters, 117.615.degrees )}
-    ),
-  )
+  val OTF_PATHS =
+    mapOf(
+      21 to
+        listOf(
+          Supplier { Pose2d(6.33.meters, 4.223.meters, 123.89.degrees) },
+          Supplier { Pose2d(2.29.meters, 6.201.meters, -175.206.degrees) }
+        ),
+      20 to
+        listOf(
+          Supplier { Pose2d(5.382.meters, 5.382.meters, 136.757.degrees) },
+          Supplier { Pose2d(1.606.meters, 6.512.meters, 179.377.degrees) }
+        ),
+      19 to
+        listOf(
+          Supplier { Pose2d(3.872.meters, 5.505.meters, 155.914.degrees) },
+          Supplier { Pose2d(1.606.meters, 6.512.meters, 157.332.degrees) }
+        ),
+      18 to
+        listOf(
+          Supplier { Pose2d(2.889.meters, 4.103.meters, 116.913.degrees) },
+          Supplier { Pose2d(1.606.meters, 6.512.meters, 117.615.degrees) }
+        ),
+      10 to
+        listOf(
+          Supplier { Pose2d(6.33.meters, 4.223.meters, 123.89.degrees) },
+          Supplier { Pose2d(2.29.meters, 6.201.meters, -175.206.degrees) }
+        ),
+      7 to
+        listOf(
+          Supplier { Pose2d(2.889.meters, 4.103.meters, 116.913.degrees) },
+          Supplier { Pose2d(1.606.meters, 6.512.meters, 117.615.degrees) }
+        ),
+    )
 
   val BLUE_REEF_TAG_Y_ALIGNMENTS =
     mapOf(
@@ -107,6 +117,11 @@ object VisionConstants {
     )
 
   val CAMERA_NAMES = listOf("raven_1", "raven_2")
+
+  // x, y, θ
+  // TODO tune
+  val singleTagStdDevs: Matrix<N3?, N1?> = VecBuilder.fill(4.0, 4.0, 8.0)
+  val multiTagStdDevs: Matrix<N3?, N1?> = VecBuilder.fill(0.5, 0.5, 1.0)
 
   object Limelight {
     val LIMELIGHT_NAME = "limelight-owl"

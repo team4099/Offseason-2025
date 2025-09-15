@@ -59,5 +59,5 @@ object ControlBoard {
   val forceIdle = Trigger { operator.dPadDown }
   val eject = Trigger { operator.dPadLeft }
 
-  val test = Trigger { driver.dPadRight || operator.dPadRight }
+  val test = Trigger { driver.dPadRight || operator.dPadRight || driver.xButton }
 }

@@ -8,6 +8,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage
 import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.TalonFX
 import com.ctre.phoenix6.signals.GravityTypeValue
+import com.ctre.phoenix6.signals.InvertedValue
 import com.team4099.lib.math.clamp
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.ElevatorConstants
@@ -47,15 +48,26 @@ object ElevatorIOTalon : ElevatorIO {
   private val leaderTalon: TalonFX = TalonFX(Constants.Elevator.LEADER_MOTOR_ID)
   private val followerTalon: TalonFX = TalonFX(Constants.Elevator.FOLLOWER_MOTOR_ID)
 
-  private val configs: TalonFXConfiguration = TalonFXConfiguration()
-  private var slot0Configs = configs.Slot0
-  private var slot1Configs = configs.Slot1
+  private val leaderConfigs: TalonFXConfiguration = TalonFXConfiguration()
+  private val followerConfigs: TalonFXConfiguration = TalonFXConfiguration()
+  private var leaderSlot0Configs = leaderConfigs.Slot0
+  private var leaderSlot1Configs = leaderConfigs.Slot1
+  private var followerSlot0Configs = leaderConfigs.Slot0
+  private var followerSlot1Configs = leaderConfigs.Slot1
 
   private val motionMagicControl: MotionMagicVoltage = MotionMagicVoltage(-1337.inches.inInches)
 
   private val leaderSensor =
     ctreLinearMechanismSensor(
       leaderTalon,
+      ElevatorConstants.GEAR_RATIO,
+      ElevatorConstants.SPOOL_DIAMETER,
+      ElevatorConstants.VOLTAGE_COMPENSATION
+    )
+
+  private val followerSensor =
+    ctreLinearMechanismSensor(
+      followerTalon,
       ElevatorConstants.GEAR_RATIO,
       ElevatorConstants.SPOOL_DIAMETER,
       ElevatorConstants.VOLTAGE_COMPENSATION
@@ -82,24 +94,43 @@ object ElevatorIOTalon : ElevatorIO {
     leaderTalon.clearStickyFaults()
     followerTalon.clearStickyFaults()
 
-    configs.CurrentLimits.SupplyCurrentLimit = ElevatorConstants.SUPPLY_CURRENT_LIMIT.inAmperes
-    configs.CurrentLimits.StatorCurrentLimit = ElevatorConstants.STATOR_CURRENT_LIMIT.inAmperes
-    configs.CurrentLimits.StatorCurrentLimitEnable = true
-    configs.CurrentLimits.SupplyCurrentLimitEnable = true
+    leaderConfigs.CurrentLimits.SupplyCurrentLimit = ElevatorConstants.SUPPLY_CURRENT_LIMIT.inAmperes
+    leaderConfigs.CurrentLimits.StatorCurrentLimit = ElevatorConstants.STATOR_CURRENT_LIMIT.inAmperes
+    leaderConfigs.CurrentLimits.StatorCurrentLimitEnable = true
+    leaderConfigs.CurrentLimits.SupplyCurrentLimitEnable = true
 
-    configs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true
-    configs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
+    leaderConfigs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true
+    leaderConfigs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
 
-    configs.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
+    leaderConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
       leaderSensor.positionToRawUnits(ElevatorConstants.UPWARDS_EXTENSION_LIMIT)
 
-    configs.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
+    leaderConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
       leaderSensor.positionToRawUnits(ElevatorConstants.DOWNWARDS_EXTENSION_LIMIT)
 
-    configs.MotionMagic.MotionMagicCruiseVelocity = MAX_VELOCITY.inInchesPerSecond
-    configs.MotionMagic.MotionMagicAcceleration = MAX_ACCELERATION.inInchesPerSecondPerSecond
+    leaderConfigs.MotionMagic.MotionMagicCruiseVelocity = MAX_VELOCITY.inInchesPerSecond
+    leaderConfigs.MotionMagic.MotionMagicAcceleration = MAX_ACCELERATION.inInchesPerSecondPerSecond
+    leaderConfigs.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive
 
-    followerTalon.setControl(Follower(Constants.Elevator.LEADER_MOTOR_ID, false))
+    followerTalon.setControl(Follower(Constants.Elevator.LEADER_MOTOR_ID, true))
+
+    followerConfigs.CurrentLimits.SupplyCurrentLimit = ElevatorConstants.SUPPLY_CURRENT_LIMIT.inAmperes
+    followerConfigs.CurrentLimits.StatorCurrentLimit = ElevatorConstants.STATOR_CURRENT_LIMIT.inAmperes
+    followerConfigs.CurrentLimits.StatorCurrentLimitEnable = true
+    followerConfigs.CurrentLimits.SupplyCurrentLimitEnable = true
+
+    followerConfigs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true
+    followerConfigs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
+
+    followerConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
+      followerSensor.positionToRawUnits(ElevatorConstants.UPWARDS_EXTENSION_LIMIT)
+
+    followerConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
+      followerSensor.positionToRawUnits(ElevatorConstants.DOWNWARDS_EXTENSION_LIMIT)
+
+    followerConfigs.MotionMagic.MotionMagicCruiseVelocity = MAX_VELOCITY.inInchesPerSecond
+    followerConfigs.MotionMagic.MotionMagicAcceleration = MAX_ACCELERATION.inInchesPerSecondPerSecond
+    followerConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
 
     leaderPositionSignal = leaderTalon.position
     leaderVelocitySignal = leaderTalon.velocity
@@ -122,8 +153,8 @@ object ElevatorIOTalon : ElevatorIO {
     motionMagicTargetPosition.setUpdateFrequency(250.0)
     motionMagicTargetVelocity.setUpdateFrequency(250.0)
 
-    leaderTalon.configurator.apply(configs)
-    followerTalon.configurator.apply(configs)
+    leaderTalon.configurator.apply(leaderConfigs)
+    followerTalon.configurator.apply(followerConfigs)
   }
 
   private fun updateSignals() {
@@ -162,7 +193,7 @@ object ElevatorIOTalon : ElevatorIO {
     inputs.followerAppliedVoltage = (followerDutyCycle.valueAsDouble * 12).volts
 
     Logger.recordOutput(
-      "Elevator/motionMagicPositon",
+      "Elevator/motionMagicPosition",
       motionMagicTargetPosition.value *
         ElevatorConstants.GEAR_RATIO *
         (Math.PI * ElevatorConstants.SPOOL_DIAMETER.inInches)
@@ -180,18 +211,26 @@ object ElevatorIOTalon : ElevatorIO {
     kI: IntegralGain<Meter, Volt>,
     kD: DerivativeGain<Meter, Volt>
   ) {
-    slot0Configs.kP = kP.inVoltsPerInch
-    slot0Configs.kI = kI.inVoltsPerInchSeconds
-    slot0Configs.kD = kD.inVoltsPerInchPerSecond
+    leaderSlot0Configs.kP = kP.inVoltsPerInch
+    leaderSlot0Configs.kI = kI.inVoltsPerInchSeconds
+    leaderSlot0Configs.kD = kD.inVoltsPerInchPerSecond
 
-    slot1Configs.kP = kP.inVoltsPerInch
-    slot1Configs.kI = kI.inVoltsPerInchSeconds
-    slot1Configs.kD = kD.inVoltsPerInchPerSecond
+    leaderSlot1Configs.kP = kP.inVoltsPerInch
+    leaderSlot1Configs.kI = kI.inVoltsPerInchSeconds
+    leaderSlot1Configs.kD = kD.inVoltsPerInchPerSecond
 
-    leaderTalon.configurator.apply(slot0Configs)
-    followerTalon.configurator.apply(slot0Configs)
-    leaderTalon.configurator.apply(slot1Configs)
-    followerTalon.configurator.apply(slot1Configs)
+    followerSlot0Configs.kP = kP.inVoltsPerInch
+    followerSlot0Configs.kI = kI.inVoltsPerInchSeconds
+    followerSlot0Configs.kD = kD.inVoltsPerInchPerSecond
+
+    followerSlot1Configs.kP = kP.inVoltsPerInch
+    followerSlot1Configs.kI = kI.inVoltsPerInchSeconds
+    followerSlot1Configs.kD = kD.inVoltsPerInchPerSecond
+
+    leaderTalon.configurator.apply(leaderSlot0Configs)
+    followerTalon.configurator.apply(leaderSlot0Configs)
+    leaderTalon.configurator.apply(followerSlot1Configs)
+    followerTalon.configurator.apply(followerSlot1Configs)
   }
 
   override fun configFF(
@@ -201,22 +240,34 @@ object ElevatorIOTalon : ElevatorIO {
     kV: VelocityFeedforward<Meter, Volt>,
     kA: AccelerationFeedforward<Meter, Volt>
   ) {
-    slot0Configs.kG = kGFirstStage.inVolts
-    slot0Configs.kS = kS.inVolts
-    slot0Configs.kV = kV.inVoltsPerInchPerSecond
-    slot0Configs.kA = kA.inVoltsPerMetersPerSecondPerSecond
-    slot0Configs.GravityType = GravityTypeValue.Elevator_Static
+    leaderSlot0Configs.kG = kGFirstStage.inVolts
+    leaderSlot0Configs.kS = kS.inVolts
+    leaderSlot0Configs.kV = kV.inVoltsPerInchPerSecond
+    leaderSlot0Configs.kA = kA.inVoltsPerMetersPerSecondPerSecond
+    leaderSlot0Configs.GravityType = GravityTypeValue.Elevator_Static
 
-    slot1Configs.kG = kGSecondStage.inVolts
-    slot1Configs.kS = kS.inVolts
-    slot1Configs.kV = kV.inVoltsPerInchPerSecond
-    slot1Configs.kA = kA.inVoltsPerMetersPerSecondPerSecond
-    slot1Configs.GravityType = GravityTypeValue.Elevator_Static
+    leaderSlot1Configs.kG = kGSecondStage.inVolts
+    leaderSlot1Configs.kS = kS.inVolts
+    leaderSlot1Configs.kV = kV.inVoltsPerInchPerSecond
+    leaderSlot1Configs.kA = kA.inVoltsPerMetersPerSecondPerSecond
+    leaderSlot1Configs.GravityType = GravityTypeValue.Elevator_Static
 
-    leaderTalon.configurator.apply(slot0Configs)
-    followerTalon.configurator.apply(slot0Configs)
-    leaderTalon.configurator.apply(slot1Configs)
-    followerTalon.configurator.apply(slot1Configs)
+    followerSlot0Configs.kG = kGFirstStage.inVolts
+    followerSlot0Configs.kS = kS.inVolts
+    followerSlot0Configs.kV = kV.inVoltsPerInchPerSecond
+    followerSlot0Configs.kA = kA.inVoltsPerMetersPerSecondPerSecond
+    followerSlot0Configs.GravityType = GravityTypeValue.Elevator_Static
+
+    followerSlot1Configs.kG = kGSecondStage.inVolts
+    followerSlot1Configs.kS = kS.inVolts
+    followerSlot1Configs.kV = kV.inVoltsPerInchPerSecond
+    followerSlot1Configs.kA = kA.inVoltsPerMetersPerSecondPerSecond
+    followerSlot1Configs.GravityType = GravityTypeValue.Elevator_Static
+
+    leaderTalon.configurator.apply(leaderSlot0Configs)
+    followerTalon.configurator.apply(leaderSlot0Configs)
+    leaderTalon.configurator.apply(followerSlot1Configs)
+    followerTalon.configurator.apply(followerSlot1Configs)
   }
 
   override fun setPosition(position: Length) {

@@ -12,6 +12,7 @@ import com.team4099.robot2025.config.constants.VisionConstants
 import com.team4099.robot2025.subsystems.Arm.Arm
 import com.team4099.robot2025.subsystems.Arm.ArmIO
 import com.team4099.robot2025.subsystems.Arm.ArmIOSIm
+import com.team4099.robot2025.subsystems.Arm.ArmIOTalon
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIO
 import com.team4099.robot2025.subsystems.canRange.CANRange
 import com.team4099.robot2025.subsystems.canRange.CANRangeIO
@@ -64,8 +65,8 @@ object RobotContainer {
   init {
     if (RobotBase.isReal()) {
       limelight = LimelightVision(object : LimelightVisionIO {})
-      elevator = Elevator(ElevatorIOTalon)
-      arm = Arm(object : ArmIO {})
+      elevator = Elevator(object : ElevatorIO {})
+      arm =Arm(ArmIOTalon)
       armRollers = ArmRollers(object : RollersIO {})
       climber = Climber(object : ClimberIO {})
       intake = Intake(object : IntakeIO {})

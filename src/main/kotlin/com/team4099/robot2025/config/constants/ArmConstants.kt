@@ -38,9 +38,9 @@ object ArmConstants {
   val TIME_TO_GOAL = 0.5.seconds
 
   object PID {
-    val REAL_KP = 0.0.volts / 1.degrees
+    val REAL_KP = 0.75.volts / 1.degrees
     val REAL_KI = 0.0.volts / (1.degrees * 1.seconds)
-    val REAL_KD = 0.0.volts / (1.degrees.perSecond)
+    val REAL_KD = 0.1.volts / (1.degrees.perSecond)
 
     val SIM_KP = 0.75.volts / 1.degrees
     val SIM_KI = 0.0.volts / (1.degrees * 1.seconds)

@@ -138,10 +138,10 @@ object Constants {
   }
 
   object Intake {
-    const val INTAKE_MOTOR_ID = 71
+    const val INTAKE_MOTOR_ID = 25
 
     object Rollers {
-      const val ROLLERS_MOTOR_ID = 72
+      const val ROLLERS_MOTOR_ID = 26
     }
   }
 

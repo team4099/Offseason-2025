@@ -35,7 +35,7 @@ object ElevatorConstants {
   val MAX_VELOCITY: LinearVelocity = 144.85.inches.perSecond
   val MAX_ACCELERATION: LinearAcceleration = 259.54.inches.perSecond.perSecond
 
-  val ELEVATOR_TOLERANCE = 0.2.inches
+  val ELEVATOR_TOLERANCE = 0.25.inches
 
   val CARRIAGE_TO_BOTTOM = 11.0.inches
   val CARRIAGE_TO_BOTTOM_SIM = 0.3.meters // idk why its diff but this works better for as
@@ -79,9 +79,9 @@ object ElevatorConstants {
 
   object PID {
     // TODO: tune all
-    val REAL_KP = 0.0.volts / 1.inches
+    val REAL_KP = 1.25.volts / 1.inches
     val REAL_KI = 0.0.volts / (1.inches * 1.seconds)
-    val REAL_KD = 0.0.volts / (1.inches.perSecond)
+    val REAL_KD = 0.25.volts / (1.inches.perSecond)
 
     val SIM_KP = 1.95.volts / 1.inches
     val SIM_KI = 0.0.volts / (1.inches * 1.seconds)

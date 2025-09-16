@@ -2,15 +2,12 @@ package com.team4099.robot2025
 
 import com.ctre.phoenix6.signals.NeutralModeValue
 import com.team4099.robot2023.subsystems.vision.camera.CameraIO
-import com.team4099.robot2023.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.auto.AutonomousSelector
 import com.team4099.robot2025.commands.drivetrain.ResetGyroYawCommand
 import com.team4099.robot2025.commands.drivetrain.TeleopDriveCommand
 import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.Constants
-import com.team4099.robot2025.config.constants.VisionConstants
 import com.team4099.robot2025.subsystems.Arm.Arm
-import com.team4099.robot2025.subsystems.Arm.ArmIO
 import com.team4099.robot2025.subsystems.Arm.ArmIOSIm
 import com.team4099.robot2025.subsystems.Arm.ArmIOTalon
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIO
@@ -65,16 +62,15 @@ object RobotContainer {
   init {
     if (RobotBase.isReal()) {
       limelight = LimelightVision(object : LimelightVisionIO {})
-      elevator = Elevator(object : ElevatorIO {})
-      arm =Arm(ArmIOTalon)
+      elevator = Elevator(object: ElevatorIO {})
+      arm = Arm(ArmIOTalon)
       armRollers = ArmRollers(object : RollersIO {})
       climber = Climber(object : ClimberIO {})
       intake = Intake(object : IntakeIO {})
       indexer = Indexer(object : IndexerIO {})
       canrange = CANRange(object : CANRangeIO {})
 
-      vision =
-        Vision(object : CameraIO {} )
+      vision = Vision(object : CameraIO {})
     } else {
       limelight = LimelightVision(object : LimelightVisionIO {})
       elevator = Elevator(ElevatorIOSim)

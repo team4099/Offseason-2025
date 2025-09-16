@@ -30,16 +30,16 @@ object IntakeConstants {
   // Feedforward Constants
   val PIVOT_KA = 0.0.volts / 1.0.radians.perSecond.perSecond
   val PIVOT_KV = 0.0.volts / 1.0.radians.perSecond
-  val PIVOT_KG = 0.0.volts
-  val PIVOT_KS = 0.0.volts
+  val PIVOT_KG = 0.45.volts
+  val PIVOT_KS = 0.1.volts
 
   val STATOR_CURRENT_LIMIT = 60.amps
   val SUPPLY_CURRENT_LIMIT = 60.amps
 
   val VOLTAGE_COMPENSATION = 12.0.volts
 
-  val MAX_VELOCITY = 400.degrees.perSecond
-  val MAX_ACCELERATION = 400.degrees.perSecond.perSecond
+  val MAX_VELOCITY = 125.degrees.perSecond
+  val MAX_ACCELERATION = 125.degrees.perSecond.perSecond
 
   val SIM_VELOCITY = 400.degrees.perSecond
   val SIM_ACCELERATION = 400.degrees.perSecond.perSecond
@@ -55,7 +55,7 @@ object IntakeConstants {
     val SIM_PIVOT_KI: IntegralGain<Radian, Volt> = 0.0.volts / (1.0.degrees * 1.0.seconds)
     val SIM_PIVOT_KD: DerivativeGain<Radian, Volt> = 0.0.volts / 1.0.degrees.perSecond
 
-    val REAL_PIVOT_KP: ProportionalGain<Radian, Volt> = 7.volts / 1.0.degrees
+    val REAL_PIVOT_KP: ProportionalGain<Radian, Volt> = 3.0.volts / 1.0.degrees
     val REAL_PIVOT_KI: IntegralGain<Radian, Volt> = 0.0.volts / (1.0.degrees * 1.0.seconds)
     val REAL_PIVOT_KD: DerivativeGain<Radian, Volt> = 0.3.volts / 1.0.degrees.perSecond
   }

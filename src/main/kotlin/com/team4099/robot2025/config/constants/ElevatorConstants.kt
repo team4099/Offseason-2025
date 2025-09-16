@@ -81,7 +81,7 @@ object ElevatorConstants {
     // TODO: tune all
     val REAL_KP = 1.25.volts / 1.inches
     val REAL_KI = 0.0.volts / (1.inches * 1.seconds)
-    val REAL_KD = 0.25.volts / (1.inches.perSecond)
+    val REAL_KD = 0.3.volts / (1.inches.perSecond)
 
     val SIM_KP = 1.95.volts / 1.inches
     val SIM_KI = 0.0.volts / (1.inches * 1.seconds)

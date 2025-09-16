@@ -94,8 +94,10 @@ object ElevatorIOTalon : ElevatorIO {
     leaderTalon.clearStickyFaults()
     followerTalon.clearStickyFaults()
 
-    leaderConfigs.CurrentLimits.SupplyCurrentLimit = ElevatorConstants.SUPPLY_CURRENT_LIMIT.inAmperes
-    leaderConfigs.CurrentLimits.StatorCurrentLimit = ElevatorConstants.STATOR_CURRENT_LIMIT.inAmperes
+    leaderConfigs.CurrentLimits.SupplyCurrentLimit =
+      ElevatorConstants.SUPPLY_CURRENT_LIMIT.inAmperes
+    leaderConfigs.CurrentLimits.StatorCurrentLimit =
+      ElevatorConstants.STATOR_CURRENT_LIMIT.inAmperes
     leaderConfigs.CurrentLimits.StatorCurrentLimitEnable = true
     leaderConfigs.CurrentLimits.SupplyCurrentLimitEnable = true
 
@@ -114,8 +116,10 @@ object ElevatorIOTalon : ElevatorIO {
 
     followerTalon.setControl(Follower(Constants.Elevator.LEADER_MOTOR_ID, true))
 
-    followerConfigs.CurrentLimits.SupplyCurrentLimit = ElevatorConstants.SUPPLY_CURRENT_LIMIT.inAmperes
-    followerConfigs.CurrentLimits.StatorCurrentLimit = ElevatorConstants.STATOR_CURRENT_LIMIT.inAmperes
+    followerConfigs.CurrentLimits.SupplyCurrentLimit =
+      ElevatorConstants.SUPPLY_CURRENT_LIMIT.inAmperes
+    followerConfigs.CurrentLimits.StatorCurrentLimit =
+      ElevatorConstants.STATOR_CURRENT_LIMIT.inAmperes
     followerConfigs.CurrentLimits.StatorCurrentLimitEnable = true
     followerConfigs.CurrentLimits.SupplyCurrentLimitEnable = true
 
@@ -129,7 +133,8 @@ object ElevatorIOTalon : ElevatorIO {
       followerSensor.positionToRawUnits(ElevatorConstants.DOWNWARDS_EXTENSION_LIMIT)
 
     followerConfigs.MotionMagic.MotionMagicCruiseVelocity = MAX_VELOCITY.inInchesPerSecond
-    followerConfigs.MotionMagic.MotionMagicAcceleration = MAX_ACCELERATION.inInchesPerSecondPerSecond
+    followerConfigs.MotionMagic.MotionMagicAcceleration =
+      MAX_ACCELERATION.inInchesPerSecondPerSecond
     followerConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
 
     leaderPositionSignal = leaderTalon.position

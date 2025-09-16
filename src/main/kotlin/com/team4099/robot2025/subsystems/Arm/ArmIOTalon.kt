@@ -1,5 +1,6 @@
 package com.team4099.robot2025.subsystems.Arm
 
+import com.ctre.phoenix6.BaseStatusSignal
 import com.ctre.phoenix6.StatusSignal
 import com.ctre.phoenix6.configs.CANcoderConfiguration
 import com.ctre.phoenix6.configs.TalonFXConfiguration
@@ -32,6 +33,10 @@ import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inDegrees
 import org.team4099.lib.units.derived.inRotations
 import org.team4099.lib.units.derived.inVolts
+import org.team4099.lib.units.derived.inVoltsPerDegree
+import org.team4099.lib.units.derived.inVoltsPerDegreePerSecond
+import org.team4099.lib.units.derived.inVoltsPerDegreeSeconds
+import org.team4099.lib.units.derived.inVoltsPerDegreesPerSecondPerSecond
 import org.team4099.lib.units.derived.inVoltsPerRadian
 import org.team4099.lib.units.derived.inVoltsPerRadianPerSecond
 import org.team4099.lib.units.derived.inVoltsPerRadianSeconds
@@ -40,6 +45,10 @@ import org.team4099.lib.units.derived.rotations
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.inDegreesPerSecondPerSecond
+import org.team4099.lib.units.inRadiansPerSecond
+import org.team4099.lib.units.inRadiansPerSecondPerSecond
+import org.team4099.lib.units.inRotationsPerSecond
+import org.team4099.lib.units.inRotationsPerSecondPerSecond
 import org.team4099.lib.units.perSecond
 import edu.wpi.first.units.measure.Angle as WPIAngle
 import edu.wpi.first.units.measure.Current as WPICurrent
@@ -81,7 +90,7 @@ object ArmIOTalon : ArmIO {
     configs.CurrentLimits.SupplyCurrentLimitEnable = true
     configs.CurrentLimits.StatorCurrentLimitEnable = true
 
-    configs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true
+    configs.SoftwareLimitSwitch.ForwardSoftLimitEnable = false
     configs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
 
     configs.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
@@ -118,7 +127,23 @@ object ArmIOTalon : ArmIO {
     zeroEncoder()
   }
 
+  private fun updateSignals() {
+    BaseStatusSignal.refreshAll(
+      statorCurrentSignal,
+      supplyCurrentSignal,
+      tempSignal,
+      dutyCycleSignal,
+      motorTorqueSignal,
+      motorVoltageSignal,
+      absoluteEncoderPositionSignal,
+      absoluteEncoderVelocitySignal,
+      motorAcelSignal
+    )
+  }
+
   override fun updateInputs(inputs: ArmIO.ArmIOInputs) {
+    updateSignals()
+
     inputs.armPosition =
       absoluteEncoderPositionSignal.valueAsDouble.rotations *
       ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO
@@ -144,9 +169,9 @@ object ArmIOTalon : ArmIO {
     kI: IntegralGain<Radian, Volt>,
     kD: DerivativeGain<Radian, Volt>
   ) {
-    slot0Configs.kP = kP.inVoltsPerRadian
-    slot0Configs.kI = kI.inVoltsPerRadianSeconds
-    slot0Configs.kD = kD.inVoltsPerRadianPerSecond
+    slot0Configs.kP = kP.inVoltsPerDegree
+    slot0Configs.kI = kI.inVoltsPerDegreeSeconds
+    slot0Configs.kD = kD.inVoltsPerDegreePerSecond
 
     armTalon.configurator.apply(slot0Configs)
   }
@@ -159,8 +184,8 @@ object ArmIOTalon : ArmIO {
   ) {
     slot0Configs.kG = kG.inVolts
     slot0Configs.kS = kS.inVolts
-    slot0Configs.kA = kA.inVoltsPerRadiansPerSecondPerSecond
-    slot0Configs.kV = kV.inVoltsPerRadianPerSecond
+    slot0Configs.kA = kA.inVoltsPerDegreesPerSecondPerSecond
+    slot0Configs.kV = kV.inVoltsPerDegreePerSecond
 
     armTalon.configurator.apply(slot0Configs)
   }

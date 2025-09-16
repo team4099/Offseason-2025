@@ -17,7 +17,7 @@ import org.team4099.lib.units.perSecond
 object ArmConstants {
   val VOLTAGE_COMPENSATION = 12.0.volts
   // what armPosition is when the arm is 0 in +x direction (above intake)
-  val ENCODER_ANGLE_OFFSET = 0.474.radians
+  val ENCODER_ANGLE_OFFSET = 0.474.radians + 159.87.degrees
 
   val ARM_TOLERANCE = 2.0.degrees // todo tune and make smaller
   val ARM_LENGTH = 26.1362839.inches
@@ -32,27 +32,27 @@ object ArmConstants {
 
   const val CANCODER_DISCONTINUITY_POINT = 0.0
 
-  val MAX_VELOCITY: AngularVelocity = 270.0.degrees.perSecond
-  val MAX_ACCELERATION: AngularAcceleration = 270.0.degrees.perSecond.perSecond
+  val MAX_VELOCITY: AngularVelocity = 150.0.degrees.perSecond
+  val MAX_ACCELERATION: AngularAcceleration = 150.0.degrees.perSecond.perSecond
 
   val TIME_TO_GOAL = 0.5.seconds
 
   object PID {
-    val REAL_KP = 0.75.volts / 1.degrees
+    val REAL_KP = 6.volts / 1.degrees
     val REAL_KI = 0.0.volts / (1.degrees * 1.seconds)
-    val REAL_KD = 0.1.volts / (1.degrees.perSecond)
+    val REAL_KD = 0.3.volts / (1.degrees.perSecond)
 
     val SIM_KP = 0.75.volts / 1.degrees
     val SIM_KI = 0.0.volts / (1.degrees * 1.seconds)
     val SIM_KD = 0.02.volts / (1.degrees.perSecond)
 
-    val KS = 0.0.volts
+    val KS = 0.15.volts
     val KV = ((1 / MAX_VELOCITY.inDegreesPerSecond).volts) / 1.0.degrees.perSecond //  0.037
     val KA = (0.001.volts) / 1.0.degrees.perSecond.perSecond // 0.0025
 
     val KV_ADD = (0.0.volts) / 1.0.degrees.perSecond //  0.037
 
-    val KG = 0.0.volts
+    val KG = 0.05.volts
   }
 
   // all angles were originally measured from cw down, so the -(value + 90) adjusts it properly to

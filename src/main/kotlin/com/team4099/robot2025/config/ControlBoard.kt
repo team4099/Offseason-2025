@@ -18,6 +18,9 @@ object ControlBoard {
   private val operator = XboxOneGamepad(Constants.Joysticks.SHOTGUN_PORT)
   private val technician = XboxOneGamepad(Constants.Joysticks.TECHNICIAN_PORT)
 
+  private val operatorExists: Boolean
+    get() = operator.isConnected
+
   val rumbleConsumer =
     Consumer<Boolean> {
       driver.setRumble(GenericHID.RumbleType.kBothRumble, if (it) 1.0 else 0.0)
@@ -41,23 +44,23 @@ object ControlBoard {
   val slowMode: Boolean
     get() = driver.rightJoystickButton && driver.leftShoulderButton
 
-  val intakeCoral = Trigger { operator.rightTriggerAxis > 0.5 }
+  val intakeCoral = Trigger { operator.rightTriggerAxis > 0.5 || !operatorExists && driver.rightTriggerAxis > 0.5 }
   val score = Trigger { driver.rightTriggerAxis > 0.5 }
-  val climbExtend = Trigger { operator.startButton }
-  val climbRetract = Trigger { operator.selectButton }
+  val climbExtend = Trigger { operator.startButton || !operatorExists && driver.startButton }
+  val climbRetract = Trigger { operator.selectButton || !operatorExists && driver.selectButton }
 
-  val prepL1OrAlgaeGround = Trigger { operator.xButton }
-  val prepL2OrProcessor = Trigger { operator.aButton }
-  val prepL3OrAlgaeReef = Trigger { operator.bButton }
-  val prepL4OrBarge = Trigger { operator.yButton }
+  val prepL1OrAlgaeGround = Trigger { operator.xButton || !operatorExists && driver.xButton }
+  val prepL2OrProcessor = Trigger { operator.aButton || !operatorExists && driver.aButton }
+  val prepL3OrAlgaeReef = Trigger { operator.bButton || !operatorExists && driver.bButton }
+  val prepL4OrBarge = Trigger { operator.yButton || !operatorExists && driver.yButton }
 
   val alignLeft = Trigger { driver.leftShoulderButton && !driver.rightShoulderButton }
   val alignRight = Trigger { driver.rightShoulderButton && !driver.leftShoulderButton }
   val alignCenter = Trigger { driver.leftShoulderButton || driver.rightShoulderButton }
 
   val resetGyro = Trigger { driver.startButton && driver.selectButton }
-  val forceIdle = Trigger { operator.dPadDown }
-  val eject = Trigger { operator.dPadLeft }
+  val forceIdle = Trigger { operator.dPadDown || !operatorExists && driver.dPadDown }
+  val eject = Trigger { operator.dPadLeft || !operatorExists && driver.dPadLeft }
 
   val test = Trigger { driver.dPadRight || operator.dPadRight }
 }

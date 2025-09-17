@@ -6,4 +6,7 @@ object GyroConstants {
   val mountPitch = 0.0.degrees
   val mountYaw = 0.0.degrees
   val mountRoll = 0.0.degrees
+
+  val ANTI_TILT_THRESHOLD_PITCH = 20.0.degrees
+  val ANTI_TILT_THRESHOLD_ROLL = 20.0.degrees
 }

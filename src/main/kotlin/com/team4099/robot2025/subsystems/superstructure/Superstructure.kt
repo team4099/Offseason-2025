@@ -5,6 +5,7 @@ import com.team4099.robot2025.config.constants.ArmConstants
 import com.team4099.robot2025.config.constants.ClimberConstants
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.ElevatorConstants
+import com.team4099.robot2025.config.constants.GyroConstants
 import com.team4099.robot2025.config.constants.IntakeConstants
 import com.team4099.robot2025.subsystems.Arm.Arm
 import com.team4099.robot2025.subsystems.Arm.ArmTunableValues
@@ -34,6 +35,7 @@ import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inDegrees
+import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.derived.volts
 import kotlin.math.abs
 import kotlin.math.max
@@ -239,6 +241,12 @@ class Superstructure(
     CustomLogger.recordOutput("Superstructure/algaeIntakeLevel", algaeIntakeLevel)
     CustomLogger.recordOutput("Superstructure/algaeScoringLevel", algaeScoringLevel)
     CustomLogger.recordOutput("Superstructure/lastPrepLevel", lastPrepLevel)
+
+    if (drivetrain.rotation3d.x.radians > GyroConstants.ANTI_TILT_THRESHOLD_ROLL ||
+      drivetrain.rotation3d.y.radians > GyroConstants.ANTI_TILT_THRESHOLD_PITCH
+    ) {
+      currentRequest = SuperstructureRequest.Idle()
+    }
 
     var nextState = currentState
     when (currentState) {

@@ -249,14 +249,11 @@ class Superstructure(
           else SuperstructureStates.HOME_PREP
       }
       SuperstructureStates.HOME_PREP -> {
-        //        arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.HOME_ANGLE)
-        //
-        //        if (arm.isAtTargetedPosition) {
-        //          nextState = SuperstructureStates.IDLE
-        //        }
-        nextState = SuperstructureStates.IDLE
+        arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.HOME_ANGLE)
 
-        // todo when elevator works transfer to idle
+        if (arm.isAtTargetedPosition) {
+          nextState = SuperstructureStates.HOME
+        }
       }
       SuperstructureStates.HOME -> {
         elevator.currentRequest = Request.ElevatorRequest.Home()

@@ -22,7 +22,7 @@ object CANRangeReal : CANRangeIO {
   init {
     canRange.clearStickyFaults()
     config.ProximityParams.MinSignalStrengthForValidMeasurement = 100.0
-    config.ProximityParams.ProximityThreshold = 2500.0
+    config.ProximityParams.ProximityThreshold = .15
 
     ambientSignal = canRange.ambientSignal
     // NOTE(Aryan): distance signal doesn't need to refresh in updateInputs if you set getDistance

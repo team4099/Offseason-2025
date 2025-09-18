@@ -38,8 +38,6 @@ import org.team4099.lib.units.derived.inVoltsPerInchPerSecond
 import org.team4099.lib.units.derived.inVoltsPerInchSeconds
 import org.team4099.lib.units.derived.inVoltsPerMetersPerSecondPerSecond
 import org.team4099.lib.units.derived.volts
-import org.team4099.lib.units.inInchesPerSecond
-import org.team4099.lib.units.inInchesPerSecondPerSecond
 import edu.wpi.first.units.measure.Current as WPILibCurrent
 import edu.wpi.first.units.measure.Temperature as WPILibTemperature
 import edu.wpi.first.units.measure.Voltage as WPILibVoltage
@@ -110,8 +108,10 @@ object ElevatorIOTalon : ElevatorIO {
     leaderConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
       leaderSensor.positionToRawUnits(ElevatorConstants.DOWNWARDS_EXTENSION_LIMIT)
 
-    leaderConfigs.MotionMagic.MotionMagicCruiseVelocity = MAX_VELOCITY.inInchesPerSecond
-    leaderConfigs.MotionMagic.MotionMagicAcceleration = MAX_ACCELERATION.inInchesPerSecondPerSecond
+    leaderConfigs.MotionMagic.MotionMagicCruiseVelocity =
+      leaderSensor.velocityToRawUnits(MAX_VELOCITY)
+    leaderConfigs.MotionMagic.MotionMagicAcceleration =
+      leaderSensor.accelerationToRawUnits(MAX_ACCELERATION)
     leaderConfigs.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive
 
     followerTalon.setControl(Follower(Constants.Elevator.LEADER_MOTOR_ID, true))
@@ -132,9 +132,10 @@ object ElevatorIOTalon : ElevatorIO {
     followerConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
       followerSensor.positionToRawUnits(ElevatorConstants.DOWNWARDS_EXTENSION_LIMIT)
 
-    followerConfigs.MotionMagic.MotionMagicCruiseVelocity = MAX_VELOCITY.inInchesPerSecond
+    followerConfigs.MotionMagic.MotionMagicCruiseVelocity =
+      followerSensor.velocityToRawUnits(MAX_VELOCITY)
     followerConfigs.MotionMagic.MotionMagicAcceleration =
-      MAX_ACCELERATION.inInchesPerSecondPerSecond
+      followerSensor.accelerationToRawUnits(MAX_ACCELERATION)
     followerConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
 
     leaderPositionSignal = leaderTalon.position

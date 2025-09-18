@@ -40,8 +40,6 @@ import org.team4099.lib.units.derived.inVoltsPerDegreeSeconds
 import org.team4099.lib.units.derived.inVoltsPerDegreesPerSecondPerSecond
 import org.team4099.lib.units.derived.rotations
 import org.team4099.lib.units.derived.volts
-import org.team4099.lib.units.inDegreesPerSecond
-import org.team4099.lib.units.inDegreesPerSecondPerSecond
 import org.team4099.lib.units.perSecond
 import edu.wpi.first.units.measure.Angle as WPIAngle
 import edu.wpi.first.units.measure.Current as WPICurrent
@@ -84,18 +82,19 @@ object ArmIOTalon : ArmIO {
     configs.CurrentLimits.SupplyCurrentLimitEnable = true
     configs.CurrentLimits.StatorCurrentLimitEnable = true
 
-    configs.SoftwareLimitSwitch.ForwardSoftLimitEnable = false
-    configs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
+    //    configs.SoftwareLimitSwitch.ForwardSoftLimitEnable = false
+    //    configs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
 
-    configs.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-      armSensor.positionToRawUnits(ArmConstants.MAX_ROTATION)
+    //    configs.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
+    //      armSensor.positionToRawUnits(ArmConstants.MAX_ROTATION)
+    //
+    //    configs.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
+    //      armSensor.positionToRawUnits(ArmConstants.MIN_ROTATION)
 
-    configs.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-      armSensor.positionToRawUnits(ArmConstants.MIN_ROTATION)
-
-    configs.MotionMagic.MotionMagicCruiseVelocity = ArmConstants.MAX_VELOCITY.inDegreesPerSecond
-    configs.MotionMagic.MotionMagicAcceleration =
-      ArmConstants.MAX_ACCELERATION.inDegreesPerSecondPerSecond
+    //    configs.MotionMagic.MotionMagicCruiseVelocity =
+    // ArmConstants.MAX_VELOCITY.inRotationsPerSecond
+    //    configs.MotionMagic.MotionMagicAcceleration =
+    //      ArmConstants.MAX_ACCELERATION.inRotationsPerSecondPerSecond
 
     configs.Slot0.GravityType = GravityTypeValue.Arm_Cosine
 

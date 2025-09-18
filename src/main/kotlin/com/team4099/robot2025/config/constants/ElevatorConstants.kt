@@ -79,16 +79,16 @@ object ElevatorConstants {
 
   object PID {
     // TODO: tune all
-    val REAL_KP = 1.25.volts / 1.inches
+    val REAL_KP = 1.5.volts / 1.inches
     val REAL_KI = 0.0.volts / (1.inches * 1.seconds)
-    val REAL_KD = 0.3.volts / (1.inches.perSecond)
+    val REAL_KD = 0.05.volts / (1.inches.perSecond)
 
     val SIM_KP = 1.95.volts / 1.inches
     val SIM_KI = 0.0.volts / (1.inches * 1.seconds)
     val SIM_KD = 0.23.volts / (1.inches.perSecond)
 
     val KS = 0.0.volts
-    val KV = ((1 / MAX_VELOCITY.inMetersPerSecond).volts) / 1.0.meters.perSecond //  0.037
+    val KV = ((.05 / MAX_VELOCITY.inMetersPerSecond).volts) / 1.0.meters.perSecond //  0.037
     val KA = (2.0.volts) / 1.0.meters.perSecond.perSecond // 0.0025
 
     val KV_ADD = (0.0.volts) / 1.0.meters.perSecond //  0.037

@@ -8,6 +8,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage
 import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.CANcoder
 import com.ctre.phoenix6.hardware.TalonFX
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue
 import com.ctre.phoenix6.signals.GravityTypeValue
 import com.ctre.phoenix6.signals.SensorDirectionValue
 import com.team4099.lib.math.clamp
@@ -37,18 +38,10 @@ import org.team4099.lib.units.derived.inVoltsPerDegree
 import org.team4099.lib.units.derived.inVoltsPerDegreePerSecond
 import org.team4099.lib.units.derived.inVoltsPerDegreeSeconds
 import org.team4099.lib.units.derived.inVoltsPerDegreesPerSecondPerSecond
-import org.team4099.lib.units.derived.inVoltsPerRadian
-import org.team4099.lib.units.derived.inVoltsPerRadianPerSecond
-import org.team4099.lib.units.derived.inVoltsPerRadianSeconds
-import org.team4099.lib.units.derived.inVoltsPerRadiansPerSecondPerSecond
 import org.team4099.lib.units.derived.rotations
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.inDegreesPerSecondPerSecond
-import org.team4099.lib.units.inRadiansPerSecond
-import org.team4099.lib.units.inRadiansPerSecondPerSecond
-import org.team4099.lib.units.inRotationsPerSecond
-import org.team4099.lib.units.inRotationsPerSecondPerSecond
 import org.team4099.lib.units.perSecond
 import edu.wpi.first.units.measure.Angle as WPIAngle
 import edu.wpi.first.units.measure.Current as WPICurrent
@@ -83,6 +76,7 @@ object ArmIOTalon : ArmIO {
 
   init {
     armTalon.clearStickyFaults()
+    absoluteEncoder.clearStickyFaults()
 
     configs.CurrentLimits.SupplyCurrentLimit = 40.0
     configs.CurrentLimits.SupplyCurrentLowerLimit = 20.0
@@ -104,6 +98,11 @@ object ArmIOTalon : ArmIO {
       ArmConstants.MAX_ACCELERATION.inDegreesPerSecondPerSecond
 
     configs.Slot0.GravityType = GravityTypeValue.Arm_Cosine
+
+    configs.Feedback.FeedbackRemoteSensorID = absoluteEncoder.deviceID
+    configs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder
+    configs.Feedback.RotorToSensorRatio = 1.0 / ArmConstants.GEAR_RATIO
+    configs.Feedback.SensorToMechanismRatio = 1.0 / ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO
 
     statorCurrentSignal = armTalon.statorCurrent
     supplyCurrentSignal = armTalon.supplyCurrent
@@ -145,10 +144,10 @@ object ArmIOTalon : ArmIO {
     updateSignals()
 
     inputs.armPosition =
-      absoluteEncoderPositionSignal.valueAsDouble.rotations *
+      absoluteEncoderPositionSignal.valueAsDouble.rotations /
       ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO
     inputs.armVelocity =
-      absoluteEncoderVelocitySignal.valueAsDouble.rotations.perSecond *
+      absoluteEncoderVelocitySignal.valueAsDouble.rotations.perSecond /
       ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO
 
     inputs.armTorque = armTalon.torqueCurrent.valueAsDouble
@@ -158,7 +157,7 @@ object ArmIOTalon : ArmIO {
     inputs.armSupplyCurrent = supplyCurrentSignal.valueAsDouble.amps
     inputs.armTemperature = tempSignal.valueAsDouble.celsius
     inputs.armAcceleration =
-      (motorAcelSignal.valueAsDouble * ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO)
+      (motorAcelSignal.valueAsDouble / ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO)
         .rotations
         .perSecond
         .perSecond
@@ -192,7 +191,7 @@ object ArmIOTalon : ArmIO {
 
   override fun zeroEncoder() {
     armTalon.setPosition(
-      absoluteEncoderPositionSignal.valueAsDouble * ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO
+      absoluteEncoderPositionSignal.valueAsDouble / ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO
     )
   }
 

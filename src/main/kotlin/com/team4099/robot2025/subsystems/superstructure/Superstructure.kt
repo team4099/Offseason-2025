@@ -249,11 +249,11 @@ class Superstructure(
           else SuperstructureStates.HOME_PREP
       }
       SuperstructureStates.HOME_PREP -> {
-//        arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.HOME_ANGLE)
-//
-//        if (arm.isAtTargetedPosition) {
-//          nextState = SuperstructureStates.IDLE
-//        }
+        //        arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.HOME_ANGLE)
+        //
+        //        if (arm.isAtTargetedPosition) {
+        //          nextState = SuperstructureStates.IDLE
+        //        }
         nextState = SuperstructureStates.IDLE
 
         // todo when elevator works transfer to idle
@@ -268,7 +268,7 @@ class Superstructure(
         }
       }
       SuperstructureStates.TUNING -> {
-      //  if (currentRequest is SuperstructureRequest.Idle) nextState = SuperstructureStates.IDLE
+        //  if (currentRequest is SuperstructureRequest.Idle) nextState = SuperstructureStates.IDLE
       }
       SuperstructureStates.IDLE -> {
         climber.currentRequest = Request.ClimberRequest.OpenLoop(0.0.volts, 0.0.volts)

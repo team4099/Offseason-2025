@@ -21,7 +21,6 @@ import com.team4099.robot2025.subsystems.drivetrain.TunerConstants
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.elevator.ElevatorIO
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOSim
-import com.team4099.robot2025.subsystems.elevator.ElevatorIOTalon
 import com.team4099.robot2025.subsystems.indexer.Indexer
 import com.team4099.robot2025.subsystems.indexer.IndexerIO
 import com.team4099.robot2025.subsystems.indexer.IndexerIOSim
@@ -62,7 +61,7 @@ object RobotContainer {
   init {
     if (RobotBase.isReal()) {
       limelight = LimelightVision(object : LimelightVisionIO {})
-      elevator = Elevator(object: ElevatorIO {})
+      elevator = Elevator(object : ElevatorIO {})
       arm = Arm(ArmIOTalon)
       armRollers = ArmRollers(object : RollersIO {})
       climber = Climber(object : ClimberIO {})

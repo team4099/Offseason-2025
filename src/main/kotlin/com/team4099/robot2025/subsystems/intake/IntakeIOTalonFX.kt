@@ -33,10 +33,10 @@ import org.team4099.lib.units.derived.inVoltsPerDegreesPerSecondPerSecond
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.inDegreesPerSecondPerSecond
+import edu.wpi.first.units.measure.Angle as WPIAngle
 import edu.wpi.first.units.measure.Current as WPILibCurrent
 import edu.wpi.first.units.measure.Temperature as WPILibTemperature
 import edu.wpi.first.units.measure.Voltage as WPILibVoltage
-import edu.wpi.first.units.measure.Angle as WPIAngle
 
 object IntakeIOTalonFX : IntakeIO {
   private val pivotTalon: TalonFX = TalonFX(Constants.Intake.INTAKE_MOTOR_ID)

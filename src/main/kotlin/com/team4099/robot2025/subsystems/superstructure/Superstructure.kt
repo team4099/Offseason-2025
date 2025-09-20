@@ -302,7 +302,8 @@ class Superstructure(
               else ElevatorTunableValues.Heights.idleHeight.get()
 
             // note(nathan): ASSERT IDLE AND IDLE_CORAL > CLEARS_ROBOT
-            if (elevator.inputs.elevatorPosition > ElevatorConstants.HEIGHTS.ARM_IDLE_PRIORITY_THRESHOLD
+            if (elevator.inputs.elevatorPosition >
+              ElevatorConstants.HEIGHTS.ARM_IDLE_PRIORITY_THRESHOLD
             ) {
               arm.currentRequest = Request.ArmRequest.ClosedLoop(armIdleAngle)
 

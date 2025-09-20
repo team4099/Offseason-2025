@@ -54,7 +54,10 @@ object ArmIOSIm : ArmIO {
       ArmConstants.PID.SIM_KP,
       ArmConstants.PID.SIM_KI,
       ArmConstants.PID.SIM_KD,
-      TrapezoidProfile.Constraints(ArmConstants.MAX_VELOCITY.degrees.perSecond, ArmConstants.MAX_ACCELERATION.degrees.perSecond.perSecond)
+      TrapezoidProfile.Constraints(
+        ArmConstants.MAX_VELOCITY.degrees.perSecond,
+        ArmConstants.MAX_ACCELERATION.degrees.perSecond.perSecond
+      )
     )
 
   private var armFeedforward =

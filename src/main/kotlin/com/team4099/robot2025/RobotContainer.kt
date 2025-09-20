@@ -10,7 +10,6 @@ import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.subsystems.Arm.Arm
 import com.team4099.robot2025.subsystems.Arm.ArmIOSIm
 import com.team4099.robot2025.subsystems.Arm.ArmIOTalon
-import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIO
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOTalon
 import com.team4099.robot2025.subsystems.canRange.CANRange
 import com.team4099.robot2025.subsystems.canRange.CANRangeIO
@@ -21,15 +20,12 @@ import com.team4099.robot2025.subsystems.climber.ClimberIOSim
 import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
 import com.team4099.robot2025.subsystems.drivetrain.TunerConstants
 import com.team4099.robot2025.subsystems.elevator.Elevator
-import com.team4099.robot2025.subsystems.elevator.ElevatorIO
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOSim
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOTalon
 import com.team4099.robot2025.subsystems.indexer.Indexer
-import com.team4099.robot2025.subsystems.indexer.IndexerIO
 import com.team4099.robot2025.subsystems.indexer.IndexerIOSim
 import com.team4099.robot2025.subsystems.indexer.IndexerIOTalon
 import com.team4099.robot2025.subsystems.intake.Intake
-import com.team4099.robot2025.subsystems.intake.IntakeIO
 import com.team4099.robot2025.subsystems.intake.IntakeIOSim
 import com.team4099.robot2025.subsystems.intake.IntakeIOTalonFX
 import com.team4099.robot2025.subsystems.limelight.LimelightVision

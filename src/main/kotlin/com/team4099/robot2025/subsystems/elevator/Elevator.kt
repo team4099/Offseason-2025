@@ -152,8 +152,8 @@ class Elevator(private val io: ElevatorIO) : SubsystemBase() {
         if (!inputs.isSimulating &&
           !isHomed &&
           (
-//            inputs.leaderStatorCurrent < ElevatorConstants.HOMING_STALL_CURRENT ||
-              (Clock.fpgaTime - lastHomingStatorCurrentTripTime) <
+            //            inputs.leaderStatorCurrent < ElevatorConstants.HOMING_STALL_CURRENT ||
+            (Clock.fpgaTime - lastHomingStatorCurrentTripTime) <
               ElevatorConstants.HOMING_STALL_TIME_THRESHOLD
             )
         ) {

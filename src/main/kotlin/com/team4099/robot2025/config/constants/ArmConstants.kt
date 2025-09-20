@@ -1,7 +1,5 @@
 package com.team4099.robot2025.config.constants
 
-import org.team4099.lib.units.AngularAcceleration
-import org.team4099.lib.units.AngularVelocity
 import org.team4099.lib.units.base.grams
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.pounds
@@ -10,7 +8,6 @@ import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.meterSquared
 import org.team4099.lib.units.derived.rotations
 import org.team4099.lib.units.derived.volts
-import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.kilo
 import org.team4099.lib.units.perSecond
 

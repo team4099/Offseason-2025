@@ -137,7 +137,8 @@ object ElevatorIOTalon : ElevatorIO {
       followerSensor.positionToRawUnits(ElevatorConstants.DOWNWARDS_EXTENSION_LIMIT)
 
     followerConfigs.MotionMagic.MotionMagicCruiseVelocity = MAX_VELOCITY.inInchesPerSecond
-    followerConfigs.MotionMagic.MotionMagicAcceleration = MAX_ACCELERATION.inInchesPerSecondPerSecond
+    followerConfigs.MotionMagic.MotionMagicAcceleration =
+      MAX_ACCELERATION.inInchesPerSecondPerSecond
     followerConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
 
     leaderPositionSignal = leaderTalon.position
@@ -158,8 +159,8 @@ object ElevatorIOTalon : ElevatorIO {
     motionMagicTargetPosition = leaderTalon.closedLoopReference
     motionMagicTargetVelocity = leaderTalon.closedLoopReferenceSlope
 
-//    motionMagicTargetPosition.setUpdateFrequency(250.0)
-//    motionMagicTargetVelocity.setUpdateFrequency(250.0)
+    //    motionMagicTargetPosition.setUpdateFrequency(250.0)
+    //    motionMagicTargetVelocity.setUpdateFrequency(250.0)
 
     leaderTalon.configurator.apply(leaderConfigs)
     followerTalon.configurator.apply(followerConfigs)

@@ -29,12 +29,14 @@ import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.inVoltsPerDegree
 import org.team4099.lib.units.derived.inVoltsPerDegreePerSecond
 import org.team4099.lib.units.derived.inVoltsPerDegreeSeconds
+import org.team4099.lib.units.derived.inVoltsPerDegreesPerSecondPerSecond
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.inDegreesPerSecondPerSecond
 import edu.wpi.first.units.measure.Current as WPILibCurrent
 import edu.wpi.first.units.measure.Temperature as WPILibTemperature
 import edu.wpi.first.units.measure.Voltage as WPILibVoltage
+import edu.wpi.first.units.measure.Angle as WPIAngle
 
 object IntakeIOTalonFX : IntakeIO {
   private val pivotTalon: TalonFX = TalonFX(Constants.Intake.INTAKE_MOTOR_ID)
@@ -55,6 +57,7 @@ object IntakeIOTalonFX : IntakeIO {
       IntakeConstants.Rollers.VOLTAGE_COMPENSATION
     )
 
+  var pivotPosition: StatusSignal<WPIAngle>
   var pivotAppliedVoltageStatusSignal: StatusSignal<WPILibVoltage>
   var pivotStatorCurrentStatusSignal: StatusSignal<WPILibCurrent>
   var pivotSupplyCurrentStatusSignal: StatusSignal<WPILibCurrent>
@@ -74,21 +77,18 @@ object IntakeIOTalonFX : IntakeIO {
 
   init {
     // Configure PID Values
-    pivotConfiguration.Slot0.kP =
-      pivotSensor.proportionalPositionGainToRawUnits(IntakeConstants.PID.REAL_PIVOT_KP)
-    pivotConfiguration.Slot0.kI =
-      pivotSensor.integralPositionGainToRawUnits(IntakeConstants.PID.REAL_PIVOT_KI)
-    pivotConfiguration.Slot0.kD =
-      pivotSensor.derivativePositionGainToRawUnits(IntakeConstants.PID.REAL_PIVOT_KD)
+    pivotConfiguration.Slot0.kP = IntakeConstants.PID.REAL_PIVOT_KP.inVoltsPerDegree
+    pivotConfiguration.Slot0.kI = IntakeConstants.PID.REAL_PIVOT_KI.inVoltsPerDegreeSeconds
+    pivotConfiguration.Slot0.kD = IntakeConstants.PID.REAL_PIVOT_KD.inVoltsPerDegreePerSecond
     pivotConfiguration.Slot0.GravityType = GravityTypeValue.Arm_Cosine
 
     // Configure Feedforward Values
     pivotConfiguration.Slot0.kG = IntakeConstants.PIVOT_KG.inVolts
     pivotConfiguration.Slot0.kS = IntakeConstants.PIVOT_KS.inVolts
-    pivotConfiguration.Slot0.kA =
-      pivotSensor.accelerationFeedforwardToRawUnits(IntakeConstants.PIVOT_KA)
-    pivotConfiguration.Slot0.kV =
-      pivotSensor.velocityFeedforwardToRawUnits(IntakeConstants.PIVOT_KV)
+    pivotConfiguration.Slot0.kA = IntakeConstants.PIVOT_KA.inVoltsPerDegreesPerSecondPerSecond
+    pivotConfiguration.Slot0.kV = IntakeConstants.PIVOT_KV.inVoltsPerDegreePerSecond
+    pivotConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
+    pivotConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake
 
     // configure arm
     pivotConfiguration.CurrentLimits.StatorCurrentLimit =
@@ -129,6 +129,7 @@ object IntakeIOTalonFX : IntakeIO {
     rollersTalon.configurator.apply(rollersConfiguration)
 
     // sensor data
+    pivotPosition = pivotTalon.position
     pivotAppliedVoltageStatusSignal = pivotTalon.motorVoltage
     pivotStatorCurrentStatusSignal = pivotTalon.statorCurrent
     pivotSupplyCurrentStatusSignal = pivotTalon.supplyCurrent
@@ -142,6 +143,7 @@ object IntakeIOTalonFX : IntakeIO {
 
   fun refreshStatusSignals() {
     BaseStatusSignal.refreshAll(
+      pivotPosition,
       pivotAppliedVoltageStatusSignal,
       pivotStatorCurrentStatusSignal,
       pivotSupplyCurrentStatusSignal,

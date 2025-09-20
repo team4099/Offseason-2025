@@ -119,7 +119,7 @@ class Arm(val io: ArmIO) : SubsystemBase() {
         nextState = fromRequestToState(currentRequest)
       }
       ArmState.HOME -> {
-        io.zeroEncoder()
+//        io.zeroEncoder()
         currentRequest = Request.ArmRequest.OpenLoop(0.volts)
         isZeroed = true
         nextState = fromRequestToState(currentRequest)

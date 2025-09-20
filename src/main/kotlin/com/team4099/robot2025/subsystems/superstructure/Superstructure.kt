@@ -245,7 +245,8 @@ class Superstructure(
       // General States
       SuperstructureStates.UNINITIALIZED -> {
         nextState =
-          if (RobotBase.isSimulation()) SuperstructureStates.IDLE
+          if (Constants.Tuning.TUNING_MODE) SuperstructureStates.TUNING
+          else if (RobotBase.isSimulation()) SuperstructureStates.IDLE
           else SuperstructureStates.HOME_PREP
       }
       SuperstructureStates.HOME_PREP -> {
@@ -301,16 +302,12 @@ class Superstructure(
               else ElevatorTunableValues.Heights.idleHeight.get()
 
             // note(nathan): ASSERT IDLE AND IDLE_CORAL > CLEARS_ROBOT
-            if (elevator.inputs.elevatorPosition + ElevatorConstants.ELEVATOR_TOLERANCE >
-              elevatorIdlePosition
+            if (elevator.inputs.elevatorPosition > ElevatorConstants.HEIGHTS.ARM_IDLE_PRIORITY_THRESHOLD
             ) {
               arm.currentRequest = Request.ArmRequest.ClosedLoop(armIdleAngle)
 
               if (arm.isAtTargetedPosition) {
                 elevator.currentRequest = Request.ElevatorRequest.ClosedLoop(elevatorIdlePosition)
-              } else {
-                elevator.currentRequest = Request.ElevatorRequest.OpenLoop(0.0.volts)
-                /* in case it gets here from the closedloop request below, stop it */
               }
             } else {
               elevator.currentRequest = Request.ElevatorRequest.ClosedLoop(elevatorIdlePosition)

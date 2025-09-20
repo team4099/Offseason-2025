@@ -43,8 +43,8 @@ object ControlBoard {
 
   //  val intakeCoral = Trigger { operator.rightTriggerAxis > 0.5 }
   //  val score = Trigger { driver.rightTriggerAxis > 0.5 }
-  val intakeCoral = Trigger { driver.leftTriggerAxis > 0.5 }
-  val score = Trigger { driver.rightTriggerAxis > 0.5 }
+  val intakeCoral = Trigger { driver.bButton }
+  val score = Trigger { driver.yButton }
   val climbExtend = Trigger { operator.startButton }
   val climbRetract = Trigger { operator.selectButton }
 
@@ -58,7 +58,7 @@ object ControlBoard {
   val alignCenter = Trigger { driver.leftShoulderButton || driver.rightShoulderButton }
 
   val resetGyro = Trigger { driver.startButton && driver.selectButton }
-  val forceIdle = Trigger { operator.dPadDown }
+  val forceIdle = Trigger { driver.dPadDown || operator.dPadDown }
   val eject = Trigger { operator.dPadLeft }
 
   val test = Trigger { driver.dPadRight || operator.dPadRight }

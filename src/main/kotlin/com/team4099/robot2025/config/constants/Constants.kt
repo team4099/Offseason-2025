@@ -145,12 +145,8 @@ object Constants {
     }
   }
 
-  object Ramp {
-    const val RAMP_MOTOR_ID = 62
-  }
-
   object Indexer {
-    const val INDEXER_MOTOR_ID = 81
+    const val INDEXER_MOTOR_ID = 58
   }
 
   object Alert {

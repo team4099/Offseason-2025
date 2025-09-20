@@ -9,6 +9,7 @@ import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.TalonFX
 import com.ctre.phoenix6.signals.GravityTypeValue
 import com.ctre.phoenix6.signals.InvertedValue
+import com.ctre.phoenix6.signals.NeutralModeValue
 import com.team4099.lib.math.clamp
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.ElevatorConstants
@@ -38,6 +39,8 @@ import org.team4099.lib.units.derived.inVoltsPerInchPerSecond
 import org.team4099.lib.units.derived.inVoltsPerInchSeconds
 import org.team4099.lib.units.derived.inVoltsPerMetersPerSecondPerSecond
 import org.team4099.lib.units.derived.volts
+import org.team4099.lib.units.inInchesPerSecond
+import org.team4099.lib.units.inInchesPerSecondPerSecond
 import edu.wpi.first.units.measure.Current as WPILibCurrent
 import edu.wpi.first.units.measure.Temperature as WPILibTemperature
 import edu.wpi.first.units.measure.Voltage as WPILibVoltage
@@ -108,13 +111,14 @@ object ElevatorIOTalon : ElevatorIO {
     leaderConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
       leaderSensor.positionToRawUnits(ElevatorConstants.DOWNWARDS_EXTENSION_LIMIT)
 
-    leaderConfigs.MotionMagic.MotionMagicCruiseVelocity =
-      leaderSensor.velocityToRawUnits(MAX_VELOCITY)
-    leaderConfigs.MotionMagic.MotionMagicAcceleration =
-      leaderSensor.accelerationToRawUnits(MAX_ACCELERATION)
+    leaderConfigs.MotionMagic.MotionMagicCruiseVelocity = MAX_VELOCITY.inInchesPerSecond
+    leaderConfigs.MotionMagic.MotionMagicAcceleration = MAX_ACCELERATION.inInchesPerSecondPerSecond
     leaderConfigs.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive
 
     followerTalon.setControl(Follower(Constants.Elevator.LEADER_MOTOR_ID, true))
+
+    followerConfigs.MotorOutput.NeutralMode = NeutralModeValue.Coast
+    leaderConfigs.MotorOutput.NeutralMode = NeutralModeValue.Coast
 
     followerConfigs.CurrentLimits.SupplyCurrentLimit =
       ElevatorConstants.SUPPLY_CURRENT_LIMIT.inAmperes
@@ -132,10 +136,8 @@ object ElevatorIOTalon : ElevatorIO {
     followerConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
       followerSensor.positionToRawUnits(ElevatorConstants.DOWNWARDS_EXTENSION_LIMIT)
 
-    followerConfigs.MotionMagic.MotionMagicCruiseVelocity =
-      followerSensor.velocityToRawUnits(MAX_VELOCITY)
-    followerConfigs.MotionMagic.MotionMagicAcceleration =
-      followerSensor.accelerationToRawUnits(MAX_ACCELERATION)
+    followerConfigs.MotionMagic.MotionMagicCruiseVelocity = MAX_VELOCITY.inInchesPerSecond
+    followerConfigs.MotionMagic.MotionMagicAcceleration = MAX_ACCELERATION.inInchesPerSecondPerSecond
     followerConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
 
     leaderPositionSignal = leaderTalon.position
@@ -156,8 +158,8 @@ object ElevatorIOTalon : ElevatorIO {
     motionMagicTargetPosition = leaderTalon.closedLoopReference
     motionMagicTargetVelocity = leaderTalon.closedLoopReferenceSlope
 
-    motionMagicTargetPosition.setUpdateFrequency(250.0)
-    motionMagicTargetVelocity.setUpdateFrequency(250.0)
+//    motionMagicTargetPosition.setUpdateFrequency(250.0)
+//    motionMagicTargetVelocity.setUpdateFrequency(250.0)
 
     leaderTalon.configurator.apply(leaderConfigs)
     followerTalon.configurator.apply(followerConfigs)
@@ -234,8 +236,8 @@ object ElevatorIOTalon : ElevatorIO {
     followerSlot1Configs.kD = kD.inVoltsPerInchPerSecond
 
     leaderTalon.configurator.apply(leaderSlot0Configs)
-    followerTalon.configurator.apply(leaderSlot0Configs)
-    leaderTalon.configurator.apply(followerSlot1Configs)
+    followerTalon.configurator.apply(followerSlot0Configs)
+    leaderTalon.configurator.apply(leaderSlot1Configs)
     followerTalon.configurator.apply(followerSlot1Configs)
   }
 

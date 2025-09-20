@@ -8,7 +8,7 @@ import org.team4099.lib.units.base.pounds
 import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.meterSquared
-import org.team4099.lib.units.derived.radians
+import org.team4099.lib.units.derived.rotations
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.kilo
@@ -17,7 +17,7 @@ import org.team4099.lib.units.perSecond
 object ArmConstants {
   val VOLTAGE_COMPENSATION = 12.0.volts
   // what armPosition is when the arm is 0 in +x direction (above intake)
-  val ENCODER_ANGLE_OFFSET = 0.474.radians + 164.87.degrees + 15.0.degrees
+  val ENCODER_ANGLE_OFFSET = 0.953.rotations - 153.degrees
 
   val ARM_TOLERANCE = 2.0.degrees // todo tune and make smaller
   val ARM_LENGTH = 26.1362839.inches
@@ -32,27 +32,27 @@ object ArmConstants {
 
   const val CANCODER_DISCONTINUITY_POINT = 0.0
 
-  val MAX_VELOCITY: AngularVelocity = 150.0.degrees.perSecond
-  val MAX_ACCELERATION: AngularAcceleration = 150.0.degrees.perSecond.perSecond
+  val MAX_VELOCITY = 250.0
+  val MAX_ACCELERATION = 250.0
 
   val TIME_TO_GOAL = 0.5.seconds
 
   object PID {
     val REAL_KP = 6.volts / 1.degrees
     val REAL_KI = 0.0.volts / (1.degrees * 1.seconds)
-    val REAL_KD = 0.3.volts / (1.degrees.perSecond)
+    val REAL_KD = 0.0.volts / (1.degrees.perSecond)
 
     val SIM_KP = 0.75.volts / 1.degrees
     val SIM_KI = 0.0.volts / (1.degrees * 1.seconds)
     val SIM_KD = 0.02.volts / (1.degrees.perSecond)
 
     val KS = 0.15.volts
-    val KV = ((1 / MAX_VELOCITY.inDegreesPerSecond).volts) / 1.0.degrees.perSecond //  0.037
-    val KA = (0.001.volts) / 1.0.degrees.perSecond.perSecond // 0.0025
+    val KV = ((0.0 / MAX_VELOCITY).volts) / 1.0.degrees.perSecond //  0.037
+    val KA = (0.0.volts) / 1.0.degrees.perSecond.perSecond // 0.0025
 
     val KV_ADD = (0.0.volts) / 1.0.degrees.perSecond //  0.037
 
-    val KG = 0.05.volts
+    val KG = 0.2.volts
   }
 
   // all angles were originally measured from cw down, so the -(value + 90) adjusts it properly to
@@ -60,13 +60,13 @@ object ArmConstants {
   object ANGLES {
     val IDLE_ANGLE = -(0.0.degrees + 90.degrees)
     val EJECT_ANGLE = -(60.0.degrees + 90.degrees)
-    val HOME_ANGLE = -(180.0.degrees + 90.degrees)
+    val HOME_ANGLE = -(170.0.degrees + 90.degrees)
     val CLIMB_ANGLE = -(90.0.degrees + 90.degrees)
 
     val INTAKE_CORAL_ANGLE = -(0.0.degrees + 90.degrees)
 
     val IDLE_CORAL_ANGLE = -(0.0.degrees + 90.degrees)
-    val IDLE_ALGAE_ANGLE = -(180.0.degrees + 90.degrees)
+    val IDLE_ALGAE_ANGLE = -(170.0.degrees + 90.degrees)
 
     val L1_PREP_ANGLE = -(70.0.degrees + 90.degrees)
     val L2_PREP_ANGLE = -(123.26.degrees + 90.degrees)
@@ -86,6 +86,6 @@ object ArmConstants {
 
     val SIM_MECH_OFFSET = 90.0.degrees
 
-    val MOVING_BETWEEN_REEF_LEVELS_ANGLE = -(180.0.degrees + 90.degrees)
+    val MOVING_BETWEEN_REEF_LEVELS_ANGLE = -(170.0.degrees + 90.degrees)
   }
 }

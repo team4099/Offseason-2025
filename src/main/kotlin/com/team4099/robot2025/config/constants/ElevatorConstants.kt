@@ -23,17 +23,17 @@ object ElevatorConstants {
   val STATOR_CURRENT_LIMIT = 40.0.amps
   val SUPPLY_CURRENT_LIMIT = 40.0.amps
 
-  val HOMING_APPLIED_VOLTAGE = (-1.0).volts
+  val HOMING_APPLIED_VOLTAGE = (-5.0).volts
   val HOMING_STALL_CURRENT = 15.0.amps
-  val HOMING_STALL_TIME_THRESHOLD = 0.15.seconds
+  val HOMING_STALL_TIME_THRESHOLD = 0.35.seconds
 
   val UPWARDS_EXTENSION_LIMIT: Length = 59.25.inches
   val DOWNWARDS_EXTENSION_LIMIT: Length = 0.inches
   val FIRST_STAGE_HEIGHT: Length = 26.125.inches
 
   // TODO: check?
-  val MAX_VELOCITY: LinearVelocity = 144.85.inches.perSecond
-  val MAX_ACCELERATION: LinearAcceleration = 259.54.inches.perSecond.perSecond
+  val MAX_VELOCITY: LinearVelocity = 200.inches.perSecond
+  val MAX_ACCELERATION: LinearAcceleration = 250.inches.perSecond.perSecond
 
   val ELEVATOR_TOLERANCE = 0.25.inches
 
@@ -75,26 +75,28 @@ object ElevatorConstants {
       18.0.inches // todo update with final robot to make sure nothing breaks !!!!!!
 
     val EJECT = IDLE_CORAL
+
+    val ARM_IDLE_PRIORITY_THRESHOLD = 25.inches
   }
 
   object PID {
     // TODO: tune all
-    val REAL_KP = 1.5.volts / 1.inches
+    val REAL_KP = 2.5.volts / 1.inches
     val REAL_KI = 0.0.volts / (1.inches * 1.seconds)
-    val REAL_KD = 0.05.volts / (1.inches.perSecond)
+    val REAL_KD = 0.3.volts / (1.inches.perSecond)
 
     val SIM_KP = 1.95.volts / 1.inches
     val SIM_KI = 0.0.volts / (1.inches * 1.seconds)
     val SIM_KD = 0.23.volts / (1.inches.perSecond)
 
-    val KS = 0.0.volts
-    val KV = ((.05 / MAX_VELOCITY.inMetersPerSecond).volts) / 1.0.meters.perSecond //  0.037
-    val KA = (2.0.volts) / 1.0.meters.perSecond.perSecond // 0.0025
+    val KS = 0.05.volts
+    val KV = ((.0 / MAX_VELOCITY.inMetersPerSecond).volts) / 1.0.meters.perSecond //  0.037
+    val KA = (0.0.volts) / 1.0.meters.perSecond.perSecond // 0.0025
 
     val KV_ADD = (0.0.volts) / 1.0.meters.perSecond //  0.037
 
     val KG_SIM = 0.3.volts
-    val KG_FIRST_STAGE = 0.23.volts
+    val KG_FIRST_STAGE = 0.2.volts
     val KG_SECOND_STAGE = 0.3.volts
   }
 }

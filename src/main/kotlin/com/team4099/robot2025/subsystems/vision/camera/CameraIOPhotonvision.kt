@@ -54,16 +54,16 @@ class CameraIOPhotonvision(
     }
 
     val pipelineResults = camera.allUnreadResults
+    if (!pipelineResults.isEmpty()) {
+      Logger.recordOutput("Vision/$identifier/timestampIG", pipelineResults[0].timestampSeconds)
 
-    Logger.recordOutput("Vision/$identifier/timestampIG", pipelineResults[0].timestampSeconds)
+      inputs.timestamp = pipelineResults[0].timestampSeconds.seconds
 
-    inputs.timestamp = pipelineResults[0].timestampSeconds.seconds
-
-    if ((inputs.timestamp - lastEstTimestamp).absoluteValue > 10.micro.seconds) {
-      inputs.fps = 1 / (inputs.timestamp - lastEstTimestamp).inSeconds
-      lastEstTimestamp = inputs.timestamp
+      if ((inputs.timestamp - lastEstTimestamp).absoluteValue > 10.micro.seconds) {
+        inputs.fps = 1 / (inputs.timestamp - lastEstTimestamp).inSeconds
+        lastEstTimestamp = inputs.timestamp
+      }
     }
-
     for ((index, result) in pipelineResults.withIndex()) {
       Logger.recordOutput("Vision/$identifier/targets/$index", result)
       val visionEst: Optional<EstimatedRobotPose>? = photonEstimator.update(result)

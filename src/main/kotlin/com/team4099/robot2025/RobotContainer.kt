@@ -12,26 +12,25 @@ import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.VisionConstants
 import com.team4099.robot2025.subsystems.Arm.Arm
+import com.team4099.robot2025.subsystems.Arm.ArmIO
 import com.team4099.robot2025.subsystems.Arm.ArmIOSIm
-import com.team4099.robot2025.subsystems.Arm.ArmIOTalon
-import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOTalon
+import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIO
 import com.team4099.robot2025.subsystems.canRange.CANRange
 import com.team4099.robot2025.subsystems.canRange.CANRangeIO
-import com.team4099.robot2025.subsystems.canRange.CANRangeReal
 import com.team4099.robot2025.subsystems.climber.Climber
 import com.team4099.robot2025.subsystems.climber.ClimberIO
 import com.team4099.robot2025.subsystems.climber.ClimberIOSim
 import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
 import com.team4099.robot2025.subsystems.drivetrain.TunerConstants
 import com.team4099.robot2025.subsystems.elevator.Elevator
+import com.team4099.robot2025.subsystems.elevator.ElevatorIO
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOSim
-import com.team4099.robot2025.subsystems.elevator.ElevatorIOTalon
 import com.team4099.robot2025.subsystems.indexer.Indexer
+import com.team4099.robot2025.subsystems.indexer.IndexerIO
 import com.team4099.robot2025.subsystems.indexer.IndexerIOSim
-import com.team4099.robot2025.subsystems.indexer.IndexerIOTalon
 import com.team4099.robot2025.subsystems.intake.Intake
+import com.team4099.robot2025.subsystems.intake.IntakeIO
 import com.team4099.robot2025.subsystems.intake.IntakeIOSim
-import com.team4099.robot2025.subsystems.intake.IntakeIOTalonFX
 import com.team4099.robot2025.subsystems.limelight.LimelightVision
 import com.team4099.robot2025.subsystems.limelight.LimelightVisionIO
 import com.team4099.robot2025.subsystems.superstructure.Request
@@ -67,13 +66,13 @@ object RobotContainer {
   init {
     if (RobotBase.isReal()) {
       limelight = LimelightVision(object : LimelightVisionIO {})
-      elevator = Elevator(ElevatorIOTalon)
-      arm = Arm(ArmIOTalon)
-      armRollers = ArmRollers(RollersIOTalon)
+      elevator = Elevator(object : ElevatorIO {})
+      arm = Arm(object : ArmIO {})
+      armRollers = ArmRollers(object : RollersIO {})
       climber = Climber(object : ClimberIO {})
-      intake = Intake(IntakeIOTalonFX)
-      indexer = Indexer(IndexerIOTalon)
-      canrange = CANRange(CANRangeReal)
+      intake = Intake(object : IntakeIO {})
+      indexer = Indexer(object : IndexerIO {})
+      canrange = CANRange(object : CANRangeIO {})
 
       vision =
         Vision(
@@ -153,7 +152,6 @@ object RobotContainer {
     ControlBoard.prepL3OrAlgaeReef.whileTrue(superstructure.prepL3OrAlgaeReefCommand())
     ControlBoard.prepL4OrBarge.whileTrue(superstructure.prepL4OrBargeCommand())
 
-    // todo align commands need to change to utilize superstructure.theoreticalGamePieceArm
     ControlBoard.alignLeft.whileTrue(
       ConditionalCommand(
         ReefAlignCommand(

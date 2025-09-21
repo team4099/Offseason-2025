@@ -73,6 +73,9 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
   private var visionConsumer: Consumer<List<TimestampedVisionUpdate>> = Consumer {}
   private var reefVisionConsumer: Consumer<TimestampedTrigVisionUpdate> = Consumer {}
 
+//  var shortestOdomTTag: Transform3d? = Transform3d()
+  var shortestOdomTTagCamTransformAndTransform: Pair<Transform3d?, Transform3d?> = Pair(null, null)
+
   fun setDataInterfaces(
     fieldFramePoseSupplier: Supplier<Pose2d>,
     visionConsumer: Consumer<List<TimestampedVisionUpdate>>,
@@ -107,6 +110,8 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
     for (i in io.indices) {
       closestReefTags[i] = null
     }
+
+    var cameraAndOdomTTagList: MutableList<Pair<Int, Transform3d>> = mutableListOf()
 
     for (instance in io.indices) {
 
@@ -168,6 +173,8 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
                     .translation,
                   Rotation3d(0.degrees, 0.degrees, aprilTagAlignmentAngle ?: 0.degrees)
                 )
+
+              cameraAndOdomTTagList.add(Pair(instance, robotTTag))
 
               var fieldTRobot = Pose3d().transformBy(fieldTTag).transformBy(robotTTag.inverse())
 
@@ -296,6 +303,22 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
         }
       }
     }
+
+    val shortestOdomTTagCamAndTransform = cameraAndOdomTTagList.minByOrNull { it.second.translation.norm }
+
+    Logger.recordOutput(
+      "Vision/shortestOdomTTagCam", shortestOdomTTagCamAndTransform?.first ?: -1
+    )
+
+    Logger.recordOutput(
+      "Vision/shortestOdomTTagTransform", shortestOdomTTagCamAndTransform?.second?.transform3d ?: Transform3d().transform3d
+    )
+
+    val shortestTransformCameraTransform =
+      if (shortestOdomTTagCamAndTransform?.first == null) Transform3d()
+      else VisionConstants.CAMERA_TRANSFORMS[shortestOdomTTagCamAndTransform.first!!]
+
+    shortestOdomTTagCamTransformAndTransform = Pair(shortestTransformCameraTransform, shortestOdomTTagCamAndTransform?.second)
 
     // visionConsumer.accept(visionUpdates)
     Logger.recordOutput(

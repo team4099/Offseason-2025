@@ -120,18 +120,18 @@ class ReefAlignCommand(
     CustomLogger.recordDebugOutput("ActiveCommands/TargetReefCommand", false)
     drivetrain.setControl(SwerveRequest.ApplyRobotSpeeds().withSpeeds(ChassisSpeeds()))
 
-    if (!DriverStation.isAutonomous()) {
-      val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
-      drivetrain.setControl(
-        SwerveRequest.FieldCentric()
-          .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
-          .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
-          .withVelocityX(speed.first.inMetersPerSecond)
-          .withVelocityY(speed.second.inMetersPerSecond)
-          .withRotationalRate(
-            driver.rotationSpeedClampedSupplier(turn, slowMode).inRadiansPerSecond
-          )
-      )
-    }
+//    if (!DriverStation.isAutonomous()) {
+//      val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
+//      drivetrain.setControl(
+//        SwerveRequest.FieldCentric()
+//          .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
+//          .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
+//          .withVelocityX(speed.first.inMetersPerSecond)
+//          .withVelocityY(speed.second.inMetersPerSecond)
+//          .withRotationalRate(
+//            driver.rotationSpeedClampedSupplier(turn, slowMode).inRadiansPerSecond
+//          )
+//      )
+//    }
   }
 }

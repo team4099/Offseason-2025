@@ -106,14 +106,9 @@ class TargetTagCommand(
       )
     )
 
-  private val requestFieldCentric =
-    SwerveRequest.FieldCentric()
-      .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
-      .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
-
   private val requestRobotCentric =
     SwerveRequest.RobotCentric()
-      .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
+      .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
       .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
 
   init {
@@ -297,9 +292,9 @@ class TargetTagCommand(
       if (thetaPID.error.absoluteValue > 5.degrees) {
         val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
         drivetrain.setControl(
-          requestFieldCentric
-            .withVelocityX(speed.first.inMetersPerSecond)
-            .withVelocityY(speed.second.inMetersPerSecond)
+          requestRobotCentric
+//            .withVelocityX(speed.first.inMetersPerSecond)
+//            .withVelocityY(speed.second.inMetersPerSecond)
             .withRotationalRate(thetaFeedback.inRadiansPerSecond)
         )
       } else {
@@ -354,14 +349,14 @@ class TargetTagCommand(
 
     vision.currentRequest = Request.VisionRequest.TargetReef()
 
-    val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
-    drivetrain.setControl(
-      requestFieldCentric
-        .withVelocityX(speed.first.inMetersPerSecond)
-        .withVelocityY(speed.second.inMetersPerSecond)
-        .withRotationalRate(
-          driver.rotationSpeedClampedSupplier(turn, slowMode).inRadiansPerSecond
-        )
-    )
+//    val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
+//    drivetrain.setControl(
+//      requestFieldCentric
+//        .withVelocityX(speed.first.inMetersPerSecond)
+//        .withVelocityY(speed.second.inMetersPerSecond)
+//        .withRotationalRate(
+//          driver.rotationSpeedClampedSupplier(turn, slowMode).inRadiansPerSecond
+//        )
+//    )
   }
 }

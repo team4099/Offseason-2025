@@ -62,9 +62,8 @@ interface ArmIO {
       table.get("armAbsoluteEncoderPosition", armAbsoluteEncoderPosition.inDegrees).let {
         armAbsoluteEncoderPosition = it.degrees
       }
-      table.get("armAbsoluteEncoderAbsolutePosition", armAbsoluteEncoderAbsolutePosition.inDegrees).let {
-        armAbsoluteEncoderAbsolutePosition = it.degrees
-      }
+      table.get("armAbsoluteEncoderAbsolutePosition", armAbsoluteEncoderAbsolutePosition.inDegrees)
+        .let { armAbsoluteEncoderAbsolutePosition = it.degrees }
       table.get("armAppliedVoltage", armAppliedVoltage.inVolts).let { armAppliedVoltage = it.volts }
       table.get("armDutyCycle", armDutyCycle).let { armDutyCycle = it }
       table.get("armStatorCurrent", armStatorCurrent.inAmperes).let { armStatorCurrent = it.amps }

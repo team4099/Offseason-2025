@@ -252,7 +252,7 @@ class Superstructure(
       SuperstructureStates.HOME_PREP -> {
         arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.HOME_ANGLE)
 
-        if (arm.isAtTargetedPosition) {
+        if (arm.inputs.armPosition >= ArmConstants.ANGLES.ARM_GUARENTEED_OVER_BATTERY) {
           nextState = SuperstructureStates.HOME
         }
       }
@@ -301,9 +301,12 @@ class Superstructure(
                 ElevatorTunableValues.Heights.idleCoralHeight.get()
               else ElevatorTunableValues.Heights.idleHeight.get()
 
-            armRollers.currentRequest = Request.RollersRequest.OpenLoop(if (theoreticalGamePieceArm == GamePiece.CORAL)
-              ArmRollersConstants.IDLE_CORAL_VOLTAGE
-            else ArmRollersConstants.IDLE_VOLTAGE)
+            armRollers.currentRequest =
+              Request.RollersRequest.OpenLoop(
+                if (theoreticalGamePieceArm == GamePiece.CORAL)
+                  ArmRollersConstants.IDLE_CORAL_VOLTAGE
+                else ArmRollersConstants.IDLE_VOLTAGE
+              )
 
             // note(nathan): ASSERT IDLE AND IDLE_CORAL > CLEARS_ROBOT
             if (elevator.inputs.elevatorPosition >
@@ -403,7 +406,9 @@ class Superstructure(
           armRollers.currentRequest =
             ArmRollersRequest.OpenLoop(ArmRollersConstants.INTAKE_CORAL_VOLTAGE)
 
-          if (RobotBase.isReal() && armRollers.hasCoral && Clock.fpgaTime - lastTransitionTime > ArmRollersConstants.CORAL_DETECTION_THRESHOLD ||
+          if (RobotBase.isReal() &&
+            armRollers.hasCoral &&
+            Clock.fpgaTime - lastTransitionTime > ArmRollersConstants.CORAL_DETECTION_THRESHOLD ||
             RobotBase.isSimulation() && !overrideFlagForSim
           ) {
             theoreticalGamePieceArm = GamePiece.CORAL
@@ -472,7 +477,9 @@ class Superstructure(
           }
         }
 
-        if (RobotBase.isReal() && armRollers.hasAlgae ||
+        if (RobotBase.isReal() &&
+          armRollers.hasAlgae &&
+          Clock.fpgaTime - lastTransitionTime > ArmRollersConstants.ALGAE_DETECTION_THRESHOLD ||
           RobotBase.isSimulation() && overrideFlagForSim
         ) {
           theoreticalGamePieceArm = GamePiece.ALGAE
@@ -712,7 +719,7 @@ class Superstructure(
 
         intake.currentRequest =
           Request.IntakeRequest.TargetingPosition(
-            IntakeTunableValues.coralPosition.get(),
+            IntakeTunableValues.idlePosition.get(),
             IntakeTunableValues.ejectRollerVoltage.get()
           )
         indexer.currentRequest = Request.IndexerRequest.Eject()
@@ -872,6 +879,14 @@ class Superstructure(
     val returnCommand = runOnce { if (RobotBase.isSimulation()) overrideFlagForSim = setOverride }
 
     returnCommand.name = "OverrideFlagCommand"
+    return returnCommand
+  }
+
+  // -------------------------------- Gamepiece Reset--------------------------------
+
+  fun resetGamepieceCommand(): Command {
+    val returnCommand = runOnce { theoreticalGamePieceArm = GamePiece.NONE }
+    returnCommand.name = "ResetGamepieceCommand"
     return returnCommand
   }
 

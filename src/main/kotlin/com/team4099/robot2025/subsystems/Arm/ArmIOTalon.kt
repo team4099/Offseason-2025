@@ -148,7 +148,7 @@ object ArmIOTalon : ArmIO {
 
   override fun updateInputs(inputs: ArmIO.ArmIOInputs) {
     updateSignals()
-//    zeroEncoder()
+    //    zeroEncoder()
 
     inputs.armPosition = armSensor.position
     inputs.armVelocity = armSensor.velocity

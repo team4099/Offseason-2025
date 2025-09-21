@@ -129,7 +129,7 @@ object Constants {
     const val CANCODER_ID = 52
   }
   object ArmRollers {
-    const val ARM_ROLLERS_MOTOR_ID = 53
+    const val ARM_ROLLERS_MOTOR_ID = 55
   }
 
   object Rollers {
@@ -158,6 +158,6 @@ object Constants {
   }
 
   object CanRange {
-    const val CANRANGE_ID = 91
+    const val CANRANGE_ID = 27
   }
 }

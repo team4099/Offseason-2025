@@ -16,7 +16,7 @@ object ArmConstants {
   // what armPosition is when the arm is 0 in +x direction (above intake)
   val ENCODER_ANGLE_OFFSET = 0.953.rotations - 153.degrees
 
-  val ARM_TOLERANCE = 2.0.degrees // todo tune and make smaller
+  val ARM_TOLERANCE = 2.5.degrees
   val ARM_LENGTH = 26.1362839.inches
   val ARM_MOMENT_OF_INERTIA = 0.00503098.kilo.grams.meterSquared
   val ARM_MASS = 4.5796764.pounds
@@ -24,30 +24,28 @@ object ArmConstants {
   val MIN_ROTATION = -90.degrees
   val MAX_ROTATION = -270.0.degrees
 
-  val GEAR_RATIO = (14.0 / 62.0) * (26.0 / 54.0)
+  val GEAR_RATIO = (14.0 / 62.0) * (26.0 / 54.0) * (12.0 / 66.0)
   val ENCODER_TO_MECHANISM_GEAR_RATIO = 1.0
 
-  const val CANCODER_DISCONTINUITY_POINT = 0.0
+  val CANCODER_DISCONTINUITY_POINT = 0.0.rotations
 
-  val MAX_VELOCITY = 250.0
+  val MAX_VELOCITY = 300.0
   val MAX_ACCELERATION = 250.0
 
   val TIME_TO_GOAL = 0.5.seconds
 
   object PID {
-    val REAL_KP = 6.volts / 1.degrees
+    val REAL_KP = 35.volts / 1.degrees
     val REAL_KI = 0.0.volts / (1.degrees * 1.seconds)
-    val REAL_KD = 0.0.volts / (1.degrees.perSecond)
+    val REAL_KD = 0.5.volts / (1.degrees.perSecond)
 
     val SIM_KP = 0.75.volts / 1.degrees
     val SIM_KI = 0.0.volts / (1.degrees * 1.seconds)
     val SIM_KD = 0.02.volts / (1.degrees.perSecond)
 
-    val KS = 0.15.volts
+    val KS = 1.4.volts
     val KV = ((0.0 / MAX_VELOCITY).volts) / 1.0.degrees.perSecond //  0.037
     val KA = (0.0.volts) / 1.0.degrees.perSecond.perSecond // 0.0025
-
-    val KV_ADD = (0.0.volts) / 1.0.degrees.perSecond //  0.037
 
     val KG = 0.2.volts
   }
@@ -63,7 +61,7 @@ object ArmConstants {
     val INTAKE_CORAL_ANGLE = -(0.0.degrees + 90.degrees)
 
     val IDLE_CORAL_ANGLE = -(0.0.degrees + 90.degrees)
-    val IDLE_ALGAE_ANGLE = -(170.0.degrees + 90.degrees)
+    val IDLE_ALGAE_ANGLE = -(155.0.degrees + 90.degrees)
 
     val L1_PREP_ANGLE = -(70.0.degrees + 90.degrees)
     val L2_PREP_ANGLE = -(123.26.degrees + 90.degrees)
@@ -79,7 +77,7 @@ object ArmConstants {
 
     val SCORE_ANGLE_OFFSET = -(30.0.degrees + 90.degrees)
 
-    val ARM_GUARENTEED_OVER_BATTERY = -(60.0.degrees + 90.degrees)
+    val ARM_GUARENTEED_OVER_BATTERY = -(80.0.degrees + 90.degrees)
 
     val SIM_MECH_OFFSET = 90.0.degrees
 

@@ -39,17 +39,18 @@ class Indexer(val io: IndexerIO) : SubsystemBase() {
         nextState = fromRequestToState(currentRequest)
       }
       IndexerState.INDEX -> {
-        if (!inputs.isSimulating &&
-          (
-            isStuck ||
-              Clock.fpgaTime - lastCoralTripTime <= IndexerConstants.CORAL_SPIT_TIME_THRESHOLD
-            )
-        ) {
-          if (isStuck) lastCoralTripTime = Clock.fpgaTime
-          io.setVoltage(IndexerConstants.SPIT_VOLTAGE)
-        } else {
-          io.setVoltage(IndexerConstants.INDEX_VOLTAGE)
-        }
+        io.setVoltage(IndexerConstants.INDEX_VOLTAGE)
+//        if (!inputs.isSimulating &&
+//          (
+//            isStuck ||
+//              Clock.fpgaTime - lastCoralTripTime <= IndexerConstants.CORAL_SPIT_TIME_THRESHOLD
+//            )
+//        ) {
+//          if (isStuck) lastCoralTripTime = Clock.fpgaTime
+//          io.setVoltage(IndexerConstants.SPIT_VOLTAGE)
+//        } else {
+//          io.setVoltage(IndexerConstants.INDEX_VOLTAGE)
+//        }
 
         nextState = fromRequestToState(currentRequest)
       }

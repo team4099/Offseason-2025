@@ -48,7 +48,7 @@ object ElevatorConstants {
     val IDLE_ALGAE = 11.9.inches
     val CLIMB_HEIGHT = 25.0.inches
 
-    val INTAKE_CORAL = 16.25.inches // todo remeasure
+    val INTAKE_CORAL = 15.inches // todo remeasure
     val INTAKE_ALGAE_GROUND = 11.0.inches - CARRIAGE_TO_BOTTOM
     val INTAKE_ALGAE_LOW = 34.56.inches - CARRIAGE_TO_BOTTOM
     val INTAKE_ALGAE_HIGH = 50.46.inches - CARRIAGE_TO_BOTTOM
@@ -82,7 +82,7 @@ object ElevatorConstants {
   object PID {
     // TODO: tune all
     val REAL_KP = 2.5.volts / 1.inches
-    val REAL_KI = 0.0.volts / (1.inches * 1.seconds)
+    val REAL_KI = 0.2.volts / (1.inches * 1.seconds)
     val REAL_KD = 0.3.volts / (1.inches.perSecond)
 
     val SIM_KP = 1.95.volts / 1.inches

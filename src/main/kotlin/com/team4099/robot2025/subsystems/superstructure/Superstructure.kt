@@ -301,6 +301,10 @@ class Superstructure(
                 ElevatorTunableValues.Heights.idleCoralHeight.get()
               else ElevatorTunableValues.Heights.idleHeight.get()
 
+            armRollers.currentRequest = Request.RollersRequest.OpenLoop(if (theoreticalGamePieceArm == GamePiece.CORAL)
+              ArmRollersConstants.IDLE_CORAL_VOLTAGE
+            else ArmRollersConstants.IDLE_VOLTAGE)
+
             // note(nathan): ASSERT IDLE AND IDLE_CORAL > CLEARS_ROBOT
             if (elevator.inputs.elevatorPosition >
               ElevatorConstants.HEIGHTS.ARM_IDLE_PRIORITY_THRESHOLD
@@ -399,7 +403,7 @@ class Superstructure(
           armRollers.currentRequest =
             ArmRollersRequest.OpenLoop(ArmRollersConstants.INTAKE_CORAL_VOLTAGE)
 
-          if (RobotBase.isReal() && armRollers.hasCoral ||
+          if (RobotBase.isReal() && armRollers.hasCoral && Clock.fpgaTime - lastTransitionTime > ArmRollersConstants.CORAL_DETECTION_THRESHOLD ||
             RobotBase.isSimulation() && !overrideFlagForSim
           ) {
             theoreticalGamePieceArm = GamePiece.CORAL

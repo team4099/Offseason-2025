@@ -112,8 +112,8 @@ class TargetTagCommand(
       .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
 
   init {
-    addRequirements(drivetrain)
-    addRequirements(vision)
+    //    addRequirements(drivetrain)
+    //    addRequirements(vision)
 
     thetaPID =
       PIDController(
@@ -202,7 +202,7 @@ class TargetTagCommand(
     thetaPID.enableContinuousInput(-PI.radians, PI.radians)
   }
 
-  fun isAtSepoint(keepTrapping: Boolean = false): Boolean {
+  fun isAtSetpoint(keepTrapping: Boolean = false): Boolean {
     val atSetPoint =
       if (!keepTrapping) {
         (
@@ -293,8 +293,8 @@ class TargetTagCommand(
         val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
         drivetrain.setControl(
           requestRobotCentric
-//            .withVelocityX(speed.first.inMetersPerSecond)
-//            .withVelocityY(speed.second.inMetersPerSecond)
+            //            .withVelocityX(speed.first.inMetersPerSecond)
+            //            .withVelocityY(speed.second.inMetersPerSecond)
             .withRotationalRate(thetaFeedback.inRadiansPerSecond)
         )
       } else {
@@ -349,14 +349,14 @@ class TargetTagCommand(
 
     vision.currentRequest = Request.VisionRequest.TargetReef()
 
-//    val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
-//    drivetrain.setControl(
-//      requestFieldCentric
-//        .withVelocityX(speed.first.inMetersPerSecond)
-//        .withVelocityY(speed.second.inMetersPerSecond)
-//        .withRotationalRate(
-//          driver.rotationSpeedClampedSupplier(turn, slowMode).inRadiansPerSecond
-//        )
-//    )
+    //    val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
+    //    drivetrain.setControl(
+    //      requestFieldCentric
+    //        .withVelocityX(speed.first.inMetersPerSecond)
+    //        .withVelocityY(speed.second.inMetersPerSecond)
+    //        .withRotationalRate(
+    //          driver.rotationSpeedClampedSupplier(turn, slowMode).inRadiansPerSecond
+    //        )
+    //    )
   }
 }

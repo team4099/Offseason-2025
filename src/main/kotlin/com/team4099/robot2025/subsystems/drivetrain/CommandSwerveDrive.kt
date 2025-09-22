@@ -10,6 +10,7 @@ import com.team4099.robot2025.subsystems.drivetrain.TunerConstants.TunerSwerveDr
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.math.Matrix
 import edu.wpi.first.math.geometry.Pose2d
+import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
@@ -246,6 +247,7 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
     }
 
     CustomLogger.recordOutput("Odometry/pose", state.Pose)
+    CustomLogger.recordOutput("Odometry/pose3d", Pose3d(state.Pose))
   }
 
   private fun startSimThread() {

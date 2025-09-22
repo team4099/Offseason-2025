@@ -14,7 +14,7 @@ import org.team4099.lib.units.perSecond
 object ArmConstants {
   val VOLTAGE_COMPENSATION = 12.0.volts
   // what armPosition is when the arm is 0 in +x direction (above intake)
-  val ENCODER_ANGLE_OFFSET = 0.953.rotations - 153.degrees
+  val ENCODER_ANGLE_OFFSET = 0.187.rotations
 
   val ARM_TOLERANCE = 2.5.degrees
   val ARM_LENGTH = 26.1362839.inches

@@ -251,6 +251,7 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
         Logger.recordOutput(
           "Vision/viewingSameTag", closestReefTags[0]?.first == closestReefTags[1]?.first
         )
+
         closestReefTagAcrossCams =
           if (closestReefTags[0]?.first != closestReefTags[1]?.first) {
             closestReefTags.minByOrNull { it.value?.second?.translation?.norm ?: 1000000.meters }

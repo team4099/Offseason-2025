@@ -79,6 +79,11 @@ object ArmIOTalon : ArmIO {
   var rotorPositionSignal: StatusSignal<WPIAngle>
   var rotorVelocitySignal: StatusSignal<AngularVelocity>
 
+  var faultFusedSensorOutOfSync: StatusSignal<Boolean> = armTalon.getFault_FusedSensorOutOfSync(false)
+  var stickyFaultFusedSensorOutOfSync: StatusSignal<Boolean> = armTalon.getStickyFault_FusedSensorOutOfSync(false)
+  var faultRemoteSensorInvalid: StatusSignal<Boolean> = armTalon.getFault_RemoteSensorDataInvalid(false)
+  var stickyFaultRemoteSensorInvalid: StatusSignal<Boolean> = armTalon.getStickyFault_RemoteSensorDataInvalid(false)
+
   var synced: Boolean = false
 
   init {
@@ -195,7 +200,7 @@ object ArmIOTalon : ArmIO {
   }
 
   override fun zeroEncoder() {
-    armTalon.setPosition(absoluteEncoder.absolutePosition.valueAsDouble)
+    armTalon.setPosition(armSensor.positionToRawUnits(absoluteEncoder.position.valueAsDouble.rotations))
   }
 
   override fun setVoltage(targetVoltage: ElectricalPotential) {

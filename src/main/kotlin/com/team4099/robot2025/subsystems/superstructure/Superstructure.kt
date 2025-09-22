@@ -168,7 +168,7 @@ class Superstructure(
         .pose3d
     )
 
-    Logger.recordOutput(
+    CustomLogger.recordDebugOutput(
       "SimulatedMechanisms/1",
       Pose3d(
         Translation3d(0.0.inches, 0.0.inches, elevator.inputs.elevatorPosition),
@@ -177,7 +177,7 @@ class Superstructure(
         .pose3d
     )
 
-    Logger.recordOutput(
+    CustomLogger.recordDebugOutput(
       "SimulatedMechanisms/2",
       Pose3d(
         Translation3d((-11.75).inches, 0.0.inches, 12.5747.inches),
@@ -190,7 +190,7 @@ class Superstructure(
         .pose3d
     )
 
-    Logger.recordOutput(
+    CustomLogger.recordDebugOutput(
       "SimulatedMechanisms/3",
       Pose3d(
         Translation3d(
@@ -207,7 +207,7 @@ class Superstructure(
         .pose3d
     )
 
-    Logger.recordOutput(
+    CustomLogger.recordDebugOutput(
       "SimulatedMechanisms/4",
       Pose3d(
         Translation3d(0.008.meters, 0.35.meters, 0.373.meters),
@@ -252,7 +252,7 @@ class Superstructure(
       SuperstructureStates.HOME_PREP -> {
         arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.HOME_ANGLE)
 
-        if (arm.inputs.armPosition >= ArmConstants.ANGLES.ARM_GUARENTEED_OVER_BATTERY) {
+        if (arm.isAtTargetedPosition) {
           nextState = SuperstructureStates.HOME
         }
       }

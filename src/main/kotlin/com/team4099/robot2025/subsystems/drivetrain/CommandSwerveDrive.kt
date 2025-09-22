@@ -41,7 +41,7 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
   private var hasAppliedOperatorPerspective = false
 
   /* Swerve requests to apply during SysId characterization */
-  private val translationCharacterization = SwerveRequest.SysIdSwerveTranslation()
+  val translationCharacterization = SwerveRequest.SysIdSwerveTranslation()
   private val steerCharacterization = SwerveRequest.SysIdSwerveSteerGains()
   private val rotationCharacterization = SwerveRequest.SysIdSwerveRotation()
 
@@ -245,6 +245,7 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
           }
         )
     }
+
 
     CustomLogger.recordOutput("Odometry/pose", state.Pose)
     CustomLogger.recordOutput("Odometry/pose3d", Pose3d(state.Pose))

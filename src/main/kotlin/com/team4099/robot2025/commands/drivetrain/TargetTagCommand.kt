@@ -264,18 +264,10 @@ class TargetTagCommand(
     if (visionData.targetTagID != -1 &&
       visionData.robotTReefTag != Transform2d(Translation2d(0.meters, 0.meters), 0.degrees)
     ) {
-
-      var robotRotation = drivetrain.state.Pose.rotation.degrees.degrees
-      var flippedRotation = -robotRotation
-      var appliedRotation =
-        if ((tagTargetID == 21 || tagTargetID == 7) && robotRotation < 0.degrees) flippedRotation
-        else robotRotation
-
-      var thetaFeedback = thetaPID.calculate(appliedRotation, visionData.robotTReefTag.rotation)
-
-      if ((tagTargetID == 21 || tagTargetID == 7) && robotRotation < 0.degrees) {
-        thetaFeedback = -thetaFeedback
-      }
+      val offsetFromDeadOn =
+        (180.degrees - visionData.robotTReefTag.rotation.absoluteValue) *
+                visionData.robotTReefTag.rotation.sign
+      val thetaFeedback = thetaPID.calculate(offsetFromDeadOn, 0.0.degrees)
 
       Logger.recordOutput("TagAlign/tagID", tagTargetID)
 

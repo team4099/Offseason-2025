@@ -42,6 +42,8 @@ object DrivetrainConstants {
   val DRIVETRAIN_LENGTH = 28.5.inches
   val DRIVETRAIN_WIDTH = 28.5.inches
 
+  val BUMPER_WIDTH = 3.25.inches
+
   val DOCKING_GYRO_SETPOINT = 0.0.degrees
   val DOCKING_GYRO_TOLERANCE = 2.5.degrees
   val DOCKING_TIME_THRESHOLD = 1.0.seconds

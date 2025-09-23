@@ -23,17 +23,17 @@ import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.inMetersPerSecond
 import kotlin.math.PI
+import org.team4099.lib.geometry.Transform2d
+import org.team4099.lib.geometry.Translation2d
 import org.team4099.lib.units.inRadiansPerSecond
 import org.team4099.lib.units.perSecond
 
 class CoolerTargetTagCommand(
   private val drivetrain: CommandSwerveDrive,
   private val vision: Vision,
-  private val xTargetOffset: Length = 0.meters,
-  private val yTargetOffset: Length = 0.meters,
+  private val xTargetOffset: Length = DrivetrainConstants.BUMPER_WIDTH,
+  private val yTargetOffset: Length = DrivetrainConstants.BUMPER_WIDTH,
   private val thetaTargetOffset: Angle = 0.0.radians,
-  private val flushX: Boolean = true,
-  private val flushY: Boolean = false
 ) : Command() {
 
   private var thetaPID: PIDController<Radian, Velocity<Radian>> =
@@ -133,33 +133,22 @@ class CoolerTargetTagCommand(
   }
 
   override fun execute() {
-    //    val (camTransform, odomTTag) = vision.shortestOdomTTagCamTransformAndTransform
-    val cameraId = vision.lastTrigVisionUpdate.cameraid
     val odomTTag = vision.lastTrigVisionUpdate.robotTReefTag
 
-    CustomLogger.recordOutput("CoolerTargetTagCommand/camTransformExists", cameraId != -1)
-    CustomLogger.recordOutput("CoolerTargetTagCommand/odomTTagExists", odomTTag != null)
-
-    if (cameraId == -1 || odomTTag == null) return; // todo kalman?
-
-    val camTransform = VisionConstants.CAMERA_TRANSFORMS[cameraId]
+    val exists = odomTTag != Transform2d(Translation2d(), 0.degrees)
+    CustomLogger.recordOutput("CoolerTargetTagCommand/odomTTagExists", exists)
+    if (!exists) return; // todo kalman?
 
     val setpointTranslation = odomTTag.translation
     val setpointRotation = odomTTag.rotation
 
+    // todo check signs and whatnot
     val xvel =
-      xPID.calculate(
-        -(setpointTranslation.x + camTransform.inverse().x),
-        if (flushX) 3.25.inches else xTargetOffset
-      )
+      xPID.calculate(setpointTranslation.x, xTargetOffset)
     val yvel =
-      yPID.calculate(
-        -(setpointTranslation.y + camTransform.inverse().y),
-        if (flushY) 3.25.inches else yTargetOffset
-      )
+      yPID.calculate(setpointTranslation.y, yTargetOffset)
     val thetavel =
-      //      thetaPID.calculate(-(setpointRotation.z - camTransform.rotation.z), thetaTargetOffset)
-      thetaPID.calculate(-(setpointRotation - camTransform.rotation.z), thetaTargetOffset)
+      thetaPID.calculate(setpointRotation, thetaTargetOffset)
 
     CustomLogger.recordOutput("CoolerTargetTagCommand/xvel", xvel.inMetersPerSecond)
     CustomLogger.recordOutput("CoolerTargetTagCommand/yvel", yvel.inMetersPerSecond)

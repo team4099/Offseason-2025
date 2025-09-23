@@ -7,6 +7,7 @@ import com.team4099.robot2023.subsystems.vision.camera.CameraIO
 import com.team4099.robot2023.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.auto.AutonomousSelector
 import com.team4099.robot2025.commands.characterization.FeedForwardCharacterizationCommand
+import com.team4099.robot2025.commands.drivetrain.CoolerTargetTagCommand
 import com.team4099.robot2025.commands.drivetrain.ReefAlignCommand
 import com.team4099.robot2025.commands.drivetrain.ResetGyroYawCommand
 import com.team4099.robot2025.commands.drivetrain.TargetTagCommand
@@ -18,6 +19,7 @@ import com.team4099.robot2025.subsystems.Arm.Arm
 import com.team4099.robot2025.subsystems.Arm.ArmIO
 import com.team4099.robot2025.subsystems.Arm.ArmIOSIm
 import com.team4099.robot2025.subsystems.Arm.ArmIOTalon
+import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIO
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOTalon
 import com.team4099.robot2025.subsystems.canRange.CANRange
 import com.team4099.robot2025.subsystems.canRange.CANRangeIO
@@ -52,6 +54,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.smoothDeadband
+import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.derived.Angle
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersIOSim
@@ -74,7 +77,7 @@ object RobotContainer {
 
   init {
     if (RobotBase.isReal()) {
-      limelight = LimelightVision(LimelightVisionIOReal)
+      limelight = LimelightVision(object: LimelightVisionIO {})
       elevator = Elevator(ElevatorIOTalon)
       arm = Arm(ArmIOTalon)
       armRollers = ArmRollers(RollersIOTalon)
@@ -82,7 +85,6 @@ object RobotContainer {
       intake = Intake(IntakeIOTalonFX)
       indexer = Indexer(IndexerIOTalon)
       canrange = CANRange(CANRangeReal)
-
 
       vision =
         Vision(
@@ -154,8 +156,8 @@ object RobotContainer {
   fun mapTeleopControls() {
     ControlBoard.intakeCoral.whileTrue(superstructure.intakeCoralCommand())
     ControlBoard.score.whileTrue(superstructure.scoreCommand())
-    ControlBoard.climbExtend.whileTrue(superstructure.climbExtendCommand())
-    ControlBoard.climbRetract.whileTrue(superstructure.climbRetractCommand())
+//    ControlBoard.climbExtend.whileTrue(superstructure.climbExtendCommand())
+//    ControlBoard.climbRetract.whileTrue(superstructure.climbRetractCommand())
 
     ControlBoard.prepL1OrAlgaeGround.whileTrue(superstructure.prepL1OrAlgaeGroundCommand())
     ControlBoard.prepL2OrProcessor.whileTrue(superstructure.prepL2OrProcessorCommand())
@@ -163,59 +165,67 @@ object RobotContainer {
     ControlBoard.prepL4OrBarge.whileTrue(superstructure.prepL4OrBargeCommand())
 
     ControlBoard.alignLeft.whileTrue(
-      ConditionalCommand(
-        ReefAlignCommand(
-          driver = Jessika(),
-          { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-          { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-          { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-          { ControlBoard.slowMode },
-          drivetrain,
-          elevator,
-          superstructure,
-          vision,
-          ReefAlignCommand.BRANCH_ID.LEFT
-        ),
-        TargetTagCommand(
-          Jessika(),
-          { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-          { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-          { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-          { ControlBoard.slowMode },
-          drivetrain,
-          vision
-        )
-      ) {
-        superstructure.theoreticalGamePieceArm != Constants.Universal.GamePiece.ALGAE
-      }
+      CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = -6.5.inches)
     )
+
     ControlBoard.alignRight.whileTrue(
-      ConditionalCommand(
-        ReefAlignCommand(
-          driver = Jessika(),
-          { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-          { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-          { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-          { ControlBoard.slowMode },
-          drivetrain,
-          elevator,
-          superstructure,
-          vision,
-          ReefAlignCommand.BRANCH_ID.RIGHT
-        ),
-        TargetTagCommand(
-          Jessika(),
-          { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-          { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-          { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-          { ControlBoard.slowMode },
-          drivetrain,
-          vision
-        )
-      ) {
-        superstructure.theoreticalGamePieceArm != Constants.Universal.GamePiece.ALGAE
-      }
+      CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = 6.5.inches)
     )
+
+//    ControlBoard.alignLeft.whileTrue(
+//      ConditionalCommand(
+//        ReefAlignCommand(
+//          driver = Jessika(),
+//          { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
+//          { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
+//          { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
+//          { ControlBoard.slowMode },
+//          drivetrain,
+//          elevator,
+//          superstructure,
+//          vision,
+//          ReefAlignCommand.BRANCH_ID.LEFT
+//        ),
+//        TargetTagCommand(
+//          Jessika(),
+//          { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
+//          { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
+//          { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
+//          { ControlBoard.slowMode },
+//          drivetrain,
+//          vision
+//        )
+//      ) {
+//        superstructure.theoreticalGamePieceArm != Constants.Universal.GamePiece.ALGAE
+//      }
+//    )
+//    ControlBoard.alignRight.whileTrue(
+//      ConditionalCommand(
+//        ReefAlignCommand(
+//          driver = Jessika(),
+//          { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
+//          { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
+//          { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
+//          { ControlBoard.slowMode },
+//          drivetrain,
+//          elevator,
+//          superstructure,
+//          vision,
+//          ReefAlignCommand.BRANCH_ID.RIGHT
+//        ),
+//        TargetTagCommand(
+//          Jessika(),
+//          { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
+//          { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
+//          { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
+//          { ControlBoard.slowMode },
+//          drivetrain,
+//          vision
+//        )
+//      ) {
+//        superstructure.theoreticalGamePieceArm != Constants.Universal.GamePiece.ALGAE
+//      }
+//    )
 
     ControlBoard.resetGyro.whileTrue(ResetGyroYawCommand(drivetrain))
     ControlBoard.forceIdle.whileTrue(superstructure.requestIdleCommand())

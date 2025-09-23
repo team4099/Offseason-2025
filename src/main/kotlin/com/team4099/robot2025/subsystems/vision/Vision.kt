@@ -67,7 +67,7 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
   private var closestReefTagAcrossCams: Map.Entry<Int, Pair<Int, Transform3d>?>? = null
 
   var lastTrigVisionUpdate =
-    TimestampedTrigVisionUpdate(Clock.fpgaTime, -1, Transform2d(Translation2d(), 0.degrees))
+    TimestampedTrigVisionUpdate(-1, Clock.fpgaTime, -1, Transform2d(Translation2d(), 0.degrees))
 
   private var fieldFramePoseSupplier = Supplier<Pose2d> { Pose2d() }
   private var visionConsumer: Consumer<List<TimestampedVisionUpdate>> = Consumer {}
@@ -282,6 +282,7 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
 
           lastTrigVisionUpdate =
             TimestampedTrigVisionUpdate(
+              closestReefTagAcrossCams?.key ?: -1,
               inputs[closestReefTagAcrossCams?.key ?: 0].timestamp,
               closestReefTagAcrossCams?.value?.first ?: -1,
               Transform2d(

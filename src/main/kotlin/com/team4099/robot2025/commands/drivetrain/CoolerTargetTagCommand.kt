@@ -23,6 +23,8 @@ import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.inMetersPerSecond
 import kotlin.math.PI
+import org.team4099.lib.units.inRadiansPerSecond
+import org.team4099.lib.units.perSecond
 
 class CoolerTargetTagCommand(
   private val drivetrain: CommandSwerveDrive,
@@ -132,13 +134,15 @@ class CoolerTargetTagCommand(
 
   override fun execute() {
     //    val (camTransform, odomTTag) = vision.shortestOdomTTagCamTransformAndTransform
-    val camTransform = VisionConstants.CAMERA_TRANSFORMS[0]
+    val cameraId = vision.lastTrigVisionUpdate.cameraid
     val odomTTag = vision.lastTrigVisionUpdate.robotTReefTag
 
-    CustomLogger.recordOutput("CoolerTargetTagCommand/camTransformExists", camTransform != null)
+    CustomLogger.recordOutput("CoolerTargetTagCommand/camTransformExists", cameraId != -1)
     CustomLogger.recordOutput("CoolerTargetTagCommand/odomTTagExists", odomTTag != null)
 
-    if (camTransform == null || odomTTag == null) return; // todo kalman?
+    if (cameraId == -1 || odomTTag == null) return; // todo kalman?
+
+    val camTransform = VisionConstants.CAMERA_TRANSFORMS[cameraId]
 
     val setpointTranslation = odomTTag.translation
     val setpointRotation = odomTTag.rotation
@@ -161,21 +165,23 @@ class CoolerTargetTagCommand(
     CustomLogger.recordOutput("CoolerTargetTagCommand/yvel", yvel.inMetersPerSecond)
     CustomLogger.recordOutput("CoolerTargetTagCommand/thetavel", thetavel.inDegreesPerSecond)
 
-    //    if (thetaPID.error.absoluteValue > 5.degrees) {
-    //      drivetrain.setControl(
-    //        requestRobotCentric
-    //          //          .withVelocityX(xvel.inMetersPerSecond)
-    //          //          .withVelocityY(yvel.inMetersPerSecond)
-    //          .withRotationalRate(thetavel.inRadiansPerSecond)
-    //      )
-    //    } else {
-    drivetrain.setControl(
-      requestRobotCentric
-        .withVelocityX(xvel.inMetersPerSecond)
-        .withVelocityY(yvel.inMetersPerSecond)
-      //          .withRotationalRate(thetavel.inRadiansPerSecond)
-    )
-    //    }
+//    if (thetaPID.error.absoluteValue > 5.degrees) {
+//      drivetrain.setControl(
+//        requestRobotCentric
+//          //          .withVelocityX(xvel.inMetersPerSecond)
+//          //          .withVelocityY(yvel.inMetersPerSecond)
+//          .withRotationalRate(thetavel.inRadiansPerSecond)
+//      )
+//    } else {
+      drivetrain.setControl(
+        requestRobotCentric
+          .withVelocityX(xvel.inMetersPerSecond)
+          .withVelocityY(yvel.inMetersPerSecond)
+          .withDeadband(0.2.meters.perSecond.inMetersPerSecond)
+          .withRotationalDeadband(3.0.degrees.perSecond.inRadiansPerSecond)
+//          .withRotationalRate(thetavel.inRadiansPerSecond)
+      )
+//    }
 
     if (isAtSetpoint()) vision.isAligned = true
   }

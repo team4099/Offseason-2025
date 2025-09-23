@@ -67,13 +67,10 @@ object IntakeIOTalonFX : IntakeIO {
   var rollerStatorCurrentStatusSignal: StatusSignal<WPILibCurrent>
   var rollerSupplyCurrentStatusSignal: StatusSignal<WPILibCurrent>
   var rollerTempStatusSignal: StatusSignal<WPILibTemperature>
-  // var beamBreakStatusSignal: StatusSignal<Boolean>
 
   val pivotVoltageControl: VoltageOut = VoltageOut(0.volts.inVolts)
   val pivotPositionControl: MotionMagicVoltage = MotionMagicVoltage(0.degrees.inDegrees)
   val rollerVoltageControl: VoltageOut = VoltageOut(0.volts.inVolts)
-
-  //  val beamBreak = CANdi(Constants.Rollers.CANDI_ID)
 
   init {
     // Configure PID Values

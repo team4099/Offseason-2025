@@ -45,7 +45,7 @@ object IntakeConstants {
   val SIM_ACCELERATION = 400.degrees.perSecond.perSecond
 
   object ANGLES {
-    val INTAKE_ANGLE = (-25).degrees
+    val INTAKE_ANGLE = (10).degrees
     val STOW_ANGLE = 127.5.degrees
 
     val NOT_CLIPPING_ELEVATOR_THRESHOLD = 100.degrees
@@ -63,7 +63,7 @@ object IntakeConstants {
   }
 
   object Rollers {
-    val GEAR_RATIO = 1 / 1.0
+    val GEAR_RATIO = 12.0 / 20.0
     val INERTIA = 5.141e-13.pounds * 1.0.inches.squared
 
     val IDLE_VOLTAGE = 0.volts
@@ -73,7 +73,7 @@ object IntakeConstants {
     val STATOR_CURRENT_LIMIT = 40.amps
     val SUPPLY_CURRENT_LIMIT = 40.amps
 
-    val INTAKE_VOLTAGE = 5.0.volts
+    val INTAKE_VOLTAGE = 7.volts
     val EJECT_VOLTAGE = -(3.0).volts
   }
 }

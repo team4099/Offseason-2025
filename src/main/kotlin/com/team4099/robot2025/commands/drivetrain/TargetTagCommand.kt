@@ -112,8 +112,8 @@ class TargetTagCommand(
       .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
 
   init {
-    //    addRequirements(drivetrain)
-    //    addRequirements(vision)
+    addRequirements(drivetrain)
+    addRequirements(vision)
 
     thetaPID =
       PIDController(
@@ -206,22 +206,22 @@ class TargetTagCommand(
     val atSetPoint =
       if (!keepTrapping) {
         (
-          thetaPID.error < 3.degrees &&
-            yPID.error < 2.inches &&
-            (
-            vision.lastTrigVisionUpdate.robotTReefTag.translation.x.absoluteValue -
-              18.0.inches
-            ) < 2.inches
-          )
+            thetaPID.error < 3.degrees &&
+                yPID.error < 2.inches &&
+                (
+                    vision.lastTrigVisionUpdate.robotTReefTag.translation.x.absoluteValue -
+                        18.0.inches
+                    ) < 2.inches
+            )
       } else {
         (
-          thetaPID.error < 3.degrees &&
-            yPID.error < 2.inches &&
-            (
-            vision.lastTrigVisionUpdate.robotTReefTag.translation.x.absoluteValue -
-              18.0.inches
-            ) < 2.inches
-          )
+            thetaPID.error < 3.degrees &&
+                yPID.error < 2.inches &&
+                (
+                    vision.lastTrigVisionUpdate.robotTReefTag.translation.x.absoluteValue -
+                        18.0.inches
+                    ) < 2.inches
+            )
       }
 
     vision.isAligned = atSetPoint
@@ -264,10 +264,18 @@ class TargetTagCommand(
     if (visionData.targetTagID != -1 &&
       visionData.robotTReefTag != Transform2d(Translation2d(0.meters, 0.meters), 0.degrees)
     ) {
-      val offsetFromDeadOn =
-        (180.degrees - visionData.robotTReefTag.rotation.absoluteValue) *
-                visionData.robotTReefTag.rotation.sign
-      val thetaFeedback = thetaPID.calculate(offsetFromDeadOn, 0.0.degrees)
+
+      var robotRotation = drivetrain.state.Pose.rotation.degrees.degrees
+      var flippedRotation = -robotRotation
+      var appliedRotation = flippedRotation
+//        if ((tagTargetID == 21 || tagTargetID == 7) && robotRotation < 0.degrees) flippedRotation
+//        else robotRotation
+
+      var thetaFeedback = thetaPID.calculate(appliedRotation, visionData.robotTReefTag.rotation)
+
+//      if ((tagTargetID == 21 || tagTargetID == 7) && robotRotation < 0.degrees) {
+//        thetaFeedback = -thetaFeedback
+//      }
 
       Logger.recordOutput("TagAlign/tagID", tagTargetID)
 
@@ -281,15 +289,15 @@ class TargetTagCommand(
       CustomLogger.recordOutput("TagAlignment/thetaError", thetaPID.error.inDegrees)
       CustomLogger.recordOutput("TagAlignment/thetaFeedback", thetaFeedback.inDegreesPerSecond)
 
-      if (thetaPID.error.absoluteValue > 5.degrees) {
-        val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
-        drivetrain.setControl(
-          requestRobotCentric
-            //            .withVelocityX(speed.first.inMetersPerSecond)
-            //            .withVelocityY(speed.second.inMetersPerSecond)
-            .withRotationalRate(thetaFeedback.inRadiansPerSecond)
-        )
-      } else {
+//      if (thetaPID.error.absoluteValue > 5.degrees) {
+//        val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
+//        drivetrain.setControl(
+//          requestFieldCentric
+//            .withVelocityX(speed.first.inMetersPerSecond)
+//            .withVelocityY(speed.second.inMetersPerSecond)
+//            .withRotationalRate(thetaFeedback.inRadiansPerSecond)
+//        )
+//      } else {
 
         var yFeedback =
           yPID.calculate(
@@ -324,11 +332,11 @@ class TargetTagCommand(
 
         drivetrain.setControl(
           requestRobotCentric
-            .withVelocityX(xFeedBack.inMetersPerSecond)
-            .withVelocityY(yFeedback.inMetersPerSecond)
-            .withRotationalRate(thetaFeedback.inRadiansPerSecond)
+            .withVelocityX(-xFeedBack.inMetersPerSecond)
+            .withVelocityY(-yFeedback.inMetersPerSecond)
+//            .withRotationalRate(thetaFeedback.inRadiansPerSecond)
         )
-      }
+//      }
     }
   }
 
@@ -341,14 +349,14 @@ class TargetTagCommand(
 
     vision.currentRequest = Request.VisionRequest.TargetReef()
 
-    //    val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
-    //    drivetrain.setControl(
-    //      requestFieldCentric
-    //        .withVelocityX(speed.first.inMetersPerSecond)
-    //        .withVelocityY(speed.second.inMetersPerSecond)
-    //        .withRotationalRate(
-    //          driver.rotationSpeedClampedSupplier(turn, slowMode).inRadiansPerSecond
-    //        )
-    //    )
+    val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
+//    drivetrain.setControl(
+//      requestFieldCentric
+//        .withVelocityX(speed.first.inMetersPerSecond)
+//        .withVelocityY(speed.second.inMetersPerSecond)
+//        .withRotationalRate(
+//          driver.rotationSpeedClampedSupplier(turn, slowMode).inRadiansPerSecond
+//        )
+//    )
   }
 }

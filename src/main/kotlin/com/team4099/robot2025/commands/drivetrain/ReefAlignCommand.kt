@@ -43,8 +43,8 @@ class ReefAlignCommand(
   var tagID = -1
 
   init {
-    //    addRequirements(drivetrain)
-    //    addRequirements(vision)
+        addRequirements(drivetrain)
+        addRequirements(vision)
   }
 
   override fun initialize() {
@@ -77,7 +77,6 @@ class ReefAlignCommand(
   }
 
   override fun execute() {
-    CustomLogger.recordOutput("helpmeplease/inhere", true)
     command.execute()
     vision.isAligned = false
     vision.isAutoAligning = true

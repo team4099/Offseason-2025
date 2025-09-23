@@ -51,9 +51,9 @@ object VisionConstants {
 
   val RED_REEF_TAG_Y_ALIGNMENTS =
     mapOf(
-      6 to Pair(6.5.inches, -6.5.inches),
-      7 to Pair(6.5.inches, -6.5.inches),
-      8 to Pair(6.5.inches, -6.5.inches),
+      6 to Pair(-6.5.inches, 6.5.inches),
+      7 to Pair(-6.5.inches, 6.5.inches),
+      8 to Pair(-6.5.inches, 6.5.inches),
       9 to Pair(-6.5.inches, 6.5.inches),
       10 to Pair(-6.5.inches, 6.5.inches),
       11 to Pair(-6.5.inches, 6.5.inches),

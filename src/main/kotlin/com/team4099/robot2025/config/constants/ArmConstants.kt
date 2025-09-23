@@ -53,34 +53,36 @@ object ArmConstants {
   // all angles were originally measured from cw down, so the -(value + 90) adjusts it properly to
   // be ccw horizontal
   object ANGLES {
-    val IDLE_ANGLE = -(0.0.degrees + 90.degrees) + 270.degrees
-    val EJECT_ANGLE = -(60.0.degrees + 90.degrees) + 270.degrees
-    val HOME_ANGLE = -(170.0.degrees + 90.degrees) + 280.degrees
-    val CLIMB_ANGLE = -(90.0.degrees + 90.degrees) + 270.degrees
+    val IDLE_ANGLE = -(0.0.degrees + 90.degrees)
+    val EJECT_ANGLE = -(60.0.degrees + 90.degrees)
+    val HOME_ANGLE = -(170.0.degrees + 90.degrees)
+    val CLIMB_ANGLE = -(90.0.degrees + 90.degrees)
 
-    val INTAKE_CORAL_ANGLE = -(0.0.degrees + 90.degrees) + 270.degrees
+    val INTAKE_CORAL_ANGLE = -(0.0.degrees + 90.degrees)
 
-    val IDLE_CORAL_ANGLE = -(0.0.degrees + 90.degrees) + 270.degrees
-    val IDLE_ALGAE_ANGLE = -(155.0.degrees + 90.degrees) + 270.degrees
+    val IDLE_CORAL_ANGLE = -(0.0.degrees + 90.degrees)
+    val IDLE_ALGAE_ANGLE = -(155.0.degrees + 90.degrees)
 
-    val L1_PREP_ANGLE = -(70.0.degrees + 90.degrees) + 270.degrees
-    val L2_PREP_ANGLE = -(123.26.degrees + 90.degrees) + 270.degrees
-    val L3_PREP_ANGLE = -(123.26.degrees + 90.degrees) + 270.degrees
-    val L4_PREP_ANGLE = -(127.68.degrees + 90.degrees) + 270.degrees
+    val L1_PREP_ANGLE = -(70.0.degrees + 90.degrees)
+    val L2_PREP_ANGLE = -(123.26.degrees + 90.degrees)
+    val L3_PREP_ANGLE = -(123.26.degrees + 90.degrees)
+    val L4_PREP_ANGLE = -(127.68.degrees + 90.degrees)
 
-    val BARGE_ANGLE = -(152.17.degrees + 90.degrees) + 270.degrees
-    val PROCESSOR_ANGLE = -(70.0.degrees + 90.degrees) + 270.degrees
+    val BARGE_ANGLE = -(152.17.degrees + 90.degrees)
+    val PROCESSOR_ANGLE = -(70.0.degrees + 90.degrees)
 
-    val ALGAE_GROUND_INTAKE_ANGLE = -(79.62.degrees + 90.degrees) + 270.degrees
-    val ALGAE_LOW_INTAKE_ANGLE = -(90.0.degrees + 90.degrees) + 270.degrees
-    val ALGAE_HIGH_INTAKE_ANGLE = -(90.0.degrees + 90.degrees) + 270.degrees
+    val ALGAE_GROUND_INTAKE_ANGLE = -(79.62.degrees + 90.degrees)
+    val ALGAE_LOW_INTAKE_ANGLE = -(90.0.degrees + 90.degrees)
+    val ALGAE_HIGH_INTAKE_ANGLE = -(90.0.degrees + 90.degrees)
 
-    val SCORE_ANGLE_OFFSET = 30.degrees
+    val SCORE_ANGLE_OFFSET = -40.degrees
 
-    val ARM_GUARENTEED_OVER_BATTERY = -(80.0.degrees + 90.degrees) + 270.degrees
+    val ARM_GUARENTEED_OVER_BATTERY = -(80.0.degrees + 90.degrees)
 
     val SIM_MECH_OFFSET = 90.0.degrees
 
-    val MOVING_BETWEEN_REEF_LEVELS_ANGLE = -(170.0.degrees + 90.degrees) + 270.degrees
+    val MOVING_BETWEEN_REEF_LEVELS_ANGLE = -(170.0.degrees + 90.degrees)
+
+    val MANUAL_ZERO_ANGLE = -270.degrees
   }
 }

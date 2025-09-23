@@ -4,6 +4,7 @@ import org.team4099.lib.geometry.Transform2d
 import org.team4099.lib.units.base.Time
 
 data class TimestampedTrigVisionUpdate(
+  val cameraid: Int,
   val timestamp: Time,
   val targetTagID: Int,
   val robotTReefTag: Transform2d,

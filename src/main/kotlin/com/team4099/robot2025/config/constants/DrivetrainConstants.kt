@@ -104,6 +104,8 @@ object DrivetrainConstants {
   val BL_LOCKING_ANGLE: Angle = 135.degrees
   val BR_LOCKING_ANGLE: Angle = 225.degrees
 
+  const val NITRILE_WHEEL_COF = 1.1
+
   object PID {
     val AUTO_POS_KP: ProportionalGain<Meter, Velocity<Meter>>
       get() {

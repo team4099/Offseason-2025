@@ -6,19 +6,22 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants
 import com.ctre.phoenix6.swerve.SwerveModuleConstants
 import com.ctre.phoenix6.swerve.SwerveRequest
 import com.team4099.robot2025.config.constants.Constants
+import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.subsystems.drivetrain.TunerConstants.TunerSwerveDrivetrain
 import com.team4099.robot2025.util.CustomLogger
+import com.team4099.utils.MapleSimSwerveDrivetrain
 import edu.wpi.first.math.Matrix
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
+import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units
+import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.Notifier
-import edu.wpi.first.wpilibj.RobotController
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Subsystem
@@ -33,8 +36,10 @@ import java.util.function.Supplier
  * be used in command-based projects.
  */
 class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
+  private var mapleSimSwerveDrivetrain: MapleSimSwerveDrivetrain? = null
   private var simNotifier: Notifier? = null
-  private var lastSimTime = 0.0
+  private var resetPoseWaitingTime: Long = 0L
+  private var resettingPose = false
 
   /* Keep track if we've ever applied the operator perspective before or not */
   private var hasAppliedOperatorPerspective = false
@@ -153,7 +158,11 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
     drivetrainConstants: SwerveDrivetrainConstants,
     odometryUpdateFrequency: Double,
     vararg modules: SwerveModuleConstants<*, *, *>?
-  ) : super(drivetrainConstants, odometryUpdateFrequency, *modules) {
+
+      // Note(Aryan): Replaced *modules parameter in super call with spread outputted by
+      // MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules)
+      // Change back if having problems with constants or smth similar
+  ) : super(drivetrainConstants, odometryUpdateFrequency, *MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules)) {
     if (Utils.isSimulation()) {
       startSimThread()
     }
@@ -185,7 +194,7 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
     odometryUpdateFrequency,
     odometryStandardDeviation,
     visionStandardDeviation,
-    *modules
+    *MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules)
   ) {
     if (Utils.isSimulation()) {
       startSimThread()
@@ -224,6 +233,33 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
     return sysIdRoutineToApply.dynamic(direction)
   }
 
+  /**
+   * Adds extra logic to the CTRE resetPose method with to sync up simulation and real-world poses in maplesim
+   *
+   * @param pose Current pose
+   */
+  override fun resetPose(pose: Pose2d?) {
+    if (this.mapleSimSwerveDrivetrain != null) {
+      mapleSimSwerveDrivetrain!!.mapleSimDrive.setSimulationWorldPose(pose)
+    }
+
+    // TODO: Find a better way to do this cuz this is kinda jank 😓 (preferably using delay somehow)
+    if (!resettingPose) {
+      resettingPose = true
+      resetPoseWaitingTime = System.currentTimeMillis()
+      return
+    }
+
+    // Wait 50ms for simulation to update and then sync
+    if (System.currentTimeMillis() - resetPoseWaitingTime < 50) {
+      return
+    }
+
+    resettingPose = false
+    super.resetPose(pose)
+
+  }
+
   override fun periodic() {
     /*
      * Periodically try to apply the operator perspective.
@@ -249,20 +285,25 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
   }
 
   private fun startSimThread() {
-    lastSimTime = Utils.getCurrentTimeSeconds()
+    mapleSimSwerveDrivetrain = MapleSimSwerveDrivetrain(
+      Seconds.of(kSimLoopPeriod),
+      Pounds.of(115.0), // TODO: Add accurate weight
+      Inches.of(DrivetrainConstants.DRIVETRAIN_LENGTH.value),
+      Inches.of(DrivetrainConstants.DRIVETRAIN_WIDTH.value),
+      DCMotor.getKrakenX60(1), // drive motor type
+      DCMotor.getKrakenX60(1), // steer motor type
+      DrivetrainConstants.NITRILE_WHEEL_COF,
+        moduleLocations,
+        pigeon2,
+        modules,
+      TunerConstants.FrontLeft,
+      TunerConstants.FrontRight,
+      TunerConstants.BackLeft,
+      TunerConstants.BackRight
+    )
 
     /* Run simulation at a faster rate so PID gains behave more reasonably */
-    simNotifier =
-      Notifier(
-        Runnable {
-          val currentTime = Utils.getCurrentTimeSeconds()
-          val deltaTime = currentTime - lastSimTime
-          lastSimTime = currentTime
-
-          /* use the measured time delta, get battery voltage from WPILib */
-          updateSimState(deltaTime, RobotController.getBatteryVoltage())
-        }
-      )
+    simNotifier = Notifier(mapleSimSwerveDrivetrain!!::update)
     simNotifier!!.startPeriodic(kSimLoopPeriod)
   }
 

@@ -246,7 +246,6 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
         )
     }
 
-
     CustomLogger.recordOutput("Odometry/pose", state.Pose)
     CustomLogger.recordOutput("Odometry/pose3d", Pose3d(state.Pose))
   }

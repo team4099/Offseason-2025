@@ -43,8 +43,8 @@ class ReefAlignCommand(
   var tagID = -1
 
   init {
-        addRequirements(drivetrain)
-        addRequirements(vision)
+    addRequirements(drivetrain)
+    addRequirements(vision)
   }
 
   override fun initialize() {

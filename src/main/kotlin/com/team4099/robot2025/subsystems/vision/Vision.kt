@@ -85,6 +85,9 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
 
   override fun periodic() {
 
+    Logger.recordOutput("Vision/cameraTransform1", edu.wpi.first.math.geometry.Pose3d().transformBy(VisionConstants.CAMERA_TRANSFORMS[0].transform3d))
+    Logger.recordOutput("Vision/cameraTransform2", edu.wpi.first.math.geometry.Pose3d().transformBy(VisionConstants.CAMERA_TRANSFORMS[1].transform3d))
+
     Logger.recordOutput("Vision/currentTrigUpdateID", lastTrigVisionUpdate.targetTagID)
 
     val startTime = Clock.realTimestamp
@@ -155,6 +158,8 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
                   cameraDistanceToTarget3D * tag.pitch.degrees.sin
                 )
 
+              var cameraTTagRotation3d = Rotation3d(tag.bestCameraToTarget.rotation)
+
               var robotTTag =
                 Transform3d(
                   Pose3d()
@@ -162,11 +167,9 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
                     .transformBy(
                       Transform3d(
                         cameraTTagTranslation3d,
-                        Rotation3d(0.degrees, 0.degrees, 0.degrees)
+                        cameraTTagRotation3d
                       )
-                    )
-                    .translation,
-                  Rotation3d(0.degrees, 0.degrees, aprilTagAlignmentAngle ?: 0.degrees)
+                    ).toTransform3d().transform3d,
                 )
 
               var fieldTRobot = Pose3d().transformBy(fieldTTag).transformBy(robotTTag.inverse())

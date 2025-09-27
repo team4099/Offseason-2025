@@ -2,8 +2,8 @@ package com.team4099.robot2025.commands.drivetrain
 
 import com.ctre.phoenix6.swerve.SwerveModule
 import com.ctre.phoenix6.swerve.SwerveRequest
+import com.team4099.lib.math.asPose2d
 import com.team4099.robot2025.config.constants.DrivetrainConstants
-import com.team4099.robot2025.config.constants.VisionConstants
 import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.CustomLogger
@@ -11,9 +11,12 @@ import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import org.team4099.lib.controller.PIDController
+import org.team4099.lib.geometry.Transform2d
+import org.team4099.lib.geometry.Translation2d
 import org.team4099.lib.units.Velocity
 import org.team4099.lib.units.base.Length
 import org.team4099.lib.units.base.Meter
+import org.team4099.lib.units.base.inInches
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.Angle
@@ -21,18 +24,17 @@ import org.team4099.lib.units.derived.Radian
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.inDegreesPerSecond
+import org.team4099.lib.units.inInchesPerSecond
 import org.team4099.lib.units.inMetersPerSecond
-import kotlin.math.PI
-import org.team4099.lib.geometry.Transform2d
-import org.team4099.lib.geometry.Translation2d
 import org.team4099.lib.units.inRadiansPerSecond
 import org.team4099.lib.units.perSecond
+import kotlin.math.PI
 
 class CoolerTargetTagCommand(
   private val drivetrain: CommandSwerveDrive,
   private val vision: Vision,
-  private val xTargetOffset: Length = DrivetrainConstants.BUMPER_WIDTH,
-  private val yTargetOffset: Length = DrivetrainConstants.BUMPER_WIDTH,
+  private val xTargetOffset: Length = DrivetrainConstants.BUMPER_WIDTH + 3.inches,
+  private val yTargetOffset: Length = DrivetrainConstants.BUMPER_WIDTH + 3.inches,
   private val thetaTargetOffset: Angle = 0.0.radians,
 ) : Command() {
 
@@ -115,9 +117,9 @@ class CoolerTargetTagCommand(
 
       xPID =
         PIDController(
-          DrivetrainConstants.PID.TELEOP_Y_PID_KP,
-          DrivetrainConstants.PID.TELEOP_Y_PID_KI,
-          DrivetrainConstants.PID.TELEOP_Y_PID_KD
+          DrivetrainConstants.PID.TELEOP_X_PID_KP,
+          DrivetrainConstants.PID.TELEOP_X_PID_KI,
+          DrivetrainConstants.PID.TELEOP_X_PID_KD
         )
     }
 
@@ -142,35 +144,45 @@ class CoolerTargetTagCommand(
     val setpointTranslation = odomTTag.translation
     val setpointRotation = odomTTag.rotation
 
+    CustomLogger.recordOutput("CoolerTargetTagCommand/odomTTag", odomTTag.asPose2d().pose2d)
+    CustomLogger.recordOutput("CoolerTargetTagCommand/setpointTranslation", setpointTranslation.translation2d)
+
+
     // todo check signs and whatnot
-    val xvel =
-      xPID.calculate(setpointTranslation.x, xTargetOffset)
-    val yvel =
-      yPID.calculate(setpointTranslation.y, yTargetOffset)
-    val thetavel =
-      thetaPID.calculate(setpointRotation, thetaTargetOffset)
+    val xvel = xPID.calculate(setpointTranslation.x, xTargetOffset * setpointTranslation.x.sign)
+    val yvel = yPID.calculate(setpointTranslation.y, yTargetOffset)
+    val thetavel = -thetaPID.calculate(setpointRotation, thetaTargetOffset)
 
     CustomLogger.recordOutput("CoolerTargetTagCommand/xvel", xvel.inMetersPerSecond)
     CustomLogger.recordOutput("CoolerTargetTagCommand/yvel", yvel.inMetersPerSecond)
     CustomLogger.recordOutput("CoolerTargetTagCommand/thetavel", thetavel.inDegreesPerSecond)
+    CustomLogger.recordOutput("CoolerTargetTagCommand/xoffset", xTargetOffset.inInches)
+    CustomLogger.recordOutput("CoolerTargetTagCommand/yoffset", yTargetOffset.inInches)
+    CustomLogger.recordOutput("CoolerTargetTagCommand/ysetpoint", setpointTranslation.y.inInches)
+    CustomLogger.recordOutput("CoolerTargetTagCommand/xsetpoint", setpointTranslation.x.inInches)
 
-//    if (thetaPID.error.absoluteValue > 5.degrees) {
-//      drivetrain.setControl(
-//        requestRobotCentric
-//          //          .withVelocityX(xvel.inMetersPerSecond)
-//          //          .withVelocityY(yvel.inMetersPerSecond)
-//          .withRotationalRate(thetavel.inRadiansPerSecond)
-//      )
-//    } else {
-      drivetrain.setControl(
-        requestRobotCentric
-          .withVelocityX(xvel.inMetersPerSecond)
-          .withVelocityY(yvel.inMetersPerSecond)
-          .withDeadband(0.2.meters.perSecond.inMetersPerSecond)
-          .withRotationalDeadband(3.0.degrees.perSecond.inRadiansPerSecond)
-//          .withRotationalRate(thetavel.inRadiansPerSecond)
-      )
-//    }
+    CustomLogger.recordOutput("CoolerTargetTagCommand/isAligned", isAtSetpoint())
+
+
+
+
+    //    if (thetaPID.error.absoluteValue > 5.degrees) {
+    //      drivetrain.setControl(
+    //        requestRobotCentric
+    //          //          .withVelocityX(xvel.inMetersPerSecond)
+    //          //          .withVelocityY(yvel.inMetersPerSecond)
+    //          .withRotationalRate(thetavel.inRadiansPerSecond)
+    //      )
+    //    } else {
+    drivetrain.setControl(
+      requestRobotCentric
+        .withVelocityX(xvel.inMetersPerSecond)
+        .withVelocityY(yvel.inMetersPerSecond)
+        .withDeadband(0.2.meters.perSecond.inMetersPerSecond)
+        .withRotationalDeadband(3.0.degrees.perSecond.inRadiansPerSecond)
+        .withRotationalRate(thetavel.inRadiansPerSecond)
+    )
+    //    }
 
     if (isAtSetpoint()) vision.isAligned = true
   }

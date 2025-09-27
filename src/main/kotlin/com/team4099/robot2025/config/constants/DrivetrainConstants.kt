@@ -150,14 +150,18 @@ object DrivetrainConstants {
     val AUTO_REEF_PID_KD =
       (0.4.degrees.perSecond / (1.degrees / 1.seconds)).radiansPerSecondPerRadiansPerSecond
 
-    val TELEOP_THETA_PID_KP = 2.9.degrees.perSecond / 1.degrees
+    val TELEOP_THETA_PID_KP = 2.5.degrees.perSecond / 1.degrees
     val TELEOP_THETA_PID_KI = 0.0.degrees.perSecond / (1.degrees * 1.seconds)
     val TELEOP_THETA_PID_KD =
       (0.4.degrees.perSecond / (1.degrees / 1.seconds)).radiansPerSecondPerRadiansPerSecond
 
-    val TELEOP_Y_PID_KP = 2.0.meters.perSecond / 1.meters
+    val TELEOP_X_PID_KP = 0.7.meters.perSecond / 1.meters
+    val TELEOP_X_PID_KI = 0.0.meters.perSecond / (1.meters * 1.seconds)
+    val TELEOP_X_PID_KD = 0.2.meters.perSecond.perMeterPerSecond
+
+    val TELEOP_Y_PID_KP = 1.5.meters.perSecond / 1.meters
     val TELEOP_Y_PID_KI = 0.0.meters.perSecond / (1.meters * 1.seconds)
-    val TELEOP_Y_PID_KD = 0.1.meters.perSecond.perMeterPerSecond
+    val TELEOP_Y_PID_KD = 0.2.meters.perSecond.perMeterPerSecond
 
     val SIM_TELEOP_Y_PID_KP = 0.0.meters.perSecond / 1.meters
     val SIM_TELEOP_Y_PID_KI = 0.0.meters.perSecond / (1.meters * 1.seconds)

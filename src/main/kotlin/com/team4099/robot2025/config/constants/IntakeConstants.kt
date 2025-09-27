@@ -45,7 +45,7 @@ object IntakeConstants {
   val SIM_ACCELERATION = 400.degrees.perSecond.perSecond
 
   object ANGLES {
-    val INTAKE_ANGLE = (10).degrees
+    val INTAKE_ANGLE = (0).degrees
     val STOW_ANGLE = 127.5.degrees
 
     val NOT_CLIPPING_ELEVATOR_THRESHOLD = 100.degrees

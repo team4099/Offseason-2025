@@ -16,7 +16,7 @@ object RollersConstants {
   val ALGAE_DETECTION_THRESHOLD = 1.0.seconds
 
   val IDLE_VOLTAGE = 0.0.volts
-  val EJECT_VOLTAGE = 0.0.volts
+  val EJECT_VOLTAGE = (-3.0).volts
 
   val IDLE_CORAL_VOLTAGE = 0.5.volts
   val IDLE_ALGAE_VOLTAGE = 1.0.volts

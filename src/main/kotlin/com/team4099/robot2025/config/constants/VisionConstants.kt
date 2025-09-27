@@ -71,12 +71,12 @@ object VisionConstants {
     listOf(
       Transform3d(
         Translation3d(-9.99.inches, -11.825.inches, 8.195.inches), // 18.69
-        Rotation3d(0.0.degrees, -20.degrees, -30.degrees)
-      ), // l
+        Rotation3d(0.0.degrees, -20.degrees, 150.degrees)
+      ), // raven_1
       Transform3d(
         Translation3d(-9.99.inches, 11.825.inches, 8.195.inches), // 18.69
-        Rotation3d(0.0.degrees, -20.degrees, 30.degrees)
-      )
+        Rotation3d(0.0.degrees, -20.degrees, -150.degrees)
+      ), // raven_2
     )
 
   val CAMERA_NAMES = listOf("raven_1", "raven_2")

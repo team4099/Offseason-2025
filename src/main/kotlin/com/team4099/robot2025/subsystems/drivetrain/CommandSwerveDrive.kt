@@ -17,7 +17,9 @@ import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units
-import edu.wpi.first.units.Units.*
+import edu.wpi.first.units.Units.Inches
+import edu.wpi.first.units.Units.Pounds
+import edu.wpi.first.units.Units.Seconds
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.DriverStation.Alliance
@@ -27,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Subsystem
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism
+import org.team4099.lib.units.base.inInches
 import org.team4099.lib.units.base.inSeconds
 import java.util.function.Consumer
 import java.util.function.Supplier
@@ -288,13 +291,13 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
     mapleSimSwerveDrivetrain = MapleSimSwerveDrivetrain(
       Seconds.of(kSimLoopPeriod),
       Pounds.of(115.0), // TODO: Add accurate weight
-      Inches.of(DrivetrainConstants.DRIVETRAIN_LENGTH.value),
-      Inches.of(DrivetrainConstants.DRIVETRAIN_WIDTH.value),
+      Inches.of(DrivetrainConstants.DRIVETRAIN_LENGTH.inInches),
+      Inches.of(DrivetrainConstants.DRIVETRAIN_WIDTH.inInches),
       DCMotor.getKrakenX60(1), // drive motor type
       DCMotor.getKrakenX60(1), // steer motor type
       DrivetrainConstants.NITRILE_WHEEL_COF,
         moduleLocations,
-        pigeon2,
+      pigeon2,
         modules,
       TunerConstants.FrontLeft,
       TunerConstants.FrontRight,

@@ -29,6 +29,7 @@ import org.team4099.lib.units.inMetersPerSecond
 import org.team4099.lib.units.inRadiansPerSecond
 import org.team4099.lib.units.perSecond
 import kotlin.math.PI
+import org.team4099.lib.units.derived.inDegrees
 
 class CoolerTargetTagCommand(
   private val drivetrain: CommandSwerveDrive,
@@ -129,7 +130,7 @@ class CoolerTargetTagCommand(
 
     xPID.errorTolerance = 2.inches
     yPID.errorTolerance = 2.inches
-    thetaPID.errorTolerance = 3.degrees
+    thetaPID.errorTolerance = 2.degrees
 
     vision.isAligned = false
   }
@@ -153,42 +154,28 @@ class CoolerTargetTagCommand(
     val yvel = yPID.calculate(setpointTranslation.y, yTargetOffset)
     val thetavel = -thetaPID.calculate(setpointRotation, thetaTargetOffset)
 
-    CustomLogger.recordOutput("CoolerTargetTagCommand/xvel", xvel.inMetersPerSecond)
-    CustomLogger.recordOutput("CoolerTargetTagCommand/yvel", yvel.inMetersPerSecond)
-    CustomLogger.recordOutput("CoolerTargetTagCommand/thetavel", thetavel.inDegreesPerSecond)
-    CustomLogger.recordOutput("CoolerTargetTagCommand/xoffset", xTargetOffset.inInches)
-    CustomLogger.recordOutput("CoolerTargetTagCommand/yoffset", yTargetOffset.inInches)
-    CustomLogger.recordOutput("CoolerTargetTagCommand/ysetpoint", setpointTranslation.y.inInches)
-    CustomLogger.recordOutput("CoolerTargetTagCommand/xsetpoint", setpointTranslation.x.inInches)
+    CustomLogger.recordOutput("CoolerTargetTagCommand/xerror", xPID.error.inInches)
+    CustomLogger.recordOutput("CoolerTargetTagCommand/yerror", yPID.error.inInches)
+    CustomLogger.recordOutput("CoolerTargetTagCommand/thetaerror", thetaPID.error.inDegrees)
 
     CustomLogger.recordOutput("CoolerTargetTagCommand/isAligned", isAtSetpoint())
 
-
-
-
-    //    if (thetaPID.error.absoluteValue > 5.degrees) {
-    //      drivetrain.setControl(
-    //        requestRobotCentric
-    //          //          .withVelocityX(xvel.inMetersPerSecond)
-    //          //          .withVelocityY(yvel.inMetersPerSecond)
-    //          .withRotationalRate(thetavel.inRadiansPerSecond)
-    //      )
-    //    } else {
     drivetrain.setControl(
       requestRobotCentric
         .withVelocityX(xvel.inMetersPerSecond)
         .withVelocityY(yvel.inMetersPerSecond)
         .withDeadband(0.2.meters.perSecond.inMetersPerSecond)
-        .withRotationalDeadband(3.0.degrees.perSecond.inRadiansPerSecond)
+        .withRotationalDeadband(1.0.degrees.perSecond.inRadiansPerSecond)
         .withRotationalRate(thetavel.inRadiansPerSecond)
     )
-    //    }
+
+    CustomLogger.recordOutput("CoolerTargetTagCommand/isAtSetpoint", isAtSetpoint())
 
     if (isAtSetpoint()) vision.isAligned = true
   }
 
   override fun isFinished(): Boolean {
-    return false
+    return vision.isAligned
   }
 
   fun isAtSetpoint(): Boolean {
@@ -196,6 +183,12 @@ class CoolerTargetTagCommand(
   }
 
   override fun end(interrupted: Boolean) {
+    drivetrain.setControl(
+      requestRobotCentric
+        .withVelocityX(0.0)
+        .withVelocityY(0.0)
+        .withRotationalRate(0.0)
+    )
     CustomLogger.recordOutput("ActiveCommands/TargetTagCommand", false)
   }
 }

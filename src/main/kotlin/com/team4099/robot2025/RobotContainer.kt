@@ -1,17 +1,17 @@
 package com.team4099.robot2025
 
 import com.ctre.phoenix6.signals.NeutralModeValue
-import com.team4099.robot2023.subsystems.vision.camera.CameraIO
-import com.team4099.robot2023.subsystems.vision.camera.CameraIOPhotonvision
+import com.team4099.robot2025.subsystems.vision.camera.CameraIO
+import com.team4099.robot2025.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.auto.AutonomousSelector
 import com.team4099.robot2025.commands.drivetrain.CoolerTargetTagCommand
 import com.team4099.robot2025.commands.drivetrain.ResetGyroYawCommand
 import com.team4099.robot2025.commands.drivetrain.TeleopDriveCommand
 import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.Constants
-import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.config.constants.VisionConstants
 import com.team4099.robot2025.subsystems.Arm.Arm
+import com.team4099.robot2025.subsystems.Arm.ArmIO
 import com.team4099.robot2025.subsystems.Arm.ArmIOSIm
 import com.team4099.robot2025.subsystems.Arm.ArmIOTalon
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOTalon
@@ -24,6 +24,7 @@ import com.team4099.robot2025.subsystems.climber.ClimberIOSim
 import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
 import com.team4099.robot2025.subsystems.drivetrain.TunerConstants
 import com.team4099.robot2025.subsystems.elevator.Elevator
+import com.team4099.robot2025.subsystems.elevator.ElevatorIO
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOSim
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOTalon
 import com.team4099.robot2025.subsystems.indexer.Indexer
@@ -73,8 +74,8 @@ object RobotContainer {
       arm = Arm(ArmIOTalon)
       armRollers = ArmRollers(RollersIOTalon)
       climber = Climber(object : ClimberIO {})
-      intake = Intake(object: IntakeIO {})
-      indexer = Indexer(object: IndexerIO {})
+      intake = Intake(IntakeIOTalonFX)
+      indexer = Indexer(IndexerIOTalon)
       canrange = CANRange(CANRangeReal)
 
       vision =
@@ -82,12 +83,14 @@ object RobotContainer {
           CameraIOPhotonvision(
             VisionConstants.CAMERA_NAMES[0],
             VisionConstants.CAMERA_TRANSFORMS[0],
-            //            drivetrain::addVisionMeasurement
+            drivetrain::addVisionMeasurement,
+            { drivetrain.state.Pose.rotation }
           ),
           CameraIOPhotonvision(
             VisionConstants.CAMERA_NAMES[1],
             VisionConstants.CAMERA_TRANSFORMS[1],
-            //            drivetrain::addVisionMeasurement
+            drivetrain::addVisionMeasurement,
+            { drivetrain.state.Pose.rotation }
           ),
         )
     } else {

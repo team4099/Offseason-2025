@@ -86,6 +86,8 @@ object VisionConstants {
   val singleTagStdDevs: Matrix<N3?, N1?> = VecBuilder.fill(4.0, 4.0, 8.0)
   val multiTagStdDevs: Matrix<N3?, N1?> = VecBuilder.fill(0.5, 0.5, 1.0)
 
+  val oldStdDevs: Matrix<N3?, N1?> = VecBuilder.fill(XY_STDDEV, XY_STDDEV, THETA_STDDEV)
+
   object Limelight {
     val LIMELIGHT_NAME = "limelight-owl"
     val HORIZONTAL_FOV = 59.6.degrees

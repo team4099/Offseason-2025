@@ -1,11 +1,8 @@
-package com.team4099.robot2023.subsystems.vision.camera
+package com.team4099.robot2025.subsystems.vision.camera
 
 import edu.wpi.first.math.MatBuilder
 import edu.wpi.first.math.Nat
 import edu.wpi.first.math.geometry.Transform3d
-import edu.wpi.first.math.numbers.N1
-import edu.wpi.first.math.numbers.N3
-import edu.wpi.first.math.numbers.N5
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 import org.photonvision.targeting.PhotonTrackedTarget

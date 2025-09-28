@@ -27,6 +27,7 @@ import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOSim
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOTalon
 import com.team4099.robot2025.subsystems.indexer.Indexer
+import com.team4099.robot2025.subsystems.indexer.IndexerIO
 import com.team4099.robot2025.subsystems.indexer.IndexerIOSim
 import com.team4099.robot2025.subsystems.indexer.IndexerIOTalon
 import com.team4099.robot2025.subsystems.intake.Intake
@@ -72,8 +73,8 @@ object RobotContainer {
       arm = Arm(ArmIOTalon)
       armRollers = ArmRollers(RollersIOTalon)
       climber = Climber(object : ClimberIO {})
-      intake = Intake(IntakeIOTalonFX)
-      indexer = Indexer(IndexerIOTalon)
+      intake = Intake(object: IntakeIO {})
+      indexer = Indexer(object: IndexerIO {})
       canrange = CANRange(CANRangeReal)
 
       vision =

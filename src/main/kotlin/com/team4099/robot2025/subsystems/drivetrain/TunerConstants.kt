@@ -102,7 +102,7 @@ object TunerConstants {
           .withStatorCurrentLimit(DrivetrainConstants.DRIVE_STATOR_CURRENT_LIMIT.inAmperes)
           .withStatorCurrentLimitEnable(true)
           .withSupplyCurrentLimit(
-            DrivetrainConstants.STEERING_SUPPLY_CURRENT_LIMIT.inAmperes
+            DrivetrainConstants.DRIVE_SUPPLY_CURRENT_LIMIT.inAmperes
           )
           .withSupplyCurrentLimitEnable(true)
       )
@@ -147,8 +147,8 @@ object TunerConstants {
     1.0 / DrivetrainConstants.MK4I_STEERING_SENSOR_GEAR_RATIO // 21.4285714286
   private val kWheelRadius: Length = DrivetrainConstants.WHEEL_DIAMETER / 2
 
-  private const val kInvertLeftSide = false
-  private const val kInvertRightSide = true
+  private const val kInvertLeftSide = true
+  private const val kInvertRightSide = false
 
   private const val kPigeonId = Constants.Gyro.PIGEON_2_ID
 

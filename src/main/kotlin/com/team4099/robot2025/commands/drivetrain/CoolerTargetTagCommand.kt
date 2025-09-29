@@ -22,19 +22,18 @@ import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.Radian
 import org.team4099.lib.units.derived.degrees
+import org.team4099.lib.units.derived.inDegrees
 import org.team4099.lib.units.derived.radians
-import org.team4099.lib.units.inDegreesPerSecond
-import org.team4099.lib.units.inInchesPerSecond
 import org.team4099.lib.units.inMetersPerSecond
 import org.team4099.lib.units.inRadiansPerSecond
 import org.team4099.lib.units.perSecond
 import kotlin.math.PI
-import org.team4099.lib.units.derived.inDegrees
 
 class CoolerTargetTagCommand(
   private val drivetrain: CommandSwerveDrive,
   private val vision: Vision,
-  private val xTargetOffset: Length = DrivetrainConstants.DRIVETRAIN_LENGTH / 2 + DrivetrainConstants.BUMPER_WIDTH,
+  private val xTargetOffset: Length =
+    DrivetrainConstants.DRIVETRAIN_LENGTH / 2 + DrivetrainConstants.BUMPER_WIDTH,
   private val yTargetOffset: Length = 0.0.inches,
   private val thetaTargetOffset: Angle = 0.0.radians,
 ) : Command() {
@@ -146,8 +145,9 @@ class CoolerTargetTagCommand(
     val setpointRotation = odomTTag.rotation
 
     CustomLogger.recordOutput("CoolerTargetTagCommand/odomTTag", odomTTag.asPose2d().pose2d)
-    CustomLogger.recordOutput("CoolerTargetTagCommand/setpointTranslation", setpointTranslation.translation2d)
-
+    CustomLogger.recordOutput(
+      "CoolerTargetTagCommand/setpointTranslation", setpointTranslation.translation2d
+    )
 
     // todo check signs and whatnot
     val xvel = xPID.calculate(setpointTranslation.x, xTargetOffset * setpointTranslation.x.sign)
@@ -184,10 +184,7 @@ class CoolerTargetTagCommand(
 
   override fun end(interrupted: Boolean) {
     drivetrain.setControl(
-      requestRobotCentric
-        .withVelocityX(0.0)
-        .withVelocityY(0.0)
-        .withRotationalRate(0.0)
+      requestRobotCentric.withVelocityX(0.0).withVelocityY(0.0).withRotationalRate(0.0)
     )
     CustomLogger.recordOutput("ActiveCommands/TargetTagCommand", false)
   }

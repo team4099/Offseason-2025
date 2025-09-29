@@ -42,8 +42,7 @@ class Indexer(val io: IndexerIO) : SubsystemBase() {
       IndexerState.INDEX -> {
         if ((Clock.fpgaTime - lastTransitionTime).inSeconds % 2 < 1.5)
           io.setVoltage(IndexerConstants.INDEX_VOLTAGE)
-        else
-          io.setVoltage(IndexerConstants.SPIT_VOLTAGE)
+        else io.setVoltage(IndexerConstants.SPIT_VOLTAGE)
         nextState = fromRequestToState(currentRequest)
       }
       IndexerState.EJECT -> {

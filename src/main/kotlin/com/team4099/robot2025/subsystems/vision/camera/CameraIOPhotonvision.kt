@@ -15,16 +15,16 @@ import org.photonvision.PhotonCamera
 import org.photonvision.PhotonPoseEstimator
 import org.photonvision.PhotonPoseEstimator.PoseStrategy
 import org.photonvision.targeting.PhotonTrackedTarget
+import org.team4099.lib.geometry.Pose3d
 import org.team4099.lib.geometry.Transform3d
 import org.team4099.lib.units.base.Time
+import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.base.inSeconds
+import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.micro
 import java.util.Optional
 import java.util.function.Supplier
-import org.team4099.lib.geometry.Pose3d
-import org.team4099.lib.units.base.inMeters
-import org.team4099.lib.units.base.meters
 
 class CameraIOPhotonvision(
   private val identifier: String,
@@ -84,18 +84,21 @@ class CameraIOPhotonvision(
         val poseEst = visionEst.get().estimatedPose
         inputs.frame = Pose3d(poseEst)
 
-        if (mostRecentPipelineResult.bestTarget.bestCameraToTarget.translation.norm < 5.0.meters.inMeters) {
+        if (mostRecentPipelineResult.bestTarget.bestCameraToTarget.translation.norm <
+          5.0.meters.inMeters
+        ) {
           updateEstimationStdDevs(visionEst, mostRecentPipelineResult.getTargets())
 
           val poseEst2d = poseEst.toPose2d()
-//          val poseEstWithoutRotation = Pose2d(poseEst2d.x, poseEst2d.y, drivetrainRotationSupplier.get())
+          //          val poseEstWithoutRotation = Pose2d(poseEst2d.x, poseEst2d.y,
+          // drivetrainRotationSupplier.get())
 
           // todo(nathan): fix the lag
-//          poseMeasurementConsumer(
-//            poseEstWithoutRotation,
-//            visionEst.get().timestampSeconds,
-//            curStdDevs
-//          )
+          //          poseMeasurementConsumer(
+          //            poseEstWithoutRotation,
+          //            visionEst.get().timestampSeconds,
+          //            curStdDevs
+          //          )
         }
       }
     }

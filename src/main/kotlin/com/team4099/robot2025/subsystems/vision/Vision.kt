@@ -4,10 +4,10 @@ import com.team4099.lib.hal.Clock
 import com.team4099.lib.logging.TunableNumber
 import com.team4099.lib.vision.TimestampedTrigVisionUpdate
 import com.team4099.lib.vision.TimestampedVisionUpdate
-import com.team4099.robot2025.subsystems.vision.camera.CameraIO
 import com.team4099.robot2025.config.constants.FieldConstants
 import com.team4099.robot2025.config.constants.VisionConstants
 import com.team4099.robot2025.subsystems.superstructure.Request
+import com.team4099.robot2025.subsystems.vision.camera.CameraIO
 import com.team4099.robot2025.util.FMSData
 import com.team4099.robot2025.util.toTransform3d
 import edu.wpi.first.math.VecBuilder
@@ -85,8 +85,16 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
 
   override fun periodic() {
 
-    Logger.recordOutput("Vision/cameraTransform1", edu.wpi.first.math.geometry.Pose3d().transformBy(VisionConstants.CAMERA_TRANSFORMS[0].transform3d))
-    Logger.recordOutput("Vision/cameraTransform2", edu.wpi.first.math.geometry.Pose3d().transformBy(VisionConstants.CAMERA_TRANSFORMS[1].transform3d))
+    Logger.recordOutput(
+      "Vision/cameraTransform1",
+      edu.wpi.first.math.geometry.Pose3d()
+        .transformBy(VisionConstants.CAMERA_TRANSFORMS[0].transform3d)
+    )
+    Logger.recordOutput(
+      "Vision/cameraTransform2",
+      edu.wpi.first.math.geometry.Pose3d()
+        .transformBy(VisionConstants.CAMERA_TRANSFORMS[1].transform3d)
+    )
 
     Logger.recordOutput("Vision/currentTrigUpdateID", lastTrigVisionUpdate.targetTagID)
 
@@ -164,12 +172,9 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
                 Transform3d(
                   Pose3d()
                     .transformBy(VisionConstants.CAMERA_TRANSFORMS[instance])
-                    .transformBy(
-                      Transform3d(
-                        cameraTTagTranslation3d,
-                        cameraTTagRotation3d
-                      )
-                    ).toTransform3d().transform3d,
+                    .transformBy(Transform3d(cameraTTagTranslation3d, cameraTTagRotation3d))
+                    .toTransform3d()
+                    .transform3d,
                 )
 
               var fieldTRobot = Pose3d().transformBy(fieldTTag).transformBy(robotTTag.inverse())

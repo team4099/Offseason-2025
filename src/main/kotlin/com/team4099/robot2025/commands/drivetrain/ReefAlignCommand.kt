@@ -1,6 +1,5 @@
 package com.team4099.robot2025.commands.drivetrain
 
-import com.ctre.phoenix6.swerve.SwerveModule
 import com.ctre.phoenix6.swerve.SwerveRequest
 import com.team4099.lib.hal.Clock
 import com.team4099.robot2025.config.constants.VisionConstants
@@ -19,8 +18,6 @@ import edu.wpi.first.wpilibj2.command.Command
 import org.team4099.lib.units.base.Time
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.seconds
-import org.team4099.lib.units.inMetersPerSecond
-import org.team4099.lib.units.inRadiansPerSecond
 
 class ReefAlignCommand(
   val driver: DriverProfile,
@@ -84,7 +81,7 @@ class ReefAlignCommand(
     vision.isAligned = false
     vision.isAutoAligning = true
 
-    if (command.isAtSepoint() &&
+    if (command.isAtSetpoint() &&
       superstructure.currentState ==
       Superstructure.Companion.SuperstructureStates.PREP_SCORE_CORAL
     ) {
@@ -120,18 +117,18 @@ class ReefAlignCommand(
     CustomLogger.recordDebugOutput("ActiveCommands/TargetReefCommand", false)
     drivetrain.setControl(SwerveRequest.ApplyRobotSpeeds().withSpeeds(ChassisSpeeds()))
 
-    if (!DriverStation.isAutonomous()) {
-      val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
-      drivetrain.setControl(
-        SwerveRequest.FieldCentric()
-          .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
-          .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
-          .withVelocityX(speed.first.inMetersPerSecond)
-          .withVelocityY(speed.second.inMetersPerSecond)
-          .withRotationalRate(
-            driver.rotationSpeedClampedSupplier(turn, slowMode).inRadiansPerSecond
-          )
-      )
-    }
+    //    if (!DriverStation.isAutonomous()) {
+    //      val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
+    //      drivetrain.setControl(
+    //        SwerveRequest.FieldCentric()
+    //          .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
+    //          .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
+    //          .withVelocityX(speed.first.inMetersPerSecond)
+    //          .withVelocityY(speed.second.inMetersPerSecond)
+    //          .withRotationalRate(
+    //            driver.rotationSpeedClampedSupplier(turn, slowMode).inRadiansPerSecond
+    //          )
+    //      )
+    //    }
   }
 }

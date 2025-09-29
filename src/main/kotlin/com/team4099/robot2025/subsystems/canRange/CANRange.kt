@@ -9,6 +9,7 @@ class CANRange(val io: CANRangeIO) : SubsystemBase() {
   val inputs = CANRangeIO.CANRangeIOInputs()
   var rumbleTrigger = false
   var rumbleTime = (-1337).seconds
+  var hasRumbledForThisDetection = false
 
   override fun periodic() {
     io.updateInputs(inputs)
@@ -16,10 +17,16 @@ class CANRange(val io: CANRangeIO) : SubsystemBase() {
     CustomLogger.processInputs("CANRange", inputs)
     CustomLogger.recordOutput("CANRange/rumbleTrigger", rumbleTrigger)
 
-    if (inputs.isDetected && (!rumbleTrigger || Clock.fpgaTime - rumbleTime < 0.5.seconds)) {
-      if (!rumbleTrigger) rumbleTime = Clock.fpgaTime
-      rumbleTrigger = true
-    } else if (!inputs.isDetected) {
+    if (inputs.isDetected) {
+      if (!hasRumbledForThisDetection) {
+        rumbleTrigger = true
+        rumbleTime = Clock.fpgaTime
+        hasRumbledForThisDetection = true
+      } else {
+        rumbleTrigger = (Clock.fpgaTime - rumbleTime) < 0.5.seconds
+      }
+    } else {
+      hasRumbledForThisDetection = false
       rumbleTrigger = false
     }
   }

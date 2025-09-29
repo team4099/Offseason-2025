@@ -74,7 +74,11 @@ class Intake(private val io: IntakeIO) : SubsystemBase() {
       }
       IntakeState.TARGETING_POSITION -> {
         io.setPivotPosition(pivotPositionTarget)
-        io.setRollerVoltage(rollerVoltageTarget)
+        if (inputs.pivotPosition <= IntakeConstants.ANGLES.NOT_CLIPPING_ELEVATOR_THRESHOLD &&
+          rollerVoltageTarget != IntakeConstants.Rollers.IDLE_VOLTAGE ||
+          rollerVoltageTarget == IntakeConstants.Rollers.IDLE_VOLTAGE
+        )
+          io.setRollerVoltage(rollerVoltageTarget)
         nextState = fromRequestToState(currentRequest)
       }
     }

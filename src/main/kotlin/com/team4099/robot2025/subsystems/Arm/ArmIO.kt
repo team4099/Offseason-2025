@@ -28,9 +28,10 @@ interface ArmIO {
   class ArmIOInputs : LoggableInputs {
     var armPosition = 0.0.degrees
     var armAbsoluteEncoderPosition = 0.0.degrees
+    var armAbsoluteEncoderAbsolutePosition = 0.0.degrees
     var armVelocity = 0.0.degrees.perSecond
     var armAppliedVoltage = 0.0.volts
-    var armDutyCycle = 0.0.volts
+    var armDutyCycle = 0.0
     var armTorque = 0.0
     var armStatorCurrent = 0.0.amps
     var armSupplyCurrent = 0.0.amps
@@ -43,8 +44,9 @@ interface ArmIO {
       table.put("armPosition", armPosition.inDegrees)
       table.put("armVelocity", armVelocity.inDegreesPerSecond)
       table.put("armAbsoluteEncoderPosition", armAbsoluteEncoderPosition.inDegrees)
+      table.put("armAbsoluteEncoderAbsolutePosition", armAbsoluteEncoderAbsolutePosition.inDegrees)
       table.put("armAppliedVoltage", armAppliedVoltage.inVolts)
-      table.put("armDutyCycle", armDutyCycle.inVolts)
+      table.put("armDutyCycle", armDutyCycle)
       table.put("armStatorCurrent", armStatorCurrent.inAmperes)
       table.put("armSupplyCurrent", armSupplyCurrent.inAmperes)
       table.put("armTemperature", armTemperature.inCelsius)
@@ -60,9 +62,11 @@ interface ArmIO {
       table.get("armAbsoluteEncoderPosition", armAbsoluteEncoderPosition.inDegrees).let {
         armAbsoluteEncoderPosition = it.degrees
       }
+      table.get("armAbsoluteEncoderAbsolutePosition", armAbsoluteEncoderAbsolutePosition.inDegrees)
+        .let { armAbsoluteEncoderAbsolutePosition = it.degrees }
       table.get("armAppliedVoltage", armAppliedVoltage.inVolts).let { armAppliedVoltage = it.volts }
-      table.get("armDutyCycle", armDutyCycle.inVolts).let { armDutyCycle = it.volts }
-      table.get("armStatorCurrent", armDutyCycle.inVolts).let { armDutyCycle = it.volts }
+      table.get("armDutyCycle", armDutyCycle).let { armDutyCycle = it }
+      table.get("armStatorCurrent", armStatorCurrent.inAmperes).let { armStatorCurrent = it.amps }
       table.get("armSupplyCurrent", armSupplyCurrent.inAmperes).let { armSupplyCurrent = it.amps }
       table.get("armTemperature", armTemperature.inCelsius).let { armTemperature = it.celsius }
       table.get("armAcceleration", armAcceleration.inDegreesPerSecondPerSecond).let {

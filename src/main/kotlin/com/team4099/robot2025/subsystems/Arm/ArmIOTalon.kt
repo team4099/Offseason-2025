@@ -1,14 +1,14 @@
 package com.team4099.robot2025.subsystems.Arm
 
+import com.ctre.phoenix6.BaseStatusSignal
 import com.ctre.phoenix6.StatusSignal
-import com.ctre.phoenix6.configs.CANcoderConfiguration
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.controls.MotionMagicVoltage
 import com.ctre.phoenix6.controls.VoltageOut
-import com.ctre.phoenix6.hardware.CANcoder
 import com.ctre.phoenix6.hardware.TalonFX
 import com.ctre.phoenix6.signals.GravityTypeValue
-import com.ctre.phoenix6.signals.SensorDirectionValue
+import com.ctre.phoenix6.signals.InvertedValue
+import com.ctre.phoenix6.signals.NeutralModeValue
 import com.team4099.lib.math.clamp
 import com.team4099.robot2025.config.constants.ArmConstants
 import com.team4099.robot2025.config.constants.Constants
@@ -30,16 +30,13 @@ import org.team4099.lib.units.derived.VelocityFeedforward
 import org.team4099.lib.units.derived.Volt
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inDegrees
-import org.team4099.lib.units.derived.inRotations
 import org.team4099.lib.units.derived.inVolts
-import org.team4099.lib.units.derived.inVoltsPerRadian
-import org.team4099.lib.units.derived.inVoltsPerRadianPerSecond
-import org.team4099.lib.units.derived.inVoltsPerRadianSeconds
-import org.team4099.lib.units.derived.inVoltsPerRadiansPerSecondPerSecond
+import org.team4099.lib.units.derived.inVoltsPerDegree
+import org.team4099.lib.units.derived.inVoltsPerDegreePerSecond
+import org.team4099.lib.units.derived.inVoltsPerDegreeSeconds
+import org.team4099.lib.units.derived.inVoltsPerDegreesPerSecondPerSecond
 import org.team4099.lib.units.derived.rotations
 import org.team4099.lib.units.derived.volts
-import org.team4099.lib.units.inDegreesPerSecond
-import org.team4099.lib.units.inDegreesPerSecondPerSecond
 import org.team4099.lib.units.perSecond
 import edu.wpi.first.units.measure.Angle as WPIAngle
 import edu.wpi.first.units.measure.Current as WPICurrent
@@ -47,10 +44,9 @@ import edu.wpi.first.units.measure.Temperature as WPITemp
 
 object ArmIOTalon : ArmIO {
   private val armTalon: TalonFX = TalonFX(Constants.Arm.ARM_MOTOR_ID)
+  //  private val absoluteEncoder: CANcoder = CANcoder(Constants.Arm.CANCODER_ID)
 
-  private val absoluteEncoder: CANcoder = CANcoder(Constants.Arm.CANCODER_ID)
-
-  private val absoluteEncoderConfig: CANcoderConfiguration = CANcoderConfiguration()
+  //  private val absoluteEncoderConfig: CANcoderConfiguration = CANcoderConfiguration()
 
   private val motionMagicControl: MotionMagicVoltage = MotionMagicVoltage(-1337.degrees.inDegrees)
 
@@ -68,72 +64,133 @@ object ArmIOTalon : ArmIO {
   var dutyCycleSignal: StatusSignal<Double>
   var motorTorqueSignal: StatusSignal<WPICurrent>
   var motorVoltageSignal: StatusSignal<Voltage>
-  var absoluteEncoderPositionSignal: StatusSignal<WPIAngle>
-  var absoluteEncoderVelocitySignal: StatusSignal<AngularVelocity>
-  var motorAcelSignal: StatusSignal<AngularAcceleration>
+  //  var absoluteEncoderPositionSignal: StatusSignal<WPIAngle>
+  //  var absoluteEncoderAbsolutePositionSignal: StatusSignal<WPIAngle>
+  //  var absoluteEncoderVelocitySignal: StatusSignal<AngularVelocity>
+  var motorAccelSignal: StatusSignal<AngularAcceleration>
+  var rotorPositionSignal: StatusSignal<WPIAngle>
+  var rotorVelocitySignal: StatusSignal<AngularVelocity>
+
+  //  var faultFusedSensorOutOfSync: StatusSignal<Boolean> =
+  // armTalon.getFault_FusedSensorOutOfSync(false)
+  //  var stickyFaultFusedSensorOutOfSync: StatusSignal<Boolean> =
+  // armTalon.getStickyFault_FusedSensorOutOfSync(false)
+  //  var faultRemoteSensorInvalid: StatusSignal<Boolean> =
+  // armTalon.getFault_RemoteSensorDataInvalid(false)
+  //  var stickyFaultRemoteSensorInvalid: StatusSignal<Boolean> =
+  // armTalon.getStickyFault_RemoteSensorDataInvalid(false)
 
   init {
     armTalon.clearStickyFaults()
+    //    absoluteEncoder.clearStickyFaults()
+
+    //    absoluteEncoderConfig.MagnetSensor.MagnetOffset = 0.187 //
+    // ArmConstants.ENCODER_ANGLE_OFFSET.inRotations
+    //    absoluteEncoderConfig.MagnetSensor.SensorDirection =
+    // SensorDirectionValue.Clockwise_Positive
+    //    absoluteEncoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint =
+    //      ArmConstants.CANCODER_DISCONTINUITY_POINT.inRotations
+
+    //    absoluteEncoder.clearStickyFaults()
+
+    //    absoluteEncoder.configurator.apply(absoluteEncoderConfig)
+
+    //    absoluteEncoder.clearStickyFaults()
+
+    //    do {
+    //      absoluteEncoder.position.refresh()
+    //      Logger.recordOutput("Arm/cancoderPublishing", absoluteEncoder.position.status.isOK)
+    //    } while (!absoluteEncoder.position.status.isOK)
+
+    //    absoluteEncoderPositionSignal = absoluteEncoder.position
+    //    absoluteEncoderAbsolutePositionSignal = absoluteEncoder.absolutePosition
+    //    absoluteEncoderVelocitySignal = absoluteEncoder.velocity
 
     configs.CurrentLimits.SupplyCurrentLimit = 40.0
-    configs.CurrentLimits.SupplyCurrentLowerLimit = 20.0
     configs.CurrentLimits.StatorCurrentLimit = 40.0
     configs.CurrentLimits.SupplyCurrentLimitEnable = true
     configs.CurrentLimits.StatorCurrentLimitEnable = true
+    configs.MotorOutput.NeutralMode = NeutralModeValue.Brake
+    configs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
 
-    configs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true
-    configs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true
-
-    configs.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-      armSensor.positionToRawUnits(ArmConstants.MAX_ROTATION)
-
-    configs.SoftwareLimitSwitch.ReverseSoftLimitThreshold =
-      armSensor.positionToRawUnits(ArmConstants.MIN_ROTATION)
-
-    configs.MotionMagic.MotionMagicCruiseVelocity = ArmConstants.MAX_VELOCITY.inDegreesPerSecond
-    configs.MotionMagic.MotionMagicAcceleration =
-      ArmConstants.MAX_ACCELERATION.inDegreesPerSecondPerSecond
+    configs.MotionMagic.MotionMagicCruiseVelocity = ArmConstants.MAX_VELOCITY
+    configs.MotionMagic.MotionMagicAcceleration = ArmConstants.MAX_ACCELERATION
 
     configs.Slot0.GravityType = GravityTypeValue.Arm_Cosine
 
+    //    configs.Feedback.FeedbackRemoteSensorID = absoluteEncoder.deviceID
+    //    configs.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder
+    //    configs.Feedback.RotorToSensorRatio = 1.0 / ArmConstants.GEAR_RATIO
+    //    configs.Feedback.SensorToMechanismRatio = 1.0 /
+    // ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO
+
+    armTalon.clearStickyFaults()
+
+    armTalon.configurator.apply(configs)
+
+    armTalon.clearStickyFaults()
+
+    rotorPositionSignal = armTalon.position
+    rotorVelocitySignal = armTalon.velocity
     statorCurrentSignal = armTalon.statorCurrent
     supplyCurrentSignal = armTalon.supplyCurrent
     tempSignal = armTalon.deviceTemp
     dutyCycleSignal = armTalon.dutyCycle
     motorTorqueSignal = armTalon.torqueCurrent
     motorVoltageSignal = armTalon.motorVoltage
-    motorAcelSignal = armTalon.acceleration
+    motorAccelSignal = armTalon.acceleration
 
-    absoluteEncoderPositionSignal = absoluteEncoder.absolutePosition
-    absoluteEncoderVelocitySignal = absoluteEncoder.velocity
-
-    absoluteEncoderConfig.MagnetSensor.MagnetOffset = ArmConstants.ENCODER_ANGLE_OFFSET.inRotations
-    absoluteEncoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive
-    absoluteEncoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint =
-      ArmConstants.CANCODER_DISCONTINUITY_POINT
-
-    armTalon.configurator.apply(configs)
-    absoluteEncoder.configurator.apply(absoluteEncoderConfig)
+    armTalon.clearStickyFaults()
+    //    absoluteEncoder.clearStickyFaults()
 
     zeroEncoder()
   }
 
-  override fun updateInputs(inputs: ArmIO.ArmIOInputs) {
-    inputs.armPosition =
-      absoluteEncoderPositionSignal.valueAsDouble.rotations *
-      ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO
-    inputs.armVelocity =
-      absoluteEncoderVelocitySignal.valueAsDouble.rotations.perSecond *
-      ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO
+  private fun updateSignals() {
+    BaseStatusSignal.refreshAll(
+      statorCurrentSignal,
+      supplyCurrentSignal,
+      tempSignal,
+      dutyCycleSignal,
+      motorTorqueSignal,
+      motorVoltageSignal,
+      //      absoluteEncoderPositionSignal,
+      //      absoluteEncoderAbsolutePositionSignal,
+      //      absoluteEncoderVelocitySignal,
+      motorAccelSignal,
+      rotorPositionSignal,
+      rotorVelocitySignal,
+      //      faultFusedSensorOutOfSync,
+      //      stickyFaultFusedSensorOutOfSync,
+      //      faultRemoteSensorInvalid,
+      //      stickyFaultRemoteSensorInvalid
+    )
+  }
 
+  override fun updateInputs(inputs: ArmIO.ArmIOInputs) {
+    updateSignals()
+    //    zeroEncoder()
+
+    //    Logger.recordOutput("Arm/faultFusedSensorOutOfSync", faultFusedSensorOutOfSync.value)
+    //    Logger.recordOutput("Arm/stickyFaultFusedSensorOutOfSync",
+    // stickyFaultFusedSensorOutOfSync.value)
+    //    Logger.recordOutput("Arm/faultRemoteSensorInvalid", faultRemoteSensorInvalid.value)
+    //    Logger.recordOutput("Arm/stickyFaultRemoteSensorInvalid",
+    // stickyFaultRemoteSensorInvalid.value)
+
+    inputs.armPosition = armSensor.position
+    inputs.armVelocity = armSensor.velocity
+    //    inputs.armAbsoluteEncoderPosition = absoluteEncoderPositionSignal.valueAsDouble.rotations
+    //    inputs.armAbsoluteEncoderAbsolutePosition =
+    //      absoluteEncoderAbsolutePositionSignal.valueAsDouble.rotations
     inputs.armTorque = armTalon.torqueCurrent.valueAsDouble
     inputs.armAppliedVoltage = motorVoltageSignal.valueAsDouble.volts
-    inputs.armDutyCycle = dutyCycleSignal.valueAsDouble.volts
+    inputs.armDutyCycle = dutyCycleSignal.valueAsDouble
     inputs.armStatorCurrent = statorCurrentSignal.valueAsDouble.amps
     inputs.armSupplyCurrent = supplyCurrentSignal.valueAsDouble.amps
     inputs.armTemperature = tempSignal.valueAsDouble.celsius
     inputs.armAcceleration =
-      (motorAcelSignal.valueAsDouble * ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO)
+      (motorAccelSignal.valueAsDouble / ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO)
         .rotations
         .perSecond
         .perSecond
@@ -144,9 +201,9 @@ object ArmIOTalon : ArmIO {
     kI: IntegralGain<Radian, Volt>,
     kD: DerivativeGain<Radian, Volt>
   ) {
-    slot0Configs.kP = kP.inVoltsPerRadian
-    slot0Configs.kI = kI.inVoltsPerRadianSeconds
-    slot0Configs.kD = kD.inVoltsPerRadianPerSecond
+    slot0Configs.kP = kP.inVoltsPerDegree
+    slot0Configs.kI = kI.inVoltsPerDegreeSeconds
+    slot0Configs.kD = kD.inVoltsPerDegreePerSecond
 
     armTalon.configurator.apply(slot0Configs)
   }
@@ -159,16 +216,14 @@ object ArmIOTalon : ArmIO {
   ) {
     slot0Configs.kG = kG.inVolts
     slot0Configs.kS = kS.inVolts
-    slot0Configs.kA = kA.inVoltsPerRadiansPerSecondPerSecond
-    slot0Configs.kV = kV.inVoltsPerRadianPerSecond
+    slot0Configs.kA = kA.inVoltsPerDegreesPerSecondPerSecond
+    slot0Configs.kV = kV.inVoltsPerDegreePerSecond
 
     armTalon.configurator.apply(slot0Configs)
   }
 
   override fun zeroEncoder() {
-    armTalon.setPosition(
-      absoluteEncoderPositionSignal.valueAsDouble * ArmConstants.ENCODER_TO_MECHANISM_GEAR_RATIO
-    )
+    armTalon.setPosition(armSensor.positionToRawUnits(ArmConstants.ANGLES.MANUAL_ZERO_ANGLE))
   }
 
   override fun setVoltage(targetVoltage: ElectricalPotential) {

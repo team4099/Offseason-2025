@@ -5,6 +5,7 @@ import com.ctre.phoenix6.StatusSignal
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.TalonFX
+import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.NeutralModeValue
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.IndexerConstants
@@ -54,6 +55,7 @@ object IndexerIOTalon : IndexerIO {
     configs.CurrentLimits.StatorCurrentLimit = IndexerConstants.STATOR_CURRENT_LIMIT.inAmperes
     configs.CurrentLimits.SupplyCurrentLimitEnable = true
     configs.CurrentLimits.StatorCurrentLimitEnable = true
+    configs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
 
     statorCurrent = indexerTalon.statorCurrent
     supplyCurrent = indexerTalon.supplyCurrent

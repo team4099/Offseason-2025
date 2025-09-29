@@ -1,4 +1,4 @@
-package com.team4099.robot2023.subsystems.vision.camera
+package com.team4099.robot2025.subsystems.vision.camera
 
 import com.team4099.robot2025.config.constants.VisionConstants
 import edu.wpi.first.apriltag.AprilTagFieldLayout
@@ -6,6 +6,7 @@ import edu.wpi.first.apriltag.AprilTagFields
 import edu.wpi.first.math.Matrix
 import edu.wpi.first.math.VecBuilder
 import edu.wpi.first.math.geometry.Pose2d
+import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
 import org.littletonrobotics.junction.Logger
@@ -14,17 +15,22 @@ import org.photonvision.PhotonCamera
 import org.photonvision.PhotonPoseEstimator
 import org.photonvision.PhotonPoseEstimator.PoseStrategy
 import org.photonvision.targeting.PhotonTrackedTarget
+import org.team4099.lib.geometry.Pose3d
 import org.team4099.lib.geometry.Transform3d
 import org.team4099.lib.units.base.Time
+import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.base.inSeconds
+import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.micro
 import java.util.Optional
+import java.util.function.Supplier
 
 class CameraIOPhotonvision(
   private val identifier: String,
   transform: Transform3d,
-  val poseMeasurementConsumer: (Pose2d?, Double, Matrix<N3?, N1?>) -> Unit
+  val poseMeasurementConsumer: (Pose2d?, Double, Matrix<N3?, N1?>) -> Unit,
+  val drivetrainRotationSupplier: Supplier<Rotation2d>
 ) : CameraIO {
 
   private val photonEstimator: PhotonPoseEstimator =
@@ -36,7 +42,7 @@ class CameraIOPhotonvision(
   private val camera: PhotonCamera = PhotonCamera(identifier)
   private var lastEstTimestamp: Time = 0.0.seconds
 
-  private lateinit var curStdDevs: Matrix<N3?, N1?>
+  private var curStdDevs: Matrix<N3?, N1?> = VisionConstants.singleTagStdDevs
 
   init {
     photonEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY)
@@ -53,35 +59,46 @@ class CameraIOPhotonvision(
       }
     }
 
-    val pipelineResults = camera.allUnreadResults
+    val unreadResults = camera.allUnreadResults
 
-    Logger.recordOutput("Vision/$identifier/timestampIG", pipelineResults[0].timestampSeconds)
+    if (unreadResults.isEmpty()) return
 
-    inputs.timestamp = pipelineResults[0].timestampSeconds.seconds
+    val mostRecentPipelineResult = unreadResults[unreadResults.size - 1]
 
-    if ((inputs.timestamp - lastEstTimestamp).absoluteValue > 10.micro.seconds) {
-      inputs.fps = 1 / (inputs.timestamp - lastEstTimestamp).inSeconds
-      lastEstTimestamp = inputs.timestamp
-    }
+    inputs.timestamp = mostRecentPipelineResult.timestampSeconds.seconds
+    Logger.recordOutput("Vision/$identifier/timestampIG", mostRecentPipelineResult.timestampSeconds)
 
-    for ((index, result) in pipelineResults.withIndex()) {
-      Logger.recordOutput("Vision/$identifier/targets/$index", result)
-      val visionEst: Optional<EstimatedRobotPose>? = photonEstimator.update(result)
+    inputs.cameraTargets = mostRecentPipelineResult.targets
 
-      if (visionEst != null && visionEst.isPresent) {
+    if (mostRecentPipelineResult.hasTargets()) {
+      if ((inputs.timestamp - lastEstTimestamp).absoluteValue > 10.micro.seconds) {
+        inputs.fps = 1 / (inputs.timestamp - lastEstTimestamp).inSeconds
+        lastEstTimestamp = inputs.timestamp
+      }
+
+      val visionEst: Optional<EstimatedRobotPose> = photonEstimator.update(mostRecentPipelineResult)
+
+      if (visionEst.isPresent) {
         inputs.usedTargets = visionEst.get().targetsUsed.map { it.fiducialId }
 
-        val poseEst = visionEst.get().estimatedPose.toPose2d()
-        inputs.frame = poseEst
+        val poseEst = visionEst.get().estimatedPose
+        inputs.frame = Pose3d(poseEst)
 
-        if (result.bestTarget.bestCameraToTarget.translation.norm < 1.0) {
-          updateEstimationStdDevs(visionEst, result.getTargets())
+        if (mostRecentPipelineResult.bestTarget.bestCameraToTarget.translation.norm <
+          5.0.meters.inMeters
+        ) {
+          updateEstimationStdDevs(visionEst, mostRecentPipelineResult.getTargets())
 
-          poseMeasurementConsumer(
-            visionEst.get().estimatedPose.toPose2d(),
-            visionEst.get().timestampSeconds,
-            curStdDevs
-          )
+          val poseEst2d = poseEst.toPose2d()
+          //          val poseEstWithoutRotation = Pose2d(poseEst2d.x, poseEst2d.y,
+          // drivetrainRotationSupplier.get())
+
+          // todo(nathan): fix the lag
+          //          poseMeasurementConsumer(
+          //            poseEstWithoutRotation,
+          //            visionEst.get().timestampSeconds,
+          //            curStdDevs
+          //          )
         }
       }
     }

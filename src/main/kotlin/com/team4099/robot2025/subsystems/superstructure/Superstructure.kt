@@ -170,7 +170,7 @@ class Superstructure(
         .pose3d
     )
 
-    Logger.recordOutput(
+    CustomLogger.recordDebugOutput(
       "SimulatedMechanisms/1",
       Pose3d(
         Translation3d(0.0.inches, 0.0.inches, elevator.inputs.elevatorPosition),
@@ -179,7 +179,7 @@ class Superstructure(
         .pose3d
     )
 
-    Logger.recordOutput(
+    CustomLogger.recordDebugOutput(
       "SimulatedMechanisms/2",
       Pose3d(
         Translation3d((-11.75).inches, 0.0.inches, 12.5747.inches),
@@ -192,7 +192,7 @@ class Superstructure(
         .pose3d
     )
 
-    Logger.recordOutput(
+    CustomLogger.recordDebugOutput(
       "SimulatedMechanisms/3",
       Pose3d(
         Translation3d(
@@ -209,7 +209,7 @@ class Superstructure(
         .pose3d
     )
 
-    Logger.recordOutput(
+    CustomLogger.recordDebugOutput(
       "SimulatedMechanisms/4",
       Pose3d(
         Translation3d(0.008.meters, 0.35.meters, 0.373.meters),
@@ -253,20 +253,15 @@ class Superstructure(
       // General States
       SuperstructureStates.UNINITIALIZED -> {
         nextState =
-          if (RobotBase.isSimulation()) SuperstructureStates.IDLE
+          if (Constants.Tuning.TUNING_MODE) SuperstructureStates.TUNING
+          else if (RobotBase.isSimulation()) SuperstructureStates.IDLE
           else SuperstructureStates.HOME_PREP
       }
       SuperstructureStates.HOME_PREP -> {
-        if (!elevator.clearsRobot &&
-          arm.inputs.armPosition < ArmConstants.ANGLES.ARM_GUARENTEED_OVER_BATTERY
-        ) {
-          elevator.currentRequest =
-            Request.ElevatorRequest.ClosedLoop(ElevatorConstants.HEIGHTS.CLEARS_ROBOT)
-        } else {
-          arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.HOME_ANGLE)
-          if (arm.isAtTargetedPosition) {
-            nextState = SuperstructureStates.HOME
-          }
+        arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.HOME_ANGLE)
+
+        if (arm.isAtTargetedPosition) {
+          nextState = SuperstructureStates.HOME
         }
       }
       SuperstructureStates.HOME -> {
@@ -279,7 +274,7 @@ class Superstructure(
         }
       }
       SuperstructureStates.TUNING -> {
-        if (currentRequest is SuperstructureRequest.Idle) nextState = SuperstructureStates.IDLE
+        //  if (currentRequest is SuperstructureRequest.Idle) nextState = SuperstructureStates.IDLE
       }
       SuperstructureStates.IDLE -> {
         climber.currentRequest = Request.ClimberRequest.OpenLoop(0.0.volts, 0.0.volts)
@@ -314,17 +309,21 @@ class Superstructure(
                 ElevatorTunableValues.Heights.idleCoralHeight.get()
               else ElevatorTunableValues.Heights.idleHeight.get()
 
+            armRollers.currentRequest =
+              Request.RollersRequest.OpenLoop(
+                if (theoreticalGamePieceArm == GamePiece.CORAL)
+                  ArmRollersConstants.IDLE_CORAL_VOLTAGE
+                else ArmRollersConstants.IDLE_VOLTAGE
+              )
+
             // note(nathan): ASSERT IDLE AND IDLE_CORAL > CLEARS_ROBOT
-            if (elevator.inputs.elevatorPosition + ElevatorConstants.ELEVATOR_TOLERANCE >
-              elevatorIdlePosition
+            if (elevator.inputs.elevatorPosition >
+              ElevatorConstants.HEIGHTS.ARM_IDLE_PRIORITY_THRESHOLD
             ) {
               arm.currentRequest = Request.ArmRequest.ClosedLoop(armIdleAngle)
 
               if (arm.isAtTargetedPosition) {
                 elevator.currentRequest = Request.ElevatorRequest.ClosedLoop(elevatorIdlePosition)
-              } else {
-                elevator.currentRequest = Request.ElevatorRequest.OpenLoop(0.0.volts)
-                /* in case it gets here from the closedloop request below, stop it */
               }
             } else {
               elevator.currentRequest = Request.ElevatorRequest.ClosedLoop(elevatorIdlePosition)
@@ -415,7 +414,9 @@ class Superstructure(
           armRollers.currentRequest =
             ArmRollersRequest.OpenLoop(ArmRollersConstants.INTAKE_CORAL_VOLTAGE)
 
-          if (RobotBase.isReal() && armRollers.hasCoral ||
+          if (RobotBase.isReal() &&
+            armRollers.hasCoral &&
+            Clock.fpgaTime - lastTransitionTime > ArmRollersConstants.CORAL_DETECTION_THRESHOLD ||
             RobotBase.isSimulation() && !overrideFlagForSim
           ) {
             theoreticalGamePieceArm = GamePiece.CORAL
@@ -484,7 +485,9 @@ class Superstructure(
           }
         }
 
-        if (RobotBase.isReal() && armRollers.hasAlgae ||
+        if (RobotBase.isReal() &&
+          armRollers.hasAlgae &&
+          Clock.fpgaTime - lastTransitionTime > ArmRollersConstants.ALGAE_DETECTION_THRESHOLD ||
           RobotBase.isSimulation() && overrideFlagForSim
         ) {
           theoreticalGamePieceArm = GamePiece.ALGAE
@@ -724,7 +727,7 @@ class Superstructure(
 
         intake.currentRequest =
           Request.IntakeRequest.TargetingPosition(
-            IntakeTunableValues.coralPosition.get(),
+            IntakeTunableValues.idlePosition.get(),
             IntakeTunableValues.ejectRollerVoltage.get()
           )
         indexer.currentRequest = Request.IndexerRequest.Eject()
@@ -884,6 +887,14 @@ class Superstructure(
     val returnCommand = runOnce { if (RobotBase.isSimulation()) overrideFlagForSim = setOverride }
 
     returnCommand.name = "OverrideFlagCommand"
+    return returnCommand
+  }
+
+  // -------------------------------- Gamepiece Reset--------------------------------
+
+  fun resetGamepieceCommand(): Command {
+    val returnCommand = runOnce { theoreticalGamePieceArm = GamePiece.NONE }
+    returnCommand.name = "ResetGamepieceCommand"
     return returnCommand
   }
 

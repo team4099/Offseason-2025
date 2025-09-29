@@ -228,8 +228,7 @@ object TunerConstants {
   private const val kBackRightDriveMotorId = 14
   private const val kBackRightSteerMotorId = 24
   private const val kBackRightEncoderId = 18
-  private val kBackRightEncoderOffset =
-    -0.382084.rotations // don't use units because we don't know conversions
+  private val kBackRightEncoderOffset = -0.382084.rotations
   private const val kBackRightSteerMotorInverted = true
   private const val kBackRightEncoderInverted = false
 

@@ -51,9 +51,9 @@ object VisionConstants {
 
   val RED_REEF_TAG_Y_ALIGNMENTS =
     mapOf(
-      6 to Pair(6.5.inches, -6.5.inches),
-      7 to Pair(6.5.inches, -6.5.inches),
-      8 to Pair(6.5.inches, -6.5.inches),
+      6 to Pair(-6.5.inches, 6.5.inches),
+      7 to Pair(-6.5.inches, 6.5.inches),
+      8 to Pair(-6.5.inches, 6.5.inches),
       9 to Pair(-6.5.inches, 6.5.inches),
       10 to Pair(-6.5.inches, 6.5.inches),
       11 to Pair(-6.5.inches, 6.5.inches),
@@ -70,13 +70,13 @@ object VisionConstants {
   val CAMERA_TRANSFORMS =
     listOf(
       Transform3d(
-        Translation3d(10.49.inches, 12.325.inches, 8.195.inches), // 18.69
-        Rotation3d(0.0.degrees, -20.degrees, -30.degrees)
-      ), // l
+        Translation3d(-10.398.inches, -11.593.inches, 8.36.inches),
+        Rotation3d(0.0.degrees, -20.degrees, 150.degrees)
+      ), // raven_1
       Transform3d(
-        Translation3d(10.49.inches, -12.325.inches, 8.195.inches), // 18.69
-        Rotation3d(0.0.degrees, -20.degrees, 30.degrees)
-      )
+        Translation3d(-10.398.inches, 11.593.inches, 8.36.inches),
+        Rotation3d(0.0.degrees, -20.degrees, -150.degrees)
+      ), // raven_2
     )
 
   val CAMERA_NAMES = listOf("raven_1", "raven_2")
@@ -85,6 +85,8 @@ object VisionConstants {
   // TODO tune
   val singleTagStdDevs: Matrix<N3?, N1?> = VecBuilder.fill(4.0, 4.0, 8.0)
   val multiTagStdDevs: Matrix<N3?, N1?> = VecBuilder.fill(0.5, 0.5, 1.0)
+
+  val oldStdDevs: Matrix<N3?, N1?> = VecBuilder.fill(XY_STDDEV, XY_STDDEV, THETA_STDDEV)
 
   object Limelight {
     val LIMELIGHT_NAME = "limelight-owl"

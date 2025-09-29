@@ -5,11 +5,12 @@ import com.team4099.robot2025.config.constants.IndexerConstants
 import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import org.team4099.lib.units.base.inSeconds
 
 class Indexer(val io: IndexerIO) : SubsystemBase() {
   val inputs = IndexerIO.IndexerInputs()
 
-  private var lastCoralTripTime = Clock.fpgaTime
+  private var lastTransitionTime = Clock.fpgaTime
 
   val isStuck: Boolean
     get() {
@@ -39,18 +40,9 @@ class Indexer(val io: IndexerIO) : SubsystemBase() {
         nextState = fromRequestToState(currentRequest)
       }
       IndexerState.INDEX -> {
-        if (!inputs.isSimulating &&
-          (
-            isStuck ||
-              Clock.fpgaTime - lastCoralTripTime <= IndexerConstants.CORAL_SPIT_TIME_THRESHOLD
-            )
-        ) {
-          if (isStuck) lastCoralTripTime = Clock.fpgaTime
-          io.setVoltage(IndexerConstants.SPIT_VOLTAGE)
-        } else {
+        if ((Clock.fpgaTime - lastTransitionTime).inSeconds % 2 < 1.5)
           io.setVoltage(IndexerConstants.INDEX_VOLTAGE)
-        }
-
+        else io.setVoltage(IndexerConstants.SPIT_VOLTAGE)
         nextState = fromRequestToState(currentRequest)
       }
       IndexerState.EJECT -> {
@@ -58,6 +50,9 @@ class Indexer(val io: IndexerIO) : SubsystemBase() {
         nextState = fromRequestToState(currentRequest)
       }
     }
+
+    if (nextState != currentState) lastTransitionTime = Clock.fpgaTime
+
     currentState = nextState
   }
 

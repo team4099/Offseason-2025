@@ -225,7 +225,9 @@ object RobotContainer {
     ControlBoard.resetGyro.whileTrue(ResetGyroYawCommand(drivetrain))
     ControlBoard.forceIdle.whileTrue(superstructure.requestIdleCommand())
     ControlBoard.eject.whileTrue(superstructure.ejectCommand())
-    ControlBoard.resetGamePiece.whileTrue(superstructure.resetGamepieceCommand())
+    ControlBoard.resetGamePieceNone.whileTrue(superstructure.resetGamepieceCommand(GamePeice = Constants.Universal.GamePiece.NONE))
+    ControlBoard.resetGamePieceCoral.whileTrue(superstructure.resetGamepieceCommand(GamePeice = Constants.Universal.GamePiece.CORAL))
+    ControlBoard.resetGamePieceAlgae.whileTrue(superstructure.resetGamepieceCommand(GamePeice = Constants.Universal.GamePiece.ALGAE))
 
     ControlBoard.test.onTrue(superstructure.overrideFlag(true))
     ControlBoard.test.onFalse(superstructure.overrideFlag(false))

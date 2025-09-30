@@ -892,8 +892,8 @@ class Superstructure(
 
   // -------------------------------- Gamepiece Reset--------------------------------
 
-  fun resetGamepieceCommand(): Command {
-    val returnCommand = runOnce { theoreticalGamePieceArm = GamePiece.NONE }
+  fun resetGamepieceCommand(GamePeice: GamePiece): Command {
+    val returnCommand = runOnce { theoreticalGamePieceArm = GamePeice}
     returnCommand.name = "ResetGamepieceCommand"
     return returnCommand
   }

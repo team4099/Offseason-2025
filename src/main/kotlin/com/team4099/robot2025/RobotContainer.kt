@@ -60,8 +60,13 @@ object RobotContainer {
   private val canrange: CANRange
   val superstructure: Superstructure
 
-  val rumbleState
+  val driverRumbleState
+    get() = canrange.rumbleTrigger || vision.autoAlignReadyRumble
+
+
+  val operatorRumbleState
     get() = canrange.rumbleTrigger
+
 
   init {
     if (RobotBase.isReal()) {

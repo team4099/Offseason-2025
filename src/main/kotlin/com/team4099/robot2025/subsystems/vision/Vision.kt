@@ -28,6 +28,7 @@ import org.team4099.lib.units.base.inInches
 import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.base.inMilliseconds
 import org.team4099.lib.units.base.meters
+import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.cos
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inRadians
@@ -73,6 +74,11 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
   private var visionConsumer: Consumer<List<TimestampedVisionUpdate>> = Consumer {}
   private var reefVisionConsumer: Consumer<TimestampedTrigVisionUpdate> = Consumer {}
 
+  private var lastSeenTagId: Int? = null
+  private var pulseEndTime = 0.0.seconds
+  var autoAlignReadyRumble = false
+    private set
+
   fun setDataInterfaces(
     fieldFramePoseSupplier: Supplier<Pose2d>,
     visionConsumer: Consumer<List<TimestampedVisionUpdate>>,
@@ -84,6 +90,21 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
   }
 
   override fun periodic() {
+      val now = Clock.fpgaTime
+
+      val currentTagId = closestReefTagAcrossCams?.value?.first
+
+      if (currentTagId != null && currentTagId in tagIDFilter) {
+        if (lastSeenTagId == null || currentTagId != lastSeenTagId) {
+          pulseEndTime = now + 0.25.seconds
+          autoAlignReadyRumble = true
+        }
+        lastSeenTagId = currentTagId
+      }
+
+      if (now > pulseEndTime) {
+        autoAlignReadyRumble = false
+      }
 
     Logger.recordOutput(
       "Vision/cameraTransform1",

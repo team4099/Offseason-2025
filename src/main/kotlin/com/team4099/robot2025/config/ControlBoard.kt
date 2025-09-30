@@ -18,9 +18,14 @@ object ControlBoard {
   private val operator = XboxOneGamepad(Constants.Joysticks.SHOTGUN_PORT)
   private val technician = XboxOneGamepad(Constants.Joysticks.TECHNICIAN_PORT)
 
-  val rumbleConsumer =
+  val driverRumbleConsumer =
     Consumer<Boolean> {
       driver.setRumble(GenericHID.RumbleType.kBothRumble, if (it) 1.0 else 0.0)
+    }
+
+  val operatorRumbleConsumer =
+    Consumer<Boolean> {
+      operator.setRumble(GenericHID.RumbleType.kBothRumble, if (it) 1.0 else 0.0)
     }
 
   val strafe: Double

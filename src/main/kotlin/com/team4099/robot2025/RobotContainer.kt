@@ -224,13 +224,13 @@ object RobotContainer {
     ControlBoard.forceIdle.whileTrue(superstructure.requestIdleCommand())
     ControlBoard.eject.whileTrue(superstructure.ejectCommand())
     ControlBoard.resetGamePieceNone.whileTrue(
-      superstructure.resetGamepieceCommand(GamePeice = Constants.Universal.GamePiece.NONE)
+      superstructure.resetGamepieceCommand(Constants.Universal.GamePiece.NONE)
     )
     ControlBoard.resetGamePieceCoral.whileTrue(
-      superstructure.resetGamepieceCommand(GamePeice = Constants.Universal.GamePiece.CORAL)
+      superstructure.resetGamepieceCommand(Constants.Universal.GamePiece.CORAL)
     )
     ControlBoard.resetGamePieceAlgae.whileTrue(
-      superstructure.resetGamepieceCommand(GamePeice = Constants.Universal.GamePiece.ALGAE)
+      superstructure.resetGamepieceCommand(Constants.Universal.GamePiece.ALGAE)
     )
 
     ControlBoard.test.onTrue(superstructure.overrideFlag(true))

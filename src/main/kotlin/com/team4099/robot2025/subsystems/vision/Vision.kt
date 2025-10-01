@@ -331,8 +331,9 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
         pulseEndTime = now + 0.25.seconds
         autoAlignReadyRumble = true
       }
-      lastSeenTagId = currentTagId
     }
+
+    lastSeenTagId = currentTagId
 
     if (now > pulseEndTime) {
       autoAlignReadyRumble = false

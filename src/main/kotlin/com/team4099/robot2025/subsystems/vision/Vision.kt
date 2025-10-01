@@ -326,14 +326,18 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
     val currentTagId = if (bothSeeingSameTag) tagId0 else null
     val distanceToTag = closestReefTagAcrossCams?.value?.second?.translation?.norm ?: 1000000.meters
 
-    if (currentTagId != null && currentTagId in tagIDFilter && distanceToTag <= VisionConstants.CONTROLLER_RUMBLE_DIST) {
+    if (currentTagId != null &&
+      currentTagId in tagIDFilter &&
+      distanceToTag <= VisionConstants.CONTROLLER_RUMBLE_DIST
+    ) {
       if (lastSeenTagId == null || currentTagId != lastSeenTagId) {
         pulseEndTime = now + 0.25.seconds
         autoAlignReadyRumble = true
       }
       lastSeenTagId = currentTagId
-    } else if(currentTagId == null) {lastSeenTagId = null}
-
+    } else if (currentTagId == null) {
+      lastSeenTagId = null
+    }
 
     if (now > pulseEndTime) {
       autoAlignReadyRumble = false

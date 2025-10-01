@@ -326,7 +326,7 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
     val currentTagId = if (bothSeeingSameTag) tagId0 else null
     val distanceToTag = closestReefTagAcrossCams?.value?.second?.translation?.norm ?: 1000000.meters
 
-    if (currentTagId != null && currentTagId in tagIDFilter && distanceToTag < 1.5.meters) {
+    if (currentTagId != null && currentTagId in tagIDFilter && distanceToTag <= VisionConstants.CONTROLLER_RUMBLE_DIST) {
       if (lastSeenTagId == null || currentTagId != lastSeenTagId) {
         pulseEndTime = now + 0.25.seconds
         autoAlignReadyRumble = true

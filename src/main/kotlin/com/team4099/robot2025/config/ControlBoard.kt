@@ -61,9 +61,9 @@ object ControlBoard {
 
   val resetGyro = Trigger { driver.startButton && driver.selectButton }
   val forceIdle = Trigger { driver.dPadDown || operator.dPadDown }
-  val resetGamePieceNone = Trigger { operator.leftShoulderButton && operator.rightShoulderButton }
-  val resetGamePieceCoral = Trigger { operator.leftTriggerAxis > .5 && operator.rightTriggerAxis > .5 }
-  val resetGamePieceAlgae = Trigger { operator.startButton && operator.selectButton }
+  val resetGamePieceNone = Trigger {  operator.leftTriggerAxis > .5 && operator.rightTriggerAxis > .5 }
+  val resetGamePieceCoral = Trigger { operator.leftTriggerAxis > .5 && operator.leftJoystickButton }
+  val resetGamePieceAlgae = Trigger { operator.leftTriggerAxis > .5 && operator.rightJoystickButton  }
   val eject = Trigger { driver.dPadLeft || operator.dPadLeft }
 
   val test = Trigger { driver.dPadRight || operator.dPadRight }

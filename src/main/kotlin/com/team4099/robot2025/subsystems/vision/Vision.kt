@@ -90,22 +90,6 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
   }
 
   override fun periodic() {
-      val now = Clock.fpgaTime
-
-      val currentTagId = closestReefTagAcrossCams?.value?.first
-
-      if (currentTagId != null && currentTagId in tagIDFilter) {
-        if (lastSeenTagId == null || currentTagId != lastSeenTagId) {
-          pulseEndTime = now + 0.25.seconds
-          autoAlignReadyRumble = true
-        }
-        lastSeenTagId = currentTagId
-      }
-
-      if (now > pulseEndTime) {
-        autoAlignReadyRumble = false
-      }
-
     Logger.recordOutput(
       "Vision/cameraTransform1",
       edu.wpi.first.math.geometry.Pose3d()
@@ -331,6 +315,35 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
     Logger.recordOutput(
       "LoggedRobot/VisionLoopTimeMS", (Clock.realTimestamp - startTime).inMilliseconds
     )
+
+    val now = Clock.fpgaTime
+
+    val tagId0 = closestReefTags[0]?.first
+    val tagId1 = closestReefTags[1]?.first
+
+    var currentTagId: Int? = null
+    var minDistance = Double.MAX_VALUE.meters
+
+    if (tagId0 != null && tagId1 != null && tagId0 == tagId1) {
+      currentTagId = tagId0
+      val dist0 = closestReefTags[0]?.second?.translation?.norm ?: 1000000.meters
+      val dist1 = closestReefTags[1]?.second?.translation?.norm ?: 1000000.meters
+      minDistance = minOf(dist0, dist1)
+    }
+
+    if (currentTagId != null &&
+      currentTagId in tagIDFilter &&
+      minDistance < 1.5.meters) {
+      if (lastSeenTagId == null || currentTagId != lastSeenTagId) {
+        pulseEndTime = now + 0.25.seconds
+        autoAlignReadyRumble = true
+      }
+      lastSeenTagId = currentTagId
+    }
+
+    if (now > pulseEndTime) {
+      autoAlignReadyRumble = false
+    }
   }
 
   companion object {

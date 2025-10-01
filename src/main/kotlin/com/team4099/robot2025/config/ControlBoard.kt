@@ -18,9 +18,14 @@ object ControlBoard {
   private val operator = XboxOneGamepad(Constants.Joysticks.SHOTGUN_PORT)
   private val technician = XboxOneGamepad(Constants.Joysticks.TECHNICIAN_PORT)
 
-  val rumbleConsumer =
+  val driverRumbleConsumer =
     Consumer<Boolean> {
       driver.setRumble(GenericHID.RumbleType.kBothRumble, if (it) 1.0 else 0.0)
+    }
+
+  val operatorRumbleConsumer =
+    Consumer<Boolean> {
+      operator.setRumble(GenericHID.RumbleType.kBothRumble, if (it) 1.0 else 0.0)
     }
 
   val strafe: Double
@@ -56,7 +61,13 @@ object ControlBoard {
 
   val resetGyro = Trigger { driver.startButton && driver.selectButton }
   val forceIdle = Trigger { driver.dPadDown || operator.dPadDown }
-  val resetGamePiece = Trigger { operator.startButton && operator.selectButton }
+  val resetGamePieceNone = Trigger {
+    operator.leftTriggerAxis > .5 && operator.rightTriggerAxis > .5
+  }
+  val resetGamePieceCoral = Trigger { operator.leftTriggerAxis > .5 && operator.leftJoystickButton }
+  val resetGamePieceAlgae = Trigger {
+    operator.leftTriggerAxis > .5 && operator.rightJoystickButton
+  }
   val eject = Trigger { driver.dPadLeft || operator.dPadLeft }
 
   val test = Trigger { driver.dPadRight || operator.dPadRight }

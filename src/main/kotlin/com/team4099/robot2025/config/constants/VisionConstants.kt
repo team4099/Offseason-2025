@@ -8,11 +8,14 @@ import org.team4099.lib.geometry.Rotation3d
 import org.team4099.lib.geometry.Transform3d
 import org.team4099.lib.geometry.Translation3d
 import org.team4099.lib.units.base.inches
+import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.degrees
 
 object VisionConstants {
   const val SIM_POSE_TOPIC_NAME = "Odometry/groundTruthPose"
   const val POSE_TOPIC_NAME = "Odometry/pose"
+
+  val CONTROLLER_RUMBLE_DIST = 1.5.meters
 
   const val NUM_OF_CAMERAS = 2
 

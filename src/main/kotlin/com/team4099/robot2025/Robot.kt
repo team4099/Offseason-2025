@@ -194,8 +194,8 @@ object Robot : LoggedRobot() {
       "LoggedRobot/totalMS", (Clock.realTimestamp - startTime).inMilliseconds
     )
 
-    ControlBoard.rumbleConsumer.accept(RobotContainer.rumbleState)
-
+    ControlBoard.driverRumbleConsumer.accept(RobotContainer.driverRumbleState)
+    ControlBoard.operatorRumbleConsumer.accept(RobotContainer.operatorRumbleState)
     /*
     DebugLogger.recordDebugOutput("LoggedRobot/port0", port0.voltage)
     DebugLogger.recordDebugOutput("LoggedRobot/port1", port1.voltage)

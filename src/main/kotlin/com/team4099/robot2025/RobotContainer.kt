@@ -60,7 +60,10 @@ object RobotContainer {
   private val canrange: CANRange
   val superstructure: Superstructure
 
-  val rumbleState
+  val driverRumbleState
+    get() = canrange.rumbleTrigger || vision.autoAlignReadyRumble
+
+  val operatorRumbleState
     get() = canrange.rumbleTrigger
 
   init {
@@ -220,7 +223,15 @@ object RobotContainer {
     ControlBoard.resetGyro.whileTrue(ResetGyroYawCommand(drivetrain))
     ControlBoard.forceIdle.whileTrue(superstructure.requestIdleCommand())
     ControlBoard.eject.whileTrue(superstructure.ejectCommand())
-    ControlBoard.resetGamePiece.whileTrue(superstructure.resetGamepieceCommand())
+    ControlBoard.resetGamePieceNone.whileTrue(
+      superstructure.resetGamepieceCommand(Constants.Universal.GamePiece.NONE)
+    )
+    ControlBoard.resetGamePieceCoral.whileTrue(
+      superstructure.resetGamepieceCommand(Constants.Universal.GamePiece.CORAL)
+    )
+    ControlBoard.resetGamePieceAlgae.whileTrue(
+      superstructure.resetGamepieceCommand(Constants.Universal.GamePiece.ALGAE)
+    )
 
     ControlBoard.test.onTrue(superstructure.overrideFlag(true))
     ControlBoard.test.onFalse(superstructure.overrideFlag(false))

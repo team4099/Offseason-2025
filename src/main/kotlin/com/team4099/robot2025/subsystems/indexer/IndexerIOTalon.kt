@@ -100,6 +100,7 @@ object IndexerIOTalon : IndexerIO {
       clamp(
         voltage, -IndexerConstants.VOLTAGE_COMPENSATION, IndexerConstants.VOLTAGE_COMPENSATION
       )
+    voltageControl.EnableFOC = true
     indexerTalon.setControl(voltageControl.withOutput(clampedVoltage.inVolts))
   }
 }

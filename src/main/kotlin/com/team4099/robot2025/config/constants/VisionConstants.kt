@@ -8,6 +8,7 @@ import org.team4099.lib.geometry.Rotation3d
 import org.team4099.lib.geometry.Transform3d
 import org.team4099.lib.geometry.Translation3d
 import org.team4099.lib.units.base.inches
+import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.degrees
 
 object VisionConstants {
@@ -87,6 +88,8 @@ object VisionConstants {
   val multiTagStdDevs: Matrix<N3?, N1?> = VecBuilder.fill(0.5, 0.5, 1.0)
 
   val oldStdDevs: Matrix<N3?, N1?> = VecBuilder.fill(XY_STDDEV, XY_STDDEV, THETA_STDDEV)
+
+  val FIELD_POSE_RESET_DISTANCE_THRESHOLD = 1.0.meters
 
   object Limelight {
     val LIMELIGHT_NAME = "limelight-owl"

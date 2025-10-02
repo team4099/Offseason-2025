@@ -20,7 +20,6 @@ import org.team4099.lib.geometry.Transform3d
 import org.team4099.lib.units.base.Time
 import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.base.inSeconds
-import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.micro
 import java.util.Optional
@@ -85,20 +84,13 @@ class CameraIOPhotonvision(
         inputs.frame = Pose3d(poseEst)
 
         if (mostRecentPipelineResult.bestTarget.bestCameraToTarget.translation.norm <
-          5.0.meters.inMeters
+          VisionConstants.FIELD_POSE_RESET_DISTANCE_THRESHOLD.inMeters
         ) {
           updateEstimationStdDevs(visionEst, mostRecentPipelineResult.getTargets())
 
           val poseEst2d = poseEst.toPose2d()
-          //          val poseEstWithoutRotation = Pose2d(poseEst2d.x, poseEst2d.y,
-          // drivetrainRotationSupplier.get())
 
-          // todo(nathan): fix the lag
-          //          poseMeasurementConsumer(
-          //            poseEstWithoutRotation,
-          //            visionEst.get().timestampSeconds,
-          //            curStdDevs
-          //          )
+          poseMeasurementConsumer(poseEst2d, visionEst.get().timestampSeconds, curStdDevs)
         }
       }
     }

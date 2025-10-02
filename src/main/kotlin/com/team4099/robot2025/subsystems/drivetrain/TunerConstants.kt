@@ -101,9 +101,7 @@ object TunerConstants {
         CurrentLimitsConfigs()
           .withStatorCurrentLimit(DrivetrainConstants.DRIVE_STATOR_CURRENT_LIMIT.inAmperes)
           .withStatorCurrentLimitEnable(true)
-          .withSupplyCurrentLimit(
-            DrivetrainConstants.DRIVE_SUPPLY_CURRENT_LIMIT.inAmperes
-          )
+          .withSupplyCurrentLimit(DrivetrainConstants.DRIVE_SUPPLY_CURRENT_LIMIT.inAmperes)
           .withSupplyCurrentLimitEnable(true)
       )
   private val steerInitialConfigs: TalonFXConfiguration? =

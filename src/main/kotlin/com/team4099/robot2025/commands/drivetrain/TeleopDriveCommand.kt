@@ -8,8 +8,12 @@ import com.team4099.robot2025.util.driver.DriverProfile
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
+import org.team4099.lib.units.base.meters
+import org.team4099.lib.units.centi
+import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.inMetersPerSecond
 import org.team4099.lib.units.inRadiansPerSecond
+import org.team4099.lib.units.perSecond
 
 class TeleopDriveCommand(
   val driver: DriverProfile,
@@ -25,6 +29,8 @@ class TeleopDriveCommand(
     SwerveRequest.FieldCentric()
       .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
       .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
+      .withDeadband(5.centi.meters.perSecond.inMetersPerSecond)
+      .withRotationalDeadband(1.degrees.perSecond.inRadiansPerSecond)
 
   init {
     addRequirements(drivetrain)

@@ -206,6 +206,7 @@ object IntakeIOTalonFX : IntakeIO {
   }
 
   override fun setRollerVoltage(voltage: ElectricalPotential) {
+    rollerVoltageControl.EnableFOC = true
     rollersTalon.setControl(rollerVoltageControl.withOutput(voltage.inVolts))
   }
 

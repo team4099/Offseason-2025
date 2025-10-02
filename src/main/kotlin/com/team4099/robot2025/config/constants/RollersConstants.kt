@@ -15,7 +15,7 @@ object RollersConstants {
   val ALGAE_CURRENT_THRESHOLD = 35.0.amps
   val ALGAE_DETECTION_THRESHOLD = 1.0.seconds
 
-  val IDLE_VOLTAGE = 0.0.volts
+  val IDLE_VOLTAGE = 0.1.volts
   val EJECT_VOLTAGE = (-3.0).volts
 
   val IDLE_CORAL_VOLTAGE = 0.2.volts

@@ -150,7 +150,7 @@ class CoolerTargetTagCommand(
     )
 
     // todo check signs and whatnot
-    val xvel = xPID.calculate(setpointTranslation.x, xTargetOffset * setpointTranslation.x.sign)
+    val xvel = xPID.calculate(setpointTranslation.x, xTargetOffset)
     val yvel = yPID.calculate(setpointTranslation.y, yTargetOffset)
     val thetavel = -thetaPID.calculate(setpointRotation, thetaTargetOffset)
 

@@ -91,6 +91,8 @@ object VisionConstants {
 
   val oldStdDevs: Matrix<N3?, N1?> = VecBuilder.fill(XY_STDDEV, XY_STDDEV, THETA_STDDEV)
 
+  val FIELD_POSE_RESET_DISTANCE_THRESHOLD = 1.0.meters
+
   object Limelight {
     val LIMELIGHT_NAME = "limelight-owl"
     val HORIZONTAL_FOV = 59.6.degrees

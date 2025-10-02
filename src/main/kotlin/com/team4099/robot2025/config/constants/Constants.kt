@@ -149,6 +149,10 @@ object Constants {
     const val INDEXER_MOTOR_ID = 58
   }
 
+  object Candle {
+    const val CANDLE_ID = 2
+  }
+
   object Alert {
     val TABS = arrayOf("Pre-match", "In-match")
   }

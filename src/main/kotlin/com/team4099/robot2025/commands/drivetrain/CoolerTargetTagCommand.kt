@@ -24,6 +24,7 @@ import org.team4099.lib.units.derived.Radian
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inDegrees
 import org.team4099.lib.units.derived.radians
+import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.inMetersPerSecond
 import org.team4099.lib.units.inRadiansPerSecond
 import org.team4099.lib.units.perSecond
@@ -150,10 +151,13 @@ class CoolerTargetTagCommand(
     )
 
     // todo check signs and whatnot
-    val xvel = xPID.calculate(setpointTranslation.x, xTargetOffset)
+    val xvel = -xPID.calculate(setpointTranslation.x, xTargetOffset)
     val yvel = yPID.calculate(setpointTranslation.y, yTargetOffset)
     val thetavel = -thetaPID.calculate(setpointRotation, thetaTargetOffset)
 
+    CustomLogger.recordOutput("CoolerTargetTagCommand/xvelmps", xvel.inMetersPerSecond)
+    CustomLogger.recordOutput("CoolerTargetTagCommand/yvelmps", yvel.inMetersPerSecond)
+    CustomLogger.recordOutput("CoolerTargetTagCommand/thetaveldps", thetavel.inDegreesPerSecond)
     CustomLogger.recordOutput("CoolerTargetTagCommand/xerror", xPID.error.inInches)
     CustomLogger.recordOutput("CoolerTargetTagCommand/yerror", yPID.error.inInches)
     CustomLogger.recordOutput("CoolerTargetTagCommand/thetaerror", thetaPID.error.inDegrees)

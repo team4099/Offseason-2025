@@ -40,6 +40,7 @@ import com.team4099.robot2025.util.driver.Jessika
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.base.inches
@@ -162,63 +163,11 @@ object RobotContainer {
     )
 
     ControlBoard.alignRight.whileTrue(
-      CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (-12.94 / 2).inches)
+      ConditionalCommand(
+        CoolerTargetTagCommand(drivetrain, vision),
+        CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (-12.94 / 2).inches)
+      ) { superstructure.theoreticalGamePieceArm == Constants.Universal.GamePiece.ALGAE }
     )
-
-    //    ControlBoard.alignLeft.whileTrue(
-    //      ConditionalCommand(
-    //        ReefAlignCommand(
-    //          driver = Jessika(),
-    //          { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //          { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //          { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-    //          { ControlBoard.slowMode },
-    //          drivetrain,
-    //          elevator,
-    //          superstructure,
-    //          vision,
-    //          ReefAlignCommand.BRANCH_ID.LEFT
-    //        ),
-    //        TargetTagCommand(
-    //          Jessika(),
-    //          { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //          { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //          { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-    //          { ControlBoard.slowMode },
-    //          drivetrain,
-    //          vision
-    //        )
-    //      ) {
-    //        superstructure.theoreticalGamePieceArm != Constants.Universal.GamePiece.ALGAE
-    //      }
-    //    )
-    //    ControlBoard.alignRight.whileTrue(
-    //      ConditionalCommand(
-    //        ReefAlignCommand(
-    //          driver = Jessika(),
-    //          { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //          { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //          { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-    //          { ControlBoard.slowMode },
-    //          drivetrain,
-    //          elevator,
-    //          superstructure,
-    //          vision,
-    //          ReefAlignCommand.BRANCH_ID.RIGHT
-    //        ),
-    //        TargetTagCommand(
-    //          Jessika(),
-    //          { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //          { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //          { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-    //          { ControlBoard.slowMode },
-    //          drivetrain,
-    //          vision
-    //        )
-    //      ) {
-    //        superstructure.theoreticalGamePieceArm != Constants.Universal.GamePiece.ALGAE
-    //      }
-    //    )
 
     ControlBoard.resetGyro.whileTrue(ResetGyroYawCommand(drivetrain))
     ControlBoard.forceIdle.whileTrue(superstructure.requestIdleCommand())

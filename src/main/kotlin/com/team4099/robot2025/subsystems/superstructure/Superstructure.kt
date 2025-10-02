@@ -726,8 +726,8 @@ class Superstructure(
         lastPrepLevel = CoralLevel.NONE
 
         intake.currentRequest =
-          Request.IntakeRequest.TargetingPosition(
-            IntakeTunableValues.idlePosition.get(),
+          Request.IntakeRequest.OpenLoop(
+            0.0.volts,
             IntakeTunableValues.ejectRollerVoltage.get()
           )
         indexer.currentRequest = Request.IndexerRequest.Eject()

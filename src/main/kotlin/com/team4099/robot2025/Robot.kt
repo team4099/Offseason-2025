@@ -5,7 +5,6 @@ import com.team4099.robot2025.auto.AutonomousSelector
 import com.team4099.robot2025.auto.PathStore
 import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.Constants
-import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.util.Alert
 import com.team4099.robot2025.util.Alert.AlertType
 import com.team4099.robot2025.util.CustomLogger
@@ -37,8 +36,6 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter
 import org.team4099.lib.units.base.inMilliseconds
 import java.nio.file.Files
 import java.nio.file.Paths
-import org.team4099.lib.units.derived.degrees
-import org.team4099.lib.units.derived.volts
 
 object Robot : LoggedRobot() {
   val logFolderAlert =

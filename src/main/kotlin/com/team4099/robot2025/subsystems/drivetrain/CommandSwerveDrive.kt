@@ -12,6 +12,7 @@ import com.team4099.robot2025.util.CustomLogger
 import com.team4099.utils.MapleSimSwerveDrivetrain
 import edu.wpi.first.math.Matrix
 import edu.wpi.first.math.geometry.Pose2d
+import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
@@ -140,7 +141,7 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
   constructor(
     drivetrainConstants: SwerveDrivetrainConstants,
     vararg modules: SwerveModuleConstants<*, *, *>?
-  ) : super(drivetrainConstants, *modules) {
+  ) : super(drivetrainConstants, *MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules)) {
     if (Utils.isSimulation()) {
       startSimThread()
     }
@@ -285,12 +286,16 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
     }
 
     CustomLogger.recordOutput("Odometry/pose", state.Pose)
+    CustomLogger.recordOutput("Odometry/pose3d", Pose3d(state.Pose))
+
+    CustomLogger.recordOutput("Drivetrain/chassisSpeeds", state.Speeds)
+    CustomLogger.recordOutput("Drivetrain/timestamp", state.Timestamp)
   }
 
   private fun startSimThread() {
     mapleSimSwerveDrivetrain = MapleSimSwerveDrivetrain(
       Seconds.of(kSimLoopPeriod),
-      Pounds.of(125.0), // TODO: Add accurate weight
+      Pounds.of(135.0),
       Inches.of(DrivetrainConstants.DRIVETRAIN_LENGTH.inInches),
       Inches.of(DrivetrainConstants.DRIVETRAIN_WIDTH.inInches),
       DCMotor.getKrakenX60(1), // drive motor type

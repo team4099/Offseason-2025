@@ -22,7 +22,6 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.team4099.robot2025.config.constants.DrivetrainConstants;
-import com.team4099.robot2025.subsystems.drivetrain.TunerConstants;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -36,7 +35,6 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 import org.ironmaple.simulation.motorsims.SimulatedBattery;
 import org.ironmaple.simulation.motorsims.SimulatedMotorController;
-import org.team4099.lib.units.Value;
 
 /**
  *
@@ -268,8 +266,6 @@ public class MapleSimSwerveDrivetrain {
                         .withKV(0)
                         .withKA(0)
                         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign))
-                .withSteerMotorGearRatio(DrivetrainConstants.MK4N_STEERING_SENSOR_GEAR_RATIO)
-                // Adjust steer inertia
-                .withSteerInertia(KilogramSquareMeters.of(0.05));
+                .withSteerMotorGearRatio(DrivetrainConstants.MK4N_STEERING_SENSOR_GEAR_RATIO);
     }
 }

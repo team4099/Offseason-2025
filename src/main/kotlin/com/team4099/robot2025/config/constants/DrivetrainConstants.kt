@@ -195,6 +195,7 @@ object DrivetrainConstants {
 
   // note(nathan) these are outside PID block bc its easier for java
   // these need to be compile-time doubles
+  // todo @aryan or @ryan im too lazy but change these to real consts, old sim consts suck
   const val SIM_DRIVE_KS = 0.0 // 0.0.volts.value
   const val SIM_DRIVE_KV = 2.7 // 2.7.volts / 1.0.meters.perSecond
   const val SIM_DRIVE_KA = 0.0 // 0.0.volts / 1.0.meters.perSecond.perSecond

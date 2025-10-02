@@ -290,15 +290,15 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
   private fun startSimThread() {
     mapleSimSwerveDrivetrain = MapleSimSwerveDrivetrain(
       Seconds.of(kSimLoopPeriod),
-      Pounds.of(115.0), // TODO: Add accurate weight
+      Pounds.of(125.0), // TODO: Add accurate weight
       Inches.of(DrivetrainConstants.DRIVETRAIN_LENGTH.inInches),
       Inches.of(DrivetrainConstants.DRIVETRAIN_WIDTH.inInches),
       DCMotor.getKrakenX60(1), // drive motor type
       DCMotor.getKrakenX60(1), // steer motor type
       DrivetrainConstants.NITRILE_WHEEL_COF,
-        moduleLocations,
+      moduleLocations,
       pigeon2,
-        modules,
+      modules,
       TunerConstants.FrontLeft,
       TunerConstants.FrontRight,
       TunerConstants.BackLeft,

@@ -28,6 +28,7 @@ import org.team4099.lib.units.inMetersPerSecond
 import org.team4099.lib.units.kilo
 import org.team4099.lib.units.perSecond
 import kotlin.math.sqrt
+import org.team4099.lib.units.Value
 
 object DrivetrainConstants {
   const val FOC_ENABLED = true
@@ -190,17 +191,19 @@ object DrivetrainConstants {
     //    val DRIVE_KS = 0.23677.volts
     //    val DRIVE_KV = 2.2678.volts / 1.0.meters.perSecond
     //    val DRIVE_KA = 0.40499.volts / 1.0.meters.perSecond.perSecond
-
-    val SIM_DRIVE_KS = 0.0.volts
-    val SIM_DRIVE_KV = 2.7.volts / 1.0.meters.perSecond
-    val SIM_DRIVE_KA = 0.0.volts / 1.0.meters.perSecond.perSecond
-
-    val SIM_DRIVE_KP = 1.5.volts / 1.meters.perSecond
-    val SIM_DRIVE_KI = 0.0.volts / (1.meters.perSecond * 1.seconds)
-    val SIM_DRIVE_KD = 0.0.volts / 1.meters.perSecond.perSecond
-
-    val SIM_STEERING_KP = 0.3.volts.perDegree
-    val SIM_STEERING_KI = 0.0.volts.perDegreeSeconds
-    val SIM_STEERING_KD = 0.0.volts.perDegreePerSecond
   }
+
+  // note(nathan) these are outside PID block bc its easier for java
+  // these need to be compile-time doubles
+  const val SIM_DRIVE_KS = 0.0 // 0.0.volts.value
+  const val SIM_DRIVE_KV = 2.7 // 2.7.volts / 1.0.meters.perSecond
+  const val SIM_DRIVE_KA = 0.0 // 0.0.volts / 1.0.meters.perSecond.perSecond
+
+  const val SIM_DRIVE_KP = 1.5 // 1.5.volts / 1.meters.perSecond
+  const val SIM_DRIVE_KI = 0.0 // 0.0.volts / (1.meters.perSecond * 1.seconds).value
+  const val SIM_DRIVE_KD = 0.0 // 0.0.volts / 1.meters.perSecond.perSecond.value
+
+  const val SIM_STEERING_KP = 17.1887 // 0.3.volts.perDegree
+  const val SIM_STEERING_KI = 0.0 // 0.0.volts.perDegreeSeconds.value
+  const val SIM_STEERING_KD = 0.0 // 0.0.volts.perDegreePerSecond.value
 }

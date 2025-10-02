@@ -21,6 +21,8 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+import com.team4099.robot2025.config.constants.DrivetrainConstants;
+import com.team4099.robot2025.subsystems.drivetrain.TunerConstants;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -34,6 +36,7 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 import org.ironmaple.simulation.motorsims.SimulatedBattery;
 import org.ironmaple.simulation.motorsims.SimulatedMotorController;
+import org.team4099.lib.units.Value;
 
 /**
  *
@@ -69,6 +72,7 @@ public class MapleSimSwerveDrivetrain {
      * @param modules the {@link SwerveModule}s, typically obtained via {@link SwerveDrivetrain#getModules()}
      * @param moduleConstants the constants for the swerve modules
      */
+    @SafeVarargs
     public MapleSimSwerveDrivetrain(
             Time simPeriod,
             Mass robotMassWithBumpers,
@@ -237,6 +241,7 @@ public class MapleSimSwerveDrivetrain {
         // Skip regulation if running on a real robot
         if (RobotBase.isReal()) return;
 
+
         // Apply simulation-specific adjustments to module constants
         moduleConstants
                 // Disable encoder offsets
@@ -246,19 +251,24 @@ public class MapleSimSwerveDrivetrain {
                 .withSteerMotorInverted(false)
                 // Disable CanCoder inversion
                 .withEncoderInverted(false)
-                // Adjust steer motor PID gains for simulation
+                .withDriveMotorGains(new Slot0Configs()
+                        .withKP(DrivetrainConstants.SIM_DRIVE_KP)
+                        .withKI(DrivetrainConstants.SIM_DRIVE_KI)
+                        .withKD(DrivetrainConstants.SIM_DRIVE_KD)
+                        .withKS(DrivetrainConstants.SIM_DRIVE_KS)
+                        .withKV(DrivetrainConstants.SIM_DRIVE_KV)
+                        .withKA(DrivetrainConstants.SIM_DRIVE_KA)
+                )
+//                // Adjust steer motor PID gains for simulation
                 .withSteerMotorGains(new Slot0Configs()
-                        .withKP(70)
-                        .withKI(0)
-                        .withKD(4.5)
+                        .withKP(DrivetrainConstants.SIM_STEERING_KP)
+                        .withKI(DrivetrainConstants.SIM_STEERING_KI)
+                        .withKD(DrivetrainConstants.SIM_STEERING_KD)
                         .withKS(0)
-                        .withKV(1.91)
+                        .withKV(0)
                         .withKA(0)
                         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign))
-                .withSteerMotorGearRatio(16.0)
-                // Adjust friction voltages
-                .withDriveFrictionVoltage(Volts.of(0.1))
-                .withSteerFrictionVoltage(Volts.of(0.05))
+                .withSteerMotorGearRatio(DrivetrainConstants.MK4N_STEERING_SENSOR_GEAR_RATIO)
                 // Adjust steer inertia
                 .withSteerInertia(KilogramSquareMeters.of(0.05));
     }

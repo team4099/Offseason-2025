@@ -6,16 +6,18 @@ import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.team4099.lib.units.base.inSeconds
+import org.team4099.lib.units.base.seconds
 
 class Indexer(val io: IndexerIO) : SubsystemBase() {
   val inputs = IndexerIO.IndexerInputs()
 
   private var lastTransitionTime = Clock.fpgaTime
 
-  val isStuck: Boolean
+  val hasCoral: Boolean
     get() {
-      return inputs.indexerStatorCurrent >= IndexerConstants.CORAL_STALL_CURRENT
+      return inputs.indexerStatorCurrent >= IndexerConstants.CORAL_CURRENT
     }
+  var lastCoralTriggerTime = 0.seconds
 
   var currentState = IndexerState.UNINITIALIZED
   var currentRequest: Request.IndexerRequest = Request.IndexerRequest.Idle()
@@ -28,8 +30,6 @@ class Indexer(val io: IndexerIO) : SubsystemBase() {
     CustomLogger.recordOutput("Indexer/currentState", currentState.name)
     CustomLogger.recordOutput("Indexer/currentRequest", currentRequest.javaClass.simpleName)
 
-    CustomLogger.recordOutput("Indexer/isStuck", isStuck)
-
     var nextState = currentState
     when (currentState) {
       IndexerState.UNINITIALIZED -> {
@@ -37,12 +37,21 @@ class Indexer(val io: IndexerIO) : SubsystemBase() {
       }
       IndexerState.IDLE -> {
         io.setVoltage(IndexerConstants.IDLE_VOLTAGE)
+        lastCoralTriggerTime = 0.seconds
         nextState = fromRequestToState(currentRequest)
       }
       IndexerState.INDEX -> {
-        if ((Clock.fpgaTime - lastTransitionTime).inSeconds % 2 < 1.5)
-          io.setVoltage(IndexerConstants.INDEX_VOLTAGE)
-        else io.setVoltage(IndexerConstants.SPIT_VOLTAGE)
+        //        if ((Clock.fpgaTime - lastTransitionTime).inSeconds % 2 < 1.5)
+        //          io.setVoltage(IndexerConstants.INDEX_VOLTAGE)
+        //        else io.setVoltage(IndexerConstants.SPIT_VOLTAGE)
+        if (hasCoral && lastCoralTriggerTime == 0.seconds) lastCoralTriggerTime = Clock.fpgaTime
+
+        if (hasCoral) {
+          if ((Clock.fpgaTime - lastCoralTriggerTime).inSeconds % 3 > 2.5)
+            io.setVoltage(IndexerConstants.SPIT_VOLTAGE)
+          else io.setVoltage(IndexerConstants.INDEX_VOLTAGE)
+        } else io.setVoltage(IndexerConstants.INDEX_VOLTAGE / 3)
+
         nextState = fromRequestToState(currentRequest)
       }
       IndexerState.EJECT -> {

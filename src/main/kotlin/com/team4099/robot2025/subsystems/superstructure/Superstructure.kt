@@ -367,11 +367,20 @@ class Superstructure(
               }
       }
       SuperstructureStates.GROUND_INTAKE_CORAL -> {
-        intake.currentRequest =
-          Request.IntakeRequest.TargetingPosition(
-            IntakeTunableValues.coralPosition.get(),
-            IntakeTunableValues.coralRollerVoltage.get()
-          )
+        if (!indexer.hasCoral) {
+          intake.currentRequest =
+            Request.IntakeRequest.TargetingPosition(
+              IntakeTunableValues.coralPosition.get(),
+              IntakeTunableValues.coralRollerVoltage.get()
+            )
+        } else {
+          intake.currentRequest =
+            Request.IntakeRequest.TargetingPosition(
+              IntakeTunableValues.coralPosition.get(),
+              IntakeTunableValues.coralRollerVoltage.get() / 3
+            )
+        }
+
         indexer.currentRequest = Request.IndexerRequest.Index()
 
         if (currentRequest is SuperstructureRequest.Eject) {
@@ -726,10 +735,7 @@ class Superstructure(
         lastPrepLevel = CoralLevel.NONE
 
         intake.currentRequest =
-          Request.IntakeRequest.OpenLoop(
-            0.0.volts,
-            IntakeTunableValues.ejectRollerVoltage.get()
-          )
+          Request.IntakeRequest.OpenLoop(0.0.volts, IntakeTunableValues.ejectRollerVoltage.get())
         indexer.currentRequest = Request.IndexerRequest.Eject()
 
         if (!elevator.clearsRobot) {

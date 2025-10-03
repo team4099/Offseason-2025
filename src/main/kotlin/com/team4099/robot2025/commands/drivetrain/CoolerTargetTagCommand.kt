@@ -147,13 +147,18 @@ class CoolerTargetTagCommand(
 
     CustomLogger.recordOutput("CoolerTargetTagCommand/odomTTag", odomTTag.asPose2d().pose2d)
     CustomLogger.recordOutput(
+      "CoolerTargetTagCommand/expectedTagPose",
+      drivetrain.state.Pose.transformBy(odomTTag.transform2d)
+    )
+    CustomLogger.recordOutput(
       "CoolerTargetTagCommand/setpointTranslation", setpointTranslation.translation2d
     )
+    CustomLogger.recordOutput("CoolerTargetTagCommand/setpointRotation", setpointRotation.inDegrees)
 
     // todo check signs and whatnot
-    val xvel = -xPID.calculate(setpointTranslation.x, xTargetOffset)
-    val yvel = yPID.calculate(setpointTranslation.y, yTargetOffset)
-    val thetavel = -thetaPID.calculate(setpointRotation, thetaTargetOffset)
+    val xvel = xPID.calculate(setpointTranslation.x, -xTargetOffset)
+    val yvel = -yPID.calculate(setpointTranslation.y, yTargetOffset)
+    val thetavel = thetaPID.calculate(setpointRotation, thetaTargetOffset)
 
     CustomLogger.recordOutput("CoolerTargetTagCommand/xvelmps", xvel.inMetersPerSecond)
     CustomLogger.recordOutput("CoolerTargetTagCommand/yvelmps", yvel.inMetersPerSecond)
@@ -183,7 +188,9 @@ class CoolerTargetTagCommand(
   }
 
   fun isAtSetpoint(): Boolean {
-    return xPID.isAtSetpoint && yPID.isAtSetpoint && thetaPID.isAtSetpoint
+    return xPID.error < xPID.errorTolerance &&
+      yPID.error < yPID.errorTolerance &&
+      thetaPID.error < thetaPID.errorTolerance
   }
 
   override fun end(interrupted: Boolean) {

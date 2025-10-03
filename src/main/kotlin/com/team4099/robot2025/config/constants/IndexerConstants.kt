@@ -2,7 +2,6 @@ package com.team4099.robot2025.config.constants
 
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.grams
-import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.meterSquared
 import org.team4099.lib.units.derived.volts
 
@@ -20,6 +19,5 @@ object IndexerConstants {
   val INDEX_VOLTAGE = 5.volts
   val SPIT_VOLTAGE = (-4.0).volts
 
-  val CORAL_STALL_CURRENT = 40.0.amps
-  val CORAL_SPIT_TIME_THRESHOLD = 0.5.seconds
+  val CORAL_CURRENT = 30.0.amps
 }

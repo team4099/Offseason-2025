@@ -24,10 +24,11 @@ import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.micro
 import java.util.Optional
 import java.util.function.Supplier
+import org.photonvision.simulation.PhotonCameraSim
 
 class CameraIOPhotonvision(
-  private val identifier: String,
-  transform: Transform3d,
+  override val identifier: String,
+  override val transform: Transform3d,
   val poseMeasurementConsumer: (Pose2d?, Double, Matrix<N3?, N1?>) -> Unit,
   val drivetrainRotationSupplier: Supplier<Rotation2d>
 ) : CameraIO {
@@ -42,6 +43,8 @@ class CameraIOPhotonvision(
   private var lastEstTimestamp: Time = 0.0.seconds
 
   private var curStdDevs: Matrix<N3?, N1?> = VisionConstants.singleTagStdDevs
+
+  override var cameraSim: PhotonCameraSim? = null
 
   init {
     photonEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY)

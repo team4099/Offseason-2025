@@ -8,11 +8,15 @@ import com.team4099.robot2025.config.constants.FieldConstants
 import com.team4099.robot2025.config.constants.VisionConstants
 import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.subsystems.vision.camera.CameraIO
+import com.team4099.robot2025.subsystems.vision.camera.CameraIOPVSim
 import com.team4099.robot2025.util.FMSData
 import com.team4099.robot2025.util.toTransform3d
+import edu.wpi.first.apriltag.AprilTagFieldLayout
+import edu.wpi.first.apriltag.AprilTagFields
 import edu.wpi.first.math.VecBuilder
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.DriverStation
+import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.littletonrobotics.junction.Logger
 import org.photonvision.PhotonUtils
@@ -35,8 +39,11 @@ import org.team4099.lib.units.derived.inRadians
 import org.team4099.lib.units.derived.sin
 import java.util.function.Consumer
 import java.util.function.Supplier
+import org.photonvision.proto.Photon
+import org.photonvision.simulation.PhotonCameraSim
+import org.photonvision.simulation.VisionSystemSim
 
-class Vision(vararg cameras: CameraIO) : SubsystemBase() {
+class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<edu.wpi.first.math.geometry.Pose2d>) : SubsystemBase() {
   val io: List<CameraIO> = cameras.toList()
   val inputs = List(io.size) { CameraIO.CameraInputs() }
 
@@ -79,6 +86,17 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
   var autoAlignReadyRumble = false
     private set
 
+  private var visionSim: VisionSystemSim? = null
+
+  init {
+    if (RobotBase.isSimulation()) {
+      visionSim = VisionSystemSim("main")
+      visionSim!!.addAprilTags(AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField))
+
+      cameras.forEach { camera -> visionSim!!.addCamera(camera.cameraSim, camera.transform.transform3d)}
+    }
+  }
+
   fun setDataInterfaces(
     fieldFramePoseSupplier: Supplier<Pose2d>,
     visionConsumer: Consumer<List<TimestampedVisionUpdate>>,
@@ -90,6 +108,8 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
   }
 
   override fun periodic() {
+    visionSim?.update(poseSupplier.get())
+
     Logger.recordOutput(
       "Vision/cameraTransform1",
       edu.wpi.first.math.geometry.Pose3d()

@@ -5,6 +5,7 @@ import edu.wpi.first.math.Nat
 import edu.wpi.first.math.geometry.Transform3d
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
+import org.photonvision.simulation.PhotonCameraSim
 import org.photonvision.targeting.PhotonTrackedTarget
 import org.photonvision.targeting.TargetCorner
 import org.team4099.lib.geometry.Pose3d
@@ -13,6 +14,13 @@ import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.seconds
 
 interface CameraIO {
+  val identifier: String
+  val transform: org.team4099.lib.geometry.Transform3d
+
+  // note(nathan) need to be here to access in Vision bc polymorphism
+  // leave it null for real ig
+  var cameraSim: PhotonCameraSim?
+
   class CameraInputs : LoggableInputs {
     var timestamp = 0.0.seconds
     var frame: Pose3d = Pose3d()

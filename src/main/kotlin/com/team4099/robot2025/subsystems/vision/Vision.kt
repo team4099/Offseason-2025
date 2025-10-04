@@ -18,7 +18,6 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.SubsystemBase
-import java.util.function.Supplier
 import org.littletonrobotics.junction.Logger
 import org.photonvision.PhotonUtils
 import org.photonvision.simulation.VisionSystemSim
@@ -38,6 +37,7 @@ import org.team4099.lib.units.derived.cos
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inRadians
 import org.team4099.lib.units.derived.sin
+import java.util.function.Supplier
 
 class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supplier { Pose2d() }) :
   SubsystemBase() {

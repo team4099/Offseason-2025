@@ -10,13 +10,17 @@ import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.subsystems.vision.camera.CameraIO
 import com.team4099.robot2025.util.FMSData
 import com.team4099.robot2025.util.toTransform3d
+import edu.wpi.first.apriltag.AprilTagFieldLayout
+import edu.wpi.first.apriltag.AprilTagFields
 import edu.wpi.first.math.VecBuilder
+import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.DriverStation
+import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.littletonrobotics.junction.Logger
 import org.photonvision.PhotonUtils
-import org.team4099.lib.geometry.Pose2d
+import org.photonvision.simulation.VisionSystemSim
 import org.team4099.lib.geometry.Pose3d
 import org.team4099.lib.geometry.Rotation3d
 import org.team4099.lib.geometry.Transform2d
@@ -33,10 +37,10 @@ import org.team4099.lib.units.derived.cos
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inRadians
 import org.team4099.lib.units.derived.sin
-import java.util.function.Consumer
 import java.util.function.Supplier
 
-class Vision(vararg cameras: CameraIO) : SubsystemBase() {
+class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supplier { Pose2d() }) :
+  SubsystemBase() {
   val io: List<CameraIO> = cameras.toList()
   val inputs = List(io.size) { CameraIO.CameraInputs() }
 
@@ -57,8 +61,6 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
   var isAutoAligning = false
   var isAligned = false
 
-  var drivetrainOdometry: () -> Pose2d = { Pose2d() }
-
   private val xyStdDev = TunableNumber("Vision/xystdev", VisionConstants.XY_STDDEV)
 
   private val thetaStdDev = TunableNumber("Vision/thetaStdDev", VisionConstants.THETA_STDDEV)
@@ -70,26 +72,27 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
   var lastTrigVisionUpdate =
     TimestampedTrigVisionUpdate(Clock.fpgaTime, -1, Transform2d(Translation2d(), 0.degrees))
 
-  private var fieldFramePoseSupplier = Supplier<Pose2d> { Pose2d() }
-  private var visionConsumer: Consumer<List<TimestampedVisionUpdate>> = Consumer {}
-  private var reefVisionConsumer: Consumer<TimestampedTrigVisionUpdate> = Consumer {}
-
   private var lastSeenTagId: Int? = null
   private var pulseEndTime = 0.0.seconds
   var autoAlignReadyRumble = false
     private set
 
-  fun setDataInterfaces(
-    fieldFramePoseSupplier: Supplier<Pose2d>,
-    visionConsumer: Consumer<List<TimestampedVisionUpdate>>,
-    reefVisionMeasurementConsumer: Consumer<TimestampedTrigVisionUpdate>
-  ) {
-    this.fieldFramePoseSupplier = fieldFramePoseSupplier
-    this.visionConsumer = visionConsumer
-    this.reefVisionConsumer = reefVisionMeasurementConsumer
+  private var visionSim: VisionSystemSim? = null
+
+  init {
+    if (RobotBase.isSimulation()) {
+      visionSim = VisionSystemSim("main")
+      visionSim!!.addAprilTags(AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField))
+
+      cameras.forEach { camera ->
+        visionSim!!.addCamera(camera.cameraSim, camera.transform.transform3d)
+      }
+    }
   }
 
   override fun periodic() {
+    visionSim?.update(poseSupplier.get())
+
     Logger.recordOutput(
       "Vision/cameraTransform1",
       edu.wpi.first.math.geometry.Pose3d()
@@ -139,14 +142,6 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
             if ((tag.fiducialId in VisionConstants.BLUE_REEF_TAGS && FMSData.isBlue) ||
               (tag.fiducialId in VisionConstants.RED_REEF_TAGS && !FMSData.isBlue)
             ) {
-
-              val aprilTagAlignmentAngle =
-                if (FMSData.isBlue) {
-                  VisionConstants.BLUE_REEF_TAG_THETA_ALIGNMENTS[tag.fiducialId]
-                } else {
-                  VisionConstants.RED_REEF_TAG_THETA_ALIGNMENTS[tag.fiducialId]
-                }
-
               val fieldTTag =
                 FieldConstants.AprilTagLayoutType.OFFICIAL
                   .layout
@@ -305,16 +300,9 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
                 closestReefTagAcrossCams?.value?.second?.rotation?.z ?: 0.degrees
               )
             )
-
-          // reefVisionConsumer.accept(lastTrigVisionUpdate)
         }
       }
     }
-
-    // visionConsumer.accept(visionUpdates)
-    Logger.recordOutput(
-      "LoggedRobot/VisionLoopTimeMS", (Clock.realTimestamp - startTime).inMilliseconds
-    )
 
     val now = Clock.fpgaTime
 
@@ -342,6 +330,10 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
     if (now > pulseEndTime) {
       autoAlignReadyRumble = false
     }
+
+    Logger.recordOutput(
+      "LoggedRobot/VisionLoopTimeMS", (Clock.realTimestamp - startTime).inMilliseconds
+    )
   }
 
   companion object {

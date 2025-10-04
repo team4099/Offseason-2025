@@ -34,7 +34,7 @@ import com.team4099.robot2025.subsystems.limelight.LimelightVisionIO
 import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
 import com.team4099.robot2025.subsystems.vision.Vision
-import com.team4099.robot2025.subsystems.vision.camera.CameraIO
+import com.team4099.robot2025.subsystems.vision.camera.CameraIOPVSim
 import com.team4099.robot2025.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.util.driver.Jessika
 import edu.wpi.first.math.geometry.Rotation2d
@@ -102,7 +102,18 @@ object RobotContainer {
       indexer = Indexer(IndexerIOSim)
       canrange = CANRange(object : CANRangeIO {})
 
-      vision = Vision(object : CameraIO {})
+      vision =
+        Vision(
+          CameraIOPVSim(
+            VisionConstants.CAMERA_NAMES[0],
+            VisionConstants.CAMERA_TRANSFORMS[0],
+          ),
+          CameraIOPVSim(
+            VisionConstants.CAMERA_NAMES[1],
+            VisionConstants.CAMERA_TRANSFORMS[1],
+          ),
+          poseSupplier = { drivetrain.state.Pose }
+        )
     }
 
     superstructure =

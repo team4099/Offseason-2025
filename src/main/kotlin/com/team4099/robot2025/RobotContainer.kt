@@ -29,9 +29,6 @@ import com.team4099.robot2025.subsystems.indexer.IndexerIOTalon
 import com.team4099.robot2025.subsystems.intake.Intake
 import com.team4099.robot2025.subsystems.intake.IntakeIOSim
 import com.team4099.robot2025.subsystems.intake.IntakeIOTalonFX
-import com.team4099.robot2025.subsystems.limelight.LimelightVision
-import com.team4099.robot2025.subsystems.limelight.LimelightVisionIO
-import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.subsystems.vision.camera.CameraIO
@@ -41,7 +38,6 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
-import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.derived.Angle
@@ -50,7 +46,6 @@ import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersI
 
 object RobotContainer {
   private val drivetrain: CommandSwerveDrive = TunerConstants.createDrivetrain()
-  private val limelight: LimelightVision
   private val vision: Vision
   private val elevator: Elevator
   private val arm: Arm
@@ -69,7 +64,6 @@ object RobotContainer {
 
   init {
     if (RobotBase.isReal()) {
-      limelight = LimelightVision(object : LimelightVisionIO {})
       elevator = Elevator(ElevatorIOTalon)
       arm = Arm(ArmIOTalon)
       armRollers = ArmRollers(RollersIOTalon)
@@ -94,7 +88,6 @@ object RobotContainer {
           ),
         )
     } else {
-      limelight = LimelightVision(object : LimelightVisionIO {})
       elevator = Elevator(ElevatorIOSim)
       arm = Arm(ArmIOSIm)
       armRollers = ArmRollers(ArmRollersIOSim)
@@ -108,19 +101,8 @@ object RobotContainer {
 
     superstructure =
       Superstructure(
-        drivetrain,
-        vision,
-        limelight,
-        elevator,
-        arm,
-        armRollers,
-        climber,
-        intake,
-        indexer,
-        canrange
+        drivetrain, vision, elevator, arm, armRollers, climber, intake, indexer, canrange
       )
-
-    limelight.poseSupplier = { Pose2d(drivetrain.state.Pose) }
   }
 
   fun mapDefaultCommands() {
@@ -141,10 +123,6 @@ object RobotContainer {
 
   fun setDriveBrakeMode(neutralModeValue: NeutralModeValue = NeutralModeValue.Brake) {
     drivetrain.configNeutralMode(neutralModeValue)
-  }
-
-  fun requestIdle() {
-    superstructure.currentRequest = Request.SuperstructureRequest.Idle()
   }
 
   fun mapTeleopControls() {

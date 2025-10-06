@@ -313,7 +313,7 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
 
     // visionConsumer.accept(visionUpdates)
     Logger.recordOutput(
-      "LoggedRobot/VisionLoopTimeMS", (Clock.realTimestamp - startTime).inMilliseconds
+      "LoggedRobot/Subsystems/VisionLoopTimeMS", (Clock.realTimestamp - startTime).inMilliseconds
     )
 
     val now = Clock.fpgaTime

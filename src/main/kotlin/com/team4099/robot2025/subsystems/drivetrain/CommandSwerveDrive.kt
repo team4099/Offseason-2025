@@ -26,6 +26,8 @@ import edu.wpi.first.wpilibj2.command.Subsystem
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism
 import org.team4099.lib.units.base.inSeconds
+import org.team4099.lib.units.derived.inDegrees
+import org.team4099.lib.units.derived.radians
 import java.util.function.Consumer
 import java.util.function.Supplier
 
@@ -248,6 +250,12 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
 
     CustomLogger.recordOutput("Odometry/pose", state.Pose)
     CustomLogger.recordOutput("Odometry/pose3d", Pose3d(state.Pose))
+
+    CustomLogger.recordOutput("Drivetrain/chassisSpeeds", state.Speeds)
+    CustomLogger.recordOutput("Drivetrain/rotation3d", rotation3d)
+    CustomLogger.recordOutput("Drivetrain/rotation/roll", rotation3d.x.radians.inDegrees)
+    CustomLogger.recordOutput("Drivetrain/rotation/pitch", rotation3d.y.radians.inDegrees)
+    CustomLogger.recordOutput("Drivetrain/rotation/yaw", rotation3d.z.radians.inDegrees)
   }
 
   private fun startSimThread() {

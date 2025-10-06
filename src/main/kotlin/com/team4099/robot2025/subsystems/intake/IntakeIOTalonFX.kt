@@ -171,14 +171,16 @@ object IntakeIOTalonFX : IntakeIO {
 
   override fun setPivotVoltage(voltage: ElectricalPotential) {
     pivotTalon.setControl(
-      pivotVoltageControl.withOutput(
-        clamp(
-          voltage,
-          -IntakeConstants.VOLTAGE_COMPENSATION,
-          IntakeConstants.VOLTAGE_COMPENSATION
+      pivotVoltageControl
+        .withEnableFOC(true)
+        .withOutput(
+          clamp(
+            voltage,
+            -IntakeConstants.VOLTAGE_COMPENSATION,
+            IntakeConstants.VOLTAGE_COMPENSATION
+          )
+            .inVolts
         )
-          .inVolts
-      )
     )
   }
 
@@ -206,7 +208,7 @@ object IntakeIOTalonFX : IntakeIO {
   }
 
   override fun setRollerVoltage(voltage: ElectricalPotential) {
-    rollersTalon.setControl(rollerVoltageControl.withOutput(voltage.inVolts))
+    rollersTalon.setControl(rollerVoltageControl.withEnableFOC(true).withOutput(voltage.inVolts))
   }
 
   override fun setPivotBrakeMode(brake: Boolean) {

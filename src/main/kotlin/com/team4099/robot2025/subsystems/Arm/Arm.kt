@@ -20,7 +20,6 @@ class Arm(val io: ArmIO) : SubsystemBase() {
 
   var armTargetVoltage: ElectricalPotential = 0.0.volts
 
-  private var lastArmPositionTarget = -1337.0.degrees
   private var armPositionTarget = 0.0.degrees
 
   val isAtTargetedPosition: Boolean
@@ -91,27 +90,28 @@ class Arm(val io: ArmIO) : SubsystemBase() {
     CustomLogger.recordOutput("Arm/targetVoltage", armTargetVoltage.inVolts)
     CustomLogger.recordOutput("Arm/targetPosition", armPositionTarget.inDegrees)
 
-    if (ArmTunableValues.armkP.hasChanged() ||
-      ArmTunableValues.armkI.hasChanged() ||
-      ArmTunableValues.armkD.hasChanged()
-    ) {
-      io.configPID(
-        ArmTunableValues.armkP.get(), ArmTunableValues.armkI.get(), ArmTunableValues.armkD.get()
-      )
-    }
-
-    if (ArmTunableValues.armkS.hasChanged() ||
-      ArmTunableValues.armkV.hasChanged() ||
-      ArmTunableValues.armkA.hasChanged() ||
-      ArmTunableValues.armkG.hasChanged()
-    ) {
-      io.configFF(
-        ArmTunableValues.armkG.get(),
-        ArmTunableValues.armkS.get(),
-        ArmTunableValues.armkV.get(),
-        ArmTunableValues.armkA.get()
-      )
-    }
+    //    if (ArmTunableValues.armkP.hasChanged() ||
+    //      ArmTunableValues.armkI.hasChanged() ||
+    //      ArmTunableValues.armkD.hasChanged()
+    //    ) {
+    //      io.configPID(
+    //        ArmTunableValues.armkP.get(), ArmTunableValues.armkI.get(),
+    // ArmTunableValues.armkD.get()
+    //      )
+    //    }
+    //
+    //    if (ArmTunableValues.armkS.hasChanged() ||
+    //      ArmTunableValues.armkV.hasChanged() ||
+    //      ArmTunableValues.armkA.hasChanged() ||
+    //      ArmTunableValues.armkG.hasChanged()
+    //    ) {
+    //      io.configFF(
+    //        ArmTunableValues.armkG.get(),
+    //        ArmTunableValues.armkS.get(),
+    //        ArmTunableValues.armkV.get(),
+    //        ArmTunableValues.armkA.get()
+    //      )
+    //    }
 
     var nextState = currentState
     when (currentState) {
@@ -126,12 +126,10 @@ class Arm(val io: ArmIO) : SubsystemBase() {
       }
       ArmState.OPEN_LOOP -> {
         io.setVoltage(armTargetVoltage)
-
         nextState = fromRequestToState(currentRequest)
       }
       ArmState.TARGETING_POS -> {
         io.setPosition(armPositionTarget)
-        lastArmPositionTarget = armPositionTarget
         nextState = fromRequestToState(currentRequest)
       }
     }

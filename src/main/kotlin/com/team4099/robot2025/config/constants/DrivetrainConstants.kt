@@ -82,11 +82,12 @@ object DrivetrainConstants {
   val ALLOWED_STEERING_ANGLE_ERROR = 1.degrees
 
   val STEERING_SUPPLY_CURRENT_LIMIT = 20.0.amps
-  val DRIVE_SUPPLY_CURRENT_LIMIT = 70.0.amps
+  val DRIVE_SUPPLY_CURRENT_LIMIT = 50.0.amps
   val DRIVE_THRESHOLD_CURRENT_LIMIT = 70.0.amps
   val DRIVE_TRIGGER_THRESHOLD_TIME = 0.1.seconds
 
-  val DRIVE_STATOR_CURRENT_LIMIT = 60.0.amps
+  val STEERING_STATOR_CURRENT_LIMIT = 20.0.amps
+  val DRIVE_STATOR_CURRENT_LIMIT = 40.0.amps
   val DRIVE_STATOR_THRESHOLD_CURRENT_LIMIT = 60.0.amps
   val DRIVE_STATOR_TRIGGER_THRESHOLD_TIME = 1.0.seconds
 
@@ -150,18 +151,18 @@ object DrivetrainConstants {
     val AUTO_REEF_PID_KD =
       (0.4.degrees.perSecond / (1.degrees / 1.seconds)).radiansPerSecondPerRadiansPerSecond
 
-    val TELEOP_THETA_PID_KP = 2.0.degrees.perSecond / 1.degrees
+    val TELEOP_THETA_PID_KP = 0.6.degrees.perSecond / 1.degrees
     val TELEOP_THETA_PID_KI = 0.0.degrees.perSecond / (1.degrees * 1.seconds)
     val TELEOP_THETA_PID_KD =
-      (0.2.degrees.perSecond / (1.degrees / 1.seconds)).radiansPerSecondPerRadiansPerSecond
+      (0.05.degrees.perSecond / (1.degrees / 1.seconds)).radiansPerSecondPerRadiansPerSecond
 
-    val TELEOP_X_PID_KP = 1.5.meters.perSecond / 1.meters
+    val TELEOP_X_PID_KP = 2.8.meters.perSecond / 1.meters
     val TELEOP_X_PID_KI = 0.0.meters.perSecond / (1.meters * 1.seconds)
-    val TELEOP_X_PID_KD = 0.05.meters.perSecond.perMeterPerSecond
+    val TELEOP_X_PID_KD = 0.6.meters.perSecond.perMeterPerSecond
 
-    val TELEOP_Y_PID_KP = 0.9.meters.perSecond / 1.meters
+    val TELEOP_Y_PID_KP = 1.6.meters.perSecond / 1.meters
     val TELEOP_Y_PID_KI = 0.0.meters.perSecond / (1.meters * 1.seconds)
-    val TELEOP_Y_PID_KD = 0.05.meters.perSecond.perMeterPerSecond
+    val TELEOP_Y_PID_KD = 0.5.meters.perSecond.perMeterPerSecond
 
     val SIM_TELEOP_Y_PID_KP = 0.0.meters.perSecond / 1.meters
     val SIM_TELEOP_Y_PID_KI = 0.0.meters.perSecond / (1.meters * 1.seconds)

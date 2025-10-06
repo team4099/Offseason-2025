@@ -208,7 +208,7 @@ object Robot : LoggedRobot() {
     RobotContainer.zeroSensors(isInAutonomous = false)
     RobotContainer.mapTeleopControls()
     RobotContainer.getAutonomousCommand().cancel()
-    RobotContainer.requestIdle()
+    //    RobotContainer.requestIdle()
     RobotContainer.setDriveBrakeMode()
     if (Constants.Tuning.TUNING_MODE) {
       RobotContainer.mapTunableCommands()

@@ -2,6 +2,7 @@ package com.team4099.robot2025.config.constants
 
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.grams
+import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.meterSquared
 import org.team4099.lib.units.derived.volts
 
@@ -11,8 +12,10 @@ object IndexerConstants {
 
   val VOLTAGE_COMPENSATION = 12.0.volts
 
-  val SUPPLY_CURRENT_LIMIT = 40.0.amps
+  val SUPPLY_CURRENT_LIMIT = 60.0.amps
   val STATOR_CURRENT_LIMIT = 40.0.amps
+  val SUPPLY_CURRENT_LOWER_LIMIT = 40.0.amps
+  val SUPPLY_CURRENT_LOWER_TIME = 1.0.seconds
 
   // TODO must change
   val IDLE_VOLTAGE = 0.0.volts

@@ -92,7 +92,7 @@ object TunerConstants {
   // The stator current at which the wheels start to slip;
   // This needs to be tuned to your individual robot
   // TODO check this
-  private val kSlipCurrent: Current = 120.amps // Units.Amps.of(120.0)
+  private val kSlipCurrent: Current = 80.amps
 
   // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
   // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.

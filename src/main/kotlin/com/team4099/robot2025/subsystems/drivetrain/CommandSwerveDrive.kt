@@ -256,6 +256,13 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
     CustomLogger.recordOutput("Drivetrain/rotation/roll", rotation3d.x.radians.inDegrees)
     CustomLogger.recordOutput("Drivetrain/rotation/pitch", rotation3d.y.radians.inDegrees)
     CustomLogger.recordOutput("Drivetrain/rotation/yaw", rotation3d.z.radians.inDegrees)
+
+    for (i in 0..3) {
+      try {
+        getModule(i).steerMotor?.getStatorCurrent(true)
+          ?.let { CustomLogger.recordOutput("Drivetrain/module($i)/steer/statorCurrent", it.valueAsDouble) }
+      } finally {}
+    }
   }
 
   private fun startSimThread() {

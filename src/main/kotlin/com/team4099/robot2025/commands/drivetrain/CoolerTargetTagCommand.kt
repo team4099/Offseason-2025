@@ -33,6 +33,7 @@ import org.team4099.lib.units.inMetersPerSecond
 import org.team4099.lib.units.inRadiansPerSecond
 import org.team4099.lib.units.perSecond
 import kotlin.math.PI
+import org.team4099.lib.units.derived.inRotation2ds
 
 class CoolerTargetTagCommand(
   private val drivetrain: CommandSwerveDrive,
@@ -66,8 +67,12 @@ class CoolerTargetTagCommand(
     SwerveRequest.RobotCentric()
       .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
       .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
-      .withDeadband(3.centi.meters.perSecond.inMetersPerSecond)
-      .withRotationalDeadband(0.5.degrees.perSecond.inRadiansPerSecond)
+      .withDeadband(0.5.centi.meters.perSecond.inMetersPerSecond)
+//      .withRotationalDeadband(0.5.degrees.perSecond.inRadiansPerSecond)
+
+  private val requestPointWheels =
+    SwerveRequest.PointWheelsAt().withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
+  .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
 
   init {
     addRequirements(drivetrain, vision)
@@ -134,9 +139,9 @@ class CoolerTargetTagCommand(
     yPID.reset()
     thetaPID.reset()
 
-    xPID.errorTolerance = 2.inches
-    yPID.errorTolerance = 2.inches
-    thetaPID.errorTolerance = 2.degrees
+    xPID.errorTolerance = .5.inches
+    yPID.errorTolerance = .5.inches
+    thetaPID.errorTolerance = .5.degrees
 
     vision.isAligned = false
 
@@ -169,13 +174,6 @@ class CoolerTargetTagCommand(
     var yvel = -yPID.calculate(setpointTranslation.y, yTargetOffset)
     var thetavel = thetaPID.calculate(setpointRotation, thetaTargetOffset)
 
-    //    if (xvel.absoluteValue > 0.7.meters.perSecond) xvel = 0.7.meters.perSecond * xvel.sign
-    //    if (yvel.absoluteValue > 0.9.meters.perSecond) yvel = 0.9.meters.perSecond * yvel.sign
-
-    //    if (xvel.absoluteValue < 5.centi.meters.perSecond) xvel = 0.0.meters.perSecond
-    //    if (yvel.absoluteValue < 5.centi.meters.perSecond) yvel = 0.0.meters.perSecond
-    //    if (thetavel.absoluteValue < 0.449.degrees.perSecond) thetavel = 0.0.degrees.perSecond
-
     CustomLogger.recordOutput("CoolerTargetTagCommand/xvelmps", xvel.inMetersPerSecond)
     CustomLogger.recordOutput("CoolerTargetTagCommand/yvelmps", yvel.inMetersPerSecond)
     CustomLogger.recordOutput("CoolerTargetTagCommand/thetaveldps", thetavel.inDegreesPerSecond)
@@ -183,14 +181,20 @@ class CoolerTargetTagCommand(
     CustomLogger.recordOutput("CoolerTargetTagCommand/yerror", yPID.error.inInches)
     CustomLogger.recordOutput("CoolerTargetTagCommand/thetaerror", thetaPID.error.inDegrees)
 
-    if (thetaPID.error < 2.056.degrees)
+    if (thetaPID.error.absoluteValue < 2.056.degrees && thetavel.absoluteValue < 0.5.degrees.perSecond) {
+      drivetrain.setControl(
+        requestPointWheels.withModuleDirection((setpointRotation - thetaTargetOffset).inRotation2ds)
+      )
       drivetrain.setControl(
         requestRobotCentric
           .withVelocityX(xvel.inMetersPerSecond)
           .withVelocityY(yvel.inMetersPerSecond)
           .withRotationalRate(thetavel.inRadiansPerSecond)
       )
-    else drivetrain.setControl(requestRobotCentric.withRotationalRate(thetavel.inRadiansPerSecond))
+    }
+    else {
+      drivetrain.setControl(requestRobotCentric.withRotationalRate(thetavel.inRadiansPerSecond))
+    }
   }
 
   override fun isFinished(): Boolean {

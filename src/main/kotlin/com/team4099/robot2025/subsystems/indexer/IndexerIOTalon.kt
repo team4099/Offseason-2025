@@ -14,6 +14,7 @@ import org.team4099.lib.math.clamp
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.celsius
 import org.team4099.lib.units.base.inAmperes
+import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.ctreAngularMechanismSensor
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.inVolts
@@ -51,8 +52,10 @@ object IndexerIOTalon : IndexerIO {
   init {
     indexerTalon.clearStickyFaults()
 
-    configs.CurrentLimits.SupplyCurrentLimit = IndexerConstants.SUPPLY_CURRENT_LIMIT.inAmperes
+    configs.CurrentLimits.SupplyCurrentLimit = IndexerConstants.SUPPLY_CURRENT_LOWER_LIMIT.inAmperes
     configs.CurrentLimits.StatorCurrentLimit = IndexerConstants.STATOR_CURRENT_LIMIT.inAmperes
+//    configs.CurrentLimits.SupplyCurrentLowerLimit = IndexerConstants.SUPPLY_CURRENT_LOWER_LIMIT.inAmperes
+//    configs.CurrentLimits.SupplyCurrentLowerTime = IndexerConstants.SUPPLY_CURRENT_LOWER_TIME.inSeconds
     configs.CurrentLimits.SupplyCurrentLimitEnable = true
     configs.CurrentLimits.StatorCurrentLimitEnable = true
     configs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive

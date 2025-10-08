@@ -7,6 +7,7 @@ import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.seconds
+import org.team4099.lib.units.derived.volts
 
 class Indexer(val io: IndexerIO) : SubsystemBase() {
   val inputs = IndexerIO.IndexerInputs()
@@ -18,9 +19,16 @@ class Indexer(val io: IndexerIO) : SubsystemBase() {
       return inputs.indexerStatorCurrent >= IndexerConstants.CORAL_CURRENT
     }
   var lastCoralTriggerTime = 0.seconds
+  var targetVoltage = 0.0.volts
 
   var currentState = IndexerState.UNINITIALIZED
   var currentRequest: Request.IndexerRequest = Request.IndexerRequest.Idle()
+    set(value) {
+      if (value is Request.IndexerRequest.Index) {
+        targetVoltage = value.voltage
+      }
+      field = value
+    }
 
   override fun periodic() {
     io.updateInputs(inputs)
@@ -41,17 +49,8 @@ class Indexer(val io: IndexerIO) : SubsystemBase() {
         nextState = fromRequestToState(currentRequest)
       }
       IndexerState.INDEX -> {
-        //        if ((Clock.fpgaTime - lastTransitionTime).inSeconds % 2 < 1.5)
-        //          io.setVoltage(IndexerConstants.INDEX_VOLTAGE)
-        //        else io.setVoltage(IndexerConstants.SPIT_VOLTAGE)
         if (hasCoral && lastCoralTriggerTime == 0.seconds) lastCoralTriggerTime = Clock.fpgaTime
-
-        if (hasCoral) {
-          if ((Clock.fpgaTime - lastCoralTriggerTime).inSeconds % 3 > 2.5)
-            io.setVoltage(IndexerConstants.SPIT_VOLTAGE)
-          else io.setVoltage(IndexerConstants.INDEX_VOLTAGE)
-        } else io.setVoltage(IndexerConstants.INDEX_VOLTAGE / 3)
-
+        io.setVoltage(targetVoltage)
         nextState = fromRequestToState(currentRequest)
       }
       IndexerState.EJECT -> {

@@ -30,7 +30,7 @@ object IntakeConstants {
   // Feedforward Constants
   val PIVOT_KA = 0.0.volts / 1.0.radians.perSecond.perSecond
   val PIVOT_KV = 0.0.volts / 1.0.radians.perSecond
-  val PIVOT_KG = 0.45.volts
+  val PIVOT_KG = 0.3.volts
   val PIVOT_KS = 0.1.volts
 
   val STATOR_CURRENT_LIMIT = 60.amps
@@ -44,9 +44,11 @@ object IntakeConstants {
   val SIM_VELOCITY = 400.degrees.perSecond
   val SIM_ACCELERATION = 400.degrees.perSecond.perSecond
 
+  val FORCE_DOWN_VOLTAGE = (-3).volts
+
   object ANGLES {
-    val INTAKE_ANGLE = (-22.5).degrees
-    val STOW_ANGLE = 127.5.degrees
+    val INTAKE_ANGLE = (-40).degrees
+    val STOW_ANGLE = 117.5.degrees
 
     val NOT_CLIPPING_ELEVATOR_THRESHOLD = 100.degrees
   }
@@ -73,7 +75,7 @@ object IntakeConstants {
     val STATOR_CURRENT_LIMIT = 40.amps
     val SUPPLY_CURRENT_LIMIT = 40.amps
 
-    val INTAKE_VOLTAGE = 5.25.volts
+    val INTAKE_VOLTAGE = 6.volts
     val EJECT_VOLTAGE = -(1.5).volts
   }
 }

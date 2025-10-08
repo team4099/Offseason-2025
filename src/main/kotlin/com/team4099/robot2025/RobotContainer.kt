@@ -2,6 +2,7 @@ package com.team4099.robot2025
 
 import com.ctre.phoenix6.signals.NeutralModeValue
 import com.team4099.robot2025.auto.AutonomousSelector
+import com.team4099.robot2025.commands.drivetrain.CharacterizeSlipCommand
 import com.team4099.robot2025.commands.drivetrain.CoolerTargetTagCommand
 import com.team4099.robot2025.commands.drivetrain.ResetGyroYawCommand
 import com.team4099.robot2025.commands.drivetrain.TeleopDriveCommand
@@ -162,8 +163,7 @@ object RobotContainer {
       superstructure.resetGamepieceCommand(Constants.Universal.GamePiece.ALGAE)
     )
 
-    ControlBoard.test.onTrue(superstructure.overrideFlag(true))
-    ControlBoard.test.onFalse(superstructure.overrideFlag(false))
+//    ControlBoard.test.whileTrue(CharacterizeSlipCommand(drivetrain))
   }
 
   fun mapTestControls() {}

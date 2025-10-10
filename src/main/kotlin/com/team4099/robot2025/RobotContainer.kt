@@ -6,6 +6,7 @@ import com.team4099.robot2025.commands.drivetrain.CharacterizeSlipCommand
 import com.team4099.robot2025.commands.drivetrain.CoolerTargetTagCommand
 import com.team4099.robot2025.commands.drivetrain.ResetGyroYawCommand
 import com.team4099.robot2025.commands.drivetrain.TeleopDriveCommand
+import com.team4099.robot2025.commands.drivetrain.TestDriveCommand
 import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.VisionConstants
@@ -39,6 +40,7 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
+import edu.wpi.first.wpilibj2.command.InstantCommand
 import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.derived.Angle
@@ -163,7 +165,7 @@ object RobotContainer {
       superstructure.resetGamepieceCommand(Constants.Universal.GamePiece.ALGAE)
     )
 
-//    ControlBoard.test.whileTrue(CharacterizeSlipCommand(drivetrain))
+    ControlBoard.test.whileTrue(if (Constants.Tuning.TUNING_MODE) TestDriveCommand(drivetrain) else InstantCommand())
   }
 
   fun mapTestControls() {}

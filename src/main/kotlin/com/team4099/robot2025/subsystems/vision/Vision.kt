@@ -10,6 +10,8 @@ import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.subsystems.vision.camera.CameraIO
 import com.team4099.robot2025.util.FMSData
 import com.team4099.robot2025.util.toTransform3d
+import edu.wpi.first.apriltag.AprilTagFieldLayout
+import edu.wpi.first.apriltag.AprilTagFields
 import edu.wpi.first.math.VecBuilder
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.DriverStation
@@ -35,6 +37,7 @@ import org.team4099.lib.units.derived.inRadians
 import org.team4099.lib.units.derived.sin
 import java.util.function.Consumer
 import java.util.function.Supplier
+import org.team4099.lib.units.derived.radians
 
 class Vision(vararg cameras: CameraIO) : SubsystemBase() {
   val io: List<CameraIO> = cameras.toList()
@@ -73,6 +76,8 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
   private var fieldFramePoseSupplier = Supplier<Pose2d> { Pose2d() }
   private var visionConsumer: Consumer<List<TimestampedVisionUpdate>> = Consumer {}
   private var reefVisionConsumer: Consumer<TimestampedTrigVisionUpdate> = Consumer {}
+
+  private val fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField)
 
   private var lastSeenTagId: Int? = null
   private var pulseEndTime = 0.0.seconds
@@ -141,11 +146,12 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
             ) {
 
               val aprilTagAlignmentAngle =
-                if (FMSData.isBlue) {
-                  VisionConstants.BLUE_REEF_TAG_THETA_ALIGNMENTS[tag.fiducialId]
-                } else {
-                  VisionConstants.RED_REEF_TAG_THETA_ALIGNMENTS[tag.fiducialId]
-                }
+                fieldLayout.getTagPose(tag.fiducialId).get().rotation.z.radians
+//                if (FMSData.isBlue) {
+//                  VisionConstants.BLUE_REEF_TAG_THETA_ALIGNMENTS[tag.fiducialId]
+//                } else {
+//                  VisionConstants.RED_REEF_TAG_THETA_ALIGNMENTS[tag.fiducialId]
+//                }
 
               val fieldTTag =
                 FieldConstants.AprilTagLayoutType.OFFICIAL
@@ -177,9 +183,9 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
                 Transform3d(
                   Pose3d()
                     .transformBy(VisionConstants.CAMERA_TRANSFORMS[instance])
-                    .transformBy(Transform3d(cameraTTagTranslation3d, cameraTTagRotation3d))
-                    .toTransform3d()
-                    .transform3d,
+                    .transformBy(Transform3d(cameraTTagTranslation3d, Rotation3d()))
+                    .translation,
+                  Rotation3d(0.0.degrees, 0.0.degrees, aprilTagAlignmentAngle ?: 0.degrees)
                 )
 
               var fieldTRobot = Pose3d().transformBy(fieldTTag).transformBy(robotTTag.inverse())

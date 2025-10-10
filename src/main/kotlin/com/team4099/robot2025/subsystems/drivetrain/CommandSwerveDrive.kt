@@ -407,34 +407,32 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
 
         val twistToNextPose: Twist2d = velocityTransform.log()
 
+        val vx = (twistToNextPose.dx / Constants.Universal.LOOP_PERIOD_TIME)
+        val vy = (twistToNextPose.dy / Constants.Universal.LOOP_PERIOD_TIME)
+        val omega = (twistToNextPose.dtheta / Constants.Universal.LOOP_PERIOD_TIME)
+
         val newRequest: SwerveRequest
 
         when (request) {
           is RobotCentric ->
-            newRequest =
-              request
-                .withVelocityX(
-                  (twistToNextPose.dx / Constants.Universal.LOOP_PERIOD_TIME)
-                    .inMetersPerSecond
-                )
-                .withVelocityY(
-                  (twistToNextPose.dy / Constants.Universal.LOOP_PERIOD_TIME)
-                    .inMetersPerSecond
-                )
-                .withRotationalRate(
-                  (twistToNextPose.dtheta / Constants.Universal.LOOP_PERIOD_TIME)
-                    .inRadiansPerSecond
-                )
+            newRequest = ApplyRobotSpeeds()
+              .withDriveRequestType(request.DriveRequestType)
+              .withSteerRequestType(request.SteerRequestType)
+              .withCenterOfRotation(request.CenterOfRotation)
+              .withDesaturateWheelSpeeds(request.DesaturateWheelSpeeds)
+              .withSpeeds(ChassisSpeeds(vx, vy, omega).chassisSpeedsWPILIB)
           is FieldCentric -> {
-            val vx = (twistToNextPose.dx / Constants.Universal.LOOP_PERIOD_TIME).inMetersPerSecond
-            val vy = (twistToNextPose.dy / Constants.Universal.LOOP_PERIOD_TIME).inMetersPerSecond
-            val omega =
-              (twistToNextPose.dtheta / Constants.Universal.LOOP_PERIOD_TIME).inRadiansPerSecond
-            newRequest =
-              request
-                .withVelocityX(vx * state.Pose.rotation.cos - vy * state.Pose.rotation.sin)
-                .withVelocityY(vx * state.Pose.rotation.sin + vy * state.Pose.rotation.cos)
-                .withRotationalRate(omega)
+            newRequest = ApplyRobotSpeeds()
+              .withDriveRequestType(request.DriveRequestType)
+              .withSteerRequestType(request.SteerRequestType)
+              .withCenterOfRotation(request.CenterOfRotation)
+              .withDesaturateWheelSpeeds(request.DesaturateWheelSpeeds)
+              .withSpeeds(ChassisSpeeds(vx, vy, omega).chassisSpeedsWPILIB)
+//            newRequest =
+//              request
+//                .withVelocityX(vx.inMetersPerSecond * state.Pose.rotation.cos - vy.inMetersPerSecond * state.Pose.rotation.sin)
+//                .withVelocityY(vx.inMetersPerSecond * state.Pose.rotation.sin + vy.inMetersPerSecond * state.Pose.rotation.cos)
+//                .withRotationalRate(omega.inRadiansPerSecond)
           }
           else -> newRequest = request // unreachable
         }

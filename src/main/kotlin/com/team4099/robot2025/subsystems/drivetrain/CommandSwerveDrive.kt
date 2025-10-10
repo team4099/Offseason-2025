@@ -5,7 +5,12 @@ import com.ctre.phoenix6.Utils
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants
 import com.ctre.phoenix6.swerve.SwerveModuleConstants
 import com.ctre.phoenix6.swerve.SwerveRequest
+import com.ctre.phoenix6.swerve.SwerveRequest.ApplyFieldSpeeds
+import com.ctre.phoenix6.swerve.SwerveRequest.ApplyRobotSpeeds
+import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentric
+import com.ctre.phoenix6.swerve.SwerveRequest.RobotCentric
 import com.team4099.robot2025.config.constants.Constants
+import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.subsystems.drivetrain.TunerConstants.TunerSwerveDrivetrain
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.math.Matrix
@@ -25,7 +30,16 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Subsystem
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism
+import org.team4099.lib.geometry.Transform2d
+import org.team4099.lib.geometry.Translation2d
+import org.team4099.lib.geometry.Twist2d
+import org.team4099.lib.kinematics.ChassisSpeeds
 import org.team4099.lib.units.base.inSeconds
+import org.team4099.lib.units.base.meters
+import org.team4099.lib.units.derived.radians
+import org.team4099.lib.units.inMetersPerSecond
+import org.team4099.lib.units.inRadiansPerSecond
+import org.team4099.lib.units.perSecond
 import java.util.function.Consumer
 import java.util.function.Supplier
 
@@ -300,6 +314,132 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
     super.addVisionMeasurement(
       visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds), visionMeasurementStdDevs
     )
+  }
+
+  /**
+   * function to interrupt control requests to check for minimize skew
+   *
+   * @param request the original swerve request
+   */
+  override fun setControl(request: SwerveRequest?) {
+    if (!DrivetrainConstants.MINIMIZE_SKEW ||
+      request == null ||
+      !(
+        request is ApplyFieldSpeeds ||
+          request is ApplyRobotSpeeds ||
+          request is FieldCentric ||
+          request is RobotCentric
+        )
+    )
+      return super.setControl(request)
+
+    when (request) {
+      is ApplyFieldSpeeds, is ApplyRobotSpeeds -> {
+        val desiredChassisSpeeds =
+          when (request) {
+            is ApplyFieldSpeeds -> ChassisSpeeds(request.Speeds)
+            is ApplyRobotSpeeds -> ChassisSpeeds(request.Speeds)
+            else -> ChassisSpeeds() // unreachable
+          }
+
+        val velocityTransform =
+          Transform2d(
+            Translation2d(
+              Constants.Universal.LOOP_PERIOD_TIME * desiredChassisSpeeds.vx,
+              Constants.Universal.LOOP_PERIOD_TIME * desiredChassisSpeeds.vy
+            ),
+            Constants.Universal.LOOP_PERIOD_TIME * desiredChassisSpeeds.omega
+          )
+
+        val twistToNextPose: Twist2d = velocityTransform.log()
+
+        super.setControl(
+          when (request) {
+            is ApplyFieldSpeeds ->
+              request.withSpeeds(
+                ChassisSpeeds(
+                  (twistToNextPose.dx / Constants.Universal.LOOP_PERIOD_TIME),
+                  (twistToNextPose.dy / Constants.Universal.LOOP_PERIOD_TIME),
+                  (twistToNextPose.dtheta / Constants.Universal.LOOP_PERIOD_TIME)
+                )
+                  .chassisSpeedsWPILIB
+              )
+            is ApplyRobotSpeeds ->
+              request.withSpeeds(
+                ChassisSpeeds(
+                  (twistToNextPose.dx / Constants.Universal.LOOP_PERIOD_TIME),
+                  (twistToNextPose.dy / Constants.Universal.LOOP_PERIOD_TIME),
+                  (twistToNextPose.dtheta / Constants.Universal.LOOP_PERIOD_TIME)
+                )
+                  .chassisSpeedsWPILIB
+              )
+            else -> request // unreachable
+          }
+        )
+      }
+      is RobotCentric, is FieldCentric -> {
+        val desiredChassisSpeeds =
+          when (request) {
+            is RobotCentric ->
+              ChassisSpeeds(
+                request.VelocityX.meters.perSecond,
+                request.VelocityY.meters.perSecond,
+                request.RotationalRate.radians.perSecond
+              )
+            is FieldCentric ->
+              ChassisSpeeds.fromFieldRelativeSpeeds(
+                request.VelocityX.meters.perSecond,
+                request.VelocityY.meters.perSecond,
+                request.RotationalRate.radians.perSecond,
+                state.Pose.rotation.radians.radians
+              )
+            else -> ChassisSpeeds() // unreachable
+          }
+
+        val velocityTransform =
+          Transform2d(
+            Translation2d(
+              Constants.Universal.LOOP_PERIOD_TIME * desiredChassisSpeeds.vx,
+              Constants.Universal.LOOP_PERIOD_TIME * desiredChassisSpeeds.vy
+            ),
+            Constants.Universal.LOOP_PERIOD_TIME * desiredChassisSpeeds.omega
+          )
+
+        val twistToNextPose: Twist2d = velocityTransform.log()
+
+        val vx = (twistToNextPose.dx / Constants.Universal.LOOP_PERIOD_TIME)
+        val vy = (twistToNextPose.dy / Constants.Universal.LOOP_PERIOD_TIME)
+        val omega = (twistToNextPose.dtheta / Constants.Universal.LOOP_PERIOD_TIME)
+
+        val newRequest: SwerveRequest
+
+        when (request) {
+          is RobotCentric ->
+            newRequest = ApplyRobotSpeeds()
+              .withDriveRequestType(request.DriveRequestType)
+              .withSteerRequestType(request.SteerRequestType)
+              .withCenterOfRotation(request.CenterOfRotation)
+              .withDesaturateWheelSpeeds(request.DesaturateWheelSpeeds)
+              .withSpeeds(ChassisSpeeds(vx, vy, omega).chassisSpeedsWPILIB)
+          is FieldCentric -> {
+            newRequest = ApplyRobotSpeeds()
+              .withDriveRequestType(request.DriveRequestType)
+              .withSteerRequestType(request.SteerRequestType)
+              .withCenterOfRotation(request.CenterOfRotation)
+              .withDesaturateWheelSpeeds(request.DesaturateWheelSpeeds)
+              .withSpeeds(ChassisSpeeds(vx, vy, omega).chassisSpeedsWPILIB)
+//            newRequest =
+//              request
+//                .withVelocityX(vx.inMetersPerSecond * state.Pose.rotation.cos - vy.inMetersPerSecond * state.Pose.rotation.sin)
+//                .withVelocityY(vx.inMetersPerSecond * state.Pose.rotation.sin + vy.inMetersPerSecond * state.Pose.rotation.cos)
+//                .withRotationalRate(omega.inRadiansPerSecond)
+          }
+          else -> newRequest = request // unreachable
+        }
+
+        super.setControl(newRequest)
+      }
+    }
   }
 
   companion object {

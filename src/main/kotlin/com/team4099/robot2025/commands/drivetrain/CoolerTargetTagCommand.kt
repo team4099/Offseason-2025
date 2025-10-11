@@ -41,7 +41,7 @@ class CoolerTargetTagCommand(
   private val drivetrain: CommandSwerveDrive,
   private val vision: Vision,
   private val xTargetOffset: Length =
-    DrivetrainConstants.DRIVETRAIN_LENGTH / 2 + DrivetrainConstants.BUMPER_WIDTH + 1.inches,
+    DrivetrainConstants.DRIVETRAIN_LENGTH / 2 + DrivetrainConstants.BUMPER_WIDTH + 0.25.inches,
   private val yTargetOffset: Length = 0.0.inches,
   private val thetaTargetOffset: Angle = 0.0.radians,
 ) : Command() {
@@ -208,7 +208,7 @@ class CoolerTargetTagCommand(
 //      yPID.reset()
     }
 
-    if (hasThetaAligned || thetaPID.error.absoluteValue < 2.056.degrees) {
+    if (hasThetaAligned || thetaPID.error.absoluteValue < 4.49.degrees) {
       hasThetaAligned = true
 
       drivetrain.setControl(

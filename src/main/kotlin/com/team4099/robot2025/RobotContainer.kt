@@ -19,7 +19,7 @@ import com.team4099.robot2025.subsystems.climber.Climber
 import com.team4099.robot2025.subsystems.climber.ClimberIO
 import com.team4099.robot2025.subsystems.climber.ClimberIOSim
 import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
-import com.team4099.robot2025.subsystems.drivetrain.TunerConstants
+import com.team4099.robot2025.subsystems.drivetrain.generated.TunerConstants
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOSim
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOTalon

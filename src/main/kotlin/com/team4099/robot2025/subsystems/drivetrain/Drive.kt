@@ -208,6 +208,8 @@ class Drive(
 
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && RobotBase.isReal())
+
+    Logger.recordOutput("Odometry/Robot", pose.pose2d)
   }
 
   /**

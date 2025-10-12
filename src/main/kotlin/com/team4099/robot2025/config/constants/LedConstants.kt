@@ -11,7 +11,7 @@ object LedConstants {
   const val END_INDEX = 399
 
   enum class CandleState(val request: ControlRequest) {
-    NOTHING(EmptyAnimation(0)),
-    HAS_CORAL(SolidColor(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kCoral)))
+    NOTHING(SolidColor(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kGhostWhite))),
+    HAS_CORAL(SolidColor(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kPurple)))
   }
 }

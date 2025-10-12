@@ -43,11 +43,11 @@ import com.team4099.robot2025.util.driver.Jessika
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
-import java.util.function.Supplier
 import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.derived.Angle
+import java.util.function.Supplier
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersIOSim
 
@@ -107,7 +107,7 @@ object RobotContainer {
       intake = Intake(IntakeIOSim)
       indexer = Indexer(IndexerIOSim)
       canrange = CANRange(object : CANRangeIO {})
-      led = Led(object: LedIO {}, { null }, { ControlBoard.test.asBoolean })
+      led = Led(object : LedIO {}, { null }, { ControlBoard.test.asBoolean })
 
       vision = Vision(object : CameraIO {})
     }

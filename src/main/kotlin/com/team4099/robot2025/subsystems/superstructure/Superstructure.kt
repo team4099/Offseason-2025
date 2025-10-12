@@ -156,8 +156,7 @@ class Superstructure(
     val ledStartTime = Clock.realTimestamp
     led.periodic()
     CustomLogger.recordOutput(
-      "LoggedRobot/Subsystems/ledLoopTimeMS",
-      (Clock.realTimestamp - ledStartTime).inMilliseconds
+      "LoggedRobot/Subsystems/ledLoopTimeMS", (Clock.realTimestamp - ledStartTime).inMilliseconds
     )
 
     /** 0 - first stage 1 - carriage 2 - intake pivot 3 - arm 4 - climb pivot */

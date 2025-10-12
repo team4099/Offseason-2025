@@ -19,10 +19,15 @@ import org.littletonrobotics.junction.inputs.LoggableInputs
 import org.team4099.lib.units.AngularVelocity
 import org.team4099.lib.units.base.Current
 import org.team4099.lib.units.base.amps
+import org.team4099.lib.units.base.inAmperes
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.ElectricalPotential
+import org.team4099.lib.units.derived.degrees
+import org.team4099.lib.units.derived.inDegrees
+import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.derived.volts
+import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.perSecond
 
 interface ModuleIO {
@@ -47,11 +52,67 @@ interface ModuleIO {
     var odometryTurnPositions: Array<Angle> = arrayOf()
 
     override fun toLog(table: LogTable?) {
-      TODO("Not yet implemented")
+      table?.put("driveConnected", driveConnected)
+      table?.put("drivePositionDegrees", drivePosition.inDegrees)
+      table?.put("driveVelocityDegPerSec", driveVelocity.inDegreesPerSecond)
+      table?.put("driveAppliedVoltage", driveAppliedVoltage.inVolts)
+      table?.put("driveCurrent", driveCurrent.inAmperes)
+
+      table?.put("turnConnected", turnConnected)
+      table?.put("turnEncoderConnected", turnEncoderConnected)
+      table?.put("turnAbsolutePositionDegrees", turnAbsolutePosition.inDegrees)
+      table?.put("turnPositionDegrees", turnPosition.inDegrees)
+      table?.put("turnVelocityDegPerSec", turnVelocity.inDegreesPerSecond)
+      table?.put("turnAppliedVoltage", turnAppliedVoltage.inVolts)
+      table?.put("turnCurrent", turnCurrent.inAmperes)
+
+      table?.put("odometryTimestamps", odometryTimestamps)
+      table?.put("odometryDrivePositionsDegrees", odometryDrivePositions.map { angle: Angle -> angle.inDegrees }.toDoubleArray())
+      table?.put("odometryTurnPositionsDegrees", odometryTurnPositions.map { angle: Angle -> angle.inDegrees }.toDoubleArray())
     }
 
     override fun fromLog(table: LogTable?) {
-      TODO("Not yet implemented")
+      table?.get("driveConnected", driveConnected)?.let { driveConnected = it }
+      table?.get("drivePositionDegrees", drivePosition.inDegrees)?.let {
+        drivePosition = it.degrees
+      }
+      table?.get("driveVelocityDegPerSec", driveVelocity.inDegreesPerSecond)?.let {
+        driveVelocity = it.degrees.perSecond
+      }
+      table?.get("driveAppliedVoltage", driveAppliedVoltage.inVolts)?.let {
+        driveAppliedVoltage = it.volts
+      }
+      table?.get("driveCurrent", driveCurrent.inAmperes)?.let {
+        driveCurrent = it.amps
+      }
+
+      table?.get("turnConnected", turnConnected)?.let { turnConnected = it }
+      table?.get("turnEncoderConnected", turnEncoderConnected)?.let { turnEncoderConnected = it }
+      table?.get("turnAbsolutePositionDegrees", turnAbsolutePosition.inDegrees)?.let {
+        turnAbsolutePosition = it.degrees
+      }
+      table?.get("turnPositionDegrees", turnPosition.inDegrees)?.let {
+        turnPosition = it.degrees
+      }
+      table?.get("turnVelocityDegPerSec", turnVelocity.inDegreesPerSecond)?.let {
+        turnVelocity = it.degrees.perSecond
+      }
+      table?.get("turnAppliedVoltage", turnAppliedVoltage.inVolts)?.let {
+        turnAppliedVoltage = it.volts
+      }
+      table?.get("turnCurrent", turnCurrent.inAmperes)?.let {
+        turnCurrent = it.amps
+      }
+
+      table?.get("odometryTimestamps", odometryTimestamps)?.let {
+        odometryTimestamps = it
+      }
+      table?.get("odometryDrivePositionsDegrees", odometryDrivePositions.map { angle: Angle -> angle.inDegrees }.toDoubleArray())?.let {
+        odometryDrivePositions = it.map { angleDegrees: Double -> angleDegrees.degrees }.toTypedArray()
+      }
+      table?.get("odometryTurnPositionDegrees", odometryTurnPositions.map { angle: Angle -> angle.inDegrees }.toDoubleArray())?.let {
+        odometryTurnPositions = it.map { angleDegrees: Double -> angleDegrees.degrees }.toTypedArray()
+      }
     }
   }
 

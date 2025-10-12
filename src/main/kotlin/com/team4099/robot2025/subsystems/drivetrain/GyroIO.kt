@@ -17,7 +17,10 @@ import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 import org.team4099.lib.units.AngularVelocity
 import org.team4099.lib.units.derived.Angle
+import org.team4099.lib.units.derived.degrees
+import org.team4099.lib.units.derived.inDegrees
 import org.team4099.lib.units.derived.radians
+import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.perSecond
 
 interface GyroIO {
@@ -30,11 +33,29 @@ interface GyroIO {
     var odometryYawPositions: Array<Angle> = arrayOf()
 
     override fun toLog(table: LogTable?) {
-      TODO("Not yet implemented")
+      table?.put("connected", connected)
+      table?.put("yawPositionDegrees", yawPosition.inDegrees)
+      table?.put("yawVelocityDegPerSec", yawVelocity.inDegreesPerSecond)
+
+      table?.put("odometryYawTimestamps", odometryYawTimestamps)
+      table?.put("odometryYawPoisitionsDegrees", odometryYawPositions.map { angle: Angle -> angle.inDegrees}.toDoubleArray())
     }
 
     override fun fromLog(table: LogTable?) {
-      TODO("Not yet implemented")
+      table?.get("connected", connected)?.let { connected = it }
+      table?.get("yawPositionDegrees", yawPosition.inDegrees)?.let {
+        yawPosition = it.degrees
+      }
+      table?.get("yawVelocity", yawVelocity.inDegreesPerSecond)?.let {
+        yawVelocity = it.degrees.perSecond
+      }
+
+      table?.get("odometryYawTimestamps", odometryYawTimestamps)?.let {
+        odometryYawTimestamps = it
+      }
+      table?.get("odometryYawPositionDegrees", odometryYawPositions.map { angle: Angle -> angle.inDegrees}.toDoubleArray())?.let {
+        odometryYawPositions = it.map { angleDegrees: Double -> angleDegrees.degrees }.toTypedArray()
+      }
     }
   }
 

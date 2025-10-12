@@ -50,9 +50,9 @@ import java.util.Queue
 class ModuleIOTalonFX(private val constants: SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>) :
   ModuleIO {
   // Hardware objects
-  private val driveTalon: TalonFX
-  private val turnTalon: TalonFX
-  private val cancoder: CANcoder
+  private val driveTalon: TalonFX = TalonFX(constants.DriveMotorId, TunerConstants.CTREDrivetrainConstants.CANBusName)
+  private val turnTalon: TalonFX = TalonFX(constants.SteerMotorId, TunerConstants.CTREDrivetrainConstants.CANBusName)
+  private val cancoder: CANcoder = CANcoder(constants.EncoderId, TunerConstants.CTREDrivetrainConstants.CANBusName)
 
   // Voltage control requests
   private val voltageRequest = VoltageOut(0.0)
@@ -88,10 +88,6 @@ class ModuleIOTalonFX(private val constants: SwerveModuleConstants<TalonFXConfig
   private val turnEncoderConnectedDebounce: Debouncer = Debouncer(0.5)
 
   init {
-    driveTalon = TalonFX(constants.DriveMotorId, TunerConstants.CTREDrivetrainConstants.CANBusName)
-    turnTalon = TalonFX(constants.SteerMotorId, TunerConstants.CTREDrivetrainConstants.CANBusName)
-    cancoder = CANcoder(constants.EncoderId, TunerConstants.CTREDrivetrainConstants.CANBusName)
-
     // Configure drive motor
     val driveConfig = constants.DriveMotorInitialConfigs
     driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake

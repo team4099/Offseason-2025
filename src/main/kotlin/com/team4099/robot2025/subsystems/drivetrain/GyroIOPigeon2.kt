@@ -22,10 +22,7 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.AngularVelocity
-import java.util.*
-import java.util.function.Function
-import java.util.function.IntFunction
-import java.util.function.ToDoubleFunction
+import java.util.Queue
 
 /** IO implementation for Pigeon 2.  */
 class GyroIOPigeon2 : GyroIO {
@@ -54,7 +51,7 @@ class GyroIOPigeon2 : GyroIO {
     inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.valueAsDouble)
 
     inputs.odometryYawTimestamps =
-      yawTimestampQueue.stream().mapToDouble(ToDoubleFunction<Double> { value: Double -> value }).toArray()
+      yawTimestampQueue.stream().mapToDouble { value: Double -> value }.toArray()
     inputs.odometryYawPositions =
       yawPositionQueue.stream()
         .map { value: Double -> Rotation2d.fromDegrees(value) }

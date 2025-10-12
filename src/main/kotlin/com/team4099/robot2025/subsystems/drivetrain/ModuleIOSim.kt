@@ -15,6 +15,8 @@ package com.team4099.robot2025.subsystems.drivetrain
 import com.ctre.phoenix6.configs.CANcoderConfiguration
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.swerve.SwerveModuleConstants
+import com.team4099.robot2025.config.constants.Constants
+import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.subsystems.drivetrain.ModuleIO.ModuleIOInputs
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.PIDController
@@ -24,6 +26,15 @@ import edu.wpi.first.math.system.plant.LinearSystemId
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.simulation.DCMotorSim
+import org.team4099.lib.units.base.inSeconds
+import org.team4099.lib.units.derived.inVolts
+import org.team4099.lib.units.derived.inVoltsPerMeterPerSecond
+import org.team4099.lib.units.derived.inVoltsPerMeters
+import org.team4099.lib.units.derived.inVoltsPerMetersPerSecond
+import org.team4099.lib.units.derived.inVoltsPerMetersPerSecondPerSecond
+import org.team4099.lib.units.derived.inVoltsPerRadian
+import org.team4099.lib.units.derived.inVoltsPerRadianPerSecond
+import org.team4099.lib.units.derived.inVoltsPerRadianSeconds
 import kotlin.math.abs
 import kotlin.math.sign
 
@@ -33,34 +44,29 @@ import kotlin.math.sign
  */
 class ModuleIOSim(constants: SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>) :
   ModuleIO {
-  private val driveSim: DCMotorSim
-  private val turnSim: DCMotorSim
+  // Create drive and turn sim models
+  private val driveSim: DCMotorSim = DCMotorSim(
+    LinearSystemId.createDCMotorSystem(
+      DRIVE_GEARBOX, constants.DriveInertia, constants.DriveMotorGearRatio
+    ),
+    DRIVE_GEARBOX
+  )
+  private val turnSim: DCMotorSim = DCMotorSim(
+    LinearSystemId.createDCMotorSystem(
+      TURN_GEARBOX, constants.SteerInertia, constants.SteerMotorGearRatio
+    ),
+    TURN_GEARBOX
+  )
 
   private var driveClosedLoop = false
   private var turnClosedLoop = false
-  private val driveController = PIDController(DRIVE_KP, 0.0, DRIVE_KD)
-  private val turnController = PIDController(TURN_KP, 0.0, TURN_KD)
+  private val driveController = PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD)
+  private val turnController = PIDController(TURN_KP, TURN_KI, TURN_KD)
   private var driveFFVolts = 0.0
   private var driveAppliedVolts = 0.0
   private var turnAppliedVolts = 0.0
 
   init {
-    // Create drive and turn sim models
-    driveSim =
-      DCMotorSim(
-        LinearSystemId.createDCMotorSystem(
-          DRIVE_GEARBOX, constants.DriveInertia, constants.DriveMotorGearRatio
-        ),
-        DRIVE_GEARBOX
-      )
-    turnSim =
-      DCMotorSim(
-        LinearSystemId.createDCMotorSystem(
-          TURN_GEARBOX, constants.SteerInertia, constants.SteerMotorGearRatio
-        ),
-        TURN_GEARBOX
-      )
-
     // Enable wrapping for turn PID
     turnController.enableContinuousInput(-Math.PI, Math.PI)
   }
@@ -80,10 +86,10 @@ class ModuleIOSim(constants: SwerveModuleConstants<TalonFXConfiguration?, TalonF
     }
 
     // Update simulation state
-    driveSim.inputVoltage = MathUtil.clamp(driveAppliedVolts, -12.0, 12.0)
-    turnSim.inputVoltage = MathUtil.clamp(turnAppliedVolts, -12.0, 12.0)
-    driveSim.update(0.02)
-    turnSim.update(0.02)
+    driveSim.inputVoltage = MathUtil.clamp(driveAppliedVolts, -DrivetrainConstants.DRIVE_COMPENSATION_VOLTAGE.inVolts, DrivetrainConstants.DRIVE_COMPENSATION_VOLTAGE.inVolts)
+    turnSim.inputVoltage = MathUtil.clamp(turnAppliedVolts, -DrivetrainConstants.STEERING_COMPENSATION_VOLTAGE.inVolts, DrivetrainConstants.STEERING_COMPENSATION_VOLTAGE.inVolts)
+    driveSim.update(Constants.Universal.LOOP_PERIOD_TIME.inSeconds)
+    turnSim.update(Constants.Universal.LOOP_PERIOD_TIME.inSeconds)
 
     // Update drive inputs
     inputs.driveConnected = true
@@ -130,13 +136,14 @@ class ModuleIOSim(constants: SwerveModuleConstants<TalonFXConfiguration?, TalonF
 
   companion object {
     // TunerConstants doesn't support separate sim constants, so they are declared locally
-    private const val DRIVE_KP = 0.05
-    private const val DRIVE_KD = 0.0
-    private const val DRIVE_KS = 0.0
-    private const val DRIVE_KV_ROT = 0.91035 // Same units as TunerConstants: (volt * secs) / rotation
-    private val DRIVE_KV = 1.0 / Units.rotationsToRadians(1.0 / DRIVE_KV_ROT)
-    private const val TURN_KP = 8.0
-    private const val TURN_KD = 0.0
+    private val DRIVE_KP = DrivetrainConstants.PID.SIM_DRIVE_KP.inVoltsPerMetersPerSecond
+    private val DRIVE_KI = DrivetrainConstants.PID.SIM_DRIVE_KI.inVoltsPerMeters
+    private val DRIVE_KD = DrivetrainConstants.PID.SIM_DRIVE_KD.inVoltsPerMetersPerSecondPerSecond
+    private val DRIVE_KS = DrivetrainConstants.PID.SIM_DRIVE_KS.inVolts
+    private val DRIVE_KV = DrivetrainConstants.PID.SIM_DRIVE_KV.inVoltsPerMeterPerSecond
+    private val TURN_KP = DrivetrainConstants.PID.SIM_STEERING_KP.inVoltsPerRadian
+    private val TURN_KI = DrivetrainConstants.PID.SIM_STEERING_KI.inVoltsPerRadianSeconds
+    private val TURN_KD = DrivetrainConstants.PID.SIM_STEERING_KD.inVoltsPerRadianPerSecond
     private val DRIVE_GEARBOX: DCMotor = DCMotor.getKrakenX60Foc(1)
     private val TURN_GEARBOX: DCMotor = DCMotor.getKrakenX60Foc(1)
   }

@@ -20,6 +20,8 @@ import com.pathplanner.lib.config.RobotConfig
 import com.pathplanner.lib.controllers.PPHolonomicDriveController
 import com.pathplanner.lib.pathfinding.Pathfinding
 import com.pathplanner.lib.util.PathPlannerLogging
+import com.team4099.robot2025.config.constants.Constants
+import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.subsystems.drivetrain.generated.TunerConstants
 import edu.wpi.first.hal.FRCNetComm
 import edu.wpi.first.hal.HAL
@@ -48,12 +50,18 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.util.LocalADStarAK
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
-import java.util.function.BooleanSupplier
 import java.util.function.Consumer
 import kotlin.math.hypot
 import kotlin.math.max
 import org.littletonrobotics.junction.AutoLogOutput
 import org.littletonrobotics.junction.Logger
+import org.team4099.lib.units.base.inSeconds
+import org.team4099.lib.units.derived.inMetersPerSecondPerMeterPerSecond
+import org.team4099.lib.units.derived.inMetersPerSecondPerMeterSeconds
+import org.team4099.lib.units.derived.inMetersPerSecondPerMetersPerSecond
+import org.team4099.lib.units.derived.inRadiansPerSecondPerRadian
+import org.team4099.lib.units.derived.inRadiansPerSecondPerRadianSeconds
+import org.team4099.lib.units.derived.inRadiansPerSecondPerRadiansPerSecond
 import org.team4099.lib.units.inMetersPerSecond
 
 class Drive(
@@ -71,7 +79,7 @@ class Drive(
   private val kinematics: SwerveDriveKinematics = SwerveDriveKinematics(*moduleTranslations)
   private var rawGyroRotation: Rotation2d = Rotation2d()
   private val lastModulePositions: Array<SwerveModulePosition?> =  // For delta tracking
-    arrayOf<SwerveModulePosition?>(
+    arrayOf(
       SwerveModulePosition(),
       SwerveModulePosition(),
       SwerveModulePosition(),
@@ -99,19 +107,26 @@ class Drive(
       { this.chassisSpeeds },
       { speeds: ChassisSpeeds? -> this.runVelocity(speeds) },
       PPHolonomicDriveController(
-        PIDConstants(5.0, 0.0, 0.0), PIDConstants(5.0, 0.0, 0.0)
+        PIDConstants(
+          DrivetrainConstants.PID.AUTO_POS_KD.inMetersPerSecondPerMetersPerSecond,
+          DrivetrainConstants.PID.AUTO_POS_KI.inMetersPerSecondPerMeterSeconds,
+          DrivetrainConstants.PID.AUTO_POS_KD.inMetersPerSecondPerMeterPerSecond
+        ), PIDConstants(
+          DrivetrainConstants.PID.AUTO_THETA_PID_KP.inRadiansPerSecondPerRadian,
+          DrivetrainConstants.PID.AUTO_THETA_PID_KD.inRadiansPerSecondPerRadiansPerSecond,
+          DrivetrainConstants.PID.AUTO_THETA_PID_KI.inRadiansPerSecondPerRadianSeconds
+        )
       ),
       PP_CONFIG,
-      BooleanSupplier { DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red },
+      { DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red },
       this
     )
     Pathfinding.setPathfinder(LocalADStarAK())
-    PathPlannerLogging.setLogActivePathCallback(
-      Consumer<List<Pose2d>> { activePath: List<Pose2d> ->
-        Logger.recordOutput(
-          "Odometry/Trajectory", *activePath.toTypedArray<Pose2d>()
-        )
-      })
+    PathPlannerLogging.setLogActivePathCallback { activePath: List<Pose2d> ->
+      Logger.recordOutput(
+        "Odometry/Trajectory", *activePath.toTypedArray<Pose2d>()
+      )
+    }
     PathPlannerLogging.setLogTargetPoseCallback(
       Consumer<Pose2d> { targetPose: Pose2d ->
         Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose)
@@ -202,12 +217,12 @@ class Drive(
    */
   fun runVelocity(speeds: ChassisSpeeds?) {
     // Calculate module setpoints
-    val discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02)
+    val discreteSpeeds = ChassisSpeeds.discretize(speeds, Constants.Universal.LOOP_PERIOD_TIME.inSeconds)
     val setpointStates: Array<SwerveModuleState> = kinematics.toSwerveModuleStates(discreteSpeeds)
     SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts.inMetersPerSecond)
 
     // Log unoptimized setpoints and setpoint speeds
-    Logger.recordOutput<SwerveModuleState>("SwerveStates/Setpoints", *setpointStates)
+    Logger.recordOutput("SwerveStates/Setpoints", *setpointStates)
     Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds)
 
     // Send setpoints to modules
@@ -216,7 +231,7 @@ class Drive(
     }
 
     // Log optimized setpoints (runSetpoint mutates each state)
-    Logger.recordOutput<SwerveModuleState>("SwerveStates/SetpointsOptimized", *setpointStates)
+    Logger.recordOutput("SwerveStates/SetpointsOptimized", *setpointStates)
   }
 
   /** Runs the drive in a straight line with the specified drive output.  */
@@ -351,6 +366,7 @@ class Drive(
     )
 
     // PathPlanner config constants
+    // todo use vars for the following (i think they're on diff branch?):
     private const val ROBOT_MASS_KG = 74.088
     private const val ROBOT_MOI = 6.883
     private const val WHEEL_COF = 1.2

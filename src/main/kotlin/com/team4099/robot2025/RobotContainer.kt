@@ -29,6 +29,9 @@ import com.team4099.robot2025.subsystems.indexer.IndexerIOTalon
 import com.team4099.robot2025.subsystems.intake.Intake
 import com.team4099.robot2025.subsystems.intake.IntakeIOSim
 import com.team4099.robot2025.subsystems.intake.IntakeIOTalonFX
+import com.team4099.robot2025.subsystems.led.Led
+import com.team4099.robot2025.subsystems.led.LedIO
+import com.team4099.robot2025.subsystems.led.LedIOCandle
 import com.team4099.robot2025.subsystems.limelight.LimelightVision
 import com.team4099.robot2025.subsystems.limelight.LimelightVisionIO
 import com.team4099.robot2025.subsystems.superstructure.Request
@@ -40,6 +43,7 @@ import com.team4099.robot2025.util.driver.Jessika
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
+import java.util.function.Supplier
 import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.base.inches
@@ -58,6 +62,7 @@ object RobotContainer {
   private val intake: Intake
   private val indexer: Indexer
   private val canrange: CANRange
+  private val led: Led
   val superstructure: Superstructure
 
   val driverRumbleState
@@ -76,6 +81,7 @@ object RobotContainer {
       intake = Intake(IntakeIOTalonFX)
       indexer = Indexer(IndexerIOTalon)
       canrange = CANRange(CANRangeReal)
+      led = Led(LedIOCandle, { null }, { ControlBoard.test.asBoolean })
 
       vision =
         Vision(
@@ -101,6 +107,7 @@ object RobotContainer {
       intake = Intake(IntakeIOSim)
       indexer = Indexer(IndexerIOSim)
       canrange = CANRange(object : CANRangeIO {})
+      led = Led(object: LedIO {}, { null }, { ControlBoard.test.asBoolean })
 
       vision = Vision(object : CameraIO {})
     }
@@ -116,10 +123,13 @@ object RobotContainer {
         climber,
         intake,
         indexer,
-        canrange
+        canrange,
+        led
       )
 
     limelight.poseSupplier = { Pose2d(drivetrain.state.Pose) }
+
+    led.gamePieceArmSupplier = Supplier { superstructure.theoreticalGamePieceArm }
   }
 
   fun mapDefaultCommands() {

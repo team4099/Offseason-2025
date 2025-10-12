@@ -372,7 +372,7 @@ class Superstructure(
             )
           indexer.currentRequest = Request.IndexerRequest.Index(IndexerConstants.INDEX_VOLTAGE / 3)
         } else {
-          if ((Clock.fpgaTime - indexer.lastCoralTriggerTime).inSeconds % 3 > 2.5) {
+          if ((Clock.fpgaTime - indexer.lastCoralTriggerTime).inSeconds % 1.5 > 1) {
             intake.currentRequest = Request.IntakeRequest.OpenLoop(
               IntakeConstants.FORCE_DOWN_VOLTAGE, IntakeConstants.Rollers.EJECT_VOLTAGE
             )
@@ -393,7 +393,8 @@ class Superstructure(
           currentRequest is SuperstructureRequest.Idle
         ) {
           currentRequest = SuperstructureRequest.Idle()
-          nextState = SuperstructureStates.GROUND_INTAKE_CORAL_CLEANUP
+//          nextState = SuperstructureStates.GROUND_INTAKE_CORAL_CLEANUP
+          nextState = SuperstructureStates.IDLE
         }
       }
       SuperstructureStates.GROUND_INTAKE_CORAL_CLEANUP -> {
@@ -416,6 +417,10 @@ class Superstructure(
         }
       }
       SuperstructureStates.INTAKE_CORAL_INTO_ARM -> {
+        intake.currentRequest =
+          Request.IntakeRequest.TargetingPosition(
+            IntakeTunableValues.idlePosition.get(), IntakeTunableValues.idleRollerVoltage.get()
+          )
         arm.currentRequest =
           Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.hardstopIntakeAngle.get())
 
@@ -626,10 +631,6 @@ class Superstructure(
             armRollers.currentRequest =
               ArmRollersRequest.OpenLoop(ArmRollersConstants.OUTTAKE_CORAL_VOLTAGE)
 
-            if (currentRequest is SuperstructureRequest.Idle) {
-              nextState = SuperstructureStates.CLEANUP_SCORE_CORAL
-            }
-
             if (Clock.fpgaTime - lastTransitionTime >=
               ArmRollersConstants.GAMEPIECE_SPITOUT_THRESHOLD
             ) {
@@ -651,9 +652,6 @@ class Superstructure(
                 } - ArmTunableValues.Angles.scoreOffset.get()
               )
 
-            if (currentRequest is SuperstructureRequest.Idle) {
-              nextState = SuperstructureStates.CLEANUP_SCORE_CORAL
-            }
             if (arm.isAtTargetedPosition &&
               Clock.fpgaTime - lastTransitionTime >=
               ArmRollersConstants.GAMEPIECE_SPITOUT_THRESHOLD

@@ -20,7 +20,7 @@ object IndexerConstants {
   // TODO must change
   val IDLE_VOLTAGE = 0.0.volts
   val INDEX_VOLTAGE = 4.5.volts
-  val SPIT_VOLTAGE = (-3.0).volts
+  val SPIT_VOLTAGE = (-.75).volts
 
   val CORAL_CURRENT = 30.0.amps
 }

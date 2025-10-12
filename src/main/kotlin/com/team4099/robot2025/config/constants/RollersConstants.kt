@@ -19,7 +19,7 @@ object RollersConstants {
   val EJECT_VOLTAGE = (-3.0).volts
 
   val IDLE_CORAL_VOLTAGE = 0.5.volts
-  val IDLE_ALGAE_VOLTAGE = 1.0.volts
+  val IDLE_ALGAE_VOLTAGE = 2.volts
 
   val MOMENT_OF_INERTIA = 0.09344594214.grams.meterSquared
 

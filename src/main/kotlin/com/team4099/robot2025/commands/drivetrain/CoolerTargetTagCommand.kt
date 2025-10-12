@@ -146,7 +146,7 @@ class CoolerTargetTagCommand(
 
     xPID.errorTolerance = .25.inches
     yPID.errorTolerance = .25.inches
-    thetaPID.errorTolerance = .75.degrees
+    thetaPID.errorTolerance = .5.degrees
 
     thetaPID.enableContinuousInput(-PI.radians, PI.radians)
 

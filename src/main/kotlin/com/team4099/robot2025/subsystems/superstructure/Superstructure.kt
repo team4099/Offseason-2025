@@ -46,9 +46,10 @@ import com.team4099.robot2025.config.constants.Constants.Universal.GamePiece as 
 import com.team4099.robot2025.config.constants.RollersConstants as ArmRollersConstants
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.superstructure.Request.RollersRequest as ArmRollersRequest
+import com.team4099.robot2025.subsystems.drivetrain.Drive
 
 class Superstructure(
-  private val drivetrain: CommandSwerveDrive,
+  private val drivetrain: Drive,
   private val vision: Vision,
   private val limelight: LimelightVision,
   private val elevator: Elevator,
@@ -187,7 +188,7 @@ class Superstructure(
           0.0.degrees,
           IntakeConstants.ANGLES.INTAKE_ANGLE - intake.inputs.pivotPosition,
           0.0.degrees
-        ) // model starts in intaking position
+        ) // model starts in intaking modulePosition
       )
         .pose3d
     )
@@ -242,11 +243,11 @@ class Superstructure(
     CustomLogger.recordOutput("Superstructure/algaeScoringLevel", algaeScoringLevel)
     CustomLogger.recordOutput("Superstructure/lastPrepLevel", lastPrepLevel)
 
-    if (drivetrain.rotation3d.x.radians > GyroConstants.ANTI_TILT_THRESHOLD_ROLL ||
-      drivetrain.rotation3d.y.radians > GyroConstants.ANTI_TILT_THRESHOLD_PITCH
-    ) {
-      currentRequest = SuperstructureRequest.Idle()
-    }
+//    if (drivetrain.rotation3d.x.radians > GyroConstants.ANTI_TILT_THRESHOLD_ROLL ||
+//      drivetrain.rotation3d.y.radians > GyroConstants.ANTI_TILT_THRESHOLD_PITCH
+//    ) {
+//      currentRequest = SuperstructureRequest.Idle()
+//    }
 
     var nextState = currentState
     when (currentState) {

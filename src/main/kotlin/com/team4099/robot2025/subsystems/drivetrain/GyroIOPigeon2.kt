@@ -18,19 +18,19 @@ import com.ctre.phoenix6.StatusSignal
 import com.ctre.phoenix6.configs.Pigeon2Configuration
 import com.ctre.phoenix6.hardware.Pigeon2
 import com.team4099.robot2025.subsystems.drivetrain.generated.TunerConstants
-import edu.wpi.first.math.geometry.Rotation2d
-import edu.wpi.first.math.util.Units
-import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.AngularVelocity
 import java.util.Queue
+import org.team4099.lib.units.derived.Angle
+import org.team4099.lib.units.derived.degrees
+import org.team4099.lib.units.perSecond
 
 /** IO implementation for Pigeon 2.  */
-class GyroIOPigeon2 : GyroIO {
+object GyroIOPigeon2 : GyroIO {
   private val pigeon: Pigeon2 = Pigeon2(
     TunerConstants.CTREDrivetrainConstants.Pigeon2Id,
     TunerConstants.CTREDrivetrainConstants.CANBusName
   )
-  private val yaw: StatusSignal<Angle> = pigeon.yaw
+  private val yaw: StatusSignal<edu.wpi.first.units.measure.Angle> = pigeon.yaw
   private val yawPositionQueue: Queue<Double>
   private val yawTimestampQueue: Queue<Double>
   private val yawVelocity: StatusSignal<AngularVelocity> = pigeon.angularVelocityZWorld
@@ -47,15 +47,15 @@ class GyroIOPigeon2 : GyroIO {
 
   override fun updateInputs(inputs: GyroIO.GyroIOInputs) {
     inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity) == StatusCode.OK
-    inputs.yawPosition = Rotation2d.fromDegrees(yaw.valueAsDouble)
-    inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.valueAsDouble)
+    inputs.yawPosition = yaw.valueAsDouble.degrees
+    inputs.yawVelocity = yawVelocity.valueAsDouble.degrees.perSecond
 
     inputs.odometryYawTimestamps =
-      yawTimestampQueue.stream().mapToDouble { value: Double -> value }.toArray()
+      yawTimestampQueue.map { value: Double -> value }.toDoubleArray()
     inputs.odometryYawPositions =
-      yawPositionQueue.stream()
-        .map { value: Double -> Rotation2d.fromDegrees(value) }
-        .toArray() as Array<Rotation2d>
+      yawPositionQueue
+        .map { value: Double -> value.degrees }
+        .toTypedArray()
     yawTimestampQueue.clear()
     yawPositionQueue.clear()
   }

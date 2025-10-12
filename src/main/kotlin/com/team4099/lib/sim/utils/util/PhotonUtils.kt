@@ -55,18 +55,18 @@ object PhotonUtils {
   }
 
   /**
-   * Estimates the pose of the robot in the field coordinate system, given the position of the
+   * Estimates the pose of the robot in the field coordinate system, given the modulePosition of the
    * target relative to the camera, the target relative to the field, and the camera relative to the
    * camera.
    *
-   * @param fieldTarget The position of the target in the field.
+   * @param fieldTarget The modulePosition of the target in the field.
    * @param cameraToTarget The transform from the camera to the target.
-   * @param robotToCamera The position of the camera relative to the robot. If the camera was
+   * @param robotToCamera The modulePosition of the camera relative to the robot. If the camera was
    * mounted 3 inches behind and 30 inches above the "origin" (usually bottom-center) of the robot,
    * the translation component would be [-3 inches, 0 inches, 30 inches]. If the camera was pitched
    * up 20 degrees (with "0" pitch being perpendicular to the robot), the rotation component would
    * be [0 degrees, -20 degrees, 0 degrees].
-   * @return The position of the robot in the field.
+   * @return The modulePosition of the robot in the field.
    */
   fun estimateFieldToRobot(
     fieldTarget: Pose3d, cameraToTarget: Transform3d, robotToCamera: Transform3d
@@ -75,29 +75,29 @@ object PhotonUtils {
   }
 
   /**
-   * Estimates the pose of the camera in the field coordinate system, given the position of the
+   * Estimates the pose of the camera in the field coordinate system, given the modulePosition of the
    * target relative to the camera, and the target relative to the field. This only tracks the
-   * position of the camera, not the position of the robot itself.
+   * modulePosition of the camera, not the modulePosition of the robot itself.
    *
-   * @param fieldToTarget The position of the target in the field.
+   * @param fieldToTarget The modulePosition of the target in the field.
    * @param cameraToTarget The transform from the camera to the target.
-   * @return The position of the camera in the field.
+   * @return The modulePosition of the camera in the field.
    */
   fun estimateFieldToCamera(fieldToTarget: Pose3d, cameraToTarget: Transform3d): Pose3d {
     return fieldToTarget.transformBy(cameraToTarget.inverse())
   }
 
   /**
-   * Estimates a [Transform3d] that maps the camera position to the target position, using the
+   * Estimates a [Transform3d] that maps the camera modulePosition to the target modulePosition, using the
    * robot's yaw angle(likely from odometry). Note that this transformation's rotation maps onto the rotation
    * of the target's pose, and any inaccuracies in the given robot angle will heavily alter the
    * robot pose that may be estimated from the target with this transform.
    *
-   * @param cameraToTargetTranslation A Translation3d that describes the [x,y,z] position of the target
+   * @param cameraToTargetTranslation A Translation3d that describes the [x,y,z] modulePosition of the target
    * relative to the camera.
-   * @param fieldToTarget A Pose3d representing the target position in the field coordinate system.
+   * @param fieldToTarget A Pose3d representing the target modulePosition in the field coordinate system.
    * @param robotAngle The current robot yaw angle, likely from odometry.
-   * @param robotToCamera The position of the camera relative to the robot. If the camera was
+   * @param robotToCamera The modulePosition of the camera relative to the robot. If the camera was
    * mounted 3 inches behind and 30 inches above the "origin" (usually bottom-center) of the robot,
    * the translation component would be [-3 inches, 0 inches, 30 inches]. If the camera was pitched
    * up 20 degrees (with "0" pitch being perpendicular to the robot), the rotation component would
@@ -126,7 +126,7 @@ object PhotonUtils {
    * and the target-- as the difference in height shrinks, the inaccuracy grows. Targets which are
    * at the same height as the camera can not be estimated and will return zero.
    *
-   * @param robotToCamera The position of the camera relative to the robot. If the camera was
+   * @param robotToCamera The modulePosition of the camera relative to the robot. If the camera was
    * mounted 3 inches behind and 30 inches above the "origin" (usually bottom-center) of the robot,
    * the translation component would be [-3 inches, 0 inches, 30 inches]. If the camera was pitched
    * up 20 degrees (with "0" pitch being perpendicular to the robot), the rotation component would
@@ -157,7 +157,7 @@ object PhotonUtils {
    * and the target-- as the difference in height shrinks, the inaccuracy grows. Targets which are
    * at the same height as the camera can not be estimated and will return zero.
    *
-   * @param robotToCamera The position of the camera relative to the robot. If the camera was
+   * @param robotToCamera The modulePosition of the camera relative to the robot. If the camera was
    * mounted 3 inches behind and 30 inches above the "origin" (usually bottom-center) of the robot,
    * the translation component would be [-3 inches, 0 inches, 30 inches]. If the camera was pitched
    * up 20 degrees (with "0" pitch being perpendicular to the robot), the rotation component would
@@ -194,7 +194,7 @@ object PhotonUtils {
    * @param robotPoseRot The 3d rotation of the robot, likely from a gyro or accelerometer.
    * This is also usually zero [0, 0, 0]. The yaw of this rotation does not matter,
    * only the roll and pitch.
-   * @param robotToCamera The position of the camera relative to the robot. If the camera was
+   * @param robotToCamera The modulePosition of the camera relative to the robot. If the camera was
    * mounted 3 inches behind and 30 inches above the "origin" (usually bottom-center) of the robot,
    * the translation component would be [-3 inches, 0 inches, 30 inches]. If the camera was pitched
    * up 20 degrees (with "0" pitch being perpendicular to the robot), the rotation component would

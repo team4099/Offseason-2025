@@ -18,14 +18,15 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.subsystems.drivetrain.ModuleIO.ModuleIOInputs
+import com.team4099.robot2025.subsystems.drivetrain.generated.TunerConstants
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.math.system.plant.LinearSystemId
-import edu.wpi.first.math.util.Units
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.simulation.DCMotorSim
+import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.inVoltsPerMeterPerSecond
@@ -35,7 +36,9 @@ import org.team4099.lib.units.derived.inVoltsPerMetersPerSecondPerSecond
 import org.team4099.lib.units.derived.inVoltsPerRadian
 import org.team4099.lib.units.derived.inVoltsPerRadianPerSecond
 import org.team4099.lib.units.derived.inVoltsPerRadianSeconds
-import kotlin.math.abs
+import org.team4099.lib.units.derived.radians
+import org.team4099.lib.units.derived.volts
+import org.team4099.lib.units.perSecond
 import kotlin.math.sign
 
 /**
@@ -93,23 +96,23 @@ class ModuleIOSim(constants: SwerveModuleConstants<TalonFXConfiguration?, TalonF
 
     // Update drive inputs
     inputs.driveConnected = true
-    inputs.drivePositionRad = driveSim.angularPositionRad
-    inputs.driveVelocityRadPerSec = driveSim.angularVelocityRadPerSec
-    inputs.driveAppliedVolts = driveAppliedVolts
-    inputs.driveCurrentAmps = abs(driveSim.currentDrawAmps)
+    inputs.drivePosition = driveSim.angularPositionRad.radians
+    inputs.driveVelocity = driveSim.angularVelocityRadPerSec.radians.perSecond
+    inputs.driveAppliedVoltage = driveAppliedVolts.volts
+    inputs.driveCurrent = driveSim.currentDrawAmps.amps.absoluteValue
 
     // Update turn inputs
     inputs.turnConnected = true
     inputs.turnEncoderConnected = true
-    inputs.turnAbsolutePosition = Rotation2d(turnSim.angularPositionRad)
-    inputs.turnPosition = Rotation2d(turnSim.angularPositionRad)
-    inputs.turnVelocityRadPerSec = turnSim.angularVelocityRadPerSec
-    inputs.turnAppliedVolts = turnAppliedVolts
-    inputs.turnCurrentAmps = abs(turnSim.currentDrawAmps)
+    inputs.turnAbsolutePosition = turnSim.angularPositionRad.radians
+    inputs.turnPosition = turnSim.angularPositionRad.radians
+    inputs.turnVelocity = turnSim.angularVelocityRadPerSec.radians.perSecond
+    inputs.turnAppliedVoltage = turnAppliedVolts.volts
+    inputs.turnCurrent = turnSim.currentDrawAmps.amps.absoluteValue
 
     // Update odometry inputs (50Hz because high-frequency odometry in sim doesn't matter)
     inputs.odometryTimestamps = doubleArrayOf(Timer.getFPGATimestamp())
-    inputs.odometryDrivePositionsRad = doubleArrayOf(inputs.drivePositionRad)
+    inputs.odometryDrivePositions = arrayOf(inputs.drivePosition)
     inputs.odometryTurnPositions = arrayOf(inputs.turnPosition)
   }
 
@@ -146,5 +149,14 @@ class ModuleIOSim(constants: SwerveModuleConstants<TalonFXConfiguration?, TalonF
     private val TURN_KD = DrivetrainConstants.PID.SIM_STEERING_KD.inVoltsPerRadianPerSecond
     private val DRIVE_GEARBOX: DCMotor = DCMotor.getKrakenX60Foc(1)
     private val TURN_GEARBOX: DCMotor = DCMotor.getKrakenX60Foc(1)
+
+    fun generateModules(): Array<ModuleIO> {
+      return arrayOf(
+        ModuleIOSim(TunerConstants.FrontLeft),
+        ModuleIOSim(TunerConstants.FrontRight),
+        ModuleIOSim(TunerConstants.BackLeft),
+        ModuleIOSim(TunerConstants.BackRight)
+      )
+    }
   }
 }

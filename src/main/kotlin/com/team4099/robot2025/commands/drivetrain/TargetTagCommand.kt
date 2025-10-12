@@ -6,6 +6,7 @@ import com.team4099.lib.hal.Clock
 import com.team4099.lib.logging.LoggedTunableValue
 import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
+import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.CustomLogger
@@ -46,6 +47,7 @@ import org.team4099.lib.units.milli
 import org.team4099.lib.units.perSecond
 import kotlin.math.PI
 import kotlin.math.hypot
+import org.team4099.lib.kinematics.ChassisSpeeds
 
 class TargetTagCommand(
   val driver: DriverProfile,
@@ -53,7 +55,7 @@ class TargetTagCommand(
   val driveY: () -> Double,
   val turn: () -> Double,
   val slowMode: () -> Boolean,
-  val drivetrain: CommandSwerveDrive,
+  val drivetrain: Drive,
   val vision: Vision,
   val yTargetOffset: Length = 0.meters,
   val tagTargetID: Int = -1
@@ -264,7 +266,7 @@ class TargetTagCommand(
       visionData.robotTReefTag != Transform2d(Translation2d(0.meters, 0.meters), 0.degrees)
     ) {
 
-      var robotRotation = drivetrain.state.Pose.rotation.degrees.degrees
+      var robotRotation = drivetrain.pose.rotation
       var flippedRotation = -robotRotation
       var appliedRotation = flippedRotation
       //        if ((tagTargetID == 21 || tagTargetID == 7) && robotRotation < 0.degrees)
@@ -280,7 +282,7 @@ class TargetTagCommand(
       Logger.recordOutput("TagAlign/tagID", tagTargetID)
 
       CustomLogger.recordOutput(
-        "TagAlignment/CurrentDrivetrainRotation", drivetrain.state.Pose.rotation.degrees
+        "TagAlignment/CurrentDrivetrainRotation", drivetrain.pose.rotation.inDegrees
       )
       CustomLogger.recordOutput(
         "TagAlignment/targetAlignmentAngle", visionData.robotTReefTag.rotation.inDegrees
@@ -330,13 +332,14 @@ class TargetTagCommand(
       var autoDriveVector =
         hypot(driveVector.first.inMetersPerSecond, driveVector.second.inMetersPerSecond)
 
-      drivetrain.setControl(
-        requestRobotCentric
-          .withVelocityX(-xFeedBack.inMetersPerSecond)
-          .withVelocityY(-yFeedback.inMetersPerSecond)
-        //            .withRotationalRate(thetaFeedback.inRadiansPerSecond)
-      )
-      //      }
+//      drivetrain.setControl(
+//        requestRobotCentric
+//          .withVelocityX(-xFeedBack.inMetersPerSecond)
+//          .withVelocityY(-yFeedback.inMetersPerSecond)
+//        //            .withRotationalRate(thetaFeedback.inRadiansPerSecond)
+//      )
+
+      drivetrain.runVelocity(ChassisSpeeds(-xFeedBack, -yFeedback, 0.radians.perSecond))
     }
   }
 

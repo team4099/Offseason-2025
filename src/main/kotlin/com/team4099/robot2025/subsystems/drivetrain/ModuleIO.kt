@@ -16,27 +16,35 @@ import edu.wpi.first.math.geometry.Rotation2d
 import org.littletonrobotics.junction.AutoLog
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
+import org.team4099.lib.units.AngularVelocity
+import org.team4099.lib.units.base.Current
+import org.team4099.lib.units.base.amps
+import org.team4099.lib.units.derived.Angle
+import org.team4099.lib.units.derived.ElectricalPotential
+import org.team4099.lib.units.derived.radians
+import org.team4099.lib.units.derived.volts
+import org.team4099.lib.units.perSecond
 
 interface ModuleIO {
   @AutoLog
   class ModuleIOInputs: LoggableInputs {
     var driveConnected: Boolean = false
-    var drivePositionRad: Double = 0.0
-    var driveVelocityRadPerSec: Double = 0.0
-    var driveAppliedVolts: Double = 0.0
-    var driveCurrentAmps: Double = 0.0
+    var drivePosition: Angle = 0.0.radians
+    var driveVelocity: AngularVelocity = 0.0.radians.perSecond
+    var driveAppliedVoltage: ElectricalPotential = 0.0.volts
+    var driveCurrent: Current = 0.0.amps
 
     var turnConnected: Boolean = false
     var turnEncoderConnected: Boolean = false
-    var turnAbsolutePosition: Rotation2d = Rotation2d()
-    var turnPosition: Rotation2d = Rotation2d()
-    var turnVelocityRadPerSec: Double = 0.0
-    var turnAppliedVolts: Double = 0.0
-    var turnCurrentAmps: Double = 0.0
+    var turnAbsolutePosition: Angle = 0.0.radians
+    var turnPosition: Angle = 0.0.radians
+    var turnVelocity: AngularVelocity = 0.0.radians.perSecond
+    var turnAppliedVoltage: ElectricalPotential = 0.0.volts
+    var turnCurrent: Current = 0.0.amps
 
     var odometryTimestamps: DoubleArray = doubleArrayOf()
-    var odometryDrivePositionsRad: DoubleArray = doubleArrayOf()
-    var odometryTurnPositions: Array<Rotation2d> = arrayOf()
+    var odometryDrivePositions: Array<Angle> = arrayOf()
+    var odometryTurnPositions: Array<Angle> = arrayOf()
 
     override fun toLog(table: LogTable?) {
       TODO("Not yet implemented")

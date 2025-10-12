@@ -12,24 +12,22 @@
 // GNU General Public License for more details.
 package com.team4099.robot2025.subsystems.drivetrain
 
-import edu.wpi.first.math.geometry.Rotation2d
 import org.littletonrobotics.junction.AutoLog
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
+import org.team4099.lib.units.AngularVelocity
+import org.team4099.lib.units.derived.Angle
+import org.team4099.lib.units.derived.radians
+import org.team4099.lib.units.perSecond
 
 interface GyroIO {
   @AutoLog
   class GyroIOInputs : LoggableInputs {
-    @JvmField
     var connected: Boolean = false
-    @JvmField
-    var yawPosition: Rotation2d = Rotation2d()
-    @JvmField
-    var yawVelocityRadPerSec: Double = 0.0
-    @JvmField
+    var yawPosition: Angle = 0.0.radians
+    var yawVelocity: AngularVelocity = 0.0.radians.perSecond
     var odometryYawTimestamps: DoubleArray = doubleArrayOf()
-    @JvmField
-    var odometryYawPositions: Array<Rotation2d> = arrayOf()
+    var odometryYawPositions: Array<Angle> = arrayOf()
 
     override fun toLog(table: LogTable?) {
       TODO("Not yet implemented")

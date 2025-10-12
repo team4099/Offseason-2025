@@ -18,9 +18,19 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.kinematics.SwerveModulePosition
 import edu.wpi.first.math.kinematics.SwerveModuleState
-import edu.wpi.first.math.util.Units
 import edu.wpi.first.wpilibj.Alert
 import org.littletonrobotics.junction.Logger
+import org.team4099.lib.units.LinearVelocity
+import org.team4099.lib.units.base.Length
+import org.team4099.lib.units.base.inMeters
+import org.team4099.lib.units.base.meters
+import org.team4099.lib.units.derived.Angle
+import org.team4099.lib.units.derived.inRadians
+import org.team4099.lib.units.derived.inRotation2ds
+import org.team4099.lib.units.inMetersPerSecond
+import org.team4099.lib.units.inRadiansPerSecond
+import org.team4099.lib.units.inRotationsPerSecond
+import org.team4099.lib.units.perSecond
 
 class Module(
   private val io: ModuleIO,
@@ -54,9 +64,9 @@ class Module(
     val sampleCount: Int = inputs.odometryTimestamps.size // All signals are sampled together
     odometryPositions = arrayOfNulls(sampleCount)
     for (i in 0 until sampleCount) {
-      val positionMeters: Double = inputs.odometryDrivePositionsRad[i] * constants.WheelRadius
-      val angle: Rotation2d = inputs.odometryTurnPositions[i]
-      odometryPositions[i] = SwerveModulePosition(positionMeters, angle)
+      val position = (inputs.odometryDrivePositions[i].inRadians * constants.WheelRadius).meters
+      val angle: Angle = inputs.odometryTurnPositions[i]
+      odometryPositions[i] = SwerveModulePosition(position.inMeters, angle.inRotation2ds)
     }
 
     // Update alerts
@@ -68,8 +78,8 @@ class Module(
   /** Runs the module with the specified setpoint state. Mutates the state to optimize it.  */
   fun runSetpoint(state: SwerveModuleState) {
     // Optimize velocity setpoint
-    state.optimize(angle)
-    state.cosineScale(inputs.turnPosition)
+    state.optimize(angle.inRotation2ds)
+    state.cosineScale(inputs.turnPosition.inRotation2ds)
 
     // Apply setpoints
     io.setDriveVelocity(state.speedMetersPerSecond / constants.WheelRadius)
@@ -88,35 +98,35 @@ class Module(
     io.setTurnOpenLoop(0.0)
   }
 
-  val angle: Rotation2d
+  val angle: Angle
     /** Returns the current turn angle of the module.  */
     get() = inputs.turnPosition
 
-  val positionMeters: Double
-    /** Returns the current drive position of the module in meters.  */
-    get() = inputs.drivePositionRad * constants.WheelRadius
+  val position: Length
+    /** Returns the current drive modulePosition of the module in meters.  */
+    get() = (inputs.drivePosition.inRadians * constants.WheelRadius).meters
 
-  val velocityMetersPerSec: Double
+  val velocity: LinearVelocity
     /** Returns the current drive velocity of the module in meters per second.  */
-    get() = inputs.driveVelocityRadPerSec * constants.WheelRadius
+    get() = (inputs.driveVelocity.inRadiansPerSecond * constants.WheelRadius).meters.perSecond
 
-  val position: SwerveModulePosition
-    /** Returns the module position (turn angle and drive position).  */
-    get() = SwerveModulePosition(positionMeters, angle)
+  val modulePosition: SwerveModulePosition
+    /** Returns the module modulePosition (turn angle and drive modulePosition).  */
+    get() = SwerveModulePosition(position.inMeters, angle.inRotation2ds)
 
   val state: SwerveModuleState
     /** Returns the module state (turn angle and drive velocity).  */
-    get() = SwerveModuleState(velocityMetersPerSec, angle)
+    get() = SwerveModuleState(velocity.inMetersPerSecond, angle.inRotation2ds)
 
   val odometryTimestamps: DoubleArray
     /** Returns the timestamps of the samples received this cycle.  */
     get() = inputs.odometryTimestamps
 
   val wheelRadiusCharacterizationPosition: Double
-    /** Returns the module position in radians.  */
-    get() = inputs.drivePositionRad
+    /** Returns the module modulePosition in radians.  */
+    get() = inputs.drivePosition.inRadians
 
   val ffCharacterizationVelocity: Double
     /** Returns the module velocity in rotations/sec (Phoenix native units).  */
-    get() = Units.radiansToRotations(inputs.driveVelocityRadPerSec)
+    get() = inputs.driveVelocity.inRotationsPerSecond
 }

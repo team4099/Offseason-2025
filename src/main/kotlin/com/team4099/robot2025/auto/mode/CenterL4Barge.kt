@@ -10,6 +10,7 @@ import com.team4099.robot2025.config.constants.ArmConstants
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.RollersConstants
 import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
+import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
 import com.team4099.robot2025.subsystems.vision.Vision
@@ -23,7 +24,7 @@ import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.inches
 
 class CenterL4Barge(
-  val drivetrain: CommandSwerveDrive,
+  val drivetrain: Drive,
   val elevator: Elevator,
   val superstructure: Superstructure,
   val vision: Vision

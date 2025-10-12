@@ -5,6 +5,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest
 import com.team4099.lib.math.asPose2d
 import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
+import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj.DriverStation
@@ -28,9 +29,10 @@ import org.team4099.lib.units.inMetersPerSecond
 import org.team4099.lib.units.inRadiansPerSecond
 import org.team4099.lib.units.perSecond
 import kotlin.math.PI
+import org.team4099.lib.kinematics.ChassisSpeeds
 
 class CoolerTargetTagCommand(
-  private val drivetrain: CommandSwerveDrive,
+  private val drivetrain: Drive,
   private val vision: Vision,
   private val xTargetOffset: Length =
     DrivetrainConstants.DRIVETRAIN_LENGTH / 2 + DrivetrainConstants.BUMPER_WIDTH,
@@ -160,14 +162,15 @@ class CoolerTargetTagCommand(
 
     CustomLogger.recordOutput("CoolerTargetTagCommand/isAligned", isAtSetpoint())
 
-    drivetrain.setControl(
-      requestRobotCentric
-        .withVelocityX(xvel.inMetersPerSecond)
-        .withVelocityY(yvel.inMetersPerSecond)
-        .withDeadband(0.2.meters.perSecond.inMetersPerSecond)
-        .withRotationalDeadband(1.0.degrees.perSecond.inRadiansPerSecond)
-        .withRotationalRate(thetavel.inRadiansPerSecond)
-    )
+//    drivetrain.setControl(
+//      requestRobotCentric
+//        .withVelocityX(xvel.inMetersPerSecond)
+//        .withVelocityY(yvel.inMetersPerSecond)
+//        .withDeadband(0.2.meters.perSecond.inMetersPerSecond)
+//        .withRotationalDeadband(1.0.degrees.perSecond.inRadiansPerSecond)
+//        .withRotationalRate(thetavel.inRadiansPerSecond)
+//    )
+    drivetrain.runVelocity(ChassisSpeeds(xvel, yvel, thetavel))
 
     CustomLogger.recordOutput("CoolerTargetTagCommand/isAtSetpoint", isAtSetpoint())
 
@@ -183,9 +186,10 @@ class CoolerTargetTagCommand(
   }
 
   override fun end(interrupted: Boolean) {
-    drivetrain.setControl(
-      requestRobotCentric.withVelocityX(0.0).withVelocityY(0.0).withRotationalRate(0.0)
-    )
+//    drivetrain.setControl(
+//      requestRobotCentric.withVelocityX(0.0).withVelocityY(0.0).withRotationalRate(0.0)
+//    )
+    drivetrain.runVelocity(ChassisSpeeds())
     CustomLogger.recordOutput("ActiveCommands/TargetTagCommand", false)
   }
 }

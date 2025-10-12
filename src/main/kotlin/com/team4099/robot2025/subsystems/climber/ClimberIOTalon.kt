@@ -61,7 +61,7 @@ object ClimberIOTalon : ClimberIO {
     )
 
   private val motionMagicConfig: MotionMagicConfigs = climberConfiguration.MotionMagic
-  // -1337 symbolizes an "uninitialized" position to later be overwritten
+  // -1337 symbolizes an "uninitialized" modulePosition to later be overwritten
   private val motionMagicControl: MotionMagicVoltage = MotionMagicVoltage((-1337).degrees.inDegrees)
   private var pidSlot0Configs: Slot0Configs = climberConfiguration.Slot0
 

@@ -6,10 +6,9 @@ import com.ctre.phoenix6.swerve.SwerveRequest
 import com.team4099.lib.logging.LoggedTunableValue
 import com.team4099.lib.trajectory.CustomHolonomicDriveController
 import com.team4099.robot2025.config.constants.DrivetrainConstants
-import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
+import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.util.AllianceFlipUtil
 import com.team4099.robot2025.util.CustomLogger
-import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import org.team4099.lib.controller.PIDController
@@ -38,9 +37,10 @@ import org.team4099.lib.units.derived.perRadianSeconds
 import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.perSecond
 import kotlin.math.PI
+import org.team4099.lib.kinematics.ChassisSpeeds
 
 class FollowChoreoPath(
-  val drivetrain: CommandSwerveDrive,
+  val drivetrain: Drive,
   val trajectory: Trajectory<SwerveSample>
 ) : Command() {
 
@@ -144,10 +144,11 @@ class FollowChoreoPath(
       //        .asPose2d()
       //        .transformBy(drivetrain.fieldTRobot.asTransform2d())
       //        .pose2d
-      drivetrain.state.Pose
+      drivetrain.pose
 
-    val nextDriveState = swerveDriveController.calculate(poseReference, desiredState)
-    drivetrain.setControl(request.withSpeeds(nextDriveState))
+    val nextDriveState = swerveDriveController.calculate(poseReference.pose2d, desiredState)
+//    drivetrain.setControl(request.withSpeeds(nextDriveState))
+    drivetrain.runVelocity(ChassisSpeeds(nextDriveState))
 
     if (thetakP.hasChanged()) thetaPID.proportionalGain = thetakP.get()
     if (thetakI.hasChanged()) thetaPID.integralGain = thetakI.get()
@@ -174,6 +175,7 @@ class FollowChoreoPath(
   override fun end(interrupted: Boolean) {
     CustomLogger.recordDebugOutput("ActiveCommands/FollowChoreoPath", false)
 
-    drivetrain.setControl(request.withSpeeds(ChassisSpeeds()))
+//    drivetrain.setControl(request.withSpeeds(ChassisSpeeds()))
+    drivetrain.runVelocity(ChassisSpeeds())
   }
 }

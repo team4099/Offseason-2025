@@ -37,7 +37,6 @@ import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.subsystems.vision.camera.CameraIO
 import com.team4099.robot2025.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.util.driver.Jessika
-import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import org.team4099.lib.geometry.Pose2d
@@ -46,9 +45,15 @@ import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.derived.Angle
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersIOSim
+import com.team4099.robot2025.subsystems.drivetrain.Drive
+import com.team4099.robot2025.subsystems.drivetrain.GyroIO
+import com.team4099.robot2025.subsystems.drivetrain.GyroIOPigeon2
+import com.team4099.robot2025.subsystems.drivetrain.ModuleIOSim
+import com.team4099.robot2025.subsystems.drivetrain.ModuleIOTalonFX
+import org.team4099.lib.units.derived.radians
 
 object RobotContainer {
-  private val drivetrain: CommandSwerveDrive = TunerConstants.createDrivetrain()
+  private val drivetrain: Drive
   private val limelight: LimelightVision
   private val vision: Vision
   private val elevator: Elevator
@@ -68,6 +73,7 @@ object RobotContainer {
 
   init {
     if (RobotBase.isReal()) {
+      drivetrain = Drive(GyroIOPigeon2, ModuleIOTalonFX.generateModules())
       limelight = LimelightVision(object : LimelightVisionIO {})
       elevator = Elevator(ElevatorIOTalon)
       arm = Arm(ArmIOTalon)
@@ -83,16 +89,17 @@ object RobotContainer {
             VisionConstants.CAMERA_NAMES[0],
             VisionConstants.CAMERA_TRANSFORMS[0],
             drivetrain::addVisionMeasurement,
-            { drivetrain.state.Pose.rotation }
+            { drivetrain.pose.rotation }
           ),
           CameraIOPhotonvision(
             VisionConstants.CAMERA_NAMES[1],
             VisionConstants.CAMERA_TRANSFORMS[1],
             drivetrain::addVisionMeasurement,
-            { drivetrain.state.Pose.rotation }
+            { drivetrain.pose.rotation }
           ),
         )
     } else {
+      drivetrain = Drive(object: GyroIO {}, ModuleIOSim.generateModules())
       limelight = LimelightVision(object : LimelightVisionIO {})
       elevator = Elevator(ElevatorIOSim)
       arm = Arm(ArmIOSIm)
@@ -119,7 +126,7 @@ object RobotContainer {
         canrange
       )
 
-    limelight.poseSupplier = { Pose2d(drivetrain.state.Pose) }
+    limelight.poseSupplier = { Pose2d(drivetrain.pose.pose2d) }
   }
 
   fun mapDefaultCommands() {
@@ -135,11 +142,11 @@ object RobotContainer {
   }
 
   fun zeroSensors(isInAutonomous: Boolean = false) {
-    drivetrain.resetRotation(Rotation2d())
+    drivetrain.pose = Pose2d(drivetrain.pose.x, drivetrain.pose.y, 0.radians)
   }
 
   fun setDriveBrakeMode(neutralModeValue: NeutralModeValue = NeutralModeValue.Brake) {
-    drivetrain.configNeutralMode(neutralModeValue)
+//    drivetrain.configNeutralMode(neutralModeValue)
   }
 
   fun requestIdle() {

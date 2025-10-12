@@ -135,12 +135,12 @@ class SysIdCommand : Command {
   /**
    * Creates a new DriveTrainSysIdData.
    *
-   * @param leftPosRad Left position (radians)
-   * @param rightPosRad Right position (radians)
+   * @param leftPosRad Left modulePosition (radians)
+   * @param rightPosRad Right modulePosition (radians)
    * @param leftVelRadPerSec Left velocity (radians per second)
    * @param rightVelRadPerSec Right velocity (radians per second)
-   * @param gyroPosRad Gyro position (radians)
-   * @param gyroVelRadPerSec Gyro position (radians per second)
+   * @param gyroPosRad Gyro modulePosition (radians)
+   * @param gyroVelRadPerSec Gyro modulePosition (radians per second)
    */
   class DriveTrainSysIdData(
     val leftPosRad: Double,

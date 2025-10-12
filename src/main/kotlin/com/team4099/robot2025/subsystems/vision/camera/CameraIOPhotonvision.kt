@@ -6,7 +6,6 @@ import edu.wpi.first.apriltag.AprilTagFields
 import edu.wpi.first.math.Matrix
 import edu.wpi.first.math.VecBuilder
 import edu.wpi.first.math.geometry.Pose2d
-import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
 import org.littletonrobotics.junction.Logger
@@ -24,12 +23,13 @@ import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.micro
 import java.util.Optional
 import java.util.function.Supplier
+import org.team4099.lib.units.derived.Angle
 
 class CameraIOPhotonvision(
   private val identifier: String,
   transform: Transform3d,
   val poseMeasurementConsumer: (Pose2d?, Double, Matrix<N3?, N1?>) -> Unit,
-  val drivetrainRotationSupplier: Supplier<Rotation2d>
+  val drivetrainRotationSupplier: Supplier<Angle>
 ) : CameraIO {
 
   private val photonEstimator: PhotonPoseEstimator =

@@ -18,8 +18,11 @@ import com.team4099.robot2025.subsystems.canRange.CANRangeReal
 import com.team4099.robot2025.subsystems.climber.Climber
 import com.team4099.robot2025.subsystems.climber.ClimberIO
 import com.team4099.robot2025.subsystems.climber.ClimberIOSim
-import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
-import com.team4099.robot2025.subsystems.drivetrain.generated.TunerConstants
+import com.team4099.robot2025.subsystems.drivetrain.Drive
+import com.team4099.robot2025.subsystems.drivetrain.GyroIO
+import com.team4099.robot2025.subsystems.drivetrain.GyroIOPigeon2
+import com.team4099.robot2025.subsystems.drivetrain.ModuleIOSim
+import com.team4099.robot2025.subsystems.drivetrain.ModuleIOTalonFX
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOSim
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOTalon
@@ -43,14 +46,9 @@ import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.derived.Angle
+import org.team4099.lib.units.derived.radians
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersIOSim
-import com.team4099.robot2025.subsystems.drivetrain.Drive
-import com.team4099.robot2025.subsystems.drivetrain.GyroIO
-import com.team4099.robot2025.subsystems.drivetrain.GyroIOPigeon2
-import com.team4099.robot2025.subsystems.drivetrain.ModuleIOSim
-import com.team4099.robot2025.subsystems.drivetrain.ModuleIOTalonFX
-import org.team4099.lib.units.derived.radians
 
 object RobotContainer {
   private val drivetrain: Drive
@@ -99,7 +97,7 @@ object RobotContainer {
           ),
         )
     } else {
-      drivetrain = Drive(object: GyroIO {}, ModuleIOSim.generateModules())
+      drivetrain = Drive(object : GyroIO {}, ModuleIOSim.generateModules())
       limelight = LimelightVision(object : LimelightVisionIO {})
       elevator = Elevator(ElevatorIOSim)
       arm = Arm(ArmIOSIm)
@@ -146,7 +144,7 @@ object RobotContainer {
   }
 
   fun setDriveBrakeMode(neutralModeValue: NeutralModeValue = NeutralModeValue.Brake) {
-//    drivetrain.configNeutralMode(neutralModeValue)
+    //    drivetrain.configNeutralMode(neutralModeValue)
   }
 
   fun requestIdle() {

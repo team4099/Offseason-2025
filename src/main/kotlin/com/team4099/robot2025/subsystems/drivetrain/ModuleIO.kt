@@ -32,7 +32,7 @@ import org.team4099.lib.units.perSecond
 
 interface ModuleIO {
   @AutoLog
-  class ModuleIOInputs: LoggableInputs {
+  class ModuleIOInputs : LoggableInputs {
     var driveConnected: Boolean = false
     var drivePosition: Angle = 0.0.radians
     var driveVelocity: AngularVelocity = 0.0.radians.perSecond
@@ -67,8 +67,14 @@ interface ModuleIO {
       table?.put("turnCurrent", turnCurrent.inAmperes)
 
       table?.put("odometryTimestamps", odometryTimestamps)
-      table?.put("odometryDrivePositionsDegrees", odometryDrivePositions.map { angle: Angle -> angle.inDegrees }.toDoubleArray())
-      table?.put("odometryTurnPositionsDegrees", odometryTurnPositions.map { angle: Angle -> angle.inDegrees }.toDoubleArray())
+      table?.put(
+        "odometryDrivePositionsDegrees",
+        odometryDrivePositions.map { angle: Angle -> angle.inDegrees }.toDoubleArray()
+      )
+      table?.put(
+        "odometryTurnPositionsDegrees",
+        odometryTurnPositions.map { angle: Angle -> angle.inDegrees }.toDoubleArray()
+      )
     }
 
     override fun fromLog(table: LogTable?) {
@@ -82,52 +88,54 @@ interface ModuleIO {
       table?.get("driveAppliedVoltage", driveAppliedVoltage.inVolts)?.let {
         driveAppliedVoltage = it.volts
       }
-      table?.get("driveCurrent", driveCurrent.inAmperes)?.let {
-        driveCurrent = it.amps
-      }
+      table?.get("driveCurrent", driveCurrent.inAmperes)?.let { driveCurrent = it.amps }
 
       table?.get("turnConnected", turnConnected)?.let { turnConnected = it }
       table?.get("turnEncoderConnected", turnEncoderConnected)?.let { turnEncoderConnected = it }
       table?.get("turnAbsolutePositionDegrees", turnAbsolutePosition.inDegrees)?.let {
         turnAbsolutePosition = it.degrees
       }
-      table?.get("turnPositionDegrees", turnPosition.inDegrees)?.let {
-        turnPosition = it.degrees
-      }
+      table?.get("turnPositionDegrees", turnPosition.inDegrees)?.let { turnPosition = it.degrees }
       table?.get("turnVelocityDegPerSec", turnVelocity.inDegreesPerSecond)?.let {
         turnVelocity = it.degrees.perSecond
       }
       table?.get("turnAppliedVoltage", turnAppliedVoltage.inVolts)?.let {
         turnAppliedVoltage = it.volts
       }
-      table?.get("turnCurrent", turnCurrent.inAmperes)?.let {
-        turnCurrent = it.amps
-      }
+      table?.get("turnCurrent", turnCurrent.inAmperes)?.let { turnCurrent = it.amps }
 
-      table?.get("odometryTimestamps", odometryTimestamps)?.let {
-        odometryTimestamps = it
-      }
-      table?.get("odometryDrivePositionsDegrees", odometryDrivePositions.map { angle: Angle -> angle.inDegrees }.toDoubleArray())?.let {
-        odometryDrivePositions = it.map { angleDegrees: Double -> angleDegrees.degrees }.toTypedArray()
-      }
-      table?.get("odometryTurnPositionDegrees", odometryTurnPositions.map { angle: Angle -> angle.inDegrees }.toDoubleArray())?.let {
-        odometryTurnPositions = it.map { angleDegrees: Double -> angleDegrees.degrees }.toTypedArray()
-      }
+      table?.get("odometryTimestamps", odometryTimestamps)?.let { odometryTimestamps = it }
+      table?.get(
+        "odometryDrivePositionsDegrees",
+        odometryDrivePositions.map { angle: Angle -> angle.inDegrees }.toDoubleArray()
+      )
+        ?.let {
+          odometryDrivePositions =
+            it.map { angleDegrees: Double -> angleDegrees.degrees }.toTypedArray()
+        }
+      table?.get(
+        "odometryTurnPositionDegrees",
+        odometryTurnPositions.map { angle: Angle -> angle.inDegrees }.toDoubleArray()
+      )
+        ?.let {
+          odometryTurnPositions =
+            it.map { angleDegrees: Double -> angleDegrees.degrees }.toTypedArray()
+        }
     }
   }
 
-  /** Updates the set of loggable inputs.  */
+  /** Updates the set of loggable inputs. */
   fun updateInputs(inputs: ModuleIOInputs) {}
 
-  /** Run the drive motor at the specified open loop value.  */
+  /** Run the drive motor at the specified open loop value. */
   fun setDriveOpenLoop(output: Double) {}
 
-  /** Run the turn motor at the specified open loop value.  */
+  /** Run the turn motor at the specified open loop value. */
   fun setTurnOpenLoop(output: Double) {}
 
-  /** Run the drive motor at the specified velocity.  */
+  /** Run the drive motor at the specified velocity. */
   fun setDriveVelocity(velocityRadPerSec: Double) {}
 
-  /** Run the turn motor to the specified rotation.  */
+  /** Run the turn motor to the specified rotation. */
   fun setTurnPosition(rotation: Rotation2d) {}
 }

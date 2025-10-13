@@ -45,21 +45,25 @@ import kotlin.math.sign
  * Physics sim implementation of module IO. The sim models are configured using a set of module
  * constants from Phoenix. Simulation is always based on voltage control.
  */
-class ModuleIOSim(constants: SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>) :
-  ModuleIO {
+class ModuleIOSim(
+  constants:
+    SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>
+) : ModuleIO {
   // Create drive and turn sim models
-  private val driveSim: DCMotorSim = DCMotorSim(
-    LinearSystemId.createDCMotorSystem(
-      DRIVE_GEARBOX, constants.DriveInertia, constants.DriveMotorGearRatio
-    ),
-    DRIVE_GEARBOX
-  )
-  private val turnSim: DCMotorSim = DCMotorSim(
-    LinearSystemId.createDCMotorSystem(
-      TURN_GEARBOX, constants.SteerInertia, constants.SteerMotorGearRatio
-    ),
-    TURN_GEARBOX
-  )
+  private val driveSim: DCMotorSim =
+    DCMotorSim(
+      LinearSystemId.createDCMotorSystem(
+        DRIVE_GEARBOX, constants.DriveInertia, constants.DriveMotorGearRatio
+      ),
+      DRIVE_GEARBOX
+    )
+  private val turnSim: DCMotorSim =
+    DCMotorSim(
+      LinearSystemId.createDCMotorSystem(
+        TURN_GEARBOX, constants.SteerInertia, constants.SteerMotorGearRatio
+      ),
+      TURN_GEARBOX
+    )
 
   private var driveClosedLoop = false
   private var turnClosedLoop = false
@@ -89,8 +93,18 @@ class ModuleIOSim(constants: SwerveModuleConstants<TalonFXConfiguration?, TalonF
     }
 
     // Update simulation state
-    driveSim.inputVoltage = MathUtil.clamp(driveAppliedVolts, -DrivetrainConstants.DRIVE_COMPENSATION_VOLTAGE.inVolts, DrivetrainConstants.DRIVE_COMPENSATION_VOLTAGE.inVolts)
-    turnSim.inputVoltage = MathUtil.clamp(turnAppliedVolts, -DrivetrainConstants.STEERING_COMPENSATION_VOLTAGE.inVolts, DrivetrainConstants.STEERING_COMPENSATION_VOLTAGE.inVolts)
+    driveSim.inputVoltage =
+      MathUtil.clamp(
+        driveAppliedVolts,
+        -DrivetrainConstants.DRIVE_COMPENSATION_VOLTAGE.inVolts,
+        DrivetrainConstants.DRIVE_COMPENSATION_VOLTAGE.inVolts
+      )
+    turnSim.inputVoltage =
+      MathUtil.clamp(
+        turnAppliedVolts,
+        -DrivetrainConstants.STEERING_COMPENSATION_VOLTAGE.inVolts,
+        DrivetrainConstants.STEERING_COMPENSATION_VOLTAGE.inVolts
+      )
     driveSim.update(Constants.Universal.LOOP_PERIOD_TIME.inSeconds)
     turnSim.update(Constants.Universal.LOOP_PERIOD_TIME.inSeconds)
 

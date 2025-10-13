@@ -1,6 +1,5 @@
 package com.team4099.robot2025.commands.drivetrain
 
-import com.ctre.phoenix6.swerve.SwerveRequest
 import com.team4099.lib.hal.Clock
 import com.team4099.robot2025.config.constants.VisionConstants
 import com.team4099.robot2025.subsystems.drivetrain.Drive
@@ -19,6 +18,7 @@ import org.team4099.lib.units.base.Time
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.seconds
 
+@Deprecated("note(nathan): i would rewrite this to be a lot simpler, using CoolerTTC.")
 class ReefAlignCommand(
   val driver: DriverProfile,
   val driveX: () -> Double,

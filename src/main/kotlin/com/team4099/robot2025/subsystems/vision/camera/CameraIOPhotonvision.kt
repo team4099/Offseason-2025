@@ -20,10 +20,10 @@ import org.team4099.lib.units.base.Time
 import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.seconds
+import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.micro
 import java.util.Optional
 import java.util.function.Supplier
-import org.team4099.lib.units.derived.Angle
 
 class CameraIOPhotonvision(
   private val identifier: String,

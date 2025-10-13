@@ -12,14 +12,12 @@
 // GNU General Public License for more details.
 package com.team4099.robot2025.subsystems.drivetrain
 
-import edu.wpi.first.units.measure.Angle as WPIAngle
-import edu.wpi.first.units.measure.AngularVelocity as WPIAngularVelocity
 import com.ctre.phoenix6.BaseStatusSignal
 import com.ctre.phoenix6.StatusSignal
 import com.ctre.phoenix6.configs.CANcoderConfiguration
 import com.ctre.phoenix6.configs.TalonFXConfiguration
+import com.ctre.phoenix6.controls.MotionMagicVoltage
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC
-import com.ctre.phoenix6.controls.PositionVoltage
 import com.ctre.phoenix6.controls.TorqueCurrentFOC
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC
 import com.ctre.phoenix6.controls.VelocityVoltage
@@ -38,30 +36,35 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.measure.Current
 import edu.wpi.first.units.measure.Voltage
-import java.util.Queue
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.derived.rotations
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.perSecond
+import java.util.Queue
+import edu.wpi.first.units.measure.Angle as WPIAngle
+import edu.wpi.first.units.measure.AngularVelocity as WPIAngularVelocity
 
 /**
  * Module IO implementation for Talon FX drive motor controller, Talon FX turn motor controller, and
  * CANcoder. Configured using a set of module constants from Phoenix.
  *
- *
  * Device configuration and other behaviors not exposed by TunerConstants can be customized here.
  */
 class ModuleIOTalonFX(
-  private val constants: SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>
+  private val constants:
+    SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>
 ) : ModuleIO {
   // Hardware objects
-  private val driveTalon: TalonFX = TalonFX(constants.DriveMotorId, TunerConstants.CTREDrivetrainConstants.CANBusName)
-  private val turnTalon: TalonFX = TalonFX(constants.SteerMotorId, TunerConstants.CTREDrivetrainConstants.CANBusName)
-  private val cancoder: CANcoder = CANcoder(constants.EncoderId, TunerConstants.CTREDrivetrainConstants.CANBusName)
+  private val driveTalon: TalonFX =
+    TalonFX(constants.DriveMotorId, TunerConstants.CTREDrivetrainConstants.CANBusName)
+  private val turnTalon: TalonFX =
+    TalonFX(constants.SteerMotorId, TunerConstants.CTREDrivetrainConstants.CANBusName)
+  private val cancoder: CANcoder =
+    CANcoder(constants.EncoderId, TunerConstants.CTREDrivetrainConstants.CANBusName)
 
   // Voltage control requests
   private val voltageRequest = VoltageOut(0.0)
-  private val positionVoltageRequest = PositionVoltage(0.0)
+  private val positionVoltageRequest = MotionMagicVoltage(0.0)
   private val velocityVoltageRequest = VelocityVoltage(0.0)
 
   // Torque-current control requests
@@ -103,11 +106,10 @@ class ModuleIOTalonFX(
     driveConfig.CurrentLimits.StatorCurrentLimit = constants.SlipCurrent
     driveConfig.CurrentLimits.StatorCurrentLimitEnable = true
     driveConfig.MotorOutput.Inverted =
-      if (constants.DriveMotorInverted
-      ) InvertedValue.Clockwise_Positive
+      if (constants.DriveMotorInverted) InvertedValue.Clockwise_Positive
       else InvertedValue.CounterClockwise_Positive
-//    tryUntilOk(5) { driveTalon.configurator.apply(driveConfig, 0.25) }
-//    tryUntilOk(5) { driveTalon.setPosition(0.0, 0.25) }
+    //    tryUntilOk(5) { driveTalon.configurator.apply(driveConfig, 0.25) }
+    //    tryUntilOk(5) { driveTalon.setPosition(0.0, 0.25) }
     driveTalon.configurator.apply(driveConfig, 0.25)
     driveTalon.setPosition(0.0, 0.25)
 
@@ -116,34 +118,36 @@ class ModuleIOTalonFX(
     turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake
     turnConfig.Slot0 = constants.SteerMotorGains
     turnConfig.Feedback.FeedbackRemoteSensorID = constants.EncoderId
-    turnConfig.Feedback.FeedbackSensorSource = when (constants.FeedbackSource) {
-      SwerveModuleConstants.SteerFeedbackType.RemoteCANcoder -> FeedbackSensorSourceValue.RemoteCANcoder
-      SwerveModuleConstants.SteerFeedbackType.FusedCANcoder -> FeedbackSensorSourceValue.FusedCANcoder
-      SwerveModuleConstants.SteerFeedbackType.SyncCANcoder -> FeedbackSensorSourceValue.SyncCANcoder
-      else -> throw RuntimeException(
-        "You are using an unsupported swerve configuration, which this template does not support without manual " +
-            "customization. The 2025 release of Phoenix supports some swerve configurations which were not available " +
-            "during 2025 beta testing, preventing any development and support from the AdvantageKit developers."
-      )
-    }
+    turnConfig.Feedback.FeedbackSensorSource =
+      when (constants.FeedbackSource) {
+        SwerveModuleConstants.SteerFeedbackType.RemoteCANcoder ->
+          FeedbackSensorSourceValue.RemoteCANcoder
+        SwerveModuleConstants.SteerFeedbackType.FusedCANcoder ->
+          FeedbackSensorSourceValue.FusedCANcoder
+        SwerveModuleConstants.SteerFeedbackType.SyncCANcoder ->
+          FeedbackSensorSourceValue.SyncCANcoder
+        else -> throw RuntimeException("Using an unsupported swerve configuration")
+      }
     turnConfig.Feedback.RotorToSensorRatio = constants.SteerMotorGearRatio
+
     turnConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / constants.SteerMotorGearRatio
-    turnConfig.MotionMagic.MotionMagicAcceleration = turnConfig.MotionMagic.MotionMagicCruiseVelocity / 0.100
+    turnConfig.MotionMagic.MotionMagicAcceleration = 100.0 / constants.SteerMotorGearRatio / 0.100
     turnConfig.MotionMagic.MotionMagicExpo_kV = 0.12 * constants.SteerMotorGearRatio
     turnConfig.MotionMagic.MotionMagicExpo_kA = 0.1
+
     turnConfig.ClosedLoopGeneral.ContinuousWrap = true
+
     turnConfig.MotorOutput.Inverted =
       if (constants.SteerMotorInverted) InvertedValue.Clockwise_Positive
       else InvertedValue.CounterClockwise_Positive
-//    tryUntilOk(5) { turnTalon.configurator.apply(turnConfig, 0.25) }
+    //    tryUntilOk(5) { turnTalon.configurator.apply(turnConfig, 0.25) }
     turnTalon.configurator.apply(turnConfig, 0.25)
 
     // Configure CANCoder
     val cancoderConfig = constants.EncoderInitialConfigs!!
     cancoderConfig.MagnetSensor.MagnetOffset = constants.EncoderOffset
     cancoderConfig.MagnetSensor.SensorDirection =
-      if (constants.EncoderInverted
-      ) SensorDirectionValue.Clockwise_Positive
+      if (constants.EncoderInverted) SensorDirectionValue.Clockwise_Positive
       else SensorDirectionValue.CounterClockwise_Positive
     cancoder.configurator.apply(cancoderConfig, 0.25)
 
@@ -152,8 +156,7 @@ class ModuleIOTalonFX(
 
     // Create drive status signals
     drivePosition = driveTalon.position
-    drivePositionQueue =
-      PhoenixOdometryThread.instance.registerSignal(driveTalon.position)
+    drivePositionQueue = PhoenixOdometryThread.instance.registerSignal(driveTalon.position)
     driveVelocity = driveTalon.velocity
     driveAppliedVolts = driveTalon.motorVoltage
     driveCurrent = driveTalon.statorCurrent
@@ -167,9 +170,7 @@ class ModuleIOTalonFX(
     turnCurrent = turnTalon.statorCurrent
 
     // Configure periodic frames
-    BaseStatusSignal.setUpdateFrequencyForAll(
-      Drive.ODOMETRY_FREQUENCY, drivePosition, turnPosition
-    )
+    BaseStatusSignal.setUpdateFrequencyForAll(Drive.ODOMETRY_FREQUENCY, drivePosition, turnPosition)
     BaseStatusSignal.setUpdateFrequencyForAll(
       50.0,
       driveVelocity,
@@ -208,18 +209,11 @@ class ModuleIOTalonFX(
     inputs.turnCurrent = turnCurrent.valueAsDouble.amps
 
     // Update odometry inputs
-    inputs.odometryTimestamps =
-      timestampQueue.map { value: Double -> value }.toDoubleArray()
+    inputs.odometryTimestamps = timestampQueue.map { value: Double -> value }.toDoubleArray()
     inputs.odometryDrivePositions =
-      drivePositionQueue
-        .map { value: Double ->
-          value.rotations
-        }
-        .toTypedArray()
+      drivePositionQueue.map { value: Double -> value.rotations }.toTypedArray()
     inputs.odometryTurnPositions =
-      turnPositionQueue
-        .map { value: Double -> value.rotations }
-        .toTypedArray()
+      turnPositionQueue.map { value: Double -> value.rotations }.toTypedArray()
     timestampQueue.clear()
     drivePositionQueue.clear()
     turnPositionQueue.clear()
@@ -228,7 +222,8 @@ class ModuleIOTalonFX(
   override fun setDriveOpenLoop(output: Double) {
     driveTalon.setControl(
       when (constants.DriveMotorClosedLoopOutput) {
-        SwerveModuleConstants.ClosedLoopOutputType.TorqueCurrentFOC -> torqueCurrentRequest.withOutput(output)
+        SwerveModuleConstants.ClosedLoopOutputType.TorqueCurrentFOC ->
+          torqueCurrentRequest.withOutput(output)
         else -> voltageRequest.withOutput(output)
       }
     )
@@ -237,9 +232,9 @@ class ModuleIOTalonFX(
   override fun setTurnOpenLoop(output: Double) {
     turnTalon.setControl(
       when (constants.SteerMotorClosedLoopOutput) {
-        SwerveModuleConstants.ClosedLoopOutputType.TorqueCurrentFOC -> torqueCurrentRequest.withOutput(output)
+        SwerveModuleConstants.ClosedLoopOutputType.TorqueCurrentFOC ->
+          torqueCurrentRequest.withOutput(output)
         else -> voltageRequest.withOutput(output)
-
       }
     )
   }
@@ -248,10 +243,8 @@ class ModuleIOTalonFX(
     val velocityRotPerSec = Units.radiansToRotations(velocityRadPerSec)
     driveTalon.setControl(
       when (constants.DriveMotorClosedLoopOutput) {
-        SwerveModuleConstants.ClosedLoopOutputType.TorqueCurrentFOC -> velocityTorqueCurrentRequest.withVelocity(
-          velocityRotPerSec
-        )
-
+        SwerveModuleConstants.ClosedLoopOutputType.TorqueCurrentFOC ->
+          velocityTorqueCurrentRequest.withVelocity(velocityRotPerSec)
         else -> velocityVoltageRequest.withVelocity(velocityRotPerSec)
       }
     )
@@ -260,10 +253,8 @@ class ModuleIOTalonFX(
   override fun setTurnPosition(rotation: Rotation2d) {
     turnTalon.setControl(
       when (constants.SteerMotorClosedLoopOutput) {
-        SwerveModuleConstants.ClosedLoopOutputType.TorqueCurrentFOC -> positionTorqueCurrentRequest.withPosition(
-          rotation.rotations
-        )
-
+        SwerveModuleConstants.ClosedLoopOutputType.TorqueCurrentFOC ->
+          positionTorqueCurrentRequest.withPosition(rotation.rotations)
         else -> positionVoltageRequest.withPosition(rotation.rotations)
       }
     )

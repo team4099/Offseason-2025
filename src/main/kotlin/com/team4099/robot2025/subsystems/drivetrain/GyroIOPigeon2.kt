@@ -19,17 +19,18 @@ import com.ctre.phoenix6.configs.Pigeon2Configuration
 import com.ctre.phoenix6.hardware.Pigeon2
 import com.team4099.robot2025.subsystems.drivetrain.generated.TunerConstants
 import edu.wpi.first.units.measure.AngularVelocity
-import java.util.Queue
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.perSecond
+import java.util.Queue
 
-/** IO implementation for Pigeon 2.  */
+/** IO implementation for Pigeon 2. */
 object GyroIOPigeon2 : GyroIO {
-  private val pigeon: Pigeon2 = Pigeon2(
-    TunerConstants.CTREDrivetrainConstants.Pigeon2Id,
-    TunerConstants.CTREDrivetrainConstants.CANBusName
-  )
+  private val pigeon: Pigeon2 =
+    Pigeon2(
+      TunerConstants.CTREDrivetrainConstants.Pigeon2Id,
+      TunerConstants.CTREDrivetrainConstants.CANBusName
+    )
   private val yaw: StatusSignal<edu.wpi.first.units.measure.Angle> = pigeon.yaw
   private val yawPositionQueue: Queue<Double>
   private val yawTimestampQueue: Queue<Double>
@@ -50,12 +51,9 @@ object GyroIOPigeon2 : GyroIO {
     inputs.yawPosition = yaw.valueAsDouble.degrees
     inputs.yawVelocity = yawVelocity.valueAsDouble.degrees.perSecond
 
-    inputs.odometryYawTimestamps =
-      yawTimestampQueue.map { value: Double -> value }.toDoubleArray()
+    inputs.odometryYawTimestamps = yawTimestampQueue.map { value: Double -> value }.toDoubleArray()
     inputs.odometryYawPositions =
-      yawPositionQueue
-        .map { value: Double -> value.degrees }
-        .toTypedArray()
+      yawPositionQueue.map { value: Double -> value.degrees }.toTypedArray()
     yawTimestampQueue.clear()
     yawPositionQueue.clear()
   }

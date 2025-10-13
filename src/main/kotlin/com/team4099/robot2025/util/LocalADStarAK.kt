@@ -45,7 +45,10 @@ class LocalADStarAK : Pathfinder {
    * @param goalEndState The goal end state to use when creating the path
    * @return The PathPlannerPath created from the points calculated by the pathfinder
    */
-  override fun getCurrentPath(constraints: PathConstraints, goalEndState: GoalEndState): PathPlannerPath? {
+  override fun getCurrentPath(
+    constraints: PathConstraints,
+    goalEndState: GoalEndState
+  ): PathPlannerPath? {
     if (!Logger.hasReplaySource()) {
       io.updateCurrentPathPoints(constraints, goalEndState)
     }
@@ -62,8 +65,8 @@ class LocalADStarAK : Pathfinder {
   /**
    * Set the start modulePosition to pathfind from
    *
-   * @param startPosition Start modulePosition on the field. If this is within an obstacle it will be
-   * moved to the nearest non-obstacle node.
+   * @param startPosition Start modulePosition on the field. If this is within an obstacle it will
+   * be moved to the nearest non-obstacle node.
    */
   override fun setStartPosition(startPosition: Translation2d) {
     if (!Logger.hasReplaySource()) {
@@ -74,8 +77,8 @@ class LocalADStarAK : Pathfinder {
   /**
    * Set the goal modulePosition to pathfind to
    *
-   * @param goalPosition Goal modulePosition on the field. f this is within an obstacle it will be moved
-   * to the nearest non-obstacle node.
+   * @param goalPosition Goal modulePosition on the field. f this is within an obstacle it will be
+   * moved to the nearest non-obstacle node.
    */
   override fun setGoalPosition(goalPosition: Translation2d) {
     if (!Logger.hasReplaySource()) {
@@ -88,11 +91,12 @@ class LocalADStarAK : Pathfinder {
    *
    * @param obs A List of Translation2d pairs representing obstacles. Each Translation2d represents
    * opposite corners of a bounding box.
-   * @param currentRobotPos The current modulePosition of the robot. This is needed to change the start
-   * modulePosition of the path to properly avoid obstacles
+   * @param currentRobotPos The current modulePosition of the robot. This is needed to change the
+   * start modulePosition of the path to properly avoid obstacles
    */
   override fun setDynamicObstacles(
-    obs: List<Pair<Translation2d, Translation2d>>, currentRobotPos: Translation2d
+    obs: List<Pair<Translation2d, Translation2d>>,
+    currentRobotPos: Translation2d
   ) {
     if (!Logger.hasReplaySource()) {
       io.adStar.setDynamicObstacles(obs, currentRobotPos)
@@ -126,9 +130,7 @@ class LocalADStarAK : Pathfinder {
       val pathPoints: MutableList<PathPoint> = ArrayList()
       var i = 0
       while (i < pointsLogged.size) {
-        pathPoints.add(
-          PathPoint(Translation2d(pointsLogged[i], pointsLogged[i + 1]), null)
-        )
+        pathPoints.add(PathPoint(Translation2d(pointsLogged[i], pointsLogged[i + 1]), null))
         i += 2
       }
 
@@ -142,11 +144,12 @@ class LocalADStarAK : Pathfinder {
     fun updateCurrentPathPoints(constraints: PathConstraints?, goalEndState: GoalEndState?) {
       val currentPath = adStar.getCurrentPath(constraints, goalEndState)
 
-      currentPathPoints = if (currentPath != null) {
-        currentPath.allPathPoints
-      } else {
-        emptyList()
-      }
+      currentPathPoints =
+        if (currentPath != null) {
+          currentPath.allPathPoints
+        } else {
+          emptyList()
+        }
     }
   }
 }

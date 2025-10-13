@@ -5,7 +5,6 @@ import com.ctre.phoenix6.swerve.SwerveRequest
 import com.team4099.lib.hal.Clock
 import com.team4099.lib.logging.LoggedTunableValue
 import com.team4099.robot2025.config.constants.DrivetrainConstants
-import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
 import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.subsystems.vision.Vision
@@ -18,6 +17,7 @@ import org.littletonrobotics.junction.Logger
 import org.team4099.lib.controller.PIDController
 import org.team4099.lib.geometry.Transform2d
 import org.team4099.lib.geometry.Translation2d
+import org.team4099.lib.kinematics.ChassisSpeeds
 import org.team4099.lib.units.Velocity
 import org.team4099.lib.units.base.Length
 import org.team4099.lib.units.base.Meter
@@ -47,8 +47,10 @@ import org.team4099.lib.units.milli
 import org.team4099.lib.units.perSecond
 import kotlin.math.PI
 import kotlin.math.hypot
-import org.team4099.lib.kinematics.ChassisSpeeds
 
+@Deprecated(
+  "note(nathan): really messy, use coolerttc instead", ReplaceWith("CoolerTargetTagCommand")
+)
 class TargetTagCommand(
   val driver: DriverProfile,
   val driveX: () -> Double,
@@ -332,13 +334,6 @@ class TargetTagCommand(
       var autoDriveVector =
         hypot(driveVector.first.inMetersPerSecond, driveVector.second.inMetersPerSecond)
 
-//      drivetrain.setControl(
-//        requestRobotCentric
-//          .withVelocityX(-xFeedBack.inMetersPerSecond)
-//          .withVelocityY(-yFeedback.inMetersPerSecond)
-//        //            .withRotationalRate(thetaFeedback.inRadiansPerSecond)
-//      )
-
       drivetrain.runVelocity(ChassisSpeeds(-xFeedBack, -yFeedback, 0.radians.perSecond))
     }
   }
@@ -353,13 +348,11 @@ class TargetTagCommand(
     vision.currentRequest = Request.VisionRequest.TargetReef()
 
     val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
-    //    drivetrain.setControl(
-    //      requestFieldCentric
-    //        .withVelocityX(speed.first.inMetersPerSecond)
-    //        .withVelocityY(speed.second.inMetersPerSecond)
-    //        .withRotationalRate(
-    //          driver.rotationSpeedClampedSupplier(turn, slowMode).inRadiansPerSecond
-    //        )
-    //    )
+    val rotation = driver.rotationSpeedClampedSupplier(turn, slowMode)
+    drivetrain.runVelocity(
+      ChassisSpeeds.fromFieldRelativeSpeeds(
+        speed.first, speed.second, rotation, drivetrain.rotation
+      )
+    )
   }
 }

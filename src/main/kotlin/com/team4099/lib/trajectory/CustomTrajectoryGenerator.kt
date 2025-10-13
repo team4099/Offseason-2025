@@ -38,8 +38,8 @@ class CustomTrajectoryGenerator {
    * change in rotation between adjacent waypoints is reasonable.
    *
    * 4) The robot's holonomic rotation always assumed to match its drive rotation when applying
-   * kinematics constraints. Please use sufficient margins to allow for changes in angular modulePosition
-   * and velocity.
+   * kinematics constraints. Please use sufficient margins to allow for changes in angular
+   * modulePosition and velocity.
    *
    * @param config Trajectory configuration
    * @param waypoints A series of waypoints

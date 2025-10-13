@@ -35,24 +35,19 @@ import org.team4099.lib.units.perSecond
 class Module(
   private val io: ModuleIO,
   private val index: Int,
-  private val constants: SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>
+  private val constants:
+    SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>
 ) {
   private val inputs: ModuleIO.ModuleIOInputs = ModuleIO.ModuleIOInputs()
 
+  private val driveDisconnectedAlert =
+    Alert("Disconnected drive motor on module $index.", Alert.AlertType.kError)
+  private val turnDisconnectedAlert =
+    Alert("Disconnected turn motor on module $index.", Alert.AlertType.kError)
+  private val turnEncoderDisconnectedAlert =
+    Alert("Disconnected turn encoder on module $index.", Alert.AlertType.kError)
 
-  private val driveDisconnectedAlert = Alert(
-    "Disconnected drive motor on module $index.",
-    Alert.AlertType.kError
-  )
-  private val turnDisconnectedAlert = Alert(
-    "Disconnected turn motor on module $index.", Alert.AlertType.kError
-  )
-  private val turnEncoderDisconnectedAlert = Alert(
-    "Disconnected turn encoder on module $index.",
-    Alert.AlertType.kError
-  )
-
-  /** Returns the module positions received this cycle.  */
+  /** Returns the module positions received this cycle. */
   var odometryPositions: Array<SwerveModulePosition?> = arrayOf()
     private set
 
@@ -75,7 +70,7 @@ class Module(
     turnEncoderDisconnectedAlert.set(!inputs.turnEncoderConnected)
   }
 
-  /** Runs the module with the specified setpoint state. Mutates the state to optimize it.  */
+  /** Runs the module with the specified setpoint state. Mutates the state to optimize it. */
   fun runSetpoint(state: SwerveModuleState) {
     // Optimize velocity setpoint
     state.optimize(angle.inRotation2ds)
@@ -86,47 +81,47 @@ class Module(
     io.setTurnPosition(state.angle)
   }
 
-  /** Runs the module with the specified output while controlling to zero degrees.  */
+  /** Runs the module with the specified output while controlling to zero degrees. */
   fun runCharacterization(output: Double) {
     io.setDriveOpenLoop(output)
     io.setTurnPosition(Rotation2d())
   }
 
-  /** Disables all outputs to motors.  */
+  /** Disables all outputs to motors. */
   fun stop() {
     io.setDriveOpenLoop(0.0)
     io.setTurnOpenLoop(0.0)
   }
 
   val angle: Angle
-    /** Returns the current turn angle of the module.  */
+    /** Returns the current turn angle of the module. */
     get() = inputs.turnPosition
 
   val position: Length
-    /** Returns the current drive modulePosition of the module in meters.  */
+    /** Returns the current drive modulePosition of the module in meters. */
     get() = (inputs.drivePosition.inRadians * constants.WheelRadius).meters
 
   val velocity: LinearVelocity
-    /** Returns the current drive velocity of the module in meters per second.  */
+    /** Returns the current drive velocity of the module in meters per second. */
     get() = (inputs.driveVelocity.inRadiansPerSecond * constants.WheelRadius).meters.perSecond
 
   val modulePosition: SwerveModulePosition
-    /** Returns the module modulePosition (turn angle and drive modulePosition).  */
+    /** Returns the module modulePosition (turn angle and drive modulePosition). */
     get() = SwerveModulePosition(position.inMeters, angle.inRotation2ds)
 
   val state: SwerveModuleState
-    /** Returns the module state (turn angle and drive velocity).  */
+    /** Returns the module state (turn angle and drive velocity). */
     get() = SwerveModuleState(velocity.inMetersPerSecond, angle.inRotation2ds)
 
   val odometryTimestamps: DoubleArray
-    /** Returns the timestamps of the samples received this cycle.  */
+    /** Returns the timestamps of the samples received this cycle. */
     get() = inputs.odometryTimestamps
 
   val wheelRadiusCharacterizationPosition: Double
-    /** Returns the module modulePosition in radians.  */
+    /** Returns the module modulePosition in radians. */
     get() = inputs.drivePosition.inRadians
 
   val ffCharacterizationVelocity: Double
-    /** Returns the module velocity in rotations/sec (Phoenix native units).  */
+    /** Returns the module velocity in rotations/sec (Phoenix native units). */
     get() = inputs.driveVelocity.inRotationsPerSecond
 }

@@ -4,8 +4,8 @@ import edu.wpi.first.math.geometry.Rotation2d
 import java.util.TreeMap
 
 /**
- * Represents a sequence of timed rotations. The modulePosition and velocity of the robot is calculated to
- * minimize acceleration.
+ * Represents a sequence of timed rotations. The modulePosition and velocity of the robot is
+ * calculated to minimize acceleration.
  */
 class RotationSequence(sequence: TreeMap<Double, Rotation2d>?) {
   private val sequence = TreeMap<Double, Rotation2d>()

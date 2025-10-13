@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import org.team4099.lib.controller.PIDController
 import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.hal.Clock
+import org.team4099.lib.kinematics.ChassisSpeeds
 import org.team4099.lib.units.Velocity
 import org.team4099.lib.units.base.Meter
 import org.team4099.lib.units.base.inSeconds
@@ -37,12 +38,9 @@ import org.team4099.lib.units.derived.perRadianSeconds
 import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.perSecond
 import kotlin.math.PI
-import org.team4099.lib.kinematics.ChassisSpeeds
 
-class FollowChoreoPath(
-  val drivetrain: Drive,
-  val trajectory: Trajectory<SwerveSample>
-) : Command() {
+class FollowChoreoPath(val drivetrain: Drive, val trajectory: Trajectory<SwerveSample>) :
+  Command() {
 
   private val xPID: PIDController<Meter, Velocity<Meter>>
   private val yPID: PIDController<Meter, Velocity<Meter>>
@@ -136,18 +134,9 @@ class FollowChoreoPath(
 
     val desiredState =
       trajectory.sampleAt(trajCurTime.inSeconds, AllianceFlipUtil.shouldFlip()).get()
-
-    val poseReference =
-      //      drivetrain
-      //        .odomTField
-      //        .inverse()
-      //        .asPose2d()
-      //        .transformBy(drivetrain.fieldTRobot.asTransform2d())
-      //        .pose2d
-      drivetrain.pose
+    val poseReference = drivetrain.pose
 
     val nextDriveState = swerveDriveController.calculate(poseReference.pose2d, desiredState)
-//    drivetrain.setControl(request.withSpeeds(nextDriveState))
     drivetrain.runVelocity(ChassisSpeeds(nextDriveState))
 
     if (thetakP.hasChanged()) thetaPID.proportionalGain = thetakP.get()
@@ -174,8 +163,6 @@ class FollowChoreoPath(
 
   override fun end(interrupted: Boolean) {
     CustomLogger.recordDebugOutput("ActiveCommands/FollowChoreoPath", false)
-
-//    drivetrain.setControl(request.withSpeeds(ChassisSpeeds()))
     drivetrain.runVelocity(ChassisSpeeds())
   }
 }

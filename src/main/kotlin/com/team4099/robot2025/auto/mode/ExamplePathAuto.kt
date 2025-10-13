@@ -3,7 +3,6 @@ package com.team4099.robot2025.auto.mode
 import choreo.Choreo
 import choreo.trajectory.SwerveSample
 import com.team4099.robot2025.commands.drivetrain.FollowChoreoPath
-import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
 import com.team4099.robot2025.subsystems.drivetrain.Drive
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import edu.wpi.first.wpilibj2.command.WaitCommand

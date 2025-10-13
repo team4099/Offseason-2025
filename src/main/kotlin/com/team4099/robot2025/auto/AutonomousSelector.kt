@@ -4,7 +4,6 @@ import com.team4099.robot2025.auto.mode.CenterL4Barge
 import com.team4099.robot2025.auto.mode.ExamplePathAuto
 import com.team4099.robot2025.auto.mode.ThreeL4CoralStation
 import com.team4099.robot2025.auto.mode.ThreeL4ProcessorLolipop
-import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
 import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
@@ -86,15 +85,11 @@ object AutonomousSelector {
     when (mode) {
       AutonomousMode.EXAMPLE_AUTO ->
         return WaitCommand(waitTime.inSeconds)
-          .andThen({
-            drivetrain.pose = AllianceFlipUtil.apply(ExamplePathAuto.startingPose)
-          })
+          .andThen({ drivetrain.pose = AllianceFlipUtil.apply(ExamplePathAuto.startingPose) })
           .andThen(ExamplePathAuto(drivetrain))
       AutonomousMode.CENTER_L4_BARGE ->
         return WaitCommand(waitTime.inSeconds)
-          .andThen({
-            drivetrain.pose = AllianceFlipUtil.apply(CenterL4Barge.startingPose)
-          })
+          .andThen({ drivetrain.pose = AllianceFlipUtil.apply(CenterL4Barge.startingPose) })
           .andThen(CenterL4Barge(drivetrain, elevator, superstructure, vision))
       AutonomousMode.THREE_L4_CORAL_STATION ->
         return WaitCommand(waitTime.inSeconds)

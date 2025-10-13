@@ -255,7 +255,8 @@ class LimelightVision(val io: LimelightVisionIO) : SubsystemBase() {
   ): Pose3d {
     val normalizedCoordinates = pixelCoordsToNormalizedPixelCoords(pixelPosition)
 
-    // i think we wanna do what is there above because we are getting absolute modulePosition of the node
+    // i think we wanna do what is there above because we are getting absolute modulePosition of the
+    // node
     // relative to the origin
     val targetRotation =
       currentPose

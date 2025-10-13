@@ -99,8 +99,7 @@ object ArmIOTalon : ArmIO {
 
     //    do {
     //      absoluteEncoder.position.refresh()
-    //      Logger.recordOutput("Arm/cancoderPublishing",
-    // absoluteEncoder.position.status.isOK)
+    //      Logger.recordOutput("Arm/cancoderPublishing", absoluteEncoder.position.status.isOK)
     //    } while (!absoluteEncoder.position.status.isOK)
 
     //    absoluteEncoderPositionSignal = absoluteEncoder.position

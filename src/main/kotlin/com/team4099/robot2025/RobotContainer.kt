@@ -109,16 +109,7 @@ object RobotContainer {
 
     superstructure =
       Superstructure(
-        drivetrain,
-        vision,
-        elevator,
-        arm,
-        armRollers,
-        climber,
-        intake,
-        indexer,
-        canrange,
-        led
+        drivetrain, vision, elevator, arm, armRollers, climber, intake, indexer, canrange, led
       )
 
     led.gamePieceArmSupplier = Supplier { superstructure.theoreticalGamePieceArm }

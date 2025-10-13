@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.centi
 import org.team4099.lib.units.derived.degrees
+import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.inMetersPerSecond
 import org.team4099.lib.units.inRadiansPerSecond
 import org.team4099.lib.units.perSecond
@@ -42,6 +43,10 @@ class TeleopDriveCommand(
     if (DriverStation.isTeleop()) {
       val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
       val rotation = driver.rotationSpeedClampedSupplier(turn, slowMode)
+
+      CustomLogger.recordOutput("ActiveCommands/speedXinMPS", speed.first.inMetersPerSecond)
+      CustomLogger.recordOutput("ActiveCommands/speedYinMPS", speed.second.inMetersPerSecond)
+      CustomLogger.recordOutput("ActiveCommands/rotationInDPS", rotation.inDegreesPerSecond)
 
       drivetrain.setControl(
         request

@@ -41,7 +41,7 @@ object IndexerIOTalon : IndexerIO {
 
   var motorAccel: StatusSignal<WPIAngularAcceleration>
 
-  val voltageControl = VoltageOut(0.0.volts.inVolts)
+  val voltageControl: VoltageOut = VoltageOut(0.0.volts.inVolts).withEnableFOC(true)
 
   private var indexerSensor =
     ctreAngularMechanismSensor(
@@ -104,6 +104,6 @@ object IndexerIOTalon : IndexerIO {
       clamp(
         voltage, -IndexerConstants.VOLTAGE_COMPENSATION, IndexerConstants.VOLTAGE_COMPENSATION
       )
-    indexerTalon.setControl(voltageControl.withOutput(clampedVoltage.inVolts).withEnableFOC(true))
+    indexerTalon.setControl(voltageControl.withOutput(clampedVoltage.inVolts))
   }
 }

@@ -70,7 +70,7 @@ object IntakeIOTalonFX : IntakeIO {
 
   val pivotVoltageControl: VoltageOut = VoltageOut(0.volts.inVolts)
   val pivotPositionControl: MotionMagicVoltage = MotionMagicVoltage(0.degrees.inDegrees)
-  val rollerVoltageControl: VoltageOut = VoltageOut(0.volts.inVolts)
+  val rollerVoltageControl: VoltageOut = VoltageOut(0.volts.inVolts).withEnableFOC(true)
 
   init {
     // Configure PID Values
@@ -208,7 +208,7 @@ object IntakeIOTalonFX : IntakeIO {
   }
 
   override fun setRollerVoltage(voltage: ElectricalPotential) {
-    rollersTalon.setControl(rollerVoltageControl.withEnableFOC(true).withOutput(voltage.inVolts))
+    rollersTalon.setControl(rollerVoltageControl.withOutput(voltage.inVolts))
   }
 
   override fun setPivotBrakeMode(brake: Boolean) {

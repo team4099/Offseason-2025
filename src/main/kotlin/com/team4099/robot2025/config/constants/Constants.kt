@@ -1,7 +1,11 @@
 package com.team4099.robot2025.config.constants
 
+import org.team4099.lib.units.base.grams
 import org.team4099.lib.units.base.meters
+import org.team4099.lib.units.base.pounds
 import org.team4099.lib.units.base.seconds
+import org.team4099.lib.units.derived.meterSquared
+import org.team4099.lib.units.kilo
 import org.team4099.lib.units.milli
 import org.team4099.lib.units.perSecond
 
@@ -49,6 +53,9 @@ object Constants {
     }
 
     val HIGH_ALGAE_REEF_TAGS = intArrayOf(7, 9, 11, 18, 20, 22)
+
+    val ROBOT_WEIGHT = 135.pounds
+    val ROBOT_MOI = 6.76.kilo.grams.meterSquared
   }
 
   object AprilTagIds {

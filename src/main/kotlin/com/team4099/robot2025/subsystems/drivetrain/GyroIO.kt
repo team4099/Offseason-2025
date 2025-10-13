@@ -12,7 +12,6 @@
 // GNU General Public License for more details.
 package com.team4099.robot2025.subsystems.drivetrain
 
-import org.littletonrobotics.junction.AutoLog
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 import org.team4099.lib.units.AngularVelocity
@@ -24,7 +23,6 @@ import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.perSecond
 
 interface GyroIO {
-  @AutoLog
   class GyroIOInputs : LoggableInputs {
     var connected: Boolean = false
     var yawPosition: Angle = 0.0.radians
@@ -47,7 +45,7 @@ interface GyroIO {
     override fun fromLog(table: LogTable?) {
       table?.get("connected", connected)?.let { connected = it }
       table?.get("yawPositionDegrees", yawPosition.inDegrees)?.let { yawPosition = it.degrees }
-      table?.get("yawVelocity", yawVelocity.inDegreesPerSecond)?.let {
+      table?.get("yawVelocityDegPerSec", yawVelocity.inDegreesPerSecond)?.let {
         yawVelocity = it.degrees.perSecond
       }
 

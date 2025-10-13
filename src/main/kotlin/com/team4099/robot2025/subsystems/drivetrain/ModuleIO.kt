@@ -13,7 +13,6 @@
 package com.team4099.robot2025.subsystems.drivetrain
 
 import edu.wpi.first.math.geometry.Rotation2d
-import org.littletonrobotics.junction.AutoLog
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 import org.team4099.lib.units.AngularVelocity
@@ -31,7 +30,6 @@ import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.perSecond
 
 interface ModuleIO {
-  @AutoLog
   class ModuleIOInputs : LoggableInputs {
     var driveConnected: Boolean = false
     var drivePosition: Angle = 0.0.radians

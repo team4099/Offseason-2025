@@ -43,7 +43,6 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.util.LocalADStarAK
-import org.littletonrobotics.junction.AutoLogOutput
 import org.littletonrobotics.junction.Logger
 import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.geometry.Translation2d
@@ -67,6 +66,9 @@ import kotlin.math.hypot
 import kotlin.math.max
 import edu.wpi.first.math.geometry.Pose2d as WPIPose2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds as WPIChassisSpeeds
+import org.team4099.lib.units.base.inKilograms
+import org.team4099.lib.units.base.inPounds
+import org.team4099.lib.units.derived.inKilogramsMeterSquared
 
 class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>) : SubsystemBase() {
   private val gyroInputs: GyroIO.GyroIOInputs = GyroIO.GyroIOInputs()
@@ -216,6 +218,10 @@ class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>) : SubsystemB
     gyroDisconnectedAlert.set(!gyroInputs.connected && RobotBase.isReal())
 
     Logger.recordOutput("Odometry/Robot", pose.pose2d)
+    Logger.recordOutput("SwerveChassisSpeeds/Measured", chassisSpeeds.chassisSpeedsWPILIB)
+
+    val curStates = moduleStates
+    for (i in 0..3) Logger.recordOutput("SwerveStates/Measured", curStates[i])
   }
 
   /**
@@ -286,11 +292,10 @@ class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>) : SubsystemB
     return run { runCharacterization(0.0) }.withTimeout(1.0).andThen(sysId.dynamic(direction))
   }
 
-  @get:AutoLogOutput(key = "SwerveStates/Measured")
   private val moduleStates: Array<SwerveModuleState?>
     /** Returns the module states (turn angles and drive velocities) for all of the modules. */
     get() {
-      val states: Array<SwerveModuleState?> = arrayOfNulls<SwerveModuleState>(4)
+      val states: Array<SwerveModuleState?> = arrayOfNulls(4)
       for (i in 0..3) {
         states[i] = modules[i]!!.state
       }
@@ -307,7 +312,6 @@ class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>) : SubsystemB
       return states
     }
 
-  @get:AutoLogOutput(key = "SwerveChassisSpeeds/Measured")
   private val chassisSpeeds: ChassisSpeeds
     /** Returns the measured chassis speeds of the robot. */
     get() = ChassisSpeeds(kinematics.toChassisSpeeds(moduleStates))
@@ -332,7 +336,6 @@ class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>) : SubsystemB
       return output
     }
 
-  @get:AutoLogOutput(key = "Odometry/Robot")
   var pose: Pose2d
     /** Returns the current odometry pose. */
     get() = Pose2d(poseEstimator.estimatedPosition)
@@ -380,18 +383,14 @@ class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>) : SubsystemB
       )
 
     // PathPlanner config constants
-    // todo use vars for the following (i think they're on diff [otf] branch?):
-    private const val ROBOT_MASS_KG = 74.088
-    private const val ROBOT_MOI = 6.883
-    private const val WHEEL_COF = 1.2
     private val PP_CONFIG: RobotConfig =
       RobotConfig(
-        ROBOT_MASS_KG,
-        ROBOT_MOI,
+        Constants.Universal.ROBOT_WEIGHT.inKilograms,
+        Constants.Universal.ROBOT_MOI.inKilogramsMeterSquared,
         ModuleConfig(
           TunerConstants.FrontLeft.WheelRadius,
           TunerConstants.kSpeedAt12Volts.inMetersPerSecond,
-          WHEEL_COF,
+          DrivetrainConstants.NITRILE_WHEEL_COF,
           DCMotor.getKrakenX60Foc(1)
             .withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio),
           TunerConstants.FrontLeft.SlipCurrent,

@@ -12,14 +12,15 @@ object IndexerConstants {
 
   val VOLTAGE_COMPENSATION = 12.0.volts
 
-  val SUPPLY_CURRENT_LIMIT = 40.0.amps
+  val SUPPLY_CURRENT_LIMIT = 60.0.amps
   val STATOR_CURRENT_LIMIT = 40.0.amps
+  val SUPPLY_CURRENT_LOWER_LIMIT = 40.0.amps
+  val SUPPLY_CURRENT_LOWER_TIME = 1.0.seconds
 
   // TODO must change
   val IDLE_VOLTAGE = 0.0.volts
-  val INDEX_VOLTAGE = 5.volts
-  val SPIT_VOLTAGE = (-4.0).volts
+  val INDEX_VOLTAGE = 4.5.volts
+  val SPIT_VOLTAGE = (-.75).volts
 
-  val CORAL_STALL_CURRENT = 40.0.amps
-  val CORAL_SPIT_TIME_THRESHOLD = 0.5.seconds
+  val CORAL_CURRENT = 30.0.amps
 }

@@ -7,6 +7,7 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs
 import com.ctre.phoenix6.configs.Pigeon2Configuration
 import com.ctre.phoenix6.configs.Slot0Configs
 import com.ctre.phoenix6.configs.TalonFXConfiguration
+import com.ctre.phoenix6.configs.VoltageConfigs
 import com.ctre.phoenix6.hardware.CANcoder
 import com.ctre.phoenix6.hardware.TalonFX
 import com.ctre.phoenix6.signals.NeutralModeValue
@@ -91,7 +92,7 @@ object TunerConstants {
   // The stator current at which the wheels start to slip;
   // This needs to be tuned to your individual robot
   // TODO check this
-  private val kSlipCurrent: Current = 120.amps // Units.Amps.of(120.0)
+  private val kSlipCurrent: Current = 80.amps
 
   // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
   // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -104,13 +105,20 @@ object TunerConstants {
           .withSupplyCurrentLimit(DrivetrainConstants.DRIVE_SUPPLY_CURRENT_LIMIT.inAmperes)
           .withSupplyCurrentLimitEnable(true)
       )
+      .withVoltage(
+        VoltageConfigs()
+          .withPeakForwardVoltage(DrivetrainConstants.DRIVE_COMPENSATION_VOLTAGE.inVolts)
+          .withPeakReverseVoltage(-DrivetrainConstants.DRIVE_COMPENSATION_VOLTAGE.inVolts)
+      )
   private val steerInitialConfigs: TalonFXConfiguration? =
     TalonFXConfiguration()
       .withCurrentLimits(
         CurrentLimitsConfigs() // Swerve azimuth does not require much torque output, so we
           // can set a relatively low
           // stator current limit to help avoid brownouts without impacting performance.
-          .withStatorCurrentLimit(DrivetrainConstants.DRIVE_STATOR_CURRENT_LIMIT.inAmperes)
+          .withStatorCurrentLimit(
+            DrivetrainConstants.STEERING_STATOR_CURRENT_LIMIT.inAmperes
+          )
           .withStatorCurrentLimitEnable(true)
           .withSupplyCurrentLimit(
             DrivetrainConstants.STEERING_SUPPLY_CURRENT_LIMIT.inAmperes
@@ -119,6 +127,13 @@ object TunerConstants {
       )
       // setting brake might be unneccessary but whatever
       .withMotorOutput(MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake))
+      .withVoltage(
+        VoltageConfigs()
+          .withPeakForwardVoltage(DrivetrainConstants.STEERING_COMPENSATION_VOLTAGE.inVolts)
+          .withPeakReverseVoltage(
+            -DrivetrainConstants.STEERING_COMPENSATION_VOLTAGE.inVolts
+          )
+      )
 
   private val encoderInitialConfigs = CANcoderConfiguration()
 
@@ -151,7 +166,7 @@ object TunerConstants {
   private const val kPigeonId = Constants.Gyro.PIGEON_2_ID
 
   // These are only used for simulation
-  private val kSteerInertia: MomentOfInertia = DrivetrainConstants.DRIVE_WHEEL_INERTIA
+  private val kSteerInertia: MomentOfInertia = DrivetrainConstants.STEERING_WHEEL_INERTIA
   private val kDriveInertia: MomentOfInertia = DrivetrainConstants.DRIVE_WHEEL_INERTIA
 
   // Simulated voltage necessary to overcome friction

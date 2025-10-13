@@ -171,11 +171,8 @@ class CoolerTargetTagCommand(
     var xvel = -xPID.calculate(setpointTranslation.x, xTargetOffset * setpointTranslation.x.sign)
     var yvel = -yPID.calculate(setpointTranslation.y, yTargetOffset)
     var thetavel =
-      thetaPID.calculate(
-        drivetrain.rotation,
-        setpointRotation +
-          thetaTargetOffset
-      ) * if (Constants.Universal.INVERT_ROTATION_GLOBALLY) -1 else 1
+      thetaPID.calculate(drivetrain.rotation, setpointRotation + thetaTargetOffset) *
+        if (Constants.Universal.INVERT_ROTATION_GLOBALLY) -1 else 1
 
     if (xPID.error.absoluteValue < xPID.errorTolerance) xvel *= 0
     if (yPID.error.absoluteValue < yPID.errorTolerance) yvel *= 0

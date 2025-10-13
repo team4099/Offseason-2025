@@ -128,7 +128,11 @@ object RobotContainer {
         { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
         { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
         { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-        { ControlBoard.slowMode || superstructure.currentState == Superstructure.Companion.SuperstructureStates.GROUND_INTAKE_CORAL },
+        {
+          ControlBoard.slowMode ||
+            superstructure.currentState ==
+            Superstructure.Companion.SuperstructureStates.GROUND_INTAKE_CORAL
+        },
         drivetrain,
       )
   }

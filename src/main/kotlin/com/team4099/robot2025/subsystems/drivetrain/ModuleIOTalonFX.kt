@@ -16,8 +16,8 @@ import com.ctre.phoenix6.BaseStatusSignal
 import com.ctre.phoenix6.StatusSignal
 import com.ctre.phoenix6.configs.CANcoderConfiguration
 import com.ctre.phoenix6.configs.TalonFXConfiguration
-import com.ctre.phoenix6.controls.MotionMagicVoltage
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC
+import com.ctre.phoenix6.controls.PositionVoltage
 import com.ctre.phoenix6.controls.TorqueCurrentFOC
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC
 import com.ctre.phoenix6.controls.VelocityVoltage
@@ -43,7 +43,6 @@ import org.team4099.lib.units.perSecond
 import java.util.Queue
 import edu.wpi.first.units.measure.Angle as WPIAngle
 import edu.wpi.first.units.measure.AngularVelocity as WPIAngularVelocity
-import com.ctre.phoenix6.controls.PositionVoltage
 
 /**
  * Module IO implementation for Talon FX drive motor controller, Talon FX turn motor controller, and

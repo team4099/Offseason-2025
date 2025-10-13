@@ -22,7 +22,7 @@ class Led(
     state =
       if (testSupplier.get()) CandleState.TEST
       else if (gamePieceArmSupplier.get() == Constants.Universal.GamePiece.CORAL)
-       CandleState.HAS_CORAL
+        CandleState.HAS_CORAL
       else CandleState.NOTHING
 
     CustomLogger.recordOutput("Led/state", state.name)

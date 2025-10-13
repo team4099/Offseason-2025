@@ -13,7 +13,11 @@ object LedConstants {
 
   enum class CandleState(val request: ControlRequest) {
     NOTHING(SolidColor(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kGhostWhite))),
-    TEST(RainbowAnimation(START_INDEX, END_INDEX).withDirection(AnimationDirectionValue.Forward).withFrameRate(20.0)),
+    TEST(
+      RainbowAnimation(START_INDEX, END_INDEX)
+        .withDirection(AnimationDirectionValue.Forward)
+        .withFrameRate(20.0)
+    ),
     HAS_CORAL(SolidColor(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kPurple)))
   }
 }

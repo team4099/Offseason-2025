@@ -220,7 +220,7 @@ class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>) : SubsystemB
     Logger.recordOutput("SwerveChassisSpeeds/Measured", chassisSpeeds.chassisSpeedsWPILIB)
 
     val curStates = moduleStates
-    for (i in 0..3) Logger.recordOutput("SwerveStates/Measured", curStates[i])
+    for (i in 0..3) Logger.recordOutput("SwerveStates/Measured/state[${i}]", curStates[i])
   }
 
   /**

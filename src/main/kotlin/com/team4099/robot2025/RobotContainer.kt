@@ -18,8 +18,11 @@ import com.team4099.robot2025.subsystems.canRange.CANRangeReal
 import com.team4099.robot2025.subsystems.climber.Climber
 import com.team4099.robot2025.subsystems.climber.ClimberIO
 import com.team4099.robot2025.subsystems.climber.ClimberIOSim
-import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
-import com.team4099.robot2025.subsystems.drivetrain.TunerConstants
+import com.team4099.robot2025.subsystems.drivetrain.Drive
+import com.team4099.robot2025.subsystems.drivetrain.GyroIO
+import com.team4099.robot2025.subsystems.drivetrain.GyroIOPigeon2
+import com.team4099.robot2025.subsystems.drivetrain.ModuleIOSim
+import com.team4099.robot2025.subsystems.drivetrain.ModuleIOTalonFX
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOSim
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOTalon
@@ -37,20 +40,21 @@ import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.subsystems.vision.camera.CameraIO
 import com.team4099.robot2025.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.util.driver.Jessika
-import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import edu.wpi.first.wpilibj2.command.InstantCommand
+import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.derived.Angle
+import org.team4099.lib.units.derived.radians
 import java.util.function.Supplier
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersIOSim
 
 object RobotContainer {
-  private val drivetrain: CommandSwerveDrive = TunerConstants.createDrivetrain()
+  private val drivetrain: Drive
   private val vision: Vision
   private val elevator: Elevator
   private val arm: Arm
@@ -70,6 +74,7 @@ object RobotContainer {
 
   init {
     if (RobotBase.isReal()) {
+      drivetrain = Drive(GyroIOPigeon2, ModuleIOTalonFX.generateModules())
       elevator = Elevator(ElevatorIOTalon)
       arm = Arm(ArmIOTalon)
       armRollers = ArmRollers(RollersIOTalon)
@@ -85,16 +90,17 @@ object RobotContainer {
             VisionConstants.CAMERA_NAMES[0],
             VisionConstants.CAMERA_TRANSFORMS[0],
             drivetrain::addVisionMeasurement,
-            { drivetrain.state.Pose.rotation }
+            { drivetrain.pose.rotation }
           ),
           CameraIOPhotonvision(
             VisionConstants.CAMERA_NAMES[1],
             VisionConstants.CAMERA_TRANSFORMS[1],
             drivetrain::addVisionMeasurement,
-            { drivetrain.state.Pose.rotation }
+            { drivetrain.pose.rotation }
           ),
         )
     } else {
+      drivetrain = Drive(object : GyroIO {}, ModuleIOSim.generateModules())
       elevator = Elevator(ElevatorIOSim)
       arm = Arm(ArmIOSIm)
       armRollers = ArmRollers(ArmRollersIOSim)
@@ -122,17 +128,21 @@ object RobotContainer {
         { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
         { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
         { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-        { ControlBoard.slowMode },
+        {
+          ControlBoard.slowMode ||
+            superstructure.currentState ==
+            Superstructure.Companion.SuperstructureStates.GROUND_INTAKE_CORAL
+        },
         drivetrain,
       )
   }
 
   fun zeroSensors(isInAutonomous: Boolean = false) {
-    drivetrain.resetRotation(Rotation2d())
+    drivetrain.pose = Pose2d(drivetrain.pose.x, drivetrain.pose.y, 0.radians)
   }
 
   fun setDriveBrakeMode(neutralModeValue: NeutralModeValue = NeutralModeValue.Brake) {
-    drivetrain.configNeutralMode(neutralModeValue)
+    //    drivetrain.configNeutralMode(neutralModeValue)
   }
 
   fun mapTeleopControls() {

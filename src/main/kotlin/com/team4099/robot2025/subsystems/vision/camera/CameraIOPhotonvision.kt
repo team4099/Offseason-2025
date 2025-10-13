@@ -6,7 +6,6 @@ import edu.wpi.first.apriltag.AprilTagFields
 import edu.wpi.first.math.Matrix
 import edu.wpi.first.math.VecBuilder
 import edu.wpi.first.math.geometry.Pose2d
-import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
 import org.littletonrobotics.junction.Logger
@@ -21,6 +20,8 @@ import org.team4099.lib.units.base.Time
 import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.seconds
+import org.team4099.lib.units.derived.Angle
+import org.team4099.lib.units.derived.inRotation2ds
 import org.team4099.lib.units.micro
 import java.util.Optional
 import java.util.function.Supplier
@@ -29,7 +30,7 @@ class CameraIOPhotonvision(
   private val identifier: String,
   transform: Transform3d,
   val poseMeasurementConsumer: (Pose2d?, Double, Matrix<N3?, N1?>) -> Unit,
-  val drivetrainRotationSupplier: Supplier<Rotation2d>
+  val drivetrainRotationSupplier: Supplier<Angle>
 ) : CameraIO {
 
   private val photonEstimator: PhotonPoseEstimator =
@@ -91,7 +92,7 @@ class CameraIOPhotonvision(
           val poseEst2d = poseEst.toPose2d()
 
           poseMeasurementConsumer(
-            Pose2d(poseEst2d.x, poseEst2d.y, drivetrainRotationSupplier.get()),
+            Pose2d(poseEst2d.x, poseEst2d.y, drivetrainRotationSupplier.get().inRotation2ds),
             visionEst.get().timestampSeconds,
             curStdDevs
           )

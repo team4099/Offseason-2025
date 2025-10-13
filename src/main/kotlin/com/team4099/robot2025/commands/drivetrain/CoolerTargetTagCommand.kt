@@ -1,11 +1,9 @@
 package com.team4099.robot2025.commands.drivetrain
 
-import com.ctre.phoenix6.swerve.SwerveModule
-import com.ctre.phoenix6.swerve.SwerveRequest
 import com.team4099.lib.hal.Clock
 import com.team4099.lib.math.asPose2d
 import com.team4099.robot2025.config.constants.DrivetrainConstants
-import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
+import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj.DriverStation
@@ -14,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import org.team4099.lib.controller.PIDController
 import org.team4099.lib.geometry.Transform2d
 import org.team4099.lib.geometry.Translation2d
+import org.team4099.lib.kinematics.ChassisSpeeds
 import org.team4099.lib.units.Velocity
 import org.team4099.lib.units.base.Length
 import org.team4099.lib.units.base.Meter
@@ -22,21 +21,18 @@ import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.base.seconds
-import org.team4099.lib.units.centi
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.Radian
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inDegrees
-import org.team4099.lib.units.derived.inRotation2ds
 import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.inMetersPerSecond
-import org.team4099.lib.units.inRadiansPerSecond
 import org.team4099.lib.units.perSecond
 import kotlin.math.PI
 
 class CoolerTargetTagCommand(
-  private val drivetrain: CommandSwerveDrive,
+  private val drivetrain: Drive,
   private val vision: Vision,
   private val xTargetOffset: Length =
     DrivetrainConstants.DRIVETRAIN_LENGTH / 2 + DrivetrainConstants.BUMPER_WIDTH + 0.25.inches,
@@ -62,18 +58,6 @@ class CoolerTargetTagCommand(
       DrivetrainConstants.PID.TELEOP_Y_PID_KI,
       DrivetrainConstants.PID.TELEOP_Y_PID_KD
     )
-
-  private val requestRobotCentric =
-    SwerveRequest.RobotCentric()
-      .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
-      .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
-      .withDeadband(0.5.centi.meters.perSecond.inMetersPerSecond)
-  //      .withRotationalDeadband(0.5.degrees.perSecond.inRadiansPerSecond)
-
-  private val requestPointWheels =
-    SwerveRequest.PointWheelsAt()
-      .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
-      .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
 
   private var hasThetaAligned: Boolean = false
   private var hasPointedAt: Boolean = false
@@ -170,14 +154,13 @@ class CoolerTargetTagCommand(
 
     CustomLogger.recordOutput("CoolerTargetTagCommand/odomTTag", odomTTag.asPose2d().pose2d)
     CustomLogger.recordOutput(
-      "CoolerTargetTagCommand/expectedTagPose",
-      drivetrain.state.Pose.transformBy(odomTTag.transform2d)
+      "CoolerTargetTagCommand/expectedTagPose", drivetrain.pose.transformBy(odomTTag).pose2d
     )
     CustomLogger.recordOutput(
       "CoolerTargetTagCommand/setpointTranslation", setpointTranslation.translation2d
     )
     CustomLogger.recordOutput(
-      "CoolerTargetTagCommand/currentRotation", drivetrain.state.Pose.rotation.degrees
+      "CoolerTargetTagCommand/currentRotation", drivetrain.rotation.inDegrees
     )
     CustomLogger.recordOutput(
       "CoolerTargetTagCommand/setpointRotation", (setpointRotation + thetaTargetOffset).inDegrees
@@ -186,12 +169,7 @@ class CoolerTargetTagCommand(
     // todo check signs and whatnot
     var xvel = -xPID.calculate(setpointTranslation.x, xTargetOffset * setpointTranslation.x.sign)
     var yvel = -yPID.calculate(setpointTranslation.y, yTargetOffset)
-    var thetavel =
-      -thetaPID.calculate(
-        drivetrain.state.Pose.rotation.degrees.degrees,
-        setpointRotation +
-          thetaTargetOffset
-      ) // * -drivetrain.state.Pose.rotation.degrees.degrees.sign
+    var thetavel = -thetaPID.calculate(drivetrain.rotation, setpointRotation + thetaTargetOffset)
 
     if (xPID.error.absoluteValue < xPID.errorTolerance) xvel *= 0
     if (yPID.error.absoluteValue < yPID.errorTolerance) yvel *= 0
@@ -207,28 +185,14 @@ class CoolerTargetTagCommand(
     CustomLogger.recordOutput("CoolerTargetTagCommand/hasThetaAligned", hasThetaAligned)
     CustomLogger.recordOutput("CoolerTargetTagCommand/hasPointedAt", hasPointedAt)
 
-    if (hasThetaAligned && !hasPointedAt) {
-      hasPointedAt = true
-      drivetrain.setControl(
-        requestPointWheels.withModuleDirection(
-          (setpointRotation + thetaTargetOffset).inRotation2ds
-        )
-      )
-      //      xPID.reset()
-      //      yPID.reset()
-    }
+    drivetrain.runSpeeds(ChassisSpeeds(xvel, yvel, thetavel))
 
     if (hasThetaAligned || thetaPID.error.absoluteValue < 4.49.degrees) {
       hasThetaAligned = true
 
-      drivetrain.setControl(
-        requestRobotCentric
-          .withVelocityX(xvel.inMetersPerSecond)
-          .withVelocityY(yvel.inMetersPerSecond)
-          .withRotationalRate(thetavel.inRadiansPerSecond)
-      )
+      drivetrain.runSpeeds(ChassisSpeeds(xvel, yvel, thetavel))
     } else {
-      drivetrain.setControl(requestRobotCentric.withRotationalRate(thetavel.inRadiansPerSecond))
+      drivetrain.runSpeeds(ChassisSpeeds(0.meters.perSecond, 0.meters.perSecond, thetavel))
     }
   }
 
@@ -243,14 +207,7 @@ class CoolerTargetTagCommand(
 
     CustomLogger.recordOutput("CoolerTargetTagCommand/interrupted", interrupted)
 
-    drivetrain.setControl(
-      requestRobotCentric
-        .withVelocityX(0.0)
-        .withVelocityY(0.0)
-        .withRotationalRate(0.0)
-        .withDeadband(0.0)
-        .withRotationalDeadband(0.0)
-    )
+    drivetrain.runSpeeds(ChassisSpeeds())
     CustomLogger.recordOutput("ActiveCommands/TargetTagCommand", false)
   }
 }

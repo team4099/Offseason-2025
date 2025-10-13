@@ -14,17 +14,21 @@ class Led(
   var inputs = LedIO.LEDIOInputs()
 
   var state = CandleState.NOTHING
+  private var lastState: CandleState? = null
 
   override fun periodic() {
+    CustomLogger.processInputs("Led", inputs)
     // todo for testing
     state =
-      if (testSupplier.get()) CandleState.HAS_CORAL
-      //      else if (gamePieceArmSupplier.get() == Constants.Universal.GamePiece.CORAL)
-      // CandleState.HAS_CORAL
+      if (testSupplier.get()) CandleState.TEST
+      else if (gamePieceArmSupplier.get() == Constants.Universal.GamePiece.CORAL)
+        CandleState.HAS_CORAL
       else CandleState.NOTHING
 
     CustomLogger.recordOutput("Led/state", state.name)
 
+    if (lastState != state) io.turnOff()
     io.setState(state)
+    lastState = state
   }
 }

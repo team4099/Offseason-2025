@@ -140,13 +140,18 @@ object RobotContainer {
     ControlBoard.prepL4OrBarge.whileTrue(superstructure.prepL4OrBargeCommand())
 
     ControlBoard.alignLeft.whileTrue(
-      CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (-12.94 / 2).inches)
+      ConditionalCommand(
+        CoolerTargetTagCommand(drivetrain, vision),
+        CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (12.94 / 2).inches)
+      ) {
+        superstructure.theoreticalGamePieceArm == Constants.Universal.GamePiece.ALGAE
+      }
     )
 
     ControlBoard.alignRight.whileTrue(
       ConditionalCommand(
         CoolerTargetTagCommand(drivetrain, vision),
-        CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (12.94 / 2).inches)
+        CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (-12.94 / 2).inches)
       ) {
         superstructure.theoreticalGamePieceArm == Constants.Universal.GamePiece.ALGAE
       }

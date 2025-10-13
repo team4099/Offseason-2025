@@ -14,14 +14,16 @@ class ExamplePathAuto(val drivetrain: CommandSwerveDrive) : SequentialCommandGro
 
     addCommands(
       WaitCommand(0.5),
-      FollowChoreoPath(drivetrain, trajectory),
+      FollowChoreoPath(drivetrain, firstTrajectory),
+      FollowChoreoPath(drivetrain, secondTrajectory),
     )
   }
 
   companion object {
-    val trajectory = Choreo.loadTrajectory<SwerveSample>("Example/ExamplePath.traj").get()
+    val firstTrajectory = Choreo.loadTrajectory<SwerveSample>("Example/1ExamplePathTranslation.traj").get()
+    val secondTrajectory = Choreo.loadTrajectory<SwerveSample>("Example/2ExamplePathRotation.traj").get()
 
     // don't flip pose: poses are robot relative since field frame estimator was reset
-    val startingPose = Pose2d(trajectory.getInitialPose(false).get())
+    val startingPose = Pose2d(firstTrajectory.getInitialPose(false).get())
   }
 }

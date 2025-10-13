@@ -85,8 +85,6 @@ class CoolerTargetTagCommand(
   }
 
   override fun initialize() {
-    CustomLogger.recordOutput("ActiveCommands/CoolerTargetTagCommand", true)
-
     if (RobotBase.isSimulation()) {
       thetaPID =
         PIDController(
@@ -158,6 +156,8 @@ class CoolerTargetTagCommand(
   }
 
   override fun execute() {
+    CustomLogger.recordOutput("ActiveCommands/CoolerTargetTagCommand", true)
+
     val lastUpdate = vision.lastTrigVisionUpdate
     val odomTTag = lastUpdate.robotTReefTag
 

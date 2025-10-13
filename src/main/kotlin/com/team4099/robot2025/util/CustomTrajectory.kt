@@ -96,7 +96,7 @@ class CustomTrajectory(
   //            Pose2d(
   //              desiredState.poseMeters.x.meters,
   //              desiredState.poseMeters.y.meters,
-  //              desiredRotation.modulePosition.radians.radians
+  //              desiredRotation.position.radians.radians
   //            )
   //          )
   //

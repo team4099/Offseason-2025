@@ -98,7 +98,7 @@ class Module(
     get() = inputs.turnPosition
 
   val position: Length
-    /** Returns the current drive modulePosition of the module in meters. */
+    /** Returns the current drive position of the module in meters. */
     get() = (inputs.drivePosition.inRadians * constants.WheelRadius).meters
 
   val velocity: LinearVelocity

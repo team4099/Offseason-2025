@@ -92,7 +92,7 @@ class CustomHolonomicDriveController(
       )
     }
 
-    // Calculate feedback velocities (based on modulePosition error).
+    // Calculate feedback velocities (based on position error).
     val xFeedback = m_xController.calculate(currentPose.x, poseRef.x)
     val yFeedback = m_yController.calculate(currentPose.y, poseRef.y)
     val thetaFeedback = m_thetaController.calculate(currentPose.rotation.radians, angleRef.radians)
@@ -139,7 +139,7 @@ class CustomHolonomicDriveController(
     val xFF = trajectoryState.vx
     val yFF = trajectoryState.vy
 
-    // Calculate feedback velocities (based on modulePosition error).
+    // Calculate feedback velocities (based on position error).
     val xFeedback = m_xController.calculate(currentPose.x, trajectoryState.pose.x)
     val yFeedback = m_yController.calculate(currentPose.y, trajectoryState.pose.y)
     val thetaFeedback =

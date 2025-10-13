@@ -15,7 +15,7 @@ abstract class Waypoint {
   /**
    * Constructs a Waypoint with a translation, drive rotation, and holonomic rotation.
    *
-   * @param translation Waypoint modulePosition (required)
+   * @param translation Waypoint position (required)
    * @param heading Drive velocity rotation (optional, can be null)
    * @param holonomicRotation Holonomic rotation (optional, can be null)
    */
@@ -31,7 +31,7 @@ abstract class Waypoint {
   /**
    * Constructs a Waypoint with a translation (but no drive or holonomic rotation).
    *
-   * @param translation Waypoint modulePosition (required)
+   * @param translation Waypoint position (required)
    */
   /** Constructs a Waypoint at the origin and without a drive or holonomic rotation. */
   @JvmOverloads

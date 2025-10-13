@@ -27,7 +27,7 @@ class CustomTrajectoryGenerator {
    *
    * 1) The drive rotations for the start and end waypoints are required for trajectory generation.
    * If not specified by the user, these rotations will be created automatically based on the
-   * modulePosition of the nearest waypoint.
+   * position of the nearest waypoint.
    *
    * 2) Transitions between quintic and cubic splines may produce high accelerations due to
    * unrealistic changes in curvature. Please account for this effect when tuning feedback
@@ -39,7 +39,7 @@ class CustomTrajectoryGenerator {
    *
    * 4) The robot's holonomic rotation always assumed to match its drive rotation when applying
    * kinematics constraints. Please use sufficient margins to allow for changes in angular
-   * modulePosition and velocity.
+   * position and velocity.
    *
    * @param config Trajectory configuration
    * @param waypoints A series of waypoints

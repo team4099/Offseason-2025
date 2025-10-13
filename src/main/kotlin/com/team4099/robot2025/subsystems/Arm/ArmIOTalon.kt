@@ -98,12 +98,12 @@ object ArmIOTalon : ArmIO {
     //    absoluteEncoder.clearStickyFaults()
 
     //    do {
-    //      absoluteEncoder.modulePosition.refresh()
+    //      absoluteEncoder.position.refresh()
     //      Logger.recordOutput("Arm/cancoderPublishing",
-    // absoluteEncoder.modulePosition.status.isOK)
-    //    } while (!absoluteEncoder.modulePosition.status.isOK)
+    // absoluteEncoder.position.status.isOK)
+    //    } while (!absoluteEncoder.position.status.isOK)
 
-    //    absoluteEncoderPositionSignal = absoluteEncoder.modulePosition
+    //    absoluteEncoderPositionSignal = absoluteEncoder.position
     //    absoluteEncoderAbsolutePositionSignal = absoluteEncoder.absolutePosition
     //    absoluteEncoderVelocitySignal = absoluteEncoder.velocity
 

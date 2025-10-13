@@ -316,7 +316,7 @@ class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>) : SubsystemB
     get() = ChassisSpeeds(kinematics.toChassisSpeeds(moduleStates))
 
   val wheelRadiusCharacterizationPositions: DoubleArray
-    /** Returns the modulePosition of each module in radians. */
+    /** Returns the position of each module in radians. */
     get() {
       val values = DoubleArray(4)
       for (i in 0..3) {

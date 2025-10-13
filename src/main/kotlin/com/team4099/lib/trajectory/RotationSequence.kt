@@ -4,7 +4,7 @@ import edu.wpi.first.math.geometry.Rotation2d
 import java.util.TreeMap
 
 /**
- * Represents a sequence of timed rotations. The modulePosition and velocity of the robot is
+ * Represents a sequence of timed rotations. The position and velocity of the robot is
  * calculated to minimize acceleration.
  */
 class RotationSequence(sequence: TreeMap<Double, Rotation2d>?) {
@@ -59,7 +59,7 @@ class RotationSequence(sequence: TreeMap<Double, Rotation2d>?) {
       }
     }
 
-    // Keep modulePosition within acceptable range
+    // Keep position within acceptable range
     while (positionRadians > Math.PI) {
       positionRadians -= Math.PI * 2
     }
@@ -69,7 +69,7 @@ class RotationSequence(sequence: TreeMap<Double, Rotation2d>?) {
     return State(Rotation2d(positionRadians), velocityRadiansPerSec)
   }
 
-  /** Represents a state in a rotation sequence with a modulePosition and velocity. */
+  /** Represents a state in a rotation sequence with a position and velocity. */
   class State {
     var position: Rotation2d
     var velocityRadiansPerSec: Double
@@ -82,7 +82,7 @@ class RotationSequence(sequence: TreeMap<Double, Rotation2d>?) {
     /**
      * Constructs a State with the specified parameters.
      *
-     * @param position The modulePosition at this point in the rotation sequence.
+     * @param position The position at this point in the rotation sequence.
      * @param velocityRadiansPerSec The velocity at this point in the rotation sequence.
      */
     constructor(position: Rotation2d, velocityRadiansPerSec: Double) {

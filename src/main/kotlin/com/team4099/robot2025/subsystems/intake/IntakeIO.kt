@@ -108,9 +108,9 @@ interface IntakeIO {
   fun setRollerVoltage(voltage: ElectricalPotential) {}
 
   /**
-   * Sets the modulePosition of the arm motor, specifically the length of the arm
+   * Sets the position of the arm motor, specifically the length of the arm
    *
-   * @param position the modulePosition to set the arm to
+   * @param position the position to set the arm to
    * @param feedforward changes voltages to compensate for external forces
    */
   fun setPivotPosition(position: Angle) {}
@@ -135,7 +135,7 @@ interface IntakeIO {
     kD: DerivativeGain<Radian, Volt>
   ) {}
 
-  /** Sets the current encoder modulePosition to be the zero value */
+  /** Sets the current encoder position to be the zero value */
   fun zeroEncoder() {}
 
   /**

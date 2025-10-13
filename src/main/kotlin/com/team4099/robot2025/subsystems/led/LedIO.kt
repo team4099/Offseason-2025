@@ -10,5 +10,5 @@ interface LedIO {
     override fun fromLog(table: LogTable?) {}
   }
 
-  fun setState(state: LedConstants.CandleState)
+  fun setState(state: LedConstants.CandleState) {}
 }

@@ -10,16 +10,16 @@ object RollersConstants {
   val GEAR_RATIO = 12.0 / (24.0 / 20.0) / (60.0 / 18.0) / (36.0 / 24.0) / 24.0
   val VOLTAGE_COMPENSATION = 12.volts
 
-  val CORAL_CURRENT_THRESHOLD = 20.0.amps
+  val CORAL_CURRENT_THRESHOLD = 17.5.amps
   val CORAL_DETECTION_THRESHOLD = 0.5.seconds
-  val ALGAE_CURRENT_THRESHOLD = 35.0.amps
+  val ALGAE_CURRENT_THRESHOLD = 30.0.amps
   val ALGAE_DETECTION_THRESHOLD = 1.0.seconds
 
-  val IDLE_VOLTAGE = 0.1.volts
+  val IDLE_VOLTAGE = 0.0.volts
   val EJECT_VOLTAGE = (-3.0).volts
 
-  val IDLE_CORAL_VOLTAGE = 0.2.volts
-  val IDLE_ALGAE_VOLTAGE = 1.0.volts
+  val IDLE_CORAL_VOLTAGE = 0.5.volts
+  val IDLE_ALGAE_VOLTAGE = 2.volts
 
   val MOMENT_OF_INERTIA = 0.09344594214.grams.meterSquared
 

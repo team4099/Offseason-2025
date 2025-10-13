@@ -21,6 +21,7 @@ import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.Angle
+import org.team4099.lib.units.derived.inRotation2ds
 import org.team4099.lib.units.micro
 import java.util.Optional
 import java.util.function.Supplier
@@ -90,7 +91,11 @@ class CameraIOPhotonvision(
 
           val poseEst2d = poseEst.toPose2d()
 
-          poseMeasurementConsumer(poseEst2d, visionEst.get().timestampSeconds, curStdDevs)
+          poseMeasurementConsumer(
+            Pose2d(poseEst2d.x, poseEst2d.y, drivetrainRotationSupplier.get().inRotation2ds),
+            visionEst.get().timestampSeconds,
+            curStdDevs
+          )
         }
       }
     }

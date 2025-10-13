@@ -17,6 +17,7 @@ import com.team4099.robot2025.subsystems.elevator.ElevatorTunableValues
 import com.team4099.robot2025.subsystems.indexer.Indexer
 import com.team4099.robot2025.subsystems.intake.Intake
 import com.team4099.robot2025.subsystems.intake.IntakeTunableValues
+import com.team4099.robot2025.subsystems.led.Led
 import com.team4099.robot2025.subsystems.superstructure.Request.SuperstructureRequest
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.CustomLogger
@@ -55,7 +56,8 @@ class Superstructure(
   private val climber: Climber,
   private val intake: Intake,
   private val indexer: Indexer,
-  private val canrange: CANRange
+  private val canrange: CANRange,
+  private val led: Led
 ) : SubsystemBase() {
 
   private var overrideFlagForSim = false
@@ -147,6 +149,12 @@ class Superstructure(
     CustomLogger.recordOutput(
       "LoggedRobot/Subsystems/intakeLoopTimeMS",
       (Clock.realTimestamp - intakeStartTime).inMilliseconds
+    )
+
+    val ledStartTime = Clock.realTimestamp
+    led.periodic()
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/ledLoopTimeMS", (Clock.realTimestamp - ledStartTime).inMilliseconds
     )
 
     if (RobotBase.isSimulation()) {

@@ -29,6 +29,9 @@ import com.team4099.robot2025.subsystems.indexer.IndexerIOTalon
 import com.team4099.robot2025.subsystems.intake.Intake
 import com.team4099.robot2025.subsystems.intake.IntakeIOSim
 import com.team4099.robot2025.subsystems.intake.IntakeIOTalonFX
+import com.team4099.robot2025.subsystems.led.Led
+import com.team4099.robot2025.subsystems.led.LedIO
+import com.team4099.robot2025.subsystems.led.LedIOCandle
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.subsystems.vision.camera.CameraIO
@@ -42,6 +45,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand
 import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.derived.Angle
+import java.util.function.Supplier
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersIOSim
 
@@ -55,6 +59,7 @@ object RobotContainer {
   private val intake: Intake
   private val indexer: Indexer
   private val canrange: CANRange
+  private val led: Led
   val superstructure: Superstructure
 
   val driverRumbleState
@@ -72,6 +77,7 @@ object RobotContainer {
       intake = Intake(IntakeIOTalonFX)
       indexer = Indexer(IndexerIOTalon)
       canrange = CANRange(CANRangeReal)
+      led = Led(LedIOCandle, { null }, { ControlBoard.test.asBoolean })
 
       vision =
         Vision(
@@ -96,14 +102,17 @@ object RobotContainer {
       intake = Intake(IntakeIOSim)
       indexer = Indexer(IndexerIOSim)
       canrange = CANRange(object : CANRangeIO {})
+      led = Led(object : LedIO {}, { null }, { ControlBoard.test.asBoolean })
 
       vision = Vision(object : CameraIO {})
     }
 
     superstructure =
       Superstructure(
-        drivetrain, vision, elevator, arm, armRollers, climber, intake, indexer, canrange
+        drivetrain, vision, elevator, arm, armRollers, climber, intake, indexer, canrange, led
       )
+
+    led.gamePieceArmSupplier = Supplier { superstructure.theoreticalGamePieceArm }
   }
 
   fun mapDefaultCommands() {

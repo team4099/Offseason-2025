@@ -1,6 +1,7 @@
 package com.team4099.robot2025.subsystems.led
 
 import com.ctre.phoenix6.configs.CANdleConfiguration
+import com.ctre.phoenix6.controls.EmptyAnimation
 import com.ctre.phoenix6.hardware.CANdle
 import com.ctre.phoenix6.signals.LossOfSignalBehaviorValue
 import com.team4099.robot2025.config.constants.Constants
@@ -20,5 +21,9 @@ object LedIOCandle : LedIO {
 
   override fun setState(state: LedConstants.CandleState) {
     candle.setControl(state.request)
+  }
+
+  override fun turnOff() {
+    candle.setControl(EmptyAnimation(0))
   }
 }

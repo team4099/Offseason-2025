@@ -7,13 +7,14 @@ import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.degrees
 
-class ResetGyroYawCommand(val drivetrain: Drive, val toAngle: Angle = 0.0.degrees) : Command() {
+class ResetGyroYawCommand(val drivetrain: Drive, private val toAngle: Angle = 0.0.degrees) : Command() {
   init {
     addRequirements(drivetrain)
   }
 
   override fun initialize() {
     drivetrain.pose = Pose2d(drivetrain.pose.x, drivetrain.pose.y, toAngle)
+    drivetrain.pointWheelsAt(toAngle)
   }
 
   override fun execute() {

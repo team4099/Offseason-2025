@@ -254,6 +254,13 @@ class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>) : SubsystemB
     Logger.recordOutput("SwerveStates/SetpointsOptimized", *setpointStates)
   }
 
+  /** Point the module's wheels at the direction specified */
+  fun pointWheelsAt(angle: Angle) {
+    for (i in 0..3) {
+      modules[i]!!.pointWheelsAt(angle)
+    }
+  }
+
   /** Runs the drive in a straight line with the specified drive output. */
   fun runCharacterization(output: Double) {
     for (i in 0..3) {

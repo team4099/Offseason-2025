@@ -2,6 +2,7 @@ package com.team4099.robot2025.commands.drivetrain
 
 import com.team4099.lib.hal.Clock
 import com.team4099.lib.math.asPose2d
+import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.subsystems.vision.Vision
@@ -170,11 +171,11 @@ class CoolerTargetTagCommand(
     var xvel = -xPID.calculate(setpointTranslation.x, xTargetOffset * setpointTranslation.x.sign)
     var yvel = -yPID.calculate(setpointTranslation.y, yTargetOffset)
     var thetavel =
-      -thetaPID.calculate(
+      thetaPID.calculate(
         drivetrain.rotation,
         setpointRotation +
           thetaTargetOffset
-      ) // * -drivetrain.state.Pose.rotation.degrees.degrees.sign
+      ) * if (Constants.Universal.INVERT_ROTATION_GLOBALLY) -1 else 1
 
     if (xPID.error.absoluteValue < xPID.errorTolerance) xvel *= 0
     if (yPID.error.absoluteValue < yPID.errorTolerance) yvel *= 0

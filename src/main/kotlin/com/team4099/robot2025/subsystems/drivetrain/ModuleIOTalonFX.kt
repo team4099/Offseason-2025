@@ -43,6 +43,7 @@ import org.team4099.lib.units.perSecond
 import java.util.Queue
 import edu.wpi.first.units.measure.Angle as WPIAngle
 import edu.wpi.first.units.measure.AngularVelocity as WPIAngularVelocity
+import com.ctre.phoenix6.controls.PositionVoltage
 
 /**
  * Module IO implementation for Talon FX drive motor controller, Talon FX turn motor controller, and
@@ -64,7 +65,7 @@ class ModuleIOTalonFX(
 
   // Voltage control requests
   private val voltageRequest = VoltageOut(0.0)
-  private val positionVoltageRequest = MotionMagicVoltage(0.0)
+  private val positionVoltageRequest = PositionVoltage(0.0)
   private val velocityVoltageRequest = VelocityVoltage(0.0)
 
   // Torque-current control requests
@@ -220,44 +221,20 @@ class ModuleIOTalonFX(
   }
 
   override fun setDriveOpenLoop(output: Double) {
-    driveTalon.setControl(
-      when (constants.DriveMotorClosedLoopOutput) {
-        SwerveModuleConstants.ClosedLoopOutputType.TorqueCurrentFOC ->
-          torqueCurrentRequest.withOutput(output)
-        else -> voltageRequest.withOutput(output)
-      }
-    )
+    driveTalon.setControl(voltageRequest.withOutput(output))
   }
 
   override fun setTurnOpenLoop(output: Double) {
-    turnTalon.setControl(
-      when (constants.SteerMotorClosedLoopOutput) {
-        SwerveModuleConstants.ClosedLoopOutputType.TorqueCurrentFOC ->
-          torqueCurrentRequest.withOutput(output)
-        else -> voltageRequest.withOutput(output)
-      }
-    )
+    turnTalon.setControl(voltageRequest.withOutput(output))
   }
 
   override fun setDriveVelocity(velocityRadPerSec: Double) {
     val velocityRotPerSec = Units.radiansToRotations(velocityRadPerSec)
-    driveTalon.setControl(
-      when (constants.DriveMotorClosedLoopOutput) {
-        SwerveModuleConstants.ClosedLoopOutputType.TorqueCurrentFOC ->
-          velocityTorqueCurrentRequest.withVelocity(velocityRotPerSec)
-        else -> velocityVoltageRequest.withVelocity(velocityRotPerSec)
-      }
-    )
+    driveTalon.setControl(velocityVoltageRequest.withVelocity(velocityRotPerSec))
   }
 
   override fun setTurnPosition(rotation: Rotation2d) {
-    turnTalon.setControl(
-      when (constants.SteerMotorClosedLoopOutput) {
-        SwerveModuleConstants.ClosedLoopOutputType.TorqueCurrentFOC ->
-          positionTorqueCurrentRequest.withPosition(rotation.rotations)
-        else -> positionVoltageRequest.withPosition(rotation.rotations)
-      }
-    )
+    turnTalon.setControl(positionVoltageRequest.withPosition(rotation.rotations))
   }
 
   companion object {

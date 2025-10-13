@@ -11,4 +11,5 @@ interface LedIO {
   }
 
   fun setState(state: LedConstants.CandleState) {}
+  fun turnOff() {}
 }

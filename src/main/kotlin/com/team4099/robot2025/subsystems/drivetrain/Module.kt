@@ -15,6 +15,7 @@ package com.team4099.robot2025.subsystems.drivetrain
 import com.ctre.phoenix6.configs.CANcoderConfiguration
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.swerve.SwerveModuleConstants
+import com.team4099.robot2025.config.constants.DrivetrainConstants
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.kinematics.SwerveModulePosition
 import edu.wpi.first.math.kinematics.SwerveModuleState
@@ -27,6 +28,7 @@ import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.inRadians
 import org.team4099.lib.units.derived.inRotation2ds
+import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.inMetersPerSecond
 import org.team4099.lib.units.inRadiansPerSecond
 import org.team4099.lib.units.inRotationsPerSecond
@@ -77,7 +79,16 @@ class Module(
     state.cosineScale(inputs.turnPosition.inRotation2ds)
 
     // Apply setpoints
-    io.setDriveVelocity(state.speedMetersPerSecond / constants.WheelRadius)
+    val desiredVoltage = state.speedMetersPerSecond / constants.SpeedAt12Volts * DrivetrainConstants.DRIVE_COMPENSATION_VOLTAGE.inVolts
+//    io.setDriveVelocity(state.speedMetersPerSecond / constants.WheelRadius)
+    io.setDriveOpenLoop(desiredVoltage)
+    io.setTurnPosition(state.angle)
+  }
+
+  fun pointWheelsAt(angle: Angle) {
+    val state = SwerveModuleState(0.0, angle.inRotation2ds)
+    state.optimize(angle.inRotation2ds)
+
     io.setTurnPosition(state.angle)
   }
 

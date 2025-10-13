@@ -30,6 +30,7 @@ import org.team4099.lib.geometry.Rotation3d
 import org.team4099.lib.geometry.Translation3d
 import org.team4099.lib.units.base.inInches
 import org.team4099.lib.units.base.inMilliseconds
+import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.degrees
@@ -37,7 +38,6 @@ import org.team4099.lib.units.derived.inDegrees
 import org.team4099.lib.units.derived.volts
 import kotlin.math.abs
 import kotlin.math.max
-import org.team4099.lib.units.base.inSeconds
 import com.team4099.robot2025.config.constants.Constants.Universal.AlgaeIntakeLevel as AlgaeIntakeLevel
 import com.team4099.robot2025.config.constants.Constants.Universal.AlgaeScoringLevel as AlgaeScoringLevel
 import com.team4099.robot2025.config.constants.Constants.Universal.CoralLevel as CoralLevel
@@ -373,9 +373,10 @@ class Superstructure(
           indexer.currentRequest = Request.IndexerRequest.Index(IndexerConstants.INDEX_VOLTAGE / 3)
         } else {
           if ((Clock.fpgaTime - indexer.lastCoralTriggerTime).inSeconds % 1.5 > 1) {
-            intake.currentRequest = Request.IntakeRequest.OpenLoop(
-              IntakeConstants.FORCE_DOWN_VOLTAGE, IntakeConstants.Rollers.EJECT_VOLTAGE
-            )
+            intake.currentRequest =
+              Request.IntakeRequest.OpenLoop(
+                IntakeConstants.FORCE_DOWN_VOLTAGE, IntakeConstants.Rollers.EJECT_VOLTAGE
+              )
             indexer.currentRequest = Request.IndexerRequest.Index(IndexerConstants.SPIT_VOLTAGE)
           } else {
             intake.currentRequest =
@@ -384,7 +385,6 @@ class Superstructure(
               )
             indexer.currentRequest = Request.IndexerRequest.Index(IndexerConstants.INDEX_VOLTAGE)
           }
-
         }
 
         if (currentRequest is SuperstructureRequest.Eject) {
@@ -393,7 +393,7 @@ class Superstructure(
           currentRequest is SuperstructureRequest.Idle
         ) {
           currentRequest = SuperstructureRequest.Idle()
-//          nextState = SuperstructureStates.GROUND_INTAKE_CORAL_CLEANUP
+          //          nextState = SuperstructureStates.GROUND_INTAKE_CORAL_CLEANUP
           nextState = SuperstructureStates.IDLE
         }
       }
@@ -737,12 +737,16 @@ class Superstructure(
         lastPrepLevel = CoralLevel.NONE
 
         if (intake.inputs.pivotPosition > 100.degrees) {
-          intake.currentRequest = Request.IntakeRequest.TargetingPosition(
-            IntakeConstants.ANGLES.NOT_CLIPPING_ELEVATOR_THRESHOLD, IntakeTunableValues.ejectRollerVoltage.get()
-          )
+          intake.currentRequest =
+            Request.IntakeRequest.TargetingPosition(
+              IntakeConstants.ANGLES.NOT_CLIPPING_ELEVATOR_THRESHOLD,
+              IntakeTunableValues.ejectRollerVoltage.get()
+            )
         } else {
           intake.currentRequest =
-            Request.IntakeRequest.OpenLoop(0.0.volts, IntakeTunableValues.ejectRollerVoltage.get())
+            Request.IntakeRequest.OpenLoop(
+              0.0.volts, IntakeTunableValues.ejectRollerVoltage.get()
+            )
         }
         indexer.currentRequest = Request.IndexerRequest.Eject()
 

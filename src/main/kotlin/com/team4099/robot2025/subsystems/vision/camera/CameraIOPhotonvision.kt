@@ -90,7 +90,11 @@ class CameraIOPhotonvision(
 
           val poseEst2d = poseEst.toPose2d()
 
-          poseMeasurementConsumer(Pose2d(poseEst2d.x, poseEst2d.y, drivetrainRotationSupplier.get()), visionEst.get().timestampSeconds, curStdDevs)
+          poseMeasurementConsumer(
+            Pose2d(poseEst2d.x, poseEst2d.y, drivetrainRotationSupplier.get()),
+            visionEst.get().timestampSeconds,
+            curStdDevs
+          )
         }
       }
     }

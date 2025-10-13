@@ -259,8 +259,9 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
 
     for (i in 0..3) {
       try {
-        getModule(i).steerMotor?.getStatorCurrent(true)
-          ?.let { CustomLogger.recordOutput("Drivetrain/module($i)/steer/statorCurrent", it.valueAsDouble) }
+        getModule(i).steerMotor?.getStatorCurrent(true)?.let {
+          CustomLogger.recordOutput("Drivetrain/module($i)/steer/statorCurrent", it.valueAsDouble)
+        }
       } finally {}
     }
   }

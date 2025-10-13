@@ -34,10 +34,10 @@ import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.cos
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inRadians
+import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.derived.sin
 import java.util.function.Consumer
 import java.util.function.Supplier
-import org.team4099.lib.units.derived.radians
 
 class Vision(vararg cameras: CameraIO) : SubsystemBase() {
   val io: List<CameraIO> = cameras.toList()
@@ -147,11 +147,11 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
 
               val aprilTagAlignmentAngle =
                 fieldLayout.getTagPose(tag.fiducialId).get().rotation.z.radians
-//                if (FMSData.isBlue) {
-//                  VisionConstants.BLUE_REEF_TAG_THETA_ALIGNMENTS[tag.fiducialId]
-//                } else {
-//                  VisionConstants.RED_REEF_TAG_THETA_ALIGNMENTS[tag.fiducialId]
-//                }
+              //                if (FMSData.isBlue) {
+              //                  VisionConstants.BLUE_REEF_TAG_THETA_ALIGNMENTS[tag.fiducialId]
+              //                } else {
+              //                  VisionConstants.RED_REEF_TAG_THETA_ALIGNMENTS[tag.fiducialId]
+              //                }
 
               val fieldTTag =
                 FieldConstants.AprilTagLayoutType.OFFICIAL

@@ -8,8 +8,6 @@ import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.CustomLogger
-import edu.wpi.first.apriltag.AprilTagFieldLayout
-import edu.wpi.first.apriltag.AprilTagFields
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
@@ -29,13 +27,13 @@ import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.Radian
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inDegrees
+import org.team4099.lib.units.derived.inRotation2ds
 import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.inMetersPerSecond
 import org.team4099.lib.units.inRadiansPerSecond
 import org.team4099.lib.units.perSecond
 import kotlin.math.PI
-import org.team4099.lib.units.derived.inRotation2ds
 
 class CoolerTargetTagCommand(
   private val drivetrain: CommandSwerveDrive,
@@ -70,11 +68,12 @@ class CoolerTargetTagCommand(
       .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
       .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
       .withDeadband(0.5.centi.meters.perSecond.inMetersPerSecond)
-//      .withRotationalDeadband(0.5.degrees.perSecond.inRadiansPerSecond)
+  //      .withRotationalDeadband(0.5.degrees.perSecond.inRadiansPerSecond)
 
   private val requestPointWheels =
-    SwerveRequest.PointWheelsAt().withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
-  .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
+    SwerveRequest.PointWheelsAt()
+      .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
+      .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
 
   private var hasThetaAligned: Boolean = false
   private var hasPointedAt: Boolean = false
@@ -177,13 +176,22 @@ class CoolerTargetTagCommand(
     CustomLogger.recordOutput(
       "CoolerTargetTagCommand/setpointTranslation", setpointTranslation.translation2d
     )
-    CustomLogger.recordOutput("CoolerTargetTagCommand/currentRotation", drivetrain.state.Pose.rotation.degrees)
-    CustomLogger.recordOutput("CoolerTargetTagCommand/setpointRotation", (setpointRotation + thetaTargetOffset).inDegrees)
+    CustomLogger.recordOutput(
+      "CoolerTargetTagCommand/currentRotation", drivetrain.state.Pose.rotation.degrees
+    )
+    CustomLogger.recordOutput(
+      "CoolerTargetTagCommand/setpointRotation", (setpointRotation + thetaTargetOffset).inDegrees
+    )
 
     // todo check signs and whatnot
     var xvel = -xPID.calculate(setpointTranslation.x, xTargetOffset * setpointTranslation.x.sign)
     var yvel = -yPID.calculate(setpointTranslation.y, yTargetOffset)
-    var thetavel = -thetaPID.calculate(drivetrain.state.Pose.rotation.degrees.degrees, setpointRotation + thetaTargetOffset)// * -drivetrain.state.Pose.rotation.degrees.degrees.sign
+    var thetavel =
+      -thetaPID.calculate(
+        drivetrain.state.Pose.rotation.degrees.degrees,
+        setpointRotation +
+          thetaTargetOffset
+      ) // * -drivetrain.state.Pose.rotation.degrees.degrees.sign
 
     if (xPID.error.absoluteValue < xPID.errorTolerance) xvel *= 0
     if (yPID.error.absoluteValue < yPID.errorTolerance) yvel *= 0
@@ -202,10 +210,12 @@ class CoolerTargetTagCommand(
     if (hasThetaAligned && !hasPointedAt) {
       hasPointedAt = true
       drivetrain.setControl(
-        requestPointWheels.withModuleDirection((setpointRotation + thetaTargetOffset).inRotation2ds)
+        requestPointWheels.withModuleDirection(
+          (setpointRotation + thetaTargetOffset).inRotation2ds
+        )
       )
-//      xPID.reset()
-//      yPID.reset()
+      //      xPID.reset()
+      //      yPID.reset()
     }
 
     if (hasThetaAligned || thetaPID.error.absoluteValue < 4.49.degrees) {
@@ -217,8 +227,7 @@ class CoolerTargetTagCommand(
           .withVelocityY(yvel.inMetersPerSecond)
           .withRotationalRate(thetavel.inRadiansPerSecond)
       )
-    }
-    else {
+    } else {
       drivetrain.setControl(requestRobotCentric.withRotationalRate(thetavel.inRadiansPerSecond))
     }
   }

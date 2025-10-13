@@ -2,11 +2,9 @@ package com.team4099.robot2025
 
 import com.ctre.phoenix6.signals.NeutralModeValue
 import com.team4099.robot2025.auto.AutonomousSelector
-import com.team4099.robot2025.commands.drivetrain.CharacterizeSlipCommand
 import com.team4099.robot2025.commands.drivetrain.CoolerTargetTagCommand
 import com.team4099.robot2025.commands.drivetrain.ResetGyroYawCommand
 import com.team4099.robot2025.commands.drivetrain.TeleopDriveCommand
-import com.team4099.robot2025.commands.drivetrain.TestDriveCommand
 import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.VisionConstants
@@ -170,7 +168,7 @@ object RobotContainer {
       superstructure.resetGamepieceCommand(Constants.Universal.GamePiece.ALGAE)
     )
 
-    ControlBoard.test.whileTrue(if (Constants.Tuning.TUNING_MODE) TestDriveCommand(drivetrain) else InstantCommand())
+    ControlBoard.test.whileTrue(InstantCommand())
   }
 
   fun mapTestControls() {}

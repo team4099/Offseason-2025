@@ -21,7 +21,7 @@ class ResetGyroYawCommand(val drivetrain: CommandSwerveDrive, val toAngle: Angle
     drivetrain.setControl(
       SwerveRequest.PointWheelsAt()
         .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
-        .withModuleDirection(Rotation2dWPILIB(toAngle.inRadians))
+        .withModuleDirection(Rotation2dWPILIB.kZero)
     )
   }
 

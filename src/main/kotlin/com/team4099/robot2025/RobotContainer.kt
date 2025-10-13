@@ -29,9 +29,6 @@ import com.team4099.robot2025.subsystems.indexer.IndexerIOTalon
 import com.team4099.robot2025.subsystems.intake.Intake
 import com.team4099.robot2025.subsystems.intake.IntakeIOSim
 import com.team4099.robot2025.subsystems.intake.IntakeIOTalonFX
-import com.team4099.robot2025.subsystems.limelight.LimelightVision
-import com.team4099.robot2025.subsystems.limelight.LimelightVisionIO
-import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.subsystems.vision.camera.CameraIO
@@ -40,7 +37,8 @@ import com.team4099.robot2025.util.driver.Jessika
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
-import org.team4099.lib.geometry.Pose2d
+import edu.wpi.first.wpilibj2.command.ConditionalCommand
+import edu.wpi.first.wpilibj2.command.InstantCommand
 import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.derived.Angle
@@ -49,7 +47,6 @@ import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersI
 
 object RobotContainer {
   private val drivetrain: CommandSwerveDrive = TunerConstants.createDrivetrain()
-  private val limelight: LimelightVision
   private val vision: Vision
   private val elevator: Elevator
   private val arm: Arm
@@ -68,7 +65,6 @@ object RobotContainer {
 
   init {
     if (RobotBase.isReal()) {
-      limelight = LimelightVision(object : LimelightVisionIO {})
       elevator = Elevator(ElevatorIOTalon)
       arm = Arm(ArmIOTalon)
       armRollers = ArmRollers(RollersIOTalon)
@@ -93,7 +89,6 @@ object RobotContainer {
           ),
         )
     } else {
-      limelight = LimelightVision(object : LimelightVisionIO {})
       elevator = Elevator(ElevatorIOSim)
       arm = Arm(ArmIOSIm)
       armRollers = ArmRollers(ArmRollersIOSim)
@@ -107,19 +102,8 @@ object RobotContainer {
 
     superstructure =
       Superstructure(
-        drivetrain,
-        vision,
-        limelight,
-        elevator,
-        arm,
-        armRollers,
-        climber,
-        intake,
-        indexer,
-        canrange
+        drivetrain, vision, elevator, arm, armRollers, climber, intake, indexer, canrange
       )
-
-    limelight.poseSupplier = { Pose2d(drivetrain.state.Pose) }
   }
 
   fun mapDefaultCommands() {
@@ -142,10 +126,6 @@ object RobotContainer {
     drivetrain.configNeutralMode(neutralModeValue)
   }
 
-  fun requestIdle() {
-    superstructure.currentRequest = Request.SuperstructureRequest.Idle()
-  }
-
   fun mapTeleopControls() {
     ControlBoard.intakeCoral.whileTrue(superstructure.intakeCoralCommand())
     ControlBoard.score.whileTrue(superstructure.scoreCommand())
@@ -158,67 +138,22 @@ object RobotContainer {
     ControlBoard.prepL4OrBarge.whileTrue(superstructure.prepL4OrBargeCommand())
 
     ControlBoard.alignLeft.whileTrue(
-      CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (12.94 / 2).inches)
+      ConditionalCommand(
+        CoolerTargetTagCommand(drivetrain, vision),
+        CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (12.94 / 2).inches)
+      ) {
+        superstructure.theoreticalGamePieceArm == Constants.Universal.GamePiece.ALGAE
+      }
     )
 
     ControlBoard.alignRight.whileTrue(
-      CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (-12.94 / 2).inches)
+      ConditionalCommand(
+        CoolerTargetTagCommand(drivetrain, vision),
+        CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (-12.94 / 2).inches)
+      ) {
+        superstructure.theoreticalGamePieceArm == Constants.Universal.GamePiece.ALGAE
+      }
     )
-
-    //    ControlBoard.alignLeft.whileTrue(
-    //      ConditionalCommand(
-    //        ReefAlignCommand(
-    //          driver = Jessika(),
-    //          { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //          { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //          { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-    //          { ControlBoard.slowMode },
-    //          drivetrain,
-    //          elevator,
-    //          superstructure,
-    //          vision,
-    //          ReefAlignCommand.BRANCH_ID.LEFT
-    //        ),
-    //        TargetTagCommand(
-    //          Jessika(),
-    //          { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //          { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //          { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-    //          { ControlBoard.slowMode },
-    //          drivetrain,
-    //          vision
-    //        )
-    //      ) {
-    //        superstructure.theoreticalGamePieceArm != Constants.Universal.GamePiece.ALGAE
-    //      }
-    //    )
-    //    ControlBoard.alignRight.whileTrue(
-    //      ConditionalCommand(
-    //        ReefAlignCommand(
-    //          driver = Jessika(),
-    //          { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //          { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //          { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-    //          { ControlBoard.slowMode },
-    //          drivetrain,
-    //          elevator,
-    //          superstructure,
-    //          vision,
-    //          ReefAlignCommand.BRANCH_ID.RIGHT
-    //        ),
-    //        TargetTagCommand(
-    //          Jessika(),
-    //          { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //          { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //          { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-    //          { ControlBoard.slowMode },
-    //          drivetrain,
-    //          vision
-    //        )
-    //      ) {
-    //        superstructure.theoreticalGamePieceArm != Constants.Universal.GamePiece.ALGAE
-    //      }
-    //    )
 
     ControlBoard.resetGyro.whileTrue(ResetGyroYawCommand(drivetrain))
     ControlBoard.forceIdle.whileTrue(superstructure.requestIdleCommand())
@@ -233,8 +168,7 @@ object RobotContainer {
       superstructure.resetGamepieceCommand(Constants.Universal.GamePiece.ALGAE)
     )
 
-    ControlBoard.test.onTrue(superstructure.overrideFlag(true))
-    ControlBoard.test.onFalse(superstructure.overrideFlag(false))
+    ControlBoard.test.whileTrue(InstantCommand())
   }
 
   fun mapTestControls() {}

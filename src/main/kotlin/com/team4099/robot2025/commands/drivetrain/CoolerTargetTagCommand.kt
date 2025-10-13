@@ -2,6 +2,7 @@ package com.team4099.robot2025.commands.drivetrain
 
 import com.ctre.phoenix6.swerve.SwerveModule
 import com.ctre.phoenix6.swerve.SwerveRequest
+import com.team4099.lib.hal.Clock
 import com.team4099.lib.math.asPose2d
 import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
@@ -17,13 +18,18 @@ import org.team4099.lib.units.Velocity
 import org.team4099.lib.units.base.Length
 import org.team4099.lib.units.base.Meter
 import org.team4099.lib.units.base.inInches
+import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.meters
+import org.team4099.lib.units.base.seconds
+import org.team4099.lib.units.centi
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.Radian
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inDegrees
+import org.team4099.lib.units.derived.inRotation2ds
 import org.team4099.lib.units.derived.radians
+import org.team4099.lib.units.inDegreesPerSecond
 import org.team4099.lib.units.inMetersPerSecond
 import org.team4099.lib.units.inRadiansPerSecond
 import org.team4099.lib.units.perSecond
@@ -33,7 +39,7 @@ class CoolerTargetTagCommand(
   private val drivetrain: CommandSwerveDrive,
   private val vision: Vision,
   private val xTargetOffset: Length =
-    DrivetrainConstants.DRIVETRAIN_LENGTH / 2 + DrivetrainConstants.BUMPER_WIDTH,
+    DrivetrainConstants.DRIVETRAIN_LENGTH / 2 + DrivetrainConstants.BUMPER_WIDTH + 0.25.inches,
   private val yTargetOffset: Length = 0.0.inches,
   private val thetaTargetOffset: Angle = 0.0.radians,
 ) : Command() {
@@ -59,8 +65,18 @@ class CoolerTargetTagCommand(
 
   private val requestRobotCentric =
     SwerveRequest.RobotCentric()
-      .withDriveRequestType(SwerveModule.DriveRequestType.Velocity)
+      .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
       .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
+      .withDeadband(0.5.centi.meters.perSecond.inMetersPerSecond)
+  //      .withRotationalDeadband(0.5.degrees.perSecond.inRadiansPerSecond)
+
+  private val requestPointWheels =
+    SwerveRequest.PointWheelsAt()
+      .withSteerRequestType(SwerveModule.SteerRequestType.MotionMagicExpo)
+      .withDriveRequestType(SwerveModule.DriveRequestType.OpenLoopVoltage)
+
+  private var hasThetaAligned: Boolean = false
+  private var hasPointedAt: Boolean = false
 
   init {
     addRequirements(drivetrain, vision)
@@ -68,8 +84,6 @@ class CoolerTargetTagCommand(
   }
 
   override fun initialize() {
-    CustomLogger.recordOutput("ActiveCommands/CoolerTargetTagCommand", true)
-
     if (RobotBase.isSimulation()) {
       thetaPID =
         PIDController(
@@ -127,64 +141,115 @@ class CoolerTargetTagCommand(
     yPID.reset()
     thetaPID.reset()
 
-    xPID.errorTolerance = 2.inches
-    yPID.errorTolerance = 2.inches
-    thetaPID.errorTolerance = 2.degrees
+    xPID.errorTolerance = .25.inches
+    yPID.errorTolerance = .25.inches
+    thetaPID.errorTolerance = .5.degrees
+
+    thetaPID.enableContinuousInput(-PI.radians, PI.radians)
 
     vision.isAligned = false
+    hasThetaAligned = false
+    hasPointedAt = false
+
+    CustomLogger.recordOutput("CoolerTargetTagCommand/lastInitialized", Clock.fpgaTime.inSeconds)
   }
 
   override fun execute() {
-    val odomTTag = vision.lastTrigVisionUpdate.robotTReefTag
+    CustomLogger.recordOutput("ActiveCommands/CoolerTargetTagCommand", true)
+
+    val lastUpdate = vision.lastTrigVisionUpdate
+    val odomTTag = lastUpdate.robotTReefTag
 
     val exists = odomTTag != Transform2d(Translation2d(), 0.degrees)
     CustomLogger.recordOutput("CoolerTargetTagCommand/odomTTagExists", exists)
-    if (!exists) return; // todo kalman?
+    if (!exists || Clock.realTimestamp - lastUpdate.timestamp > .5.seconds)
+      end(interrupted = true) // todo kalman?
 
     val setpointTranslation = odomTTag.translation
     val setpointRotation = odomTTag.rotation
 
     CustomLogger.recordOutput("CoolerTargetTagCommand/odomTTag", odomTTag.asPose2d().pose2d)
     CustomLogger.recordOutput(
+      "CoolerTargetTagCommand/expectedTagPose",
+      drivetrain.state.Pose.transformBy(odomTTag.transform2d)
+    )
+    CustomLogger.recordOutput(
       "CoolerTargetTagCommand/setpointTranslation", setpointTranslation.translation2d
+    )
+    CustomLogger.recordOutput(
+      "CoolerTargetTagCommand/currentRotation", drivetrain.state.Pose.rotation.degrees
+    )
+    CustomLogger.recordOutput(
+      "CoolerTargetTagCommand/setpointRotation", (setpointRotation + thetaTargetOffset).inDegrees
     )
 
     // todo check signs and whatnot
-    val xvel = xPID.calculate(setpointTranslation.x, xTargetOffset)
-    val yvel = yPID.calculate(setpointTranslation.y, yTargetOffset)
-    val thetavel = -thetaPID.calculate(setpointRotation, thetaTargetOffset)
+    var xvel = -xPID.calculate(setpointTranslation.x, xTargetOffset * setpointTranslation.x.sign)
+    var yvel = -yPID.calculate(setpointTranslation.y, yTargetOffset)
+    var thetavel =
+      -thetaPID.calculate(
+        drivetrain.state.Pose.rotation.degrees.degrees,
+        setpointRotation +
+          thetaTargetOffset
+      ) // * -drivetrain.state.Pose.rotation.degrees.degrees.sign
 
+    if (xPID.error.absoluteValue < xPID.errorTolerance) xvel *= 0
+    if (yPID.error.absoluteValue < yPID.errorTolerance) yvel *= 0
+    if (thetaPID.error.absoluteValue < thetaPID.errorTolerance) thetavel *= 0
+
+    CustomLogger.recordOutput("CoolerTargetTagCommand/xvelmps", xvel.inMetersPerSecond)
+    CustomLogger.recordOutput("CoolerTargetTagCommand/yvelmps", yvel.inMetersPerSecond)
+    CustomLogger.recordOutput("CoolerTargetTagCommand/thetaveldps", thetavel.inDegreesPerSecond)
     CustomLogger.recordOutput("CoolerTargetTagCommand/xerror", xPID.error.inInches)
     CustomLogger.recordOutput("CoolerTargetTagCommand/yerror", yPID.error.inInches)
     CustomLogger.recordOutput("CoolerTargetTagCommand/thetaerror", thetaPID.error.inDegrees)
 
-    CustomLogger.recordOutput("CoolerTargetTagCommand/isAligned", isAtSetpoint())
+    CustomLogger.recordOutput("CoolerTargetTagCommand/hasThetaAligned", hasThetaAligned)
+    CustomLogger.recordOutput("CoolerTargetTagCommand/hasPointedAt", hasPointedAt)
 
-    drivetrain.setControl(
-      requestRobotCentric
-        .withVelocityX(xvel.inMetersPerSecond)
-        .withVelocityY(yvel.inMetersPerSecond)
-        .withDeadband(0.2.meters.perSecond.inMetersPerSecond)
-        .withRotationalDeadband(1.0.degrees.perSecond.inRadiansPerSecond)
-        .withRotationalRate(thetavel.inRadiansPerSecond)
-    )
+    if (hasThetaAligned && !hasPointedAt) {
+      hasPointedAt = true
+      drivetrain.setControl(
+        requestPointWheels.withModuleDirection(
+          (setpointRotation + thetaTargetOffset).inRotation2ds
+        )
+      )
+      //      xPID.reset()
+      //      yPID.reset()
+    }
 
-    CustomLogger.recordOutput("CoolerTargetTagCommand/isAtSetpoint", isAtSetpoint())
+    if (hasThetaAligned || thetaPID.error.absoluteValue < 4.49.degrees) {
+      hasThetaAligned = true
 
-    if (isAtSetpoint()) vision.isAligned = true
+      drivetrain.setControl(
+        requestRobotCentric
+          .withVelocityX(xvel.inMetersPerSecond)
+          .withVelocityY(yvel.inMetersPerSecond)
+          .withRotationalRate(thetavel.inRadiansPerSecond)
+      )
+    } else {
+      drivetrain.setControl(requestRobotCentric.withRotationalRate(thetavel.inRadiansPerSecond))
+    }
   }
 
   override fun isFinished(): Boolean {
-    return vision.isAligned
-  }
-
-  fun isAtSetpoint(): Boolean {
-    return xPID.isAtSetpoint && yPID.isAtSetpoint && thetaPID.isAtSetpoint
+    return xPID.error < xPID.errorTolerance &&
+      yPID.error < yPID.errorTolerance &&
+      thetaPID.error < thetaPID.errorTolerance
   }
 
   override fun end(interrupted: Boolean) {
+    if (!interrupted) vision.isAligned = true
+
+    CustomLogger.recordOutput("CoolerTargetTagCommand/interrupted", interrupted)
+
     drivetrain.setControl(
-      requestRobotCentric.withVelocityX(0.0).withVelocityY(0.0).withRotationalRate(0.0)
+      requestRobotCentric
+        .withVelocityX(0.0)
+        .withVelocityY(0.0)
+        .withRotationalRate(0.0)
+        .withDeadband(0.0)
+        .withRotationalDeadband(0.0)
     )
     CustomLogger.recordOutput("ActiveCommands/TargetTagCommand", false)
   }

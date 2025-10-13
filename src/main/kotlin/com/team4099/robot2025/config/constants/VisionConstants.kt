@@ -74,11 +74,11 @@ object VisionConstants {
     listOf(
       Transform3d(
         Translation3d(-10.398.inches, -11.593.inches, 8.36.inches),
-        Rotation3d(0.0.degrees, -20.degrees, 150.degrees)
+        Rotation3d(0.0.degrees, -20.degrees, 145.degrees)
       ), // raven_1
       Transform3d(
         Translation3d(-10.398.inches, 11.593.inches, 8.36.inches),
-        Rotation3d(0.0.degrees, -20.degrees, -150.degrees)
+        Rotation3d(0.0.degrees, -20.degrees, -145.degrees)
       ), // raven_2
     )
 
@@ -86,12 +86,12 @@ object VisionConstants {
 
   // x, y, θ
   // TODO tune
-  val singleTagStdDevs: Matrix<N3?, N1?> = VecBuilder.fill(4.0, 4.0, 8.0)
-  val multiTagStdDevs: Matrix<N3?, N1?> = VecBuilder.fill(0.5, 0.5, 1.0)
+  val singleTagStdDevs: Matrix<N3?, N1?> = VecBuilder.fill(4.0, 4.0, 10.0)
+  val multiTagStdDevs: Matrix<N3?, N1?> = VecBuilder.fill(0.5, 0.5, 7.0)
 
   val oldStdDevs: Matrix<N3?, N1?> = VecBuilder.fill(XY_STDDEV, XY_STDDEV, THETA_STDDEV)
 
-  val FIELD_POSE_RESET_DISTANCE_THRESHOLD = 1.0.meters
+  val FIELD_POSE_RESET_DISTANCE_THRESHOLD = .5.meters
 
   object Limelight {
     val LIMELIGHT_NAME = "limelight-owl"

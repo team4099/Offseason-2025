@@ -146,7 +146,15 @@ class FollowChoreoPath(
       //        .pose2d
       drivetrain.state.Pose
 
-    val nextDriveState = swerveDriveController.calculate(poseReference, desiredState)
+    CustomLogger.recordOutput("FollowChoreoPath/targetPose", desiredState.pose)
+
+    var nextDriveState = swerveDriveController.calculate(poseReference, desiredState)
+    nextDriveState =
+      ChassisSpeeds(
+        nextDriveState.vxMetersPerSecond,
+        nextDriveState.vyMetersPerSecond,
+        -nextDriveState.omegaRadiansPerSecond
+      )
     drivetrain.setControl(request.withSpeeds(nextDriveState))
 
     if (thetakP.hasChanged()) thetaPID.proportionalGain = thetakP.get()

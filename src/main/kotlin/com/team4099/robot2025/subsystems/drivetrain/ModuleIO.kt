@@ -136,4 +136,7 @@ interface ModuleIO {
 
   /** Run the turn motor to the specified rotation. */
   fun setTurnPosition(rotation: Rotation2d) {}
+
+  /** Enable/disable brake mode on the drive and steer motors */
+  fun toggleBrakeMode(brake: Boolean)
 }

@@ -334,7 +334,7 @@ class TargetTagCommand(
       var autoDriveVector =
         hypot(driveVector.first.inMetersPerSecond, driveVector.second.inMetersPerSecond)
 
-      drivetrain.runVelocity(ChassisSpeeds(-xFeedBack, -yFeedback, 0.radians.perSecond))
+      drivetrain.runSpeeds(ChassisSpeeds(-xFeedBack, -yFeedback, 0.radians.perSecond))
     }
   }
 
@@ -349,7 +349,7 @@ class TargetTagCommand(
 
     val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
     val rotation = driver.rotationSpeedClampedSupplier(turn, slowMode)
-    drivetrain.runVelocity(
+    drivetrain.runSpeeds(
       ChassisSpeeds.fromFieldRelativeSpeeds(
         speed.first, speed.second, rotation, drivetrain.rotation
       )

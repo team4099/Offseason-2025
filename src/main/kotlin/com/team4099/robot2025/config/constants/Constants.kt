@@ -25,8 +25,6 @@ object Constants {
     val LOOP_PERIOD_TIME = 20.milli.seconds
     val POWER_DISTRIBUTION_HUB_ID = 1
 
-    const val INVERT_ROTATION_GLOBALLY = true
-
     enum class GamePiece {
       CORAL,
       ALGAE,

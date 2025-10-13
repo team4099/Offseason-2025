@@ -137,7 +137,7 @@ class FollowChoreoPath(val drivetrain: Drive, val trajectory: Trajectory<SwerveS
     val poseReference = drivetrain.pose
 
     val nextDriveState = swerveDriveController.calculate(poseReference.pose2d, desiredState)
-    drivetrain.runVelocity(ChassisSpeeds(nextDriveState))
+    drivetrain.runSpeeds(ChassisSpeeds(nextDriveState))
 
     if (thetakP.hasChanged()) thetaPID.proportionalGain = thetakP.get()
     if (thetakI.hasChanged()) thetaPID.integralGain = thetakI.get()
@@ -163,6 +163,6 @@ class FollowChoreoPath(val drivetrain: Drive, val trajectory: Trajectory<SwerveS
 
   override fun end(interrupted: Boolean) {
     CustomLogger.recordDebugOutput("ActiveCommands/FollowChoreoPath", false)
-    drivetrain.runVelocity(ChassisSpeeds())
+    drivetrain.runSpeeds(ChassisSpeeds())
   }
 }

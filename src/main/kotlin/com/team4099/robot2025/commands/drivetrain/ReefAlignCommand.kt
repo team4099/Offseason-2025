@@ -115,7 +115,7 @@ class ReefAlignCommand(
     command.end(interrupted)
 
     CustomLogger.recordDebugOutput("ActiveCommands/TargetReefCommand", false)
-    drivetrain.runVelocity(ChassisSpeeds())
+    drivetrain.runSpeeds(ChassisSpeeds())
 
     //    if (!DriverStation.isAutonomous()) {
     //      val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)

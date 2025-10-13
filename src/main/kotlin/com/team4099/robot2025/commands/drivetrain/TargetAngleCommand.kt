@@ -125,7 +125,7 @@ class TargetAngleCommand(
 
     val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
 
-    drivetrain.runVelocity(
+    drivetrain.runSpeeds(
       ChassisSpeeds.fromFieldRelativeSpeeds(
         speed.first, speed.second, thetaFeedback, drivetrain.rotation
       )
@@ -140,7 +140,7 @@ class TargetAngleCommand(
     CustomLogger.recordDebugOutput("ActiveCommands/TargetAngleCommand", false)
     val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
     val rotation = driver.rotationSpeedClampedSupplier(turn, slowMode)
-    drivetrain.runVelocity(
+    drivetrain.runSpeeds(
       ChassisSpeeds.fromFieldRelativeSpeeds(
         speed.first, speed.second, rotation, drivetrain.pose.rotation
       )

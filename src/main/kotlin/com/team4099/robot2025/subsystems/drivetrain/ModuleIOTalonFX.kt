@@ -16,10 +16,7 @@ import com.ctre.phoenix6.BaseStatusSignal
 import com.ctre.phoenix6.StatusSignal
 import com.ctre.phoenix6.configs.CANcoderConfiguration
 import com.ctre.phoenix6.configs.TalonFXConfiguration
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC
-import com.ctre.phoenix6.controls.PositionVoltage
-import com.ctre.phoenix6.controls.TorqueCurrentFOC
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC
+import com.ctre.phoenix6.controls.MotionMagicVoltage
 import com.ctre.phoenix6.controls.VelocityVoltage
 import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.CANcoder
@@ -63,14 +60,9 @@ class ModuleIOTalonFX(
     CANcoder(constants.EncoderId, TunerConstants.CTREDrivetrainConstants.CANBusName)
 
   // Voltage control requests
-  private val voltageRequest = VoltageOut(0.0)
-  private val positionVoltageRequest = PositionVoltage(0.0)
-  private val velocityVoltageRequest = VelocityVoltage(0.0)
-
-  // Torque-current control requests
-  private val torqueCurrentRequest = TorqueCurrentFOC(0.0)
-  private val positionTorqueCurrentRequest = PositionTorqueCurrentFOC(0.0)
-  private val velocityTorqueCurrentRequest = VelocityTorqueCurrentFOC(0.0)
+  private val voltageRequest = VoltageOut(0.0).withEnableFOC(true)
+  private val positionVoltageRequest = MotionMagicVoltage(0.0).withEnableFOC(true)
+  private val velocityVoltageRequest = VelocityVoltage(0.0).withEnableFOC(true)
 
   // Timestamp inputs from Phoenix thread
   private val timestampQueue: Queue<Double>
@@ -234,6 +226,17 @@ class ModuleIOTalonFX(
 
   override fun setTurnPosition(rotation: Rotation2d) {
     turnTalon.setControl(positionVoltageRequest.withPosition(rotation.rotations))
+  }
+
+  override fun toggleBrakeMode(brake: Boolean) {
+    val brakeMode = if (brake) NeutralModeValue.Brake else NeutralModeValue.Coast
+
+    driveTalon.configurator.apply(
+      constants.DriveMotorInitialConfigs!!.MotorOutput.withNeutralMode(brakeMode)
+    )
+    turnTalon.configurator.apply(
+      constants.SteerMotorInitialConfigs!!.MotorOutput.withNeutralMode(brakeMode)
+    )
   }
 
   companion object {

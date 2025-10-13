@@ -36,7 +36,7 @@ class TeleopDriveCommand(
       CustomLogger.recordOutput("ActiveCommands/speedYinMPS", speed.second.inMetersPerSecond)
       CustomLogger.recordOutput("ActiveCommands/rotationInDPS", rotation.inDegreesPerSecond)
 
-      drivetrain.runVelocity(
+      drivetrain.runSpeeds(
         ChassisSpeeds.fromFieldRelativeSpeeds(
           speed.first, speed.second, rotation, drivetrain.pose.rotation
         )

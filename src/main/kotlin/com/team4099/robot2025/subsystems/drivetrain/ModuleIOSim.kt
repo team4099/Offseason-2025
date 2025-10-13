@@ -151,6 +151,8 @@ class ModuleIOSim(
     turnController.setpoint = rotation.radians
   }
 
+  override fun toggleBrakeMode(brake: Boolean) {}
+
   companion object {
     // TunerConstants doesn't support separate sim constants, so they are declared locally
     private val DRIVE_KP = DrivetrainConstants.PID.SIM_DRIVE_KP.inVoltsPerMetersPerSecond

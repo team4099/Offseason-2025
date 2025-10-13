@@ -117,7 +117,7 @@ class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>) : SubsystemB
       { this.pose.pose2d },
       { pose: WPIPose2d -> this.pose = Pose2d(pose) },
       { this.chassisSpeeds.chassisSpeedsWPILIB },
-      { speeds: WPIChassisSpeeds -> this.runVelocity(ChassisSpeeds(speeds)) },
+      { speeds: WPIChassisSpeeds -> this.runSpeeds(ChassisSpeeds(speeds)) },
       PPHolonomicDriveController(
         PIDConstants(
           DrivetrainConstants.PID.AUTO_POS_KD.inMetersPerSecondPerMetersPerSecond,
@@ -228,15 +228,12 @@ class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>) : SubsystemB
    *
    * @param speeds Speeds in meters/sec
    */
-  fun runVelocity(speeds: ChassisSpeeds) {
+  fun runSpeeds(speeds: ChassisSpeeds) {
     // Calculate module setpoints
     val discreteSpeeds = ChassisSpeeds.discretize(speeds, Constants.Universal.LOOP_PERIOD_TIME)
     val setpointStates: Array<SwerveModuleState> =
       kinematics.toSwerveModuleStates(discreteSpeeds.chassisSpeedsWPILIB)
 
-    // todo(nathan): this line was included in akit template, but idk if should keep? it may mess up
-    // skew due to how it artificially lowers the chassisspeeds. will test with and without / sim
-    // and irl.
     SwerveDriveKinematics.desaturateWheelSpeeds(
       setpointStates, TunerConstants.kSpeedAt12Volts.inMetersPerSecond
     )
@@ -270,7 +267,7 @@ class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>) : SubsystemB
 
   /** Stops the drive. */
   fun stop() {
-    runVelocity(ChassisSpeeds())
+    runSpeeds(ChassisSpeeds())
   }
 
   /**

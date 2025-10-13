@@ -2,7 +2,6 @@ package com.team4099.robot2025.commands.drivetrain
 
 import com.team4099.lib.hal.Clock
 import com.team4099.lib.math.asPose2d
-import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.subsystems.vision.Vision
@@ -170,9 +169,7 @@ class CoolerTargetTagCommand(
     // todo check signs and whatnot
     var xvel = -xPID.calculate(setpointTranslation.x, xTargetOffset * setpointTranslation.x.sign)
     var yvel = -yPID.calculate(setpointTranslation.y, yTargetOffset)
-    var thetavel =
-      thetaPID.calculate(drivetrain.rotation, setpointRotation + thetaTargetOffset) *
-        if (Constants.Universal.INVERT_ROTATION_GLOBALLY) -1 else 1
+    var thetavel = -thetaPID.calculate(drivetrain.rotation, setpointRotation + thetaTargetOffset)
 
     if (xPID.error.absoluteValue < xPID.errorTolerance) xvel *= 0
     if (yPID.error.absoluteValue < yPID.errorTolerance) yvel *= 0
@@ -188,14 +185,14 @@ class CoolerTargetTagCommand(
     CustomLogger.recordOutput("CoolerTargetTagCommand/hasThetaAligned", hasThetaAligned)
     CustomLogger.recordOutput("CoolerTargetTagCommand/hasPointedAt", hasPointedAt)
 
-    drivetrain.runVelocity(ChassisSpeeds(xvel, yvel, thetavel))
+    drivetrain.runSpeeds(ChassisSpeeds(xvel, yvel, thetavel))
 
     if (hasThetaAligned || thetaPID.error.absoluteValue < 4.49.degrees) {
       hasThetaAligned = true
 
-      drivetrain.runVelocity(ChassisSpeeds(xvel, yvel, thetavel))
+      drivetrain.runSpeeds(ChassisSpeeds(xvel, yvel, thetavel))
     } else {
-      drivetrain.runVelocity(ChassisSpeeds(0.meters.perSecond, 0.meters.perSecond, thetavel))
+      drivetrain.runSpeeds(ChassisSpeeds(0.meters.perSecond, 0.meters.perSecond, thetavel))
     }
   }
 
@@ -210,7 +207,7 @@ class CoolerTargetTagCommand(
 
     CustomLogger.recordOutput("CoolerTargetTagCommand/interrupted", interrupted)
 
-    drivetrain.runVelocity(ChassisSpeeds())
+    drivetrain.runSpeeds(ChassisSpeeds())
     CustomLogger.recordOutput("ActiveCommands/TargetTagCommand", false)
   }
 }

@@ -65,8 +65,8 @@ class LocalADStarAK : Pathfinder {
   /**
    * Set the start position to pathfind from
    *
-   * @param startPosition Start position on the field. If this is within an obstacle it will
-   * be moved to the nearest non-obstacle node.
+   * @param startPosition Start position on the field. If this is within an obstacle it will be
+   * moved to the nearest non-obstacle node.
    */
   override fun setStartPosition(startPosition: Translation2d) {
     if (!Logger.hasReplaySource()) {
@@ -77,8 +77,8 @@ class LocalADStarAK : Pathfinder {
   /**
    * Set the goal position to pathfind to
    *
-   * @param goalPosition Goal position on the field. f this is within an obstacle it will be
-   * moved to the nearest non-obstacle node.
+   * @param goalPosition Goal position on the field. f this is within an obstacle it will be moved
+   * to the nearest non-obstacle node.
    */
   override fun setGoalPosition(goalPosition: Translation2d) {
     if (!Logger.hasReplaySource()) {
@@ -91,8 +91,8 @@ class LocalADStarAK : Pathfinder {
    *
    * @param obs A List of Translation2d pairs representing obstacles. Each Translation2d represents
    * opposite corners of a bounding box.
-   * @param currentRobotPos The current position of the robot. This is needed to change the
-   * start position of the path to properly avoid obstacles
+   * @param currentRobotPos The current position of the robot. This is needed to change the start
+   * position of the path to properly avoid obstacles
    */
   override fun setDynamicObstacles(
     obs: List<Pair<Translation2d, Translation2d>>,

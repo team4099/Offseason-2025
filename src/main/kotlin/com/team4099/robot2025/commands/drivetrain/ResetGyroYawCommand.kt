@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.degrees
+import org.team4099.lib.units.derived.radians
 
 class ResetGyroYawCommand(val drivetrain: Drive, private val toAngle: Angle = 0.0.degrees) :
   Command() {
@@ -15,7 +16,7 @@ class ResetGyroYawCommand(val drivetrain: Drive, private val toAngle: Angle = 0.
 
   override fun initialize() {
     drivetrain.pose = Pose2d(drivetrain.pose.x, drivetrain.pose.y, toAngle)
-    drivetrain.pointWheelsAt(toAngle)
+    drivetrain.pointWheelsAt(0.radians)
   }
 
   override fun execute() {

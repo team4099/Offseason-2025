@@ -210,4 +210,14 @@ class CoolerTargetTagCommand(
     drivetrain.runSpeeds(ChassisSpeeds())
     CustomLogger.recordOutput("ActiveCommands/TargetTagCommand", false)
   }
+
+  companion object {
+    fun alignLeftCommand(drivetrain: Drive, vision: Vision): CoolerTargetTagCommand {
+      return CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (12.94 / 2).inches)
+    }
+
+    fun alignRightCommand(drivetrain: Drive, vision: Vision): CoolerTargetTagCommand {
+      return CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (-12.94 / 2).inches)
+    }
+  }
 }

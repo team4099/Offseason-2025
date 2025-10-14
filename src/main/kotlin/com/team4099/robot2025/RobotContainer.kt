@@ -82,7 +82,7 @@ object RobotContainer {
       intake = Intake(IntakeIOTalonFX)
       indexer = Indexer(IndexerIOTalon)
       canrange = CANRange(CANRangeReal)
-      led = Led(LedIOCandle, { null }, { ControlBoard.test.asBoolean })
+      led = Led(LedIOCandle, { null }, { false },  { ControlBoard.test.asBoolean })
 
       vision =
         Vision(
@@ -108,7 +108,7 @@ object RobotContainer {
       intake = Intake(IntakeIOSim)
       indexer = Indexer(IndexerIOSim)
       canrange = CANRange(object : CANRangeIO {})
-      led = Led(object : LedIO {}, { null }, { ControlBoard.test.asBoolean })
+      led = Led(object : LedIO {}, { null }, { false }, { ControlBoard.test.asBoolean })
 
       vision = Vision(object : CameraIO {})
     }
@@ -118,6 +118,7 @@ object RobotContainer {
         drivetrain, vision, elevator, arm, armRollers, climber, intake, indexer, canrange, led
       )
 
+    led.isAlignedSupplier = Supplier { vision.isAligned }
     led.gamePieceArmSupplier = Supplier { superstructure.theoreticalGamePieceArm }
   }
 

@@ -18,6 +18,7 @@ object LedConstants {
         .withDirection(AnimationDirectionValue.Forward)
         .withFrameRate(20.0)
     ),
-    HAS_CORAL(SolidColor(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kPurple)))
+    HAS_CORAL(SolidColor(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kPurple))),
+    IS_ALIGNED(SolidColor(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kGreen)))
   }
 }

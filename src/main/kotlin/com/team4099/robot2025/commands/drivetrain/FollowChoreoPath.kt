@@ -123,21 +123,24 @@ class FollowChoreoPath(val drivetrain: Drive, val trajectory: Trajectory<SwerveS
   }
 
   override fun initialize() {
-    trajStartTime = Clock.fpgaTime
     thetaPID.reset()
     xPID.reset()
     yPID.reset()
   }
 
   override fun execute() {
+    if (trajStartTime == 0.seconds) trajStartTime = Clock.fpgaTime
+
     trajCurTime = Clock.fpgaTime - trajStartTime
 
     val desiredState =
       trajectory.sampleAt(trajCurTime.inSeconds, AllianceFlipUtil.shouldFlip()).get()
     val poseReference = drivetrain.pose
 
+    CustomLogger.recordOutput("FollowChoreoPath/desiredPose", desiredState.pose)
+
     val nextDriveState = swerveDriveController.calculate(poseReference.pose2d, desiredState)
-    drivetrain.runSpeeds(ChassisSpeeds(nextDriveState))
+    drivetrain.runSpeeds(ChassisSpeeds(nextDriveState.vxMetersPerSecond.meters.perSecond, nextDriveState.vyMetersPerSecond.meters.perSecond, -nextDriveState.omegaRadiansPerSecond.radians.perSecond))
 
     if (thetakP.hasChanged()) thetaPID.proportionalGain = thetakP.get()
     if (thetakI.hasChanged()) thetaPID.integralGain = thetakI.get()
@@ -158,7 +161,8 @@ class FollowChoreoPath(val drivetrain: Drive, val trajectory: Trajectory<SwerveS
   }
 
   override fun isFinished(): Boolean {
-    return Clock.fpgaTime - trajStartTime > trajectory.totalTime.seconds + 0.5.seconds
+    return Clock.fpgaTime - trajStartTime > trajectory.totalTime.seconds + 2.seconds
+//    return xPID.error < 1.inches && yPID.error < 1.inches && thetaPID.error < 3.degrees
   }
 
   override fun end(interrupted: Boolean) {

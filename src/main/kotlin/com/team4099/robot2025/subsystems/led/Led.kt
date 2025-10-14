@@ -9,7 +9,8 @@ import java.util.function.Supplier
 class Led(
   val io: LedIO,
   var gamePieceArmSupplier: Supplier<Constants.Universal.GamePiece?>,
-  private val testSupplier: Supplier<Boolean>
+  var isAlignedSupplier: Supplier<Boolean>,
+  private val testSupplier: Supplier<Boolean> = Supplier { false }
 ) : SubsystemBase() {
   var inputs = LedIO.LEDIOInputs()
 

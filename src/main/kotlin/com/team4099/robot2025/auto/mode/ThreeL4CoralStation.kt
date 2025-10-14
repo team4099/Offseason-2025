@@ -2,6 +2,7 @@ package com.team4099.robot2025.auto.mode
 
 import choreo.Choreo
 import choreo.trajectory.SwerveSample
+import com.team4099.robot2025.commands.drivetrain.CoolerTargetTagCommand
 import com.team4099.robot2025.commands.drivetrain.FollowChoreoPath
 import com.team4099.robot2025.commands.drivetrain.ReefAlignCommand
 import com.team4099.robot2025.config.ControlBoard
@@ -32,20 +33,10 @@ class ThreeL4CoralStation(
       // ---------- 1: CENTER TO L4 ----------
 
       FollowChoreoPath(drivetrain, trajectory1),
-      superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L4),
+      superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L3),
       WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds),
-      ReefAlignCommand(
-        driver = Jessika(),
-        { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-        { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-        { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-        { ControlBoard.slowMode },
-        drivetrain,
-        elevator,
-        superstructure,
-        vision,
-        ReefAlignCommand.BRANCH_ID.RIGHT
-      ),
+      CoolerTargetTagCommand.alignLeftCommand(drivetrain, vision),
+      superstructure.scoreCommand(),
       WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds),
 
       // ---------- 2: L4 TO CORAL STATION ----------
@@ -59,18 +50,8 @@ class ThreeL4CoralStation(
       FollowChoreoPath(drivetrain, trajectory3),
       superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L4),
       WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds),
-      ReefAlignCommand(
-        driver = Jessika(),
-        { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-        { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-        { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-        { ControlBoard.slowMode },
-        drivetrain,
-        elevator,
-        superstructure,
-        vision,
-        ReefAlignCommand.BRANCH_ID.RIGHT
-      ),
+      CoolerTargetTagCommand.alignRightCommand(drivetrain, vision),
+      superstructure.scoreCommand(),
       WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds),
 
       // ---------- 4: L4 TO CORAL STATION ----------
@@ -84,18 +65,9 @@ class ThreeL4CoralStation(
       FollowChoreoPath(drivetrain, trajectory5),
       superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L4),
       WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds),
-      ReefAlignCommand(
-        driver = Jessika(),
-        { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-        { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-        { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-        { ControlBoard.slowMode },
-        drivetrain,
-        elevator,
-        superstructure,
-        vision,
-        ReefAlignCommand.BRANCH_ID.LEFT
-      ),
+      CoolerTargetTagCommand.alignLeftCommand(drivetrain, vision),
+      superstructure.scoreCommand(),
+      WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds),
     )
   }
 

@@ -132,7 +132,7 @@ object RobotContainer {
         {
           ControlBoard.slowMode ||
             superstructure.currentState ==
-            Superstructure.Companion.SuperstructureStates.GROUND_INTAKE_CORAL
+            Superstructure.Companion.SuperstructureStates.GROUND_INTAKE_CORAL|| superstructure.currentState== Superstructure.Companion.SuperstructureStates.INTAKE_ALGAE
         },
         drivetrain,
       )

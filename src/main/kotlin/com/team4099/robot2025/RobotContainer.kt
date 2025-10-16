@@ -82,7 +82,15 @@ object RobotContainer {
       intake = Intake(IntakeIOTalonFX)
       indexer = Indexer(IndexerIOTalon)
       canrange = CANRange(CANRangeReal)
-      led = Led(LedIOCandle, { null }, { false },  { ControlBoard.test.asBoolean })
+      led =
+        Led(
+          { superstructure.theoreticalGamePieceArm },
+          { vision.isAligned },
+          { vision.isAutoAligning },
+          { superstructure.currentState },
+          LedIOCandle(Constants.Candle.CANDLE_ID_1),
+          LedIOCandle(Constants.Candle.CANDLE_ID_2)
+        )
 
       vision =
         Vision(
@@ -108,7 +116,7 @@ object RobotContainer {
       intake = Intake(IntakeIOSim)
       indexer = Indexer(IndexerIOSim)
       canrange = CANRange(object : CANRangeIO {})
-      led = Led(object : LedIO {}, { null }, { false }, { ControlBoard.test.asBoolean })
+      led = Led({ superstructure.theoreticalGamePieceArm }, { vision.isAligned }, object : LedIO {})
 
       vision = Vision(object : CameraIO {})
     }
@@ -132,7 +140,9 @@ object RobotContainer {
         {
           ControlBoard.slowMode ||
             superstructure.currentState ==
-            Superstructure.Companion.SuperstructureStates.GROUND_INTAKE_CORAL|| superstructure.currentState== Superstructure.Companion.SuperstructureStates.INTAKE_ALGAE
+            Superstructure.Companion.SuperstructureStates.GROUND_INTAKE_CORAL ||
+            superstructure.currentState ==
+            Superstructure.Companion.SuperstructureStates.INTAKE_ALGAE
         },
         drivetrain,
       )

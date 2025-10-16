@@ -4,20 +4,16 @@ import choreo.Choreo
 import choreo.trajectory.SwerveSample
 import com.team4099.robot2025.commands.drivetrain.CoolerTargetTagCommand
 import com.team4099.robot2025.commands.drivetrain.FollowChoreoPath
-import com.team4099.robot2025.commands.drivetrain.ReefAlignCommand
-import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.ArmConstants
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
 import com.team4099.robot2025.subsystems.vision.Vision
-import com.team4099.robot2025.util.driver.Jessika
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import edu.wpi.first.wpilibj2.command.WaitCommand
 import org.team4099.lib.geometry.Pose2d
-import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.base.inSeconds
 
 class ThreeL4CoralStation(

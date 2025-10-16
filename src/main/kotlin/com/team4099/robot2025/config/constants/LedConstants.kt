@@ -19,6 +19,9 @@ object LedConstants {
         .withFrameRate(20.0)
     ),
     HAS_CORAL(SolidColor(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kPurple))),
-    IS_ALIGNED(SolidColor(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kGreen)))
+    HAS_ALGAE(SolidColor(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kGreen))),
+    IS_ALIGNED(SolidColor(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kCadetBlue))),
+    IS_ALIGNING(SolidColor(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kLightYellow))),
+    INTAKING_CORAL(SolidColor(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kTurquoise)))
   }
 }

@@ -2,34 +2,44 @@ package com.team4099.robot2025.subsystems.led
 
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.LedConstants.CandleState
+import com.team4099.robot2025.subsystems.superstructure.Superstructure
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import java.util.function.Supplier
 
 class Led(
-  val io: LedIO,
   var gamePieceArmSupplier: Supplier<Constants.Universal.GamePiece?>,
   var isAlignedSupplier: Supplier<Boolean>,
-  private val testSupplier: Supplier<Boolean> = Supplier { false }
+  var isAligningSupplier: Supplier<Boolean>,
+  var stateSupplier: Supplier<Superstructure.Companion.SuperstructureStates>,
+  vararg candles: LedIO,
 ) : SubsystemBase() {
-  var inputs = LedIO.LEDIOInputs()
+  var io = candles.toList()
+  var inputs = List(io.size) { LedIO.LEDIOInputs() }
 
   var state = CandleState.NOTHING
   private var lastState: CandleState? = null
 
   override fun periodic() {
-    CustomLogger.processInputs("Led", inputs)
     // todo for testing
     state =
-      if (testSupplier.get()) CandleState.TEST
-      else if (gamePieceArmSupplier.get() == Constants.Universal.GamePiece.CORAL)
-        CandleState.HAS_CORAL
-      else CandleState.NOTHING
+      if (gamePieceArmSupplier.get() == Constants.Universal.GamePiece.CORAL) CandleState.HAS_CORAL
+      else if (gamePieceArmSupplier.get() == Constants.Universal.GamePiece.ALGAE)
+        CandleState.HAS_ALGAE
+      else if (stateSupplier.get() ==
+        Superstructure.Companion.SuperstructureStates.GROUND_INTAKE_CORAL
+      )
+        CandleState.INTAKING_CORAL
+      else if (isAlignedSupplier.get()) CandleState.IS_ALIGNED
+      else if (isAligningSupplier.get()) CandleState.IS_ALIGNING else CandleState.NOTHING
 
     CustomLogger.recordOutput("Led/state", state.name)
 
-    if (lastState != state) io.turnOff()
-    io.setState(state)
-    lastState = state
+    for (instance in io.indices) {
+      if (lastState != state) io[instance].turnOff()
+      io[instance].setState(state)
+      lastState = state
+      CustomLogger.processInputs("Led/$instance", inputs[instance])
+    }
   }
 }

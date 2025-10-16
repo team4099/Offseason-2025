@@ -292,8 +292,9 @@ class Superstructure(
 
         when (theoreticalGamePieceArm) {
           GamePiece.ALGAE -> {
-            // arm should move first in case elevator ends up moving down
-            arm.currentRequest =
+            led.currentCommand =
+              // arm should move first in case elevator ends up moving down
+              arm.currentRequest =
               Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleAlgaeAngle.get())
             armRollers.currentRequest =
               ArmRollersRequest.OpenLoop(ArmRollersConstants.IDLE_ALGAE_VOLTAGE)

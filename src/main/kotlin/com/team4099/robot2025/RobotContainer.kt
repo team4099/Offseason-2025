@@ -7,6 +7,7 @@ import com.team4099.robot2025.commands.drivetrain.ResetGyroYawCommand
 import com.team4099.robot2025.commands.drivetrain.TeleopDriveCommand
 import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.Constants
+import com.team4099.robot2025.config.constants.Constants.Universal.GamePiece
 import com.team4099.robot2025.config.constants.VisionConstants
 import com.team4099.robot2025.subsystems.Arm.Arm
 import com.team4099.robot2025.subsystems.Arm.ArmIOSIm
@@ -82,15 +83,6 @@ object RobotContainer {
       intake = Intake(IntakeIOTalonFX)
       indexer = Indexer(IndexerIOTalon)
       canrange = CANRange(CANRangeReal)
-      led =
-        Led(
-          { superstructure.theoreticalGamePieceArm },
-          { vision.isAligned },
-          { vision.isAutoAligning },
-          { superstructure.currentState },
-          LedIOCandle(Constants.Candle.CANDLE_ID_1),
-          LedIOCandle(Constants.Candle.CANDLE_ID_2)
-        )
 
       vision =
         Vision(
@@ -107,6 +99,16 @@ object RobotContainer {
             { drivetrain.pose.rotation }
           ),
         )
+
+      led =
+        Led(
+          { GamePiece.NONE },
+          { vision.isAligned },
+          { vision.isAutoAligning },
+          { Superstructure.Companion.SuperstructureStates.UNINITIALIZED },
+          LedIOCandle(Constants.Candle.CANDLE_ID_1),
+          LedIOCandle(Constants.Candle.CANDLE_ID_2)
+        )
     } else {
       drivetrain = Drive(object : GyroIO {}, ModuleIOSim.generateModules())
       elevator = Elevator(ElevatorIOSim)
@@ -116,9 +118,17 @@ object RobotContainer {
       intake = Intake(IntakeIOSim)
       indexer = Indexer(IndexerIOSim)
       canrange = CANRange(object : CANRangeIO {})
-      led = Led({ superstructure.theoreticalGamePieceArm }, { vision.isAligned }, object : LedIO {})
 
       vision = Vision(object : CameraIO {})
+
+      led =
+        Led(
+          { GamePiece.NONE },
+          { vision.isAligned },
+          { vision.isAutoAligning },
+          { Superstructure.Companion.SuperstructureStates.UNINITIALIZED },
+          object : LedIO {}
+        )
     }
 
     superstructure =
@@ -126,8 +136,9 @@ object RobotContainer {
         drivetrain, vision, elevator, arm, armRollers, climber, intake, indexer, canrange, led
       )
 
-    led.isAlignedSupplier = Supplier { vision.isAligned }
+    //    led.isAlignedSupplier = Supplier { vision.isAligned }
     led.gamePieceArmSupplier = Supplier { superstructure.theoreticalGamePieceArm }
+    led.stateSupplier = Supplier { superstructure.currentState }
   }
 
   fun mapDefaultCommands() {

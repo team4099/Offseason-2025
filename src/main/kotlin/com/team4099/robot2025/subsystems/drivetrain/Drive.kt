@@ -321,7 +321,7 @@ class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>) : SubsystemB
       return states
     }
 
-  private val chassisSpeeds: ChassisSpeeds
+  val chassisSpeeds: ChassisSpeeds
     /** Returns the measured chassis speeds of the robot. */
     get() = ChassisSpeeds(kinematics.toChassisSpeeds(moduleStates))
 

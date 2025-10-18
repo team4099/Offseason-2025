@@ -32,6 +32,9 @@ class Rollers(val io: RollersIO) : SubsystemBase() {
 
   var targetVoltage: ElectricalPotential = 0.0.volts
 
+  var lastTransitionTime = 0.seconds
+  var lastAlgaeTriggerTime = 0.seconds
+
   var currentRequest: Request.RollersRequest = Request.RollersRequest.OpenLoop(0.0.volts)
     set(value) {
       when (value) {
@@ -55,9 +58,13 @@ class Rollers(val io: RollersIO) : SubsystemBase() {
       }
       rollerStates.OPEN_LOOP -> {
         io.setVoltage(targetVoltage)
+
+        if (lastAlgaeTriggerTime < lastTransitionTime && hasAlgae) lastAlgaeTriggerTime = Clock.fpgaTime
+
         nextState = fromRequestToState(currentRequest)
       }
     }
+    if (nextState != currentState) lastTransitionTime = Clock.fpgaTime
     currentState = nextState
   }
 

@@ -1,6 +1,7 @@
 package com.team4099.robot2025.auto
 
 import com.team4099.robot2025.auto.mode.CenterL4Barge
+import com.team4099.robot2025.auto.mode.CenterScore
 import com.team4099.robot2025.auto.mode.ExamplePathAuto
 import com.team4099.robot2025.auto.mode.ThreeL4CoralStation
 import com.team4099.robot2025.auto.mode.ThreeL4ProcessorLolipop
@@ -44,6 +45,8 @@ object AutonomousSelector {
         "Example Auto DO NOT RUN AT COMPETITION",
         AutonomousMode.EXAMPLE_AUTO
       )
+
+    autonomousModeChooser.addOption("Center L4 Only", AutonomousMode.CENTER_L4_ONLY)
 
     autonomousModeChooser.addOption("Center L4 + 2 Barge", AutonomousMode.CENTER_L4_BARGE)
 
@@ -93,6 +96,10 @@ object AutonomousSelector {
       //      AutonomousMode.WHEEL_RADIUS_CHARACTERIZATION ->
       //        return WaitCommand(waitTime.inSeconds)
       //          .andThen(WheelRadiusCharacterizationCommand(drivetrain))
+      AutonomousMode.CENTER_L4_ONLY ->
+        return WaitCommand(waitTime.inSeconds)
+          .andThen({ drivetrain.pose = AllianceFlipUtil.apply(CenterScore.startingPose) })
+          .andThen(CenterScore(drivetrain, vision))
       AutonomousMode.CENTER_L4_BARGE ->
         return WaitCommand(waitTime.inSeconds)
           .andThen({ drivetrain.pose = AllianceFlipUtil.apply(CenterL4Barge.startingPose) })
@@ -120,6 +127,7 @@ object AutonomousSelector {
   private enum class AutonomousMode {
     EXAMPLE_AUTO,
     //    WHEEL_RADIUS_CHARACTERIZATION,
+    CENTER_L4_ONLY,
     CENTER_L4_BARGE,
     THREE_L4_CORAL_STATION,
     THREE_L4_LOLLIPOP

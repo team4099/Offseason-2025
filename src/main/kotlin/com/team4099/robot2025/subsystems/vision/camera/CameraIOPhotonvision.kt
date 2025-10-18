@@ -5,7 +5,6 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout
 import edu.wpi.first.apriltag.AprilTagFields
 import edu.wpi.first.math.Matrix
 import edu.wpi.first.math.VecBuilder
-import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
 import org.littletonrobotics.junction.Logger
@@ -25,13 +24,27 @@ import org.team4099.lib.units.derived.inRotation2ds
 import org.team4099.lib.units.micro
 import java.util.Optional
 import java.util.function.Supplier
+import edu.wpi.first.math.geometry.Pose2d as WPIPose2d
 
 class CameraIOPhotonvision(
   private val identifier: String,
   transform: Transform3d,
-  val poseMeasurementConsumer: (Pose2d?, Double, Matrix<N3?, N1?>) -> Unit,
+  val poseMeasurementConsumer: (WPIPose2d?, Double, Matrix<N3?, N1?>) -> Unit,
   val drivetrainRotationSupplier: Supplier<Angle>
 ) : CameraIO {
+  //  private val fieldOrientedTransform =
+  //    Transform3d(
+  //      Translation3d(
+  //        transform.translation.x * if (AllianceFlipUtil.shouldFlip()) -1.0 else 1.0,
+  //        transform.translation.y * if (AllianceFlipUtil.shouldFlip()) -1.0 else 1.0,
+  //        transform.translation.z
+  //      ),
+  //      Rotation3d(
+  //        transform.rotation.x,
+  //        transform.rotation.y,
+  //        transform.rotation.z * if (AllianceFlipUtil.shouldFlip()) -1.0 else 1.0
+  //      )
+  //    )
 
   private val photonEstimator: PhotonPoseEstimator =
     PhotonPoseEstimator(
@@ -92,7 +105,7 @@ class CameraIOPhotonvision(
           val poseEst2d = poseEst.toPose2d()
 
           poseMeasurementConsumer(
-            Pose2d(poseEst2d.x, poseEst2d.y, drivetrainRotationSupplier.get().inRotation2ds),
+            WPIPose2d(poseEst2d.x, poseEst2d.y, drivetrainRotationSupplier.get().inRotation2ds),
             visionEst.get().timestampSeconds,
             curStdDevs
           )

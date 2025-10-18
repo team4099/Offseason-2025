@@ -2,8 +2,8 @@ package com.team4099.robot2025.commands.drivetrain
 
 import choreo.trajectory.SwerveSample
 import choreo.trajectory.Trajectory
-import com.ctre.phoenix6.swerve.SwerveRequest
 import com.team4099.lib.logging.LoggedTunableValue
+import com.team4099.lib.math.asTransform2d
 import com.team4099.lib.trajectory.CustomHolonomicDriveController
 import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.subsystems.drivetrain.Drive
@@ -91,9 +91,10 @@ class FollowChoreoPath(val drivetrain: Drive, val trajectory: Trajectory<SwerveS
       )
     )
 
-  val swerveDriveController: CustomHolonomicDriveController
+  private val finalPose: Pose2d =
+    Pose2d(trajectory.getFinalPose(AllianceFlipUtil.shouldFlip()).get())
 
-  val request = SwerveRequest.ApplyRobotSpeeds()
+  val swerveDriveController: CustomHolonomicDriveController
 
   init {
     addRequirements(drivetrain)
@@ -119,10 +120,11 @@ class FollowChoreoPath(val drivetrain: Drive, val trajectory: Trajectory<SwerveS
         xPID.wpiPidController, yPID.wpiPidController, thetaPID.wpiPidController
       )
 
-    swerveDriveController.setTolerance(Pose2d(3.inches, 3.inches, 1.5.degrees).pose2d)
+    swerveDriveController.setTolerance(Pose2d(2.5.inches, 2.5.inches, 4.degrees).pose2d)
   }
 
   override fun initialize() {
+    CustomLogger.recordOutput("ActiveCommands/FollowChoreoPath", true)
     thetaPID.reset()
     xPID.reset()
     yPID.reset()
@@ -135,40 +137,34 @@ class FollowChoreoPath(val drivetrain: Drive, val trajectory: Trajectory<SwerveS
 
     val desiredState =
       trajectory.sampleAt(trajCurTime.inSeconds, AllianceFlipUtil.shouldFlip()).get()
-    val poseReference = drivetrain.pose
 
     CustomLogger.recordOutput("FollowChoreoPath/desiredPose", desiredState.pose)
 
-    val nextDriveState = swerveDriveController.calculate(poseReference.pose2d, desiredState)
+    val nextDriveState = swerveDriveController.calculate(drivetrain.pose.pose2d, desiredState)
     drivetrain.runSpeeds(
       ChassisSpeeds(
         nextDriveState.vxMetersPerSecond.meters.perSecond,
         nextDriveState.vyMetersPerSecond.meters.perSecond,
         -nextDriveState.omegaRadiansPerSecond.radians.perSecond
-      )
+      ),
+      flipIfRed = false
     )
 
-    if (thetakP.hasChanged()) thetaPID.proportionalGain = thetakP.get()
-    if (thetakI.hasChanged()) thetaPID.integralGain = thetakI.get()
-    if (thetakD.hasChanged()) thetaPID.derivativeGain = thetakD.get()
+    CustomLogger.recordOutput("FollowChoreoPath/atSetpoint", atSetpoint())
+  }
 
-    if (poskP.hasChanged()) {
-      xPID.proportionalGain = poskP.get()
-      yPID.proportionalGain = poskP.get()
-    }
-    if (poskI.hasChanged()) {
-      xPID.integralGain = poskI.get()
-      yPID.integralGain = poskI.get()
-    }
-    if (poskD.hasChanged() && poskD.hasChanged()) {
-      xPID.derivativeGain = poskD.get()
-      yPID.derivativeGain = poskD.get()
-    }
+  private fun atSetpoint(): Boolean {
+    val posediff = drivetrain.pose.relativeTo(finalPose)
+
+    CustomLogger.recordOutput("FollowChoreoPath/poseDiff", posediff.asTransform2d().transform2d)
+
+    return posediff.x.absoluteValue < 3.inches &&
+      posediff.y.absoluteValue < 3.inches &&
+      posediff.rotation.absoluteValue < 5.degrees
   }
 
   override fun isFinished(): Boolean {
-    return Clock.fpgaTime - trajStartTime > trajectory.totalTime.seconds + 2.seconds
-    //    return xPID.error < 1.inches && yPID.error < 1.inches && thetaPID.error < 3.degrees
+    return Clock.fpgaTime - trajStartTime > trajectory.totalTime.seconds && atSetpoint()
   }
 
   override fun end(interrupted: Boolean) {

@@ -16,6 +16,7 @@ import org.team4099.lib.kinematics.ChassisSpeeds
 import org.team4099.lib.units.Velocity
 import org.team4099.lib.units.base.Length
 import org.team4099.lib.units.base.Meter
+import org.team4099.lib.units.base.Time
 import org.team4099.lib.units.base.inInches
 import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.inches
@@ -35,17 +36,12 @@ class CoolerTargetTagCommand(
   private val drivetrain: Drive,
   private val vision: Vision,
   private val xTargetOffset: Length =
-    DrivetrainConstants.DRIVETRAIN_LENGTH / 2 + DrivetrainConstants.BUMPER_WIDTH + 0.25.inches,
+    DrivetrainConstants.DRIVETRAIN_LENGTH / 2 + DrivetrainConstants.BUMPER_WIDTH + .5.inches,
   private val yTargetOffset: Length = 0.0.inches,
   private val thetaTargetOffset: Angle = 0.0.radians,
 ) : Command() {
 
-  private var thetaPID: PIDController<Radian, Velocity<Radian>> =
-    PIDController(
-      DrivetrainConstants.PID.TELEOP_THETA_PID_KP,
-      DrivetrainConstants.PID.TELEOP_THETA_PID_KI,
-      DrivetrainConstants.PID.TELEOP_THETA_PID_KD
-    )
+  private val thetaPID: PIDController<Radian, Velocity<Radian>>
   private var yPID: PIDController<Meter, Velocity<Meter>> =
     PIDController(
       DrivetrainConstants.PID.TELEOP_Y_PID_KP,
@@ -62,12 +58,11 @@ class CoolerTargetTagCommand(
   private var hasThetaAligned: Boolean = false
   private var hasPointedAt: Boolean = false
 
+  private var startTime: Time = 0.0.seconds
+
   init {
     addRequirements(drivetrain, vision)
-    thetaPID.enableContinuousInput(-PI.radians, PI.radians)
-  }
 
-  override fun initialize() {
     if (RobotBase.isSimulation()) {
       thetaPID =
         PIDController(
@@ -121,17 +116,20 @@ class CoolerTargetTagCommand(
         )
     }
 
+    thetaPID.enableContinuousInput(-PI.radians, PI.radians)
+  }
+
+  override fun initialize() {
+    startTime = Clock.fpgaTime
+
     xPID.reset()
     yPID.reset()
     thetaPID.reset()
 
-    xPID.errorTolerance = .25.inches
-    yPID.errorTolerance = .25.inches
-    thetaPID.errorTolerance = .5.degrees
-
     thetaPID.enableContinuousInput(-PI.radians, PI.radians)
 
     vision.isAligned = false
+    vision.isAutoAligning = true
     hasThetaAligned = false
     hasPointedAt = false
 
@@ -167,13 +165,11 @@ class CoolerTargetTagCommand(
     )
 
     // todo check signs and whatnot
-    var xvel = -xPID.calculate(setpointTranslation.x, xTargetOffset * setpointTranslation.x.sign)
+    var xvel =
+      xPID.calculate(setpointTranslation.x, xTargetOffset * setpointTranslation.x.sign) *
+        setpointTranslation.x.sign
     var yvel = -yPID.calculate(setpointTranslation.y, yTargetOffset)
     var thetavel = -thetaPID.calculate(drivetrain.rotation, setpointRotation + thetaTargetOffset)
-
-    if (xPID.error.absoluteValue < xPID.errorTolerance) xvel *= 0
-    if (yPID.error.absoluteValue < yPID.errorTolerance) yvel *= 0
-    if (thetaPID.error.absoluteValue < thetaPID.errorTolerance) thetavel *= 0
 
     CustomLogger.recordOutput("CoolerTargetTagCommand/xvelmps", xvel.inMetersPerSecond)
     CustomLogger.recordOutput("CoolerTargetTagCommand/yvelmps", yvel.inMetersPerSecond)
@@ -185,25 +181,24 @@ class CoolerTargetTagCommand(
     CustomLogger.recordOutput("CoolerTargetTagCommand/hasThetaAligned", hasThetaAligned)
     CustomLogger.recordOutput("CoolerTargetTagCommand/hasPointedAt", hasPointedAt)
 
-    drivetrain.runSpeeds(ChassisSpeeds(xvel, yvel, thetavel))
-
     if (hasThetaAligned || thetaPID.error.absoluteValue < 4.49.degrees) {
       hasThetaAligned = true
 
-      drivetrain.runSpeeds(ChassisSpeeds(xvel, yvel, thetavel))
+      drivetrain.runSpeeds(ChassisSpeeds(xvel, yvel, thetavel), flipIfRed = false)
     } else {
-      drivetrain.runSpeeds(ChassisSpeeds(0.meters.perSecond, 0.meters.perSecond, thetavel))
+      drivetrain.runSpeeds(
+        ChassisSpeeds(0.meters.perSecond, 0.meters.perSecond, thetavel), flipIfRed = false
+      )
     }
   }
 
   override fun isFinished(): Boolean {
-    return xPID.error < xPID.errorTolerance &&
-      yPID.error < yPID.errorTolerance &&
-      thetaPID.error < thetaPID.errorTolerance
+    return xPID.error < 1.2.inches && yPID.error < 1.2.inches && thetaPID.error < 3.degrees
   }
 
   override fun end(interrupted: Boolean) {
     if (!interrupted) vision.isAligned = true
+    vision.isAutoAligning = false
 
     CustomLogger.recordOutput("CoolerTargetTagCommand/interrupted", interrupted)
 
@@ -218,6 +213,10 @@ class CoolerTargetTagCommand(
 
     fun alignRightCommand(drivetrain: Drive, vision: Vision): CoolerTargetTagCommand {
       return CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (-12.94 / 2).inches)
+    }
+
+    fun alignCenter(drivetrain: Drive, vision: Vision): CoolerTargetTagCommand {
+      return CoolerTargetTagCommand(drivetrain, vision)
     }
   }
 }

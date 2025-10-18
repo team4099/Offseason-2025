@@ -91,7 +91,7 @@ object VisionConstants {
 
   val oldStdDevs: Matrix<N3?, N1?> = VecBuilder.fill(XY_STDDEV, XY_STDDEV, THETA_STDDEV)
 
-  val FIELD_POSE_RESET_DISTANCE_THRESHOLD = .5.meters
+  val FIELD_POSE_RESET_DISTANCE_THRESHOLD = .75.meters
 
   object Limelight {
     val LIMELIGHT_NAME = "limelight-owl"

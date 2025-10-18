@@ -19,7 +19,7 @@ object RollersConstants {
   val EJECT_VOLTAGE = (-3.0).volts
 
   val IDLE_CORAL_VOLTAGE = 0.5.volts
-  val IDLE_ALGAE_VOLTAGE = 2.volts
+  val IDLE_ALGAE_VOLTAGE = 3.volts
 
   val MOMENT_OF_INERTIA = 0.09344594214.grams.meterSquared
 
@@ -28,10 +28,10 @@ object RollersConstants {
 
   // TODO: Set intake voltage values
   val INTAKE_CORAL_VOLTAGE = 6.0.volts
-  val INTAKE_ALGAE_VOLTAGE = 6.0.volts
+  val INTAKE_ALGAE_VOLTAGE = 8.0.volts
 
   val OUTTAKE_CORAL_VOLTAGE = (-2.0).volts
-  val OUTTAKE_ALGAE_VOLTAGE = (-7.0).volts
+  val OUTTAKE_ALGAE_VOLTAGE = (-10.0).volts
 
   val GAMEPIECE_SPITOUT_THRESHOLD = 1.0.seconds
 }

@@ -8,6 +8,7 @@ import com.team4099.robot2025.config.constants.FieldConstants
 import com.team4099.robot2025.config.constants.VisionConstants
 import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.subsystems.vision.camera.CameraIO
+import com.team4099.robot2025.util.CustomLogger
 import com.team4099.robot2025.util.FMSData
 import com.team4099.robot2025.util.toTransform3d
 import edu.wpi.first.apriltag.AprilTagFieldLayout
@@ -331,6 +332,13 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
 
     val currentTagId = if (bothSeeingSameTag) tagId0 else null
     val distanceToTag = closestReefTagAcrossCams?.value?.second?.translation?.norm ?: 1000000.meters
+
+    CustomLogger.recordOutput(
+      "Vision/rumble",
+      currentTagId != null &&
+        currentTagId in tagIDFilter &&
+        distanceToTag <= VisionConstants.CONTROLLER_RUMBLE_DIST
+    )
 
     if (currentTagId != null &&
       currentTagId in tagIDFilter &&

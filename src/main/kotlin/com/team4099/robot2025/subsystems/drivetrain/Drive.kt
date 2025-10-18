@@ -23,6 +23,7 @@ import com.pathplanner.lib.util.PathPlannerLogging
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.subsystems.drivetrain.generated.TunerConstants
+import com.team4099.robot2025.util.AllianceFlipUtil
 import edu.wpi.first.hal.FRCNetComm
 import edu.wpi.first.hal.HAL
 import edu.wpi.first.math.Matrix
@@ -228,9 +229,14 @@ class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>) : SubsystemB
    *
    * @param speeds Speeds in meters/sec
    */
-  fun runSpeeds(speeds: ChassisSpeeds) {
+  fun runSpeeds(speeds: ChassisSpeeds, flipIfRed: Boolean = true) {
+    val flippedSpeeds =
+      if (flipIfRed && AllianceFlipUtil.shouldFlip())
+        ChassisSpeeds(-speeds.vx, -speeds.vy, speeds.omega)
+      else speeds
     // Calculate module setpoints
-    val discreteSpeeds = ChassisSpeeds.discretize(speeds, Constants.Universal.LOOP_PERIOD_TIME)
+    val discreteSpeeds =
+      ChassisSpeeds.discretize(flippedSpeeds, Constants.Universal.LOOP_PERIOD_TIME)
     val setpointStates: Array<SwerveModuleState> =
       kinematics.toSwerveModuleStates(discreteSpeeds.chassisSpeedsWPILIB)
 

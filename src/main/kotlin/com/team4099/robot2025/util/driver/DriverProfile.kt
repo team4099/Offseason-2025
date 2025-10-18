@@ -13,7 +13,8 @@ abstract class DriverProfile(
   private val invertRotation: Boolean,
   private val sensitivityDrivePowerConstant: Int,
   private val sensitivityRotationPowerConstant: Int,
-  private val slowModeClamp: Double = 0.25
+  private val driveSlowModeClamp: Double = 0.25,
+  private val turnSlowModeClamp: Double = 0.75
 ) {
   private val invertDriveMultiplier = if (invertDrive) -1 else 1
   private val invertRotationMultiplier = if (invertRotation) -1 else 1
@@ -33,8 +34,8 @@ abstract class DriverProfile(
 
     if (slowMode.asBoolean) {
       return Pair(
-        DrivetrainConstants.DRIVE_SETPOINT_MAX * xSpeedCurve * slowModeClamp,
-        DrivetrainConstants.DRIVE_SETPOINT_MAX * ySpeedCurve * slowModeClamp
+        DrivetrainConstants.DRIVE_SETPOINT_MAX * xSpeedCurve * driveSlowModeClamp,
+        DrivetrainConstants.DRIVE_SETPOINT_MAX * ySpeedCurve * driveSlowModeClamp
       )
     } else {
       return Pair(
@@ -57,7 +58,7 @@ abstract class DriverProfile(
     if (slowMode.asBoolean) {
       return DrivetrainConstants.TURN_SETPOINT_MAX *
         rotationSpeedCurve *
-        slowModeClamp *
+        turnSlowModeClamp *
         invertRotationMultiplier
     } else {
       return DrivetrainConstants.TURN_SETPOINT_MAX * rotationSpeedCurve * invertRotationMultiplier

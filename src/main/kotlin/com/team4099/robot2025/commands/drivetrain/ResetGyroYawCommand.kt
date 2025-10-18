@@ -4,18 +4,19 @@ import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj2.command.Command
 import org.team4099.lib.geometry.Pose2d
-import org.team4099.lib.units.derived.Angle
-import org.team4099.lib.units.derived.degrees
+import org.team4099.lib.units.derived.radians
+import kotlin.math.PI
 
-class ResetGyroYawCommand(val drivetrain: Drive, private val toAngle: Angle = 0.0.degrees) :
+class ResetGyroYawCommand(val drivetrain: Drive, private val flipIfRed: Boolean = true) :
   Command() {
   init {
     addRequirements(drivetrain)
   }
 
   override fun initialize() {
-    drivetrain.pose = Pose2d(drivetrain.pose.x, drivetrain.pose.y, toAngle)
-    drivetrain.pointWheelsAt(toAngle)
+    val angle = if (flipIfRed) -PI.radians else 0.radians
+    drivetrain.pose = Pose2d(drivetrain.pose.x, drivetrain.pose.y, angle)
+    drivetrain.pointWheelsAt(angle)
   }
 
   override fun execute() {

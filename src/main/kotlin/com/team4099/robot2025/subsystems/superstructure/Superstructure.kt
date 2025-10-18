@@ -75,9 +75,12 @@ class Superstructure(
   private var lastAlgaeIntakeLevel: AlgaeIntakeLevel = AlgaeIntakeLevel.NONE
   private var algaeIntakeLevel: AlgaeIntakeLevel = AlgaeIntakeLevel.NONE
 
-  private var lastAlgaeScoringLevel: AlgaeScoringLevel = AlgaeScoringLevel.NONE
-  private var algaeScoringLevel: AlgaeScoringLevel = AlgaeScoringLevel.NONE
-  private var lastPrepLevel: CoralLevel = CoralLevel.NONE
+  var lastAlgaeScoringLevel: AlgaeScoringLevel = AlgaeScoringLevel.NONE
+    private set
+  var algaeScoringLevel: AlgaeScoringLevel = AlgaeScoringLevel.NONE
+    private set
+  var lastPrepLevel: CoralLevel = CoralLevel.NONE
+    private set
 
   var currentRequest: SuperstructureRequest = SuperstructureRequest.Idle()
     set(value) {
@@ -588,7 +591,10 @@ class Superstructure(
             if (elevator.isAtTargetedPosition) lastPrepLevel = coralScoringLevel
           }
         } else {
-          if (coralScoringLevel == CoralLevel.L1 && !elevator.isAtTargetedPosition) {
+          if (coralScoringLevel == CoralLevel.L1 &&
+            !elevator.isAtTargetedPosition &&
+            !arm.isAtTargetedPosition
+          ) {
             elevator.currentRequest =
               Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.l1InitHeight.get())
           } else {
@@ -724,8 +730,20 @@ class Superstructure(
         }
       }
       SuperstructureStates.SCORE_ALGAE -> {
-        armRollers.currentRequest =
-          ArmRollersRequest.OpenLoop(ArmRollersConstants.OUTTAKE_ALGAE_VOLTAGE)
+        when (algaeScoringLevel) {
+          AlgaeScoringLevel.PROCESSOR -> {
+            armRollers.currentRequest =
+              ArmRollersRequest.OpenLoop(ArmRollersConstants.OUTTAKE_ALGAE_VOLTAGE)
+          }
+          else -> {
+            arm.currentRequest =
+              Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.BARGE_POST_SHOOT_ANGLE)
+
+            if (arm.inputs.armPosition > ArmConstants.ANGLES.BARGE_SHOOT_THRESHOLD)
+              armRollers.currentRequest =
+                ArmRollersRequest.OpenLoop(ArmRollersConstants.OUTTAKE_ALGAE_VOLTAGE)
+          }
+        }
 
         if (currentRequest is SuperstructureRequest.Idle) {
           nextState = SuperstructureStates.CLEANUP_SCORE_ALGAE
@@ -837,10 +855,7 @@ class Superstructure(
 
   // --------------------------------- Intake Commands ---------------------------------
   fun intakeCoralCommand(): Command {
-    val returnCommand =
-      runOnce { currentRequest = SuperstructureRequest.IntakeCoral() }.until {
-        isAtRequestedState && currentState == SuperstructureStates.IDLE
-      }
+    val returnCommand = runOnce { currentRequest = SuperstructureRequest.IntakeCoral() }
     returnCommand.name = "IntakeCoral"
     return returnCommand
   }

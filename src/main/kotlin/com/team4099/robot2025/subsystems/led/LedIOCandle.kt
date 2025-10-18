@@ -4,11 +4,10 @@ import com.ctre.phoenix6.configs.CANdleConfiguration
 import com.ctre.phoenix6.controls.EmptyAnimation
 import com.ctre.phoenix6.hardware.CANdle
 import com.ctre.phoenix6.signals.LossOfSignalBehaviorValue
-import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.LedConstants
 
-object LedIOCandle : LedIO {
-  private val candle = CANdle(Constants.Candle.CANDLE_ID)
+class LedIOCandle(val id: Int) : LedIO {
+  private val candle = CANdle(id)
   private val configs = CANdleConfiguration()
 
   init {

@@ -157,7 +157,8 @@ object Constants {
   }
 
   object Candle {
-    const val CANDLE_ID = 2
+    const val CANDLE_ID_1 = 2
+    const val CANDLE_ID_2 = 3
   }
 
   object Alert {

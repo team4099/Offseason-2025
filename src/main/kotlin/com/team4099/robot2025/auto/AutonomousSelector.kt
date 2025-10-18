@@ -35,6 +35,9 @@ object AutonomousSelector {
     //    orientationChooser.addOption("Right", 270.degrees)
     //    autoTab.add("Starting Orientation", orientationChooser)
 
+    //    autonomousModeChooser.addOption("Drive Wheel Radius Characterization",
+    // AutonomousMode.WHEEL_RADIUS_CHARACTERIZATION)
+
     autonomousModeChooser
       .addOption( // This is an example auto similarly to -1337 it is a placeholder so it should
         // not be used
@@ -87,6 +90,9 @@ object AutonomousSelector {
         return WaitCommand(waitTime.inSeconds)
           .andThen({ drivetrain.pose = AllianceFlipUtil.apply(ExamplePathAuto.startingPose) })
           .andThen(ExamplePathAuto(drivetrain))
+      //      AutonomousMode.WHEEL_RADIUS_CHARACTERIZATION ->
+      //        return WaitCommand(waitTime.inSeconds)
+      //          .andThen(WheelRadiusCharacterizationCommand(drivetrain))
       AutonomousMode.CENTER_L4_BARGE ->
         return WaitCommand(waitTime.inSeconds)
           .andThen({ drivetrain.pose = AllianceFlipUtil.apply(CenterL4Barge.startingPose) })
@@ -112,8 +118,8 @@ object AutonomousSelector {
   }
 
   private enum class AutonomousMode {
-    // Delete this when real autos are made
     EXAMPLE_AUTO,
+    //    WHEEL_RADIUS_CHARACTERIZATION,
     CENTER_L4_BARGE,
     THREE_L4_CORAL_STATION,
     THREE_L4_LOLLIPOP

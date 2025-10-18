@@ -7,6 +7,7 @@ import com.team4099.robot2025.commands.drivetrain.ResetGyroYawCommand
 import com.team4099.robot2025.commands.drivetrain.TeleopDriveCommand
 import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.Constants
+import com.team4099.robot2025.config.constants.Constants.Universal.GamePiece
 import com.team4099.robot2025.config.constants.VisionConstants
 import com.team4099.robot2025.subsystems.Arm.Arm
 import com.team4099.robot2025.subsystems.Arm.ArmIOSIm
@@ -41,13 +42,11 @@ import com.team4099.robot2025.subsystems.vision.camera.CameraIO
 import com.team4099.robot2025.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.util.driver.Jessika
 import edu.wpi.first.wpilibj.RobotBase
-import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.base.inches
-import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.radians
 import java.util.function.Supplier
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
@@ -82,7 +81,6 @@ object RobotContainer {
       intake = Intake(IntakeIOTalonFX)
       indexer = Indexer(IndexerIOTalon)
       canrange = CANRange(CANRangeReal)
-      led = Led(LedIOCandle, { null }, { ControlBoard.test.asBoolean })
 
       vision =
         Vision(
@@ -99,6 +97,16 @@ object RobotContainer {
             { drivetrain.pose.rotation }
           ),
         )
+
+      led =
+        Led(
+          { GamePiece.NONE },
+          { vision.isAligned },
+          { vision.isAutoAligning },
+          { Superstructure.Companion.SuperstructureStates.UNINITIALIZED },
+          LedIOCandle(Constants.Candle.CANDLE_ID_1),
+          LedIOCandle(Constants.Candle.CANDLE_ID_2)
+        )
     } else {
       drivetrain = Drive(object : GyroIO {}, ModuleIOSim.generateModules())
       elevator = Elevator(ElevatorIOSim)
@@ -108,9 +116,17 @@ object RobotContainer {
       intake = Intake(IntakeIOSim)
       indexer = Indexer(IndexerIOSim)
       canrange = CANRange(object : CANRangeIO {})
-      led = Led(object : LedIO {}, { null }, { ControlBoard.test.asBoolean })
 
       vision = Vision(object : CameraIO {})
+
+      led =
+        Led(
+          { GamePiece.NONE },
+          { vision.isAligned },
+          { vision.isAutoAligning },
+          { Superstructure.Companion.SuperstructureStates.UNINITIALIZED },
+          object : LedIO {}
+        )
     }
 
     superstructure =
@@ -118,7 +134,9 @@ object RobotContainer {
         drivetrain, vision, elevator, arm, armRollers, climber, intake, indexer, canrange, led
       )
 
+    //    led.isAlignedSupplier = Supplier { vision.isAligned }
     led.gamePieceArmSupplier = Supplier { superstructure.theoreticalGamePieceArm }
+    led.stateSupplier = Supplier { superstructure.currentState }
   }
 
   fun mapDefaultCommands() {
@@ -131,7 +149,13 @@ object RobotContainer {
         {
           ControlBoard.slowMode ||
             superstructure.currentState ==
-            Superstructure.Companion.SuperstructureStates.GROUND_INTAKE_CORAL
+            Superstructure.Companion.SuperstructureStates.GROUND_INTAKE_CORAL ||
+            superstructure.currentState ==
+            Superstructure.Companion.SuperstructureStates.INTAKE_ALGAE ||
+            superstructure.currentState ==
+            Superstructure.Companion.SuperstructureStates.SCORE_ALGAE &&
+            superstructure.algaeScoringLevel ==
+            Constants.Universal.AlgaeScoringLevel.BARGE
         },
         drivetrain,
       )
@@ -161,7 +185,7 @@ object RobotContainer {
         CoolerTargetTagCommand(drivetrain, vision),
         CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (12.94 / 2).inches)
       ) {
-        superstructure.theoreticalGamePieceArm == Constants.Universal.GamePiece.ALGAE
+        superstructure.theoreticalGamePieceArm == GamePiece.ALGAE
       }
     )
 
@@ -170,21 +194,19 @@ object RobotContainer {
         CoolerTargetTagCommand(drivetrain, vision),
         CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (-12.94 / 2).inches)
       ) {
-        superstructure.theoreticalGamePieceArm == Constants.Universal.GamePiece.ALGAE
+        superstructure.theoreticalGamePieceArm == GamePiece.ALGAE
       }
     )
 
     ControlBoard.resetGyro.whileTrue(ResetGyroYawCommand(drivetrain))
     ControlBoard.forceIdle.whileTrue(superstructure.requestIdleCommand())
     ControlBoard.eject.whileTrue(superstructure.ejectCommand())
-    ControlBoard.resetGamePieceNone.whileTrue(
-      superstructure.resetGamepieceCommand(Constants.Universal.GamePiece.NONE)
-    )
+    ControlBoard.resetGamePieceNone.whileTrue(superstructure.resetGamepieceCommand(GamePiece.NONE))
     ControlBoard.resetGamePieceCoral.whileTrue(
-      superstructure.resetGamepieceCommand(Constants.Universal.GamePiece.CORAL)
+      superstructure.resetGamepieceCommand(GamePiece.CORAL)
     )
     ControlBoard.resetGamePieceAlgae.whileTrue(
-      superstructure.resetGamepieceCommand(Constants.Universal.GamePiece.ALGAE)
+      superstructure.resetGamepieceCommand(GamePiece.ALGAE)
     )
 
     ControlBoard.test.whileTrue(InstantCommand())
@@ -196,8 +218,6 @@ object RobotContainer {
     AutonomousSelector.getCommand(drivetrain, elevator, superstructure, vision)
 
   fun getAutonomousLoadingCommand() = AutonomousSelector.getLoadingCommand(drivetrain)
-
-  fun resetGyroYawCommand(angle: Angle): Command = ResetGyroYawCommand(drivetrain, angle)
 
   fun mapTunableCommands() {}
 }

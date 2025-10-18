@@ -27,7 +27,7 @@ object ElevatorConstants {
   val HOMING_STALL_CURRENT = 15.0.amps
   val HOMING_STALL_TIME_THRESHOLD = 0.35.seconds
 
-  val UPWARDS_EXTENSION_LIMIT: Length = 59.25.inches
+  val UPWARDS_EXTENSION_LIMIT: Length = 56.8.inches
   val DOWNWARDS_EXTENSION_LIMIT: Length = 0.inches
   val FIRST_STAGE_HEIGHT: Length = 26.125.inches
 
@@ -53,7 +53,7 @@ object ElevatorConstants {
     val INTAKE_ALGAE_LOW = 34.56.inches - CARRIAGE_TO_BOTTOM
     val INTAKE_ALGAE_HIGH = 50.46.inches - CARRIAGE_TO_BOTTOM
 
-    val L1 = 28.25.inches - CARRIAGE_TO_BOTTOM - 0.5.inches
+    val L1 = 28.25.inches - CARRIAGE_TO_BOTTOM + 1.inches
     val L2 = 24.4.inches - CARRIAGE_TO_BOTTOM + 2.inches
     val L3 = 40.25.inches - CARRIAGE_TO_BOTTOM + 2.inches
     val L4 = 63.03.inches - CARRIAGE_TO_BOTTOM + 2.inches

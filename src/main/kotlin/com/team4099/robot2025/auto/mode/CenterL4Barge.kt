@@ -2,10 +2,8 @@ package com.team4099.robot2025.auto.mode
 
 import choreo.Choreo
 import choreo.trajectory.SwerveSample
+import com.team4099.robot2025.commands.drivetrain.CoolerTargetTagCommand
 import com.team4099.robot2025.commands.drivetrain.FollowChoreoPath
-import com.team4099.robot2025.commands.drivetrain.ReefAlignCommand
-import com.team4099.robot2025.commands.drivetrain.TargetTagCommand
-import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.ArmConstants
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.RollersConstants
@@ -13,14 +11,10 @@ import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
 import com.team4099.robot2025.subsystems.vision.Vision
-import com.team4099.robot2025.util.driver.Jessika
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import edu.wpi.first.wpilibj2.command.WaitCommand
 import org.team4099.lib.geometry.Pose2d
-import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.base.inSeconds
-import org.team4099.lib.units.base.inches
 
 class CenterL4Barge(
   val drivetrain: Drive,
@@ -37,18 +31,8 @@ class CenterL4Barge(
       FollowChoreoPath(drivetrain, firstTrajectory),
       superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L4),
       WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds),
-      ReefAlignCommand(
-        driver = Jessika(),
-        { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-        { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-        { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-        { ControlBoard.slowMode },
-        drivetrain,
-        elevator,
-        superstructure,
-        vision,
-        ReefAlignCommand.BRANCH_ID.RIGHT
-      ),
+      CoolerTargetTagCommand.alignRightCommand(drivetrain, vision).withTimeout(3.0),
+      superstructure.scoreCommand(),
       WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds),
 
       // ---------- 2: L4 TO ALGAE REEF INTAKE ----------
@@ -56,28 +40,11 @@ class CenterL4Barge(
       FollowChoreoPath(drivetrain, secondTrajectory),
       superstructure.intakeAlgaeCommand(Constants.Universal.AlgaeIntakeLevel.L2),
       WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds),
-      TargetTagCommand(
-        driver = Jessika(),
-        { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-        { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-        { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-        { ControlBoard.slowMode },
-        drivetrain,
-        vision,
-        0.inches
-      ),
+      CoolerTargetTagCommand.alignCenter(drivetrain, vision).withTimeout(3.0),
 
       // ---------- 3: REEF TO NET ----------
-
-      ParallelCommandGroup(
-        FollowChoreoPath(drivetrain, thirdTrajectory),
-        WaitCommand(0.5)
-          .andThen(
-            superstructure.prepScoreAlgaeCommand(
-              Constants.Universal.AlgaeScoringLevel.BARGE
-            )
-          )
-      ),
+      superstructure.prepScoreAlgaeCommand(Constants.Universal.AlgaeScoringLevel.BARGE),
+      FollowChoreoPath(drivetrain, thirdTrajectory),
       superstructure.scoreCommand(),
       WaitCommand(RollersConstants.GAMEPIECE_SPITOUT_THRESHOLD.inSeconds * 1.5),
 
@@ -86,28 +53,12 @@ class CenterL4Barge(
       FollowChoreoPath(drivetrain, fourthTrajectory),
       superstructure.intakeAlgaeCommand(Constants.Universal.AlgaeIntakeLevel.L2),
       WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds),
-      TargetTagCommand(
-        driver = Jessika(),
-        { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-        { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-        { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-        { ControlBoard.slowMode },
-        drivetrain,
-        vision,
-        0.inches
-      ),
+      CoolerTargetTagCommand.alignCenter(drivetrain, vision).withTimeout(3.0),
 
       // ---------- 5: REEF TO NET ----------
 
-      ParallelCommandGroup(
-        FollowChoreoPath(drivetrain, fifthTrajectory),
-        WaitCommand(0.5)
-          .andThen(
-            superstructure.prepScoreAlgaeCommand(
-              Constants.Universal.AlgaeScoringLevel.BARGE
-            )
-          )
-      ),
+      superstructure.prepScoreAlgaeCommand(Constants.Universal.AlgaeScoringLevel.BARGE),
+      FollowChoreoPath(drivetrain, fifthTrajectory),
       superstructure.scoreCommand(),
     )
   }

@@ -17,7 +17,7 @@ object VisionConstants {
   const val SIM_POSE_TOPIC_NAME = "Odometry/groundTruthPose"
   const val POSE_TOPIC_NAME = "Odometry/pose"
 
-  val CONTROLLER_RUMBLE_DIST = 1.5.meters
+  val CONTROLLER_RUMBLE_DIST = 2.25.meters
 
   const val NUM_OF_CAMERAS = 2
 

@@ -9,15 +9,15 @@ import com.pathplanner.lib.util.DriveFeedforwards
 import com.team4099.lib.logging.LoggedTunableValue
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.DrivetrainConstants
-import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
+import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.util.AllianceFlipUtil
 import edu.wpi.first.math.geometry.Rotation2d
-import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.geometry.Translation2d
+import org.team4099.lib.kinematics.ChassisSpeeds
 import org.team4099.lib.pplib.PathPlannerHolonomicDriveController
 import org.team4099.lib.pplib.PathPlannerHolonomicDriveController.Companion.GoalEndState
 import org.team4099.lib.pplib.PathPlannerHolonomicDriveController.Companion.ModuleConfig
@@ -45,6 +45,7 @@ import org.team4099.lib.units.perSecond
 import java.util.function.DoubleSupplier
 import java.util.function.Supplier
 import edu.wpi.first.math.geometry.Pose2d as WPIPose2d
+import edu.wpi.first.math.kinematics.ChassisSpeeds as WPIChassisSpeeds
 
 /**
  * @property drivetrain
@@ -60,7 +61,7 @@ import edu.wpi.first.math.geometry.Pose2d as WPIPose2d
  * @property goalEndState Goal end state for chassis.
  */
 class DrivePathOTF(
-  private val drivetrain: CommandSwerveDrive,
+  private val drivetrain: Drive,
   private val driveX: DoubleSupplier,
   private val driveY: DoubleSupplier,
   private val turn: DoubleSupplier,
@@ -203,21 +204,15 @@ class DrivePathOTF(
           addAll(poses.map { it.get().pose2d })
         }
       )
-
     command =
       FollowPathCommand(
         PathPlannerPath(
           waypoints, pathConstraints.pplibConstraints, null, goalEndState.pplibGoalEndState
         ),
         { AllianceFlipUtil.apply(Pose2d(poseReferenceSupplier.get())).pose2d },
-        { drivetrain.state.Speeds },
-        { speeds: ChassisSpeeds, ff: DriveFeedforwards ->
-          drivetrain.setControl(
-            request
-              .withSpeeds(speeds)
-              .withWheelForceFeedforwardsX(ff.robotRelativeForcesX())
-              .withWheelForceFeedforwardsY(ff.robotRelativeForcesY())
-          )
+        { drivetrain.chassisSpeeds.chassisSpeedsWPILIB },
+        { speeds: WPIChassisSpeeds, ff: DriveFeedforwards ->
+          drivetrain.runSpeeds(ChassisSpeeds(speeds))
         },
         ppHolonomicDriveController.pplibController,
         robotConfig.ppllibRobotConfig,

@@ -2,8 +2,8 @@ package com.team4099.robot2025
 
 import com.ctre.phoenix6.signals.NeutralModeValue
 import com.team4099.robot2025.auto.AutonomousSelector
-import com.team4099.robot2025.commands.drivetrain.DrivePathOTF
 import com.team4099.robot2025.commands.drivetrain.CoolerTargetTagCommand
+import com.team4099.robot2025.commands.drivetrain.DrivePathOTF
 import com.team4099.robot2025.commands.drivetrain.ResetGyroYawCommand
 import com.team4099.robot2025.commands.drivetrain.TeleopDriveCommand
 import com.team4099.robot2025.config.ControlBoard
@@ -43,18 +43,16 @@ import com.team4099.robot2025.subsystems.vision.camera.CameraIO
 import com.team4099.robot2025.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.util.driver.Jessika
 import edu.wpi.first.wpilibj.RobotBase
-import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.pplib.PathPlannerHolonomicDriveController
 import org.team4099.lib.smoothDeadband
-import org.team4099.lib.units.base.meters
-import org.team4099.lib.units.derived.Angle
-import org.team4099.lib.units.derived.degrees
-import org.team4099.lib.units.perSecond
 import org.team4099.lib.units.base.inches
+import org.team4099.lib.units.base.meters
+import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.radians
+import org.team4099.lib.units.perSecond
 import java.util.function.Supplier
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersIOSim
@@ -76,7 +74,7 @@ object RobotContainer {
     get() = canrange.rumbleTrigger || vision.autoAlignReadyRumble
 
   val operatorRumbleState
-    get() = canrange.rumbleTrigger
+    get() = canrange.rumbleTrigger || vision.autoAlignReadyRumble
 
   init {
     if (RobotBase.isReal()) {
@@ -210,27 +208,25 @@ object RobotContainer {
     ControlBoard.eject.whileTrue(superstructure.ejectCommand())
 
     ControlBoard.test.onTrue(
-      ConditionalCommand(
-        DrivePathOTF(
-          drivetrain,
-          { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-          { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-          { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-          { drivetrain.state.Pose },
-          VisionConstants.OTF_PATHS[vision.lastTrigVisionUpdate.targetTagID]
-            ?: listOf(
-              Supplier { Pose2d(4.748.meters, 1.56.meters, 27.216.degrees) },
-              Supplier { Pose2d(6.1.meters, 2.996.meters, 87.degrees) },
-              Supplier { Pose2d(6.1.meters, 4.093.meters, 90.degrees) }
-            ),
-          0.0.degrees,
-          PathPlannerHolonomicDriveController.Companion.GoalEndState(
-            0.0.meters.perSecond, 180.degrees
-          )
-        ),
-        InstantCommand()
-      ) { RobotBase.isSimulation() }
+      DrivePathOTF(
+        drivetrain,
+        { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
+        { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
+        { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
+        { drivetrain.pose.pose2d },
+        VisionConstants.OTF_PATHS[vision.lastTrigVisionUpdate.targetTagID]
+          ?: listOf(
+            Supplier { Pose2d(4.748.meters, 1.56.meters, 27.216.degrees) },
+            Supplier { Pose2d(6.1.meters, 2.996.meters, 87.degrees) },
+            Supplier { Pose2d(6.1.meters, 4.093.meters, 90.degrees) }
+          ),
+        0.0.degrees,
+        PathPlannerHolonomicDriveController.Companion.GoalEndState(
+          0.0.meters.perSecond, 180.degrees
+        )
+      )
     )
+
     ControlBoard.resetGamePieceNone.whileTrue(superstructure.resetGamepieceCommand(GamePiece.NONE))
     ControlBoard.resetGamePieceCoral.whileTrue(
       superstructure.resetGamepieceCommand(GamePiece.CORAL)

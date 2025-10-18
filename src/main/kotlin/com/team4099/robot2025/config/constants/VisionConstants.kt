@@ -1,5 +1,6 @@
 package com.team4099.robot2025.config.constants
 
+import com.team4099.robot2025.util.AllianceFlipUtil
 import edu.wpi.first.math.Matrix
 import edu.wpi.first.math.VecBuilder
 import edu.wpi.first.math.numbers.N1
@@ -11,6 +12,7 @@ import org.team4099.lib.geometry.Translation3d
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.degrees
+import org.team4099.lib.units.derived.radians
 import java.util.function.Supplier
 
 object VisionConstants {
@@ -38,35 +40,49 @@ object VisionConstants {
     mapOf(
       21 to
         listOf(
-          Supplier { Pose2d(6.33.meters, 4.223.meters, 123.89.degrees) },
-          Supplier { Pose2d(2.29.meters, 6.201.meters, -175.206.degrees) }
-        ),
-      20 to
-        listOf(
-          Supplier { Pose2d(5.382.meters, 5.382.meters, 136.757.degrees) },
-          Supplier { Pose2d(1.606.meters, 6.512.meters, 179.377.degrees) }
-        ),
-      19 to
-        listOf(
-          Supplier { Pose2d(3.872.meters, 5.505.meters, 155.914.degrees) },
-          Supplier { Pose2d(1.606.meters, 6.512.meters, 157.332.degrees) }
-        ),
-      18 to
-        listOf(
-          Supplier { Pose2d(2.889.meters, 4.103.meters, 116.913.degrees) },
-          Supplier { Pose2d(1.606.meters, 6.512.meters, 117.615.degrees) }
+          Supplier { AllianceFlipUtil.apply(Pose2d(6.33.meters, 4.223.meters, 123.89.degrees)) },
+          Supplier { AllianceFlipUtil.apply(Pose2d(2.29.meters, 6.201.meters, -175.206.degrees)) }
         ),
       10 to
+          listOf(
+            Supplier { AllianceFlipUtil.apply(Pose2d(6.33.meters, 4.223.meters, 123.89.degrees)) },
+            Supplier { AllianceFlipUtil.apply(Pose2d(2.29.meters, 6.201.meters, -175.206.degrees)) }
+          ),
+      20 to
         listOf(
-          Supplier { Pose2d(6.33.meters, 4.223.meters, 123.89.degrees) },
-          Supplier { Pose2d(2.29.meters, 6.201.meters, -175.206.degrees) }
+          Supplier { AllianceFlipUtil.apply(Pose2d(5.382.meters, 5.382.meters, 136.757.degrees)) },
+          Supplier { AllianceFlipUtil.apply(Pose2d(1.606.meters, 6.512.meters, 179.377.degrees)) }
+        ),
+      11 to
+          listOf(
+            Supplier { AllianceFlipUtil.apply(Pose2d(5.382.meters, 5.382.meters, 136.757.degrees)) },
+            Supplier { AllianceFlipUtil.apply(Pose2d(1.606.meters, 6.512.meters, 179.377.degrees)) }
+          ),
+      19 to
+        listOf(
+          Supplier { AllianceFlipUtil.apply(Pose2d(3.872.meters, 5.505.meters, 155.914.degrees)) },
+          Supplier { AllianceFlipUtil.apply(Pose2d(1.606.meters, 6.512.meters, 157.332.degrees)) }
+        ),
+      6 to
+          listOf(
+            Supplier { AllianceFlipUtil.apply(Pose2d(3.872.meters, 5.505.meters, 155.914.degrees)) },
+            Supplier { AllianceFlipUtil.apply(Pose2d(1.606.meters, 6.512.meters, 157.332.degrees)) }
+          ),
+      18 to
+        listOf(
+          Supplier { AllianceFlipUtil.apply(Pose2d(2.889.meters, 4.103.meters, 116.913.degrees)) },
+          Supplier { AllianceFlipUtil.apply(Pose2d(1.606.meters, 6.512.meters, 117.615.degrees)) }
         ),
       7 to
-        listOf(
-          Supplier { Pose2d(2.889.meters, 4.103.meters, 116.913.degrees) },
-          Supplier { Pose2d(1.606.meters, 6.512.meters, 117.615.degrees) }
-        ),
-    )
+          listOf(
+            Supplier { AllianceFlipUtil.apply(Pose2d(2.889.meters, 4.103.meters, 116.913.degrees)) },
+            Supplier { AllianceFlipUtil.apply(Pose2d(1.606.meters, 6.512.meters, 117.615.degrees)) }
+          ),
+     22 to
+         listOf(
+           Supplier{AllianceFlipUtil.apply(Pose2d(5.82.meters, 2.12.meters, .982.radians))},
+     Supplier{AllianceFlipUtil.apply(Pose2d(2.02.meters, 1.56.meters, .726.radians)
+    )}))
 
   val BLUE_REEF_TAG_Y_ALIGNMENTS =
     mapOf(

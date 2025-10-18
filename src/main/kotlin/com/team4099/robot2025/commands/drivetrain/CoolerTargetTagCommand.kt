@@ -36,7 +36,7 @@ class CoolerTargetTagCommand(
   private val drivetrain: Drive,
   private val vision: Vision,
   private val xTargetOffset: Length =
-    DrivetrainConstants.DRIVETRAIN_LENGTH / 2 + DrivetrainConstants.BUMPER_WIDTH + .5.inches,
+    DrivetrainConstants.DRIVETRAIN_LENGTH / 2 + DrivetrainConstants.BUMPER_WIDTH + 3.0.inches,
   private val yTargetOffset: Length = 0.0.inches,
   private val thetaTargetOffset: Angle = 0.0.radians,
 ) : Command() {

@@ -4,6 +4,7 @@ import com.team4099.robot2025.auto.mode.CenterL4Barge
 import com.team4099.robot2025.auto.mode.CenterScore
 import com.team4099.robot2025.auto.mode.ExamplePathAuto
 import com.team4099.robot2025.auto.mode.ThreeL4CoralStation
+import com.team4099.robot2025.auto.mode.ThreeL4CoralStationLeft
 import com.team4099.robot2025.auto.mode.ThreeL4ProcessorLolipop
 import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.subsystems.elevator.Elevator
@@ -51,7 +52,11 @@ object AutonomousSelector {
     autonomousModeChooser.addOption("Center L4 + 2 Barge", AutonomousMode.CENTER_L4_BARGE)
 
     autonomousModeChooser.addOption(
-      "Three L4 From Coral Station", AutonomousMode.THREE_L4_CORAL_STATION
+      "Three L4 From Coral Station (Right)", AutonomousMode.THREE_L4_CORAL_STATION
+    )
+
+    autonomousModeChooser.addOption(
+      "Three L4 From Coral Station (Left)", AutonomousMode.THREE_L4_CORAL_STATION_LEFT
     )
 
     autonomousModeChooser.addOption("Three L4 from Lollipops", AutonomousMode.THREE_L4_LOLLIPOP)
@@ -110,6 +115,12 @@ object AutonomousSelector {
             drivetrain.pose = AllianceFlipUtil.apply(ThreeL4CoralStation.startingPose)
           })
           .andThen(ThreeL4CoralStation(drivetrain, elevator, superstructure, vision))
+      AutonomousMode.THREE_L4_CORAL_STATION_LEFT ->
+        return WaitCommand(waitTime.inSeconds)
+          .andThen({
+            drivetrain.pose = AllianceFlipUtil.apply(ThreeL4CoralStationLeft.startingPose)
+          })
+          .andThen(ThreeL4CoralStationLeft(drivetrain, elevator, superstructure, vision))
       AutonomousMode.THREE_L4_LOLLIPOP ->
         return WaitCommand(waitTime.inSeconds)
           .andThen({
@@ -130,6 +141,7 @@ object AutonomousSelector {
     CENTER_L4_ONLY,
     CENTER_L4_BARGE,
     THREE_L4_CORAL_STATION,
+    THREE_L4_CORAL_STATION_LEFT,
     THREE_L4_LOLLIPOP
   }
 }

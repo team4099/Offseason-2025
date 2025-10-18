@@ -93,13 +93,15 @@ object RobotContainer {
             VisionConstants.CAMERA_NAMES[0],
             VisionConstants.CAMERA_TRANSFORMS[0],
             drivetrain::addVisionMeasurement,
-            { drivetrain.pose.rotation }
+            { drivetrain.pose.rotation },
+//            { vision.isAutoAligning }
           ),
           CameraIOPhotonvision(
             VisionConstants.CAMERA_NAMES[1],
             VisionConstants.CAMERA_TRANSFORMS[1],
             drivetrain::addVisionMeasurement,
-            { drivetrain.pose.rotation }
+            { drivetrain.pose.rotation },
+//            { vision.isAutoAligning }
           ),
         )
 
@@ -214,7 +216,8 @@ object RobotContainer {
         { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
         { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
         { drivetrain.pose.pose2d },
-        VisionConstants.OTF_PATHS[vision.lastTrigVisionUpdate.targetTagID]
+        VisionConstants.
+        OTF_PATHS[vision.lastTrigVisionUpdate.targetTagID]
           ?: listOf(
             Supplier { Pose2d(4.748.meters, 1.56.meters, 27.216.degrees) },
             Supplier { Pose2d(6.1.meters, 2.996.meters, 87.degrees) },

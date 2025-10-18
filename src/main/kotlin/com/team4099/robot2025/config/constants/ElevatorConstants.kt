@@ -51,12 +51,12 @@ object ElevatorConstants {
     val INTAKE_CORAL = 14.5.inches
     val INTAKE_ALGAE_GROUND = 11.0.inches - CARRIAGE_TO_BOTTOM
     val INTAKE_ALGAE_LOW = 34.56.inches - CARRIAGE_TO_BOTTOM
-    val INTAKE_ALGAE_HIGH = 50.46.inches - CARRIAGE_TO_BOTTOM
+    val INTAKE_ALGAE_HIGH = 52.3.inches - CARRIAGE_TO_BOTTOM
 
     val L1 = 28.25.inches - CARRIAGE_TO_BOTTOM + 1.inches
     val L2 = 24.4.inches - CARRIAGE_TO_BOTTOM + 2.inches
     val L3 = 40.25.inches - CARRIAGE_TO_BOTTOM + 2.inches
-    val L4 = 63.03.inches - CARRIAGE_TO_BOTTOM + 2.inches
+    val L4 = 63.03.inches - CARRIAGE_TO_BOTTOM
 
     // prevent clipping rising up to L1
     val L1_INIT = L1 + 4.0.inches

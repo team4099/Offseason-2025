@@ -42,6 +42,8 @@ object DrivetrainConstants {
   val DRIVETRAIN_LENGTH = 28.5.inches
   val DRIVETRAIN_WIDTH = 28.5.inches
 
+  val BUMPER_WIDTH = 3.25.inches
+
   val DOCKING_GYRO_SETPOINT = 0.0.degrees
   val DOCKING_GYRO_TOLERANCE = 2.5.degrees
   val DOCKING_TIME_THRESHOLD = 1.0.seconds
@@ -80,11 +82,12 @@ object DrivetrainConstants {
   val ALLOWED_STEERING_ANGLE_ERROR = 1.degrees
 
   val STEERING_SUPPLY_CURRENT_LIMIT = 20.0.amps
-  val DRIVE_SUPPLY_CURRENT_LIMIT = 70.0.amps
+  val DRIVE_SUPPLY_CURRENT_LIMIT = 50.0.amps
   val DRIVE_THRESHOLD_CURRENT_LIMIT = 70.0.amps
   val DRIVE_TRIGGER_THRESHOLD_TIME = 0.1.seconds
 
-  val DRIVE_STATOR_CURRENT_LIMIT = 60.0.amps
+  val STEERING_STATOR_CURRENT_LIMIT = 20.0.amps
+  val DRIVE_STATOR_CURRENT_LIMIT = 40.0.amps
   val DRIVE_STATOR_THRESHOLD_CURRENT_LIMIT = 60.0.amps
   val DRIVE_STATOR_TRIGGER_THRESHOLD_TIME = 1.0.seconds
 
@@ -104,7 +107,7 @@ object DrivetrainConstants {
   val BL_LOCKING_ANGLE: Angle = 135.degrees
   val BR_LOCKING_ANGLE: Angle = 225.degrees
 
-  const val NITRILE_WHEEL_COF = 1.1
+  const val NITRILE_WHEEL_COF = 1.2
 
   object PID {
     val AUTO_POS_KP: ProportionalGain<Meter, Velocity<Meter>>
@@ -140,24 +143,28 @@ object DrivetrainConstants {
       (0.1.degrees.perSecond / (1.degrees / 1.seconds)).radiansPerSecondPerRadiansPerSecond
 
     val AUTO_THETA_ALLOWED_ERROR = 3.degrees
-    val AUTO_THETA_PID_KP = (1.6.radians.perSecond / 1.radians)
+    val AUTO_THETA_PID_KP = (30.degrees.perSecond / 1.degrees)
     val AUTO_THETA_PID_KI = (0.0.radians.perSecond / (1.radians * 1.seconds))
     val AUTO_THETA_PID_KD =
-      (0.2.degrees.perSecond / (1.degrees / 1.seconds)).radiansPerSecondPerRadiansPerSecond
+      (2.7.degrees.perSecond / (1.degrees / 1.seconds)).radiansPerSecondPerRadiansPerSecond
 
     val AUTO_REEF_PID_KP = (2.9.radians.perSecond / 1.radians)
     val AUTO_REEF_PID_KI = (0.0.radians.perSecond / (1.radians * 1.seconds))
     val AUTO_REEF_PID_KD =
       (0.4.degrees.perSecond / (1.degrees / 1.seconds)).radiansPerSecondPerRadiansPerSecond
 
-    val TELEOP_THETA_PID_KP = 2.9.degrees.perSecond / 1.degrees
+    val TELEOP_THETA_PID_KP = 5.5.degrees.perSecond / 1.degrees
     val TELEOP_THETA_PID_KI = 0.0.degrees.perSecond / (1.degrees * 1.seconds)
     val TELEOP_THETA_PID_KD =
-      (0.4.degrees.perSecond / (1.degrees / 1.seconds)).radiansPerSecondPerRadiansPerSecond
+      (0.3.degrees.perSecond / (1.degrees / 1.seconds)).radiansPerSecondPerRadiansPerSecond
 
-    val TELEOP_Y_PID_KP = 3.5.meters.perSecond / 1.meters
+    val TELEOP_X_PID_KP = 2.8.meters.perSecond / 1.meters
+    val TELEOP_X_PID_KI = 0.0.meters.perSecond / (1.meters * 1.seconds)
+    val TELEOP_X_PID_KD = 0.01.meters.perSecond.perMeterPerSecond
+
+    val TELEOP_Y_PID_KP = 2.5.meters.perSecond / 1.meters
     val TELEOP_Y_PID_KI = 0.0.meters.perSecond / (1.meters * 1.seconds)
-    val TELEOP_Y_PID_KD = 0.0.meters.perSecond.perMeterPerSecond
+    val TELEOP_Y_PID_KD = 0.01.meters.perSecond.perMeterPerSecond
 
     val SIM_TELEOP_Y_PID_KP = 0.0.meters.perSecond / 1.meters
     val SIM_TELEOP_Y_PID_KI = 0.0.meters.perSecond / (1.meters * 1.seconds)
@@ -183,8 +190,8 @@ object DrivetrainConstants {
 
     val DRIVE_KFF = 12.0.volts / 4.1675.meters.perSecond
 
-    val DRIVE_KS = 0.2.volts
-    val DRIVE_KV = 0.115.volts / 1.0.meters.perSecond
+    val DRIVE_KS = 0.236.volts
+    val DRIVE_KV = 2.117.volts / 1.0.meters.perSecond
     val DRIVE_KA = 0.0.volts / 1.0.meters.perSecond.perSecond
 
     //    val DRIVE_KS = 0.23677.volts

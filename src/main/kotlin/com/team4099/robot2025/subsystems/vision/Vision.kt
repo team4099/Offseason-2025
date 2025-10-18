@@ -4,12 +4,15 @@ import com.team4099.lib.hal.Clock
 import com.team4099.lib.logging.TunableNumber
 import com.team4099.lib.vision.TimestampedTrigVisionUpdate
 import com.team4099.lib.vision.TimestampedVisionUpdate
-import com.team4099.robot2023.subsystems.vision.camera.CameraIO
 import com.team4099.robot2025.config.constants.FieldConstants
 import com.team4099.robot2025.config.constants.VisionConstants
 import com.team4099.robot2025.subsystems.superstructure.Request
+import com.team4099.robot2025.subsystems.vision.camera.CameraIO
+import com.team4099.robot2025.util.CustomLogger
 import com.team4099.robot2025.util.FMSData
 import com.team4099.robot2025.util.toTransform3d
+import edu.wpi.first.apriltag.AprilTagFieldLayout
+import edu.wpi.first.apriltag.AprilTagFields
 import edu.wpi.first.math.VecBuilder
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.DriverStation
@@ -28,9 +31,11 @@ import org.team4099.lib.units.base.inInches
 import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.base.inMilliseconds
 import org.team4099.lib.units.base.meters
+import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.cos
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inRadians
+import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.derived.sin
 import java.util.function.Consumer
 import java.util.function.Supplier
@@ -73,6 +78,13 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
   private var visionConsumer: Consumer<List<TimestampedVisionUpdate>> = Consumer {}
   private var reefVisionConsumer: Consumer<TimestampedTrigVisionUpdate> = Consumer {}
 
+  private val fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField)
+
+  private var lastSeenTagId: Int? = null
+  private var pulseEndTime = 0.0.seconds
+  var autoAlignReadyRumble = false
+    private set
+
   fun setDataInterfaces(
     fieldFramePoseSupplier: Supplier<Pose2d>,
     visionConsumer: Consumer<List<TimestampedVisionUpdate>>,
@@ -84,6 +96,16 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
   }
 
   override fun periodic() {
+    Logger.recordOutput(
+      "Vision/cameraTransform1",
+      edu.wpi.first.math.geometry.Pose3d()
+        .transformBy(VisionConstants.CAMERA_TRANSFORMS[0].transform3d)
+    )
+    Logger.recordOutput(
+      "Vision/cameraTransform2",
+      edu.wpi.first.math.geometry.Pose3d()
+        .transformBy(VisionConstants.CAMERA_TRANSFORMS[1].transform3d)
+    )
 
     Logger.recordOutput("Vision/currentTrigUpdateID", lastTrigVisionUpdate.targetTagID)
 
@@ -125,11 +147,12 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
             ) {
 
               val aprilTagAlignmentAngle =
-                if (FMSData.isBlue) {
-                  VisionConstants.BLUE_REEF_TAG_THETA_ALIGNMENTS[tag.fiducialId]
-                } else {
-                  VisionConstants.RED_REEF_TAG_THETA_ALIGNMENTS[tag.fiducialId]
-                }
+                fieldLayout.getTagPose(tag.fiducialId).get().rotation.z.radians
+              //                if (FMSData.isBlue) {
+              //                  VisionConstants.BLUE_REEF_TAG_THETA_ALIGNMENTS[tag.fiducialId]
+              //                } else {
+              //                  VisionConstants.RED_REEF_TAG_THETA_ALIGNMENTS[tag.fiducialId]
+              //                }
 
               val fieldTTag =
                 FieldConstants.AprilTagLayoutType.OFFICIAL
@@ -155,18 +178,15 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
                   cameraDistanceToTarget3D * tag.pitch.degrees.sin
                 )
 
+              var cameraTTagRotation3d = Rotation3d(tag.bestCameraToTarget.rotation)
+
               var robotTTag =
                 Transform3d(
                   Pose3d()
                     .transformBy(VisionConstants.CAMERA_TRANSFORMS[instance])
-                    .transformBy(
-                      Transform3d(
-                        cameraTTagTranslation3d,
-                        Rotation3d(0.degrees, 0.degrees, 0.degrees)
-                      )
-                    )
+                    .transformBy(Transform3d(cameraTTagTranslation3d, Rotation3d()))
                     .translation,
-                  Rotation3d(0.degrees, 0.degrees, aprilTagAlignmentAngle ?: 0.degrees)
+                  Rotation3d(0.0.degrees, 0.0.degrees, aprilTagAlignmentAngle ?: 0.degrees)
                 )
 
               var fieldTRobot = Pose3d().transformBy(fieldTTag).transformBy(robotTTag.inverse())
@@ -251,6 +271,7 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
         Logger.recordOutput(
           "Vision/viewingSameTag", closestReefTags[0]?.first == closestReefTags[1]?.first
         )
+
         closestReefTagAcrossCams =
           if (closestReefTags[0]?.first != closestReefTags[1]?.first) {
             closestReefTags.minByOrNull { it.value?.second?.translation?.norm ?: 1000000.meters }
@@ -299,8 +320,42 @@ class Vision(vararg cameras: CameraIO) : SubsystemBase() {
 
     // visionConsumer.accept(visionUpdates)
     Logger.recordOutput(
-      "LoggedRobot/VisionLoopTimeMS", (Clock.realTimestamp - startTime).inMilliseconds
+      "LoggedRobot/Subsystems/VisionLoopTimeMS", (Clock.realTimestamp - startTime).inMilliseconds
     )
+
+    val now = Clock.fpgaTime
+
+    val tagId0 = closestReefTags[0]?.first
+    val tagId1 = closestReefTags[1]?.first
+
+    val bothSeeingSameTag = tagId0 != null && tagId1 != null && tagId0 == tagId1
+
+    val currentTagId = if (bothSeeingSameTag) tagId0 else null
+    val distanceToTag = closestReefTagAcrossCams?.value?.second?.translation?.norm ?: 1000000.meters
+
+    CustomLogger.recordOutput(
+      "Vision/rumble",
+      currentTagId != null &&
+        currentTagId in tagIDFilter &&
+        distanceToTag <= VisionConstants.CONTROLLER_RUMBLE_DIST
+    )
+
+    if (currentTagId != null &&
+      currentTagId in tagIDFilter &&
+      distanceToTag <= VisionConstants.CONTROLLER_RUMBLE_DIST
+    ) {
+      if (lastSeenTagId == null || currentTagId != lastSeenTagId) {
+        pulseEndTime = now + 0.25.seconds
+        autoAlignReadyRumble = true
+      }
+      lastSeenTagId = currentTagId
+    } else if (currentTagId == null) {
+      lastSeenTagId = null
+    }
+
+    if (now > pulseEndTime) {
+      autoAlignReadyRumble = false
+    }
   }
 
   companion object {

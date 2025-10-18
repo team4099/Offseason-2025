@@ -1,4 +1,4 @@
-package com.team4099.robot2025.subsystems.drivetrain
+package com.team4099.robot2025.subsystems.drivetrain.generated
 
 import com.ctre.phoenix6.CANBus
 import com.ctre.phoenix6.configs.CANcoderConfiguration
@@ -7,11 +7,9 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs
 import com.ctre.phoenix6.configs.Pigeon2Configuration
 import com.ctre.phoenix6.configs.Slot0Configs
 import com.ctre.phoenix6.configs.TalonFXConfiguration
-import com.ctre.phoenix6.hardware.CANcoder
-import com.ctre.phoenix6.hardware.TalonFX
+import com.ctre.phoenix6.configs.VoltageConfigs
 import com.ctre.phoenix6.signals.NeutralModeValue
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue
-import com.ctre.phoenix6.swerve.SwerveDrivetrain
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants
 import com.ctre.phoenix6.swerve.SwerveModuleConstants
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement
@@ -19,13 +17,9 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement
 import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.DrivetrainConstants
-import edu.wpi.first.math.Matrix
-import edu.wpi.first.math.numbers.N1
-import edu.wpi.first.math.numbers.N3
 import org.team4099.lib.units.LinearVelocity
 import org.team4099.lib.units.base.Current
 import org.team4099.lib.units.base.Length
-import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.inAmperes
 import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.base.inches
@@ -91,7 +85,7 @@ object TunerConstants {
   // The stator current at which the wheels start to slip;
   // This needs to be tuned to your individual robot
   // TODO check this
-  private val kSlipCurrent: Current = 120.amps // Units.Amps.of(120.0)
+  private val kSlipCurrent: Current = DrivetrainConstants.DRIVE_STATOR_CURRENT_LIMIT
 
   // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
   // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -101,10 +95,13 @@ object TunerConstants {
         CurrentLimitsConfigs()
           .withStatorCurrentLimit(DrivetrainConstants.DRIVE_STATOR_CURRENT_LIMIT.inAmperes)
           .withStatorCurrentLimitEnable(true)
-          .withSupplyCurrentLimit(
-            DrivetrainConstants.STEERING_SUPPLY_CURRENT_LIMIT.inAmperes
-          )
+          .withSupplyCurrentLimit(DrivetrainConstants.DRIVE_SUPPLY_CURRENT_LIMIT.inAmperes)
           .withSupplyCurrentLimitEnable(true)
+      )
+      .withVoltage(
+        VoltageConfigs()
+          .withPeakForwardVoltage(DrivetrainConstants.DRIVE_COMPENSATION_VOLTAGE.inVolts)
+          .withPeakReverseVoltage(-DrivetrainConstants.DRIVE_COMPENSATION_VOLTAGE.inVolts)
       )
   private val steerInitialConfigs: TalonFXConfiguration? =
     TalonFXConfiguration()
@@ -112,7 +109,9 @@ object TunerConstants {
         CurrentLimitsConfigs() // Swerve azimuth does not require much torque output, so we
           // can set a relatively low
           // stator current limit to help avoid brownouts without impacting performance.
-          .withStatorCurrentLimit(DrivetrainConstants.DRIVE_STATOR_CURRENT_LIMIT.inAmperes)
+          .withStatorCurrentLimit(
+            DrivetrainConstants.STEERING_STATOR_CURRENT_LIMIT.inAmperes
+          )
           .withStatorCurrentLimitEnable(true)
           .withSupplyCurrentLimit(
             DrivetrainConstants.STEERING_SUPPLY_CURRENT_LIMIT.inAmperes
@@ -121,6 +120,13 @@ object TunerConstants {
       )
       // setting brake might be unneccessary but whatever
       .withMotorOutput(MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake))
+      .withVoltage(
+        VoltageConfigs()
+          .withPeakForwardVoltage(DrivetrainConstants.STEERING_COMPENSATION_VOLTAGE.inVolts)
+          .withPeakReverseVoltage(
+            -DrivetrainConstants.STEERING_COMPENSATION_VOLTAGE.inVolts
+          )
+      )
 
   private val encoderInitialConfigs = CANcoderConfiguration()
 
@@ -147,20 +153,20 @@ object TunerConstants {
     1.0 / DrivetrainConstants.MK4I_STEERING_SENSOR_GEAR_RATIO // 21.4285714286
   private val kWheelRadius: Length = DrivetrainConstants.WHEEL_DIAMETER / 2
 
-  private const val kInvertLeftSide = false
-  private const val kInvertRightSide = true
+  private const val kInvertLeftSide = true
+  private const val kInvertRightSide = false
 
   private const val kPigeonId = Constants.Gyro.PIGEON_2_ID
 
   // These are only used for simulation
-  private val kSteerInertia: MomentOfInertia = DrivetrainConstants.DRIVE_WHEEL_INERTIA
+  private val kSteerInertia: MomentOfInertia = DrivetrainConstants.STEERING_WHEEL_INERTIA
   private val kDriveInertia: MomentOfInertia = DrivetrainConstants.DRIVE_WHEEL_INERTIA
 
   // Simulated voltage necessary to overcome friction
   private val kSteerFrictionVoltage: ElectricalPotential = 0.0.volts
   private val kDriveFrictionVoltage: ElectricalPotential = 0.0.volts
 
-  val CTREDrivetrainConstants: SwerveDrivetrainConstants? =
+  val CTREDrivetrainConstants: SwerveDrivetrainConstants =
     SwerveDrivetrainConstants()
       .withCANBusName(kCANBus.getName())
       .withPigeon2Id(kPigeonId)
@@ -228,8 +234,7 @@ object TunerConstants {
   private const val kBackRightDriveMotorId = 14
   private const val kBackRightSteerMotorId = 24
   private const val kBackRightEncoderId = 18
-  private val kBackRightEncoderOffset =
-    -0.382084.rotations // don't use units because we don't know conversions
+  private val kBackRightEncoderOffset = -0.382084.rotations
   private const val kBackRightSteerMotorInverted = true
   private const val kBackRightEncoderInverted = false
 
@@ -237,7 +242,7 @@ object TunerConstants {
   private val kBackRightYPos: Length = -11.625.inches
 
   val FrontLeft:
-    SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>? =
+    SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?> =
       ConstantCreator.withSteerMotorGearRatio(kSteerGearRatioMK4N)
         .createModuleConstants(
           kFrontLeftSteerMotorId,
@@ -251,7 +256,7 @@ object TunerConstants {
           kFrontLeftEncoderInverted
         )
   val FrontRight:
-    SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>? =
+    SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?> =
       ConstantCreator.withSteerMotorGearRatio(kSteerGearRatioMK4N)
         .createModuleConstants(
           kFrontRightSteerMotorId,
@@ -265,7 +270,7 @@ object TunerConstants {
           kFrontRightEncoderInverted
         )
   val BackLeft:
-    SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>? =
+    SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?> =
       ConstantCreator.withSteerMotorGearRatio(kSteerGearRatioMK4N)
         .createModuleConstants(
           kBackLeftSteerMotorId,
@@ -279,7 +284,7 @@ object TunerConstants {
           kBackLeftEncoderInverted
         )
   val BackRight:
-    SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>? =
+    SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?> =
       ConstantCreator.withSteerMotorGearRatio(kSteerGearRatioMK4N)
         .createModuleConstants(
           kBackRightSteerMotorId,
@@ -292,91 +297,4 @@ object TunerConstants {
           kBackRightSteerMotorInverted,
           kBackRightEncoderInverted
         )
-
-  /**
-   * Creates a CommandSwerveDrivetrain instance. This should only be called once in your robot
-   * program.
-   */
-  fun createDrivetrain(): CommandSwerveDrive {
-    return CommandSwerveDrive(CTREDrivetrainConstants!!, FrontLeft, FrontRight, BackLeft, BackRight)
-  }
-
-  /** Swerve Drive class utilizing CTR Electronics' Phoenix 6 API with the selected device types. */
-  open class TunerSwerveDrivetrain : SwerveDrivetrain<TalonFX?, TalonFX?, CANcoder?> {
-    /**
-     * Constructs a CTRE SwerveDrivetrain using the specified constants.
-     *
-     * This constructs the underlying hardware devices, so users should not construct the devices
-     * themselves. If they need the devices, they can access them through getters in the classes.
-     *
-     * @param drivetrainConstants Drivetrain-wide constants for the swerve drive
-     * @param modules Constants for each specific module
-     */
-    constructor(
-      drivetrainConstants: SwerveDrivetrainConstants,
-      vararg modules: SwerveModuleConstants<*, *, *>?
-    ) : super(
-      DeviceConstructor { deviceId: Int, canbus: String? -> TalonFX(deviceId, canbus) },
-      DeviceConstructor { deviceId: Int, canbus: String? -> TalonFX(deviceId, canbus) },
-      DeviceConstructor { deviceId: Int, canbus: String? -> CANcoder(deviceId, canbus) },
-      drivetrainConstants,
-      *modules
-    )
-
-    /**
-     * Constructs a CTRE SwerveDrivetrain using the specified constants.
-     *
-     * This constructs the underlying hardware devices, so users should not construct the devices
-     * themselves. If they need the devices, they can access them through getters in the classes.
-     *
-     * @param drivetrainConstants Drivetrain-wide constants for the swerve drive
-     * @param odometryUpdateFrequency The frequency to run the odometry loop. If unspecified or set
-     * to 0 Hz, this is 250 Hz on CAN FD, and 100 Hz on CAN 2.0.
-     * @param modules Constants for each specific module
-     */
-    constructor(
-      drivetrainConstants: SwerveDrivetrainConstants,
-      odometryUpdateFrequency: Double,
-      vararg modules: SwerveModuleConstants<*, *, *>?
-    ) : super(
-      DeviceConstructor { deviceId: Int, canbus: String? -> TalonFX(deviceId, canbus) },
-      DeviceConstructor { deviceId: Int, canbus: String? -> TalonFX(deviceId, canbus) },
-      DeviceConstructor { deviceId: Int, canbus: String? -> CANcoder(deviceId, canbus) },
-      drivetrainConstants,
-      odometryUpdateFrequency,
-      *modules
-    )
-
-    /**
-     * Constructs a CTRE SwerveDrivetrain using the specified constants.
-     *
-     * This constructs the underlying hardware devices, so users should not construct the devices
-     * themselves. If they need the devices, they can access them through getters in the classes.
-     *
-     * @param drivetrainConstants Drivetrain-wide constants for the swerve drive
-     * @param odometryUpdateFrequency The frequency to run the odometry loop. If unspecified or set
-     * to 0 Hz, this is 250 Hz on CAN FD, and 100 Hz on CAN 2.0.
-     * @param odometryStandardDeviation The standard deviation for odometry calculation in the form
-     * [x, y, theta]ᵀ, with units in meters and radians
-     * @param visionStandardDeviation The standard deviation for vision calculation in the form [x,
-     * y, theta]ᵀ, with units in meters and radians
-     * @param modules Constants for each specific module
-     */
-    constructor(
-      drivetrainConstants: SwerveDrivetrainConstants,
-      odometryUpdateFrequency: Double,
-      odometryStandardDeviation: Matrix<N3?, N1?>,
-      visionStandardDeviation: Matrix<N3?, N1?>,
-      vararg modules: SwerveModuleConstants<*, *, *>?
-    ) : super(
-      DeviceConstructor { deviceId: Int, canbus: String? -> TalonFX(deviceId, canbus) },
-      DeviceConstructor { deviceId: Int, canbus: String? -> TalonFX(deviceId, canbus) },
-      DeviceConstructor { deviceId: Int, canbus: String? -> CANcoder(deviceId, canbus) },
-      drivetrainConstants,
-      odometryUpdateFrequency,
-      odometryStandardDeviation,
-      visionStandardDeviation,
-      *modules
-    )
-  }
 }

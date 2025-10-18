@@ -6,6 +6,7 @@ import com.ctre.phoenix6.StatusSignal
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.TalonFX
+import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.NeutralModeValue
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.RollersConstants
@@ -57,6 +58,7 @@ object RollersIOTalon : RollersIO {
     configs.CurrentLimits.StatorCurrentLimit = RollersConstants.STATOR_CURRENT_LIMIT.inAmperes
     configs.CurrentLimits.SupplyCurrentLimitEnable = true
     configs.CurrentLimits.StatorCurrentLimitEnable = true
+    configs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
 
     statorCurrent = rollerTalon.statorCurrent
     supplyCurrent = rollerTalon.supplyCurrent

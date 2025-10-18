@@ -1,23 +1,21 @@
-package com.team4099.robot2023.subsystems.vision.camera
+package com.team4099.robot2025.subsystems.vision.camera
 
 import edu.wpi.first.math.MatBuilder
 import edu.wpi.first.math.Nat
-import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Transform3d
-import edu.wpi.first.math.numbers.N1
-import edu.wpi.first.math.numbers.N3
-import edu.wpi.first.math.numbers.N5
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 import org.photonvision.targeting.PhotonTrackedTarget
 import org.photonvision.targeting.TargetCorner
+import org.team4099.lib.geometry.Pose3d
+import org.team4099.lib.geometry.Pose3dWPILIB
 import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.seconds
 
 interface CameraIO {
   class CameraInputs : LoggableInputs {
     var timestamp = 0.0.seconds
-    var frame: Pose2d = Pose2d()
+    var frame: Pose3d = Pose3d()
     var fps = 0.0
     var usedTargets: List<Int> = listOf<Int>()
     var cameraTargets = mutableListOf<PhotonTrackedTarget>()
@@ -27,7 +25,7 @@ interface CameraIO {
 
     override fun toLog(table: LogTable?) {
       table?.put("timestampSeconds", timestamp.inSeconds)
-      table?.put("frame", frame)
+      table?.put("frame", frame.pose3d)
       table?.put("fps", fps)
       table?.put("usedTargets", usedTargets.toIntArray())
       table?.put("cameraMatrix", cameraMatrix.data)
@@ -57,7 +55,7 @@ interface CameraIO {
 
     override fun fromLog(table: LogTable?) {
       table?.get("timestampSeconds", 0.0)?.let { timestamp = it.seconds }
-      table?.get("frame", Pose2d())?.let { frame = it as Pose2d }
+      table?.get("frame", Pose3dWPILIB())?.let { frame = Pose3d(it.get(0)) }
       table?.get("fps", 0.0)
       table?.get("usedTargets", intArrayOf())?.let { usedTargets = it.toList() }
 

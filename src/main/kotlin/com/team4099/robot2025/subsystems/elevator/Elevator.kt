@@ -99,31 +99,31 @@ class Elevator(private val io: ElevatorIO) : SubsystemBase() {
   override fun periodic() {
     io.updateInputs(inputs)
 
-    if (ElevatorTunableValues.kP.hasChanged() ||
-      ElevatorTunableValues.kI.hasChanged() ||
-      ElevatorTunableValues.kD.hasChanged()
-    ) {
-      io.configPID(
-        ElevatorTunableValues.kP.get(),
-        ElevatorTunableValues.kI.get(),
-        ElevatorTunableValues.kD.get()
-      )
-    }
-
-    if (ElevatorTunableValues.kGFirst.hasChanged() ||
-      ElevatorTunableValues.kGSecond.hasChanged() ||
-      ElevatorTunableValues.kS.hasChanged() ||
-      ElevatorTunableValues.kV.hasChanged() ||
-      ElevatorTunableValues.kA.hasChanged()
-    ) {
-      io.configFF(
-        ElevatorTunableValues.kGFirst.get(),
-        ElevatorTunableValues.kGSecond.get(),
-        ElevatorTunableValues.kS.get(),
-        ElevatorTunableValues.kV.get(),
-        ElevatorTunableValues.kA.get()
-      )
-    }
+    //    if (ElevatorTunableValues.kP.hasChanged() ||
+    //      ElevatorTunableValues.kI.hasChanged() ||
+    //      ElevatorTunableValues.kD.hasChanged()
+    //    ) {
+    //      io.configPID(
+    //        ElevatorTunableValues.kP.get(),
+    //        ElevatorTunableValues.kI.get(),
+    //        ElevatorTunableValues.kD.get()
+    //      )
+    //    }
+    //
+    //    if (ElevatorTunableValues.kGFirst.hasChanged() ||
+    //      ElevatorTunableValues.kGSecond.hasChanged() ||
+    //      ElevatorTunableValues.kS.hasChanged() ||
+    //      ElevatorTunableValues.kV.hasChanged() ||
+    //      ElevatorTunableValues.kA.hasChanged()
+    //    ) {
+    //      io.configFF(
+    //        ElevatorTunableValues.kGFirst.get(),
+    //        ElevatorTunableValues.kGSecond.get(),
+    //        ElevatorTunableValues.kS.get(),
+    //        ElevatorTunableValues.kV.get(),
+    //        ElevatorTunableValues.kA.get()
+    //      )
+    //    }
 
     CustomLogger.processInputs("Elevator", inputs)
 
@@ -146,17 +146,14 @@ class Elevator(private val io: ElevatorIO) : SubsystemBase() {
       ElevatorState.UNINITIALIZED -> {
         nextState = fromElevatorRequestToState(currentRequest)
         io.zeroEncoder()
+        lastHomingStatorCurrentTripTime = Clock.fpgaTime
       }
       ElevatorState.HOME -> {
-        if (inputs.leaderStatorCurrent < ElevatorConstants.HOMING_STALL_CURRENT) {
-          lastHomingStatorCurrentTripTime = Clock.fpgaTime
-        }
-
         if (!inputs.isSimulating &&
           !isHomed &&
           (
-            inputs.leaderStatorCurrent < ElevatorConstants.HOMING_STALL_CURRENT ||
-              (Clock.fpgaTime - lastHomingStatorCurrentTripTime) <
+            //            inputs.leaderStatorCurrent < ElevatorConstants.HOMING_STALL_CURRENT ||
+            (Clock.fpgaTime - lastHomingStatorCurrentTripTime) <
               ElevatorConstants.HOMING_STALL_TIME_THRESHOLD
             )
         ) {

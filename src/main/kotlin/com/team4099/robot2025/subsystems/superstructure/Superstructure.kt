@@ -5,18 +5,19 @@ import com.team4099.robot2025.config.constants.ArmConstants
 import com.team4099.robot2025.config.constants.ClimberConstants
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.ElevatorConstants
+import com.team4099.robot2025.config.constants.IndexerConstants
 import com.team4099.robot2025.config.constants.IntakeConstants
 import com.team4099.robot2025.subsystems.Arm.Arm
 import com.team4099.robot2025.subsystems.Arm.ArmTunableValues
 import com.team4099.robot2025.subsystems.canRange.CANRange
 import com.team4099.robot2025.subsystems.climber.Climber
-import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
+import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.elevator.ElevatorTunableValues
 import com.team4099.robot2025.subsystems.indexer.Indexer
 import com.team4099.robot2025.subsystems.intake.Intake
 import com.team4099.robot2025.subsystems.intake.IntakeTunableValues
-import com.team4099.robot2025.subsystems.limelight.LimelightVision
+import com.team4099.robot2025.subsystems.led.Led
 import com.team4099.robot2025.subsystems.superstructure.Request.SuperstructureRequest
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.CustomLogger
@@ -30,6 +31,7 @@ import org.team4099.lib.geometry.Rotation3d
 import org.team4099.lib.geometry.Translation3d
 import org.team4099.lib.units.base.inInches
 import org.team4099.lib.units.base.inMilliseconds
+import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.degrees
@@ -46,16 +48,16 @@ import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.superstructure.Request.RollersRequest as ArmRollersRequest
 
 class Superstructure(
-  private val drivetrain: CommandSwerveDrive,
+  private val drivetrain: Drive,
   private val vision: Vision,
-  private val limelight: LimelightVision,
   private val elevator: Elevator,
   private val arm: Arm,
   private val armRollers: ArmRollers,
   private val climber: Climber,
   private val intake: Intake,
   private val indexer: Indexer,
-  private val canrange: CANRange
+  private val canrange: CANRange,
+  private val led: Led
 ) : SubsystemBase() {
 
   private var overrideFlagForSim = false
@@ -73,9 +75,12 @@ class Superstructure(
   private var lastAlgaeIntakeLevel: AlgaeIntakeLevel = AlgaeIntakeLevel.NONE
   private var algaeIntakeLevel: AlgaeIntakeLevel = AlgaeIntakeLevel.NONE
 
-  private var lastAlgaeScoringLevel: AlgaeScoringLevel = AlgaeScoringLevel.NONE
-  private var algaeScoringLevel: AlgaeScoringLevel = AlgaeScoringLevel.NONE
-  private var lastPrepLevel: CoralLevel = CoralLevel.NONE
+  var lastAlgaeScoringLevel: AlgaeScoringLevel = AlgaeScoringLevel.NONE
+    private set
+  var algaeScoringLevel: AlgaeScoringLevel = AlgaeScoringLevel.NONE
+    private set
+  var lastPrepLevel: CoralLevel = CoralLevel.NONE
+    private set
 
   var currentRequest: SuperstructureRequest = SuperstructureRequest.Idle()
     set(value) {
@@ -149,84 +154,92 @@ class Superstructure(
       (Clock.realTimestamp - intakeStartTime).inMilliseconds
     )
 
-    /** 0 - first stage 1 - carriage 2 - intake pivot 3 - arm 4 - climb pivot */
-    Logger.recordOutput(
-      "SimulatedMechanisms/0",
-      Pose3d(
-        Translation3d(
-          0.0.inches,
-          0.0.inches,
-          max(
-            elevator.inputs.elevatorPosition.inInches -
-              ElevatorConstants.FIRST_STAGE_HEIGHT.inInches,
-            0.0
-          )
-            .inches
-        ),
-        Rotation3d()
-      )
-        .pose3d
+    val ledStartTime = Clock.realTimestamp
+    led.periodic()
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/ledLoopTimeMS", (Clock.realTimestamp - ledStartTime).inMilliseconds
     )
 
-    Logger.recordOutput(
-      "SimulatedMechanisms/1",
-      Pose3d(
-        Translation3d(0.0.inches, 0.0.inches, elevator.inputs.elevatorPosition),
-        Rotation3d()
-      )
-        .pose3d
-    )
-
-    Logger.recordOutput(
-      "SimulatedMechanisms/2",
-      Pose3d(
-        Translation3d((-11.75).inches, 0.0.inches, 12.5747.inches),
-        Rotation3d(
-          0.0.degrees,
-          IntakeConstants.ANGLES.INTAKE_ANGLE - intake.inputs.pivotPosition,
-          0.0.degrees
-        ) // model starts in intaking position
-      )
-        .pose3d
-    )
-
-    Logger.recordOutput(
-      "SimulatedMechanisms/3",
-      Pose3d(
-        Translation3d(
-          0.0.inches,
-          0.0.inches,
-          elevator.inputs.elevatorPosition + ElevatorConstants.CARRIAGE_TO_BOTTOM_SIM
-        ),
-        Rotation3d(
-          0.0.degrees,
-          ArmConstants.ANGLES.SIM_MECH_OFFSET - arm.inputs.armPosition,
-          0.0.degrees
-        )
-      )
-        .pose3d
-    )
-
-    Logger.recordOutput(
-      "SimulatedMechanisms/4",
-      Pose3d(
-        Translation3d(0.008.meters, 0.35.meters, 0.373.meters),
-        Rotation3d(
-          -(
-            -ClimberConstants.SIM_CLIMBED_ANGLE.inDegrees *
-              abs(
-                climber.inputs.climberPosition.inDegrees -
-                  ClimberConstants.FULLY_EXTENDED_ANGLE.inDegrees
-              ) /
-              ClimberConstants.FULLY_EXTENDED_ANGLE.inDegrees
+    if (RobotBase.isSimulation()) {
+      /** 0 - first stage 1 - carriage 2 - intake pivot 3 - arm 4 - climb pivot */
+      Logger.recordOutput(
+        "SimulatedMechanisms/0",
+        Pose3d(
+          Translation3d(
+            0.0.inches,
+            0.0.inches,
+            max(
+              elevator.inputs.elevatorPosition.inInches -
+                ElevatorConstants.FIRST_STAGE_HEIGHT.inInches,
+              0.0
             )
-            .degrees, // ratchet to mechanism math
-          0.0.degrees,
-          0.0.degrees
+              .inches
+          ),
+          Rotation3d()
         )
+          .pose3d
       )
-        .pose3d
-    )
+
+      CustomLogger.recordDebugOutput(
+        "SimulatedMechanisms/1",
+        Pose3d(
+          Translation3d(0.0.inches, 0.0.inches, elevator.inputs.elevatorPosition),
+          Rotation3d()
+        )
+          .pose3d
+      )
+
+      CustomLogger.recordDebugOutput(
+        "SimulatedMechanisms/2",
+        Pose3d(
+          Translation3d((-11.75).inches, 0.0.inches, 12.5747.inches),
+          Rotation3d(
+            0.0.degrees,
+            IntakeConstants.ANGLES.INTAKE_ANGLE - intake.inputs.pivotPosition,
+            0.0.degrees
+          ) // model starts in intaking position
+        )
+          .pose3d
+      )
+
+      CustomLogger.recordDebugOutput(
+        "SimulatedMechanisms/3",
+        Pose3d(
+          Translation3d(
+            0.0.inches,
+            0.0.inches,
+            elevator.inputs.elevatorPosition + ElevatorConstants.CARRIAGE_TO_BOTTOM_SIM
+          ),
+          Rotation3d(
+            0.0.degrees,
+            ArmConstants.ANGLES.SIM_MECH_OFFSET - arm.inputs.armPosition,
+            0.0.degrees
+          )
+        )
+          .pose3d
+      )
+
+      CustomLogger.recordDebugOutput(
+        "SimulatedMechanisms/4",
+        Pose3d(
+          Translation3d(0.008.meters, 0.35.meters, 0.373.meters),
+          Rotation3d(
+            -(
+              -ClimberConstants.SIM_CLIMBED_ANGLE.inDegrees *
+                abs(
+                  climber.inputs.climberPosition.inDegrees -
+                    ClimberConstants.FULLY_EXTENDED_ANGLE.inDegrees
+                ) /
+                ClimberConstants.FULLY_EXTENDED_ANGLE.inDegrees
+              )
+              .degrees, // ratchet to mechanism math
+            0.0.degrees,
+            0.0.degrees
+          )
+        )
+          .pose3d
+      )
+    }
 
     CustomLogger.recordOutput("Superstructure/currentRequest", currentRequest.javaClass.simpleName)
     CustomLogger.recordOutput("Superstructure/currentState", currentState.name)
@@ -240,25 +253,26 @@ class Superstructure(
     CustomLogger.recordOutput("Superstructure/algaeScoringLevel", algaeScoringLevel)
     CustomLogger.recordOutput("Superstructure/lastPrepLevel", lastPrepLevel)
 
+    //    if (drivetrain.rotation3d.x.radians > GyroConstants.ANTI_TILT_THRESHOLD_ROLL ||
+    //      drivetrain.rotation3d.y.radians > GyroConstants.ANTI_TILT_THRESHOLD_PITCH
+    //    ) {
+    //      currentRequest = SuperstructureRequest.Idle()
+    //    }
+
     var nextState = currentState
     when (currentState) {
       // General States
       SuperstructureStates.UNINITIALIZED -> {
         nextState =
-          if (RobotBase.isSimulation()) SuperstructureStates.IDLE
+          if (Constants.Tuning.TUNING_MODE) SuperstructureStates.TUNING
+          else if (RobotBase.isSimulation()) SuperstructureStates.IDLE
           else SuperstructureStates.HOME_PREP
       }
       SuperstructureStates.HOME_PREP -> {
-        if (!elevator.clearsRobot &&
-          arm.inputs.armPosition < ArmConstants.ANGLES.ARM_GUARENTEED_OVER_BATTERY
-        ) {
-          elevator.currentRequest =
-            Request.ElevatorRequest.ClosedLoop(ElevatorConstants.HEIGHTS.CLEARS_ROBOT)
-        } else {
-          arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.HOME_ANGLE)
-          if (arm.isAtTargetedPosition) {
-            nextState = SuperstructureStates.HOME
-          }
+        arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.HOME_ANGLE)
+
+        if (arm.isAtTargetedPosition) {
+          nextState = SuperstructureStates.HOME
         }
       }
       SuperstructureStates.HOME -> {
@@ -270,9 +284,7 @@ class Superstructure(
             else SuperstructureStates.IDLE
         }
       }
-      SuperstructureStates.TUNING -> {
-        if (currentRequest is SuperstructureRequest.Idle) nextState = SuperstructureStates.IDLE
-      }
+      SuperstructureStates.TUNING -> {}
       SuperstructureStates.IDLE -> {
         climber.currentRequest = Request.ClimberRequest.OpenLoop(0.0.volts, 0.0.volts)
         intake.currentRequest =
@@ -306,17 +318,21 @@ class Superstructure(
                 ElevatorTunableValues.Heights.idleCoralHeight.get()
               else ElevatorTunableValues.Heights.idleHeight.get()
 
+            armRollers.currentRequest =
+              Request.RollersRequest.OpenLoop(
+                if (theoreticalGamePieceArm == GamePiece.CORAL)
+                  ArmRollersConstants.IDLE_CORAL_VOLTAGE
+                else ArmRollersConstants.IDLE_VOLTAGE
+              )
+
             // note(nathan): ASSERT IDLE AND IDLE_CORAL > CLEARS_ROBOT
-            if (elevator.inputs.elevatorPosition + ElevatorConstants.ELEVATOR_TOLERANCE >
-              elevatorIdlePosition
+            if (elevator.inputs.elevatorPosition >
+              ElevatorConstants.HEIGHTS.ARM_IDLE_PRIORITY_THRESHOLD
             ) {
               arm.currentRequest = Request.ArmRequest.ClosedLoop(armIdleAngle)
 
               if (arm.isAtTargetedPosition) {
                 elevator.currentRequest = Request.ElevatorRequest.ClosedLoop(elevatorIdlePosition)
-              } else {
-                elevator.currentRequest = Request.ElevatorRequest.OpenLoop(0.0.volts)
-                /* in case it gets here from the closedloop request below, stop it */
               }
             } else {
               elevator.currentRequest = Request.ElevatorRequest.ClosedLoop(elevatorIdlePosition)
@@ -360,12 +376,27 @@ class Superstructure(
               }
       }
       SuperstructureStates.GROUND_INTAKE_CORAL -> {
-        intake.currentRequest =
-          Request.IntakeRequest.TargetingPosition(
-            IntakeTunableValues.coralPosition.get(),
-            IntakeTunableValues.coralRollerVoltage.get()
-          )
-        indexer.currentRequest = Request.IndexerRequest.Index()
+        if (!indexer.hasCoral) {
+          intake.currentRequest =
+            Request.IntakeRequest.OpenLoop(
+              IntakeConstants.FORCE_DOWN_VOLTAGE, IntakeConstants.Rollers.INTAKE_VOLTAGE
+            )
+          indexer.currentRequest = Request.IndexerRequest.Index(IndexerConstants.INDEX_VOLTAGE / 3)
+        } else {
+          if ((Clock.fpgaTime - indexer.lastCoralTriggerTime).inSeconds % 1.5 > 1) {
+            intake.currentRequest =
+              Request.IntakeRequest.OpenLoop(
+                IntakeConstants.FORCE_DOWN_VOLTAGE, IntakeConstants.Rollers.EJECT_VOLTAGE
+              )
+            indexer.currentRequest = Request.IndexerRequest.Index(IndexerConstants.SPIT_VOLTAGE)
+          } else {
+            intake.currentRequest =
+              Request.IntakeRequest.OpenLoop(
+                IntakeConstants.FORCE_DOWN_VOLTAGE, IntakeConstants.Rollers.INTAKE_VOLTAGE / 2
+              )
+            indexer.currentRequest = Request.IndexerRequest.Index(IndexerConstants.INDEX_VOLTAGE)
+          }
+        }
 
         if (currentRequest is SuperstructureRequest.Eject) {
           nextState = SuperstructureStates.EJECT
@@ -373,7 +404,8 @@ class Superstructure(
           currentRequest is SuperstructureRequest.Idle
         ) {
           currentRequest = SuperstructureRequest.Idle()
-          nextState = SuperstructureStates.GROUND_INTAKE_CORAL_CLEANUP
+          //          nextState = SuperstructureStates.GROUND_INTAKE_CORAL_CLEANUP
+          nextState = SuperstructureStates.IDLE
         }
       }
       SuperstructureStates.GROUND_INTAKE_CORAL_CLEANUP -> {
@@ -396,6 +428,10 @@ class Superstructure(
         }
       }
       SuperstructureStates.INTAKE_CORAL_INTO_ARM -> {
+        intake.currentRequest =
+          Request.IntakeRequest.TargetingPosition(
+            IntakeTunableValues.idlePosition.get(), IntakeTunableValues.idleRollerVoltage.get()
+          )
         arm.currentRequest =
           Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.hardstopIntakeAngle.get())
 
@@ -407,7 +443,9 @@ class Superstructure(
           armRollers.currentRequest =
             ArmRollersRequest.OpenLoop(ArmRollersConstants.INTAKE_CORAL_VOLTAGE)
 
-          if (RobotBase.isReal() && armRollers.hasCoral ||
+          if (RobotBase.isReal() &&
+            armRollers.hasCoral &&
+            Clock.fpgaTime - lastTransitionTime > ArmRollersConstants.CORAL_DETECTION_THRESHOLD ||
             RobotBase.isSimulation() && !overrideFlagForSim
           ) {
             theoreticalGamePieceArm = GamePiece.CORAL
@@ -476,7 +514,9 @@ class Superstructure(
           }
         }
 
-        if (RobotBase.isReal() && armRollers.hasAlgae ||
+        if (RobotBase.isReal() &&
+          armRollers.hasAlgae &&
+          Clock.fpgaTime - lastTransitionTime > ArmRollersConstants.ALGAE_DETECTION_THRESHOLD ||
           RobotBase.isSimulation() && overrideFlagForSim
         ) {
           theoreticalGamePieceArm = GamePiece.ALGAE
@@ -551,7 +591,10 @@ class Superstructure(
             if (elevator.isAtTargetedPosition) lastPrepLevel = coralScoringLevel
           }
         } else {
-          if (coralScoringLevel == CoralLevel.L1 && !elevator.isAtTargetedPosition) {
+          if (coralScoringLevel == CoralLevel.L1 &&
+            !elevator.isAtTargetedPosition &&
+            !arm.isAtTargetedPosition
+          ) {
             elevator.currentRequest =
               Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.l1InitHeight.get())
           } else {
@@ -602,10 +645,6 @@ class Superstructure(
             armRollers.currentRequest =
               ArmRollersRequest.OpenLoop(ArmRollersConstants.OUTTAKE_CORAL_VOLTAGE)
 
-            if (currentRequest is SuperstructureRequest.Idle) {
-              nextState = SuperstructureStates.CLEANUP_SCORE_CORAL
-            }
-
             if (Clock.fpgaTime - lastTransitionTime >=
               ArmRollersConstants.GAMEPIECE_SPITOUT_THRESHOLD
             ) {
@@ -627,9 +666,6 @@ class Superstructure(
                 } - ArmTunableValues.Angles.scoreOffset.get()
               )
 
-            if (currentRequest is SuperstructureRequest.Idle) {
-              nextState = SuperstructureStates.CLEANUP_SCORE_CORAL
-            }
             if (arm.isAtTargetedPosition &&
               Clock.fpgaTime - lastTransitionTime >=
               ArmRollersConstants.GAMEPIECE_SPITOUT_THRESHOLD
@@ -694,8 +730,20 @@ class Superstructure(
         }
       }
       SuperstructureStates.SCORE_ALGAE -> {
-        armRollers.currentRequest =
-          ArmRollersRequest.OpenLoop(ArmRollersConstants.OUTTAKE_ALGAE_VOLTAGE)
+        when (algaeScoringLevel) {
+          AlgaeScoringLevel.PROCESSOR -> {
+            armRollers.currentRequest =
+              ArmRollersRequest.OpenLoop(ArmRollersConstants.OUTTAKE_ALGAE_VOLTAGE)
+          }
+          else -> {
+            arm.currentRequest =
+              Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.BARGE_POST_SHOOT_ANGLE)
+
+            if (arm.inputs.armPosition > ArmConstants.ANGLES.BARGE_SHOOT_THRESHOLD)
+              armRollers.currentRequest =
+                ArmRollersRequest.OpenLoop(ArmRollersConstants.OUTTAKE_ALGAE_VOLTAGE)
+          }
+        }
 
         if (currentRequest is SuperstructureRequest.Idle) {
           nextState = SuperstructureStates.CLEANUP_SCORE_ALGAE
@@ -714,11 +762,18 @@ class Superstructure(
       SuperstructureStates.EJECT -> {
         lastPrepLevel = CoralLevel.NONE
 
-        intake.currentRequest =
-          Request.IntakeRequest.TargetingPosition(
-            IntakeTunableValues.coralPosition.get(),
-            IntakeTunableValues.ejectRollerVoltage.get()
-          )
+        if (intake.inputs.pivotPosition > 100.degrees) {
+          intake.currentRequest =
+            Request.IntakeRequest.TargetingPosition(
+              IntakeConstants.ANGLES.NOT_CLIPPING_ELEVATOR_THRESHOLD,
+              IntakeTunableValues.ejectRollerVoltage.get()
+            )
+        } else {
+          intake.currentRequest =
+            Request.IntakeRequest.OpenLoop(
+              0.0.volts, IntakeTunableValues.ejectRollerVoltage.get()
+            )
+        }
         indexer.currentRequest = Request.IndexerRequest.Eject()
 
         if (!elevator.clearsRobot) {
@@ -800,10 +855,7 @@ class Superstructure(
 
   // --------------------------------- Intake Commands ---------------------------------
   fun intakeCoralCommand(): Command {
-    val returnCommand =
-      runOnce { currentRequest = SuperstructureRequest.IntakeCoral() }.until {
-        isAtRequestedState && currentState == SuperstructureStates.IDLE
-      }
+    val returnCommand = runOnce { currentRequest = SuperstructureRequest.IntakeCoral() }
     returnCommand.name = "IntakeCoral"
     return returnCommand
   }
@@ -876,6 +928,14 @@ class Superstructure(
     val returnCommand = runOnce { if (RobotBase.isSimulation()) overrideFlagForSim = setOverride }
 
     returnCommand.name = "OverrideFlagCommand"
+    return returnCommand
+  }
+
+  // -------------------------------- Gamepiece Reset--------------------------------
+
+  fun resetGamepieceCommand(gamePiece: GamePiece): Command {
+    val returnCommand = runOnce { theoreticalGamePieceArm = gamePiece }
+    returnCommand.name = "ResetGamepieceCommand"
     return returnCommand
   }
 

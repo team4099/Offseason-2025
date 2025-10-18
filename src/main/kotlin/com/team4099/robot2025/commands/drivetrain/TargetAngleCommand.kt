@@ -4,13 +4,14 @@ import com.ctre.phoenix6.swerve.SwerveModule
 import com.ctre.phoenix6.swerve.SwerveRequest
 import com.team4099.lib.logging.LoggedTunableValue
 import com.team4099.robot2025.config.constants.DrivetrainConstants
-import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
+import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.util.CustomLogger
 import com.team4099.robot2025.util.driver.DriverProfile
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import org.littletonrobotics.junction.Logger
 import org.team4099.lib.controller.PIDController
+import org.team4099.lib.kinematics.ChassisSpeeds
 import org.team4099.lib.units.Velocity
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.Radian
@@ -24,8 +25,6 @@ import org.team4099.lib.units.derived.perDegreePerSecond
 import org.team4099.lib.units.derived.perDegreeSeconds
 import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.inDegreesPerSecond
-import org.team4099.lib.units.inMetersPerSecond
-import org.team4099.lib.units.inRadiansPerSecond
 import org.team4099.lib.units.perSecond
 import kotlin.math.PI
 
@@ -35,7 +34,7 @@ class TargetAngleCommand(
   val driveY: () -> Double,
   val turn: () -> Double,
   val slowMode: () -> Boolean,
-  val drivetrain: CommandSwerveDrive,
+  val drivetrain: Drive,
   val targetAngle: () -> Angle
 ) : Command() {
 
@@ -118,20 +117,18 @@ class TargetAngleCommand(
 
     drivetrain.defaultCommand.end(true)
     CustomLogger.recordDebugOutput("ActiveCommands/TargetAngleCommand", true)
-    Logger.recordOutput("Testing/CurrentDrivetrainRotation", drivetrain.state.Pose.rotation.degrees)
+    Logger.recordOutput("Testing/CurrentDrivetrainRotation", drivetrain.pose.rotation.inDegrees)
 
-    val thetaFeedback =
-      thetaPID.calculate(drivetrain.state.Pose.rotation.radians.radians, targetAngle())
+    val thetaFeedback = thetaPID.calculate(drivetrain.pose.rotation, targetAngle())
     CustomLogger.recordDebugOutput("Testing/error", thetaPID.error.inDegrees)
     CustomLogger.recordDebugOutput("Testing/thetaFeedback", thetaFeedback.inDegreesPerSecond)
 
     val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
 
-    drivetrain.setControl(
-      request
-        .withVelocityX(speed.first.inMetersPerSecond)
-        .withVelocityY(speed.second.inMetersPerSecond)
-        .withRotationalRate(thetaFeedback.inRadiansPerSecond)
+    drivetrain.runSpeeds(
+      ChassisSpeeds.fromFieldRelativeSpeeds(
+        speed.first, speed.second, thetaFeedback, drivetrain.rotation
+      )
     )
   }
 
@@ -142,13 +139,11 @@ class TargetAngleCommand(
   override fun end(interrupted: Boolean) {
     CustomLogger.recordDebugOutput("ActiveCommands/TargetAngleCommand", false)
     val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
-    drivetrain.setControl(
-      request
-        .withVelocityX(speed.first.inMetersPerSecond)
-        .withVelocityY(speed.second.inMetersPerSecond)
-        .withRotationalRate(
-          driver.rotationSpeedClampedSupplier(turn, slowMode).inRadiansPerSecond
-        )
+    val rotation = driver.rotationSpeedClampedSupplier(turn, slowMode)
+    drivetrain.runSpeeds(
+      ChassisSpeeds.fromFieldRelativeSpeeds(
+        speed.first, speed.second, rotation, drivetrain.pose.rotation
+      )
     )
   }
 }

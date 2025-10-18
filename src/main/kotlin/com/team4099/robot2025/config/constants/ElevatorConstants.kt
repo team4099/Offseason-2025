@@ -23,19 +23,19 @@ object ElevatorConstants {
   val STATOR_CURRENT_LIMIT = 40.0.amps
   val SUPPLY_CURRENT_LIMIT = 40.0.amps
 
-  val HOMING_APPLIED_VOLTAGE = (-1.0).volts
+  val HOMING_APPLIED_VOLTAGE = (-5.0).volts
   val HOMING_STALL_CURRENT = 15.0.amps
-  val HOMING_STALL_TIME_THRESHOLD = 0.15.seconds
+  val HOMING_STALL_TIME_THRESHOLD = 0.35.seconds
 
-  val UPWARDS_EXTENSION_LIMIT: Length = 59.25.inches
+  val UPWARDS_EXTENSION_LIMIT: Length = 56.8.inches
   val DOWNWARDS_EXTENSION_LIMIT: Length = 0.inches
   val FIRST_STAGE_HEIGHT: Length = 26.125.inches
 
   // TODO: check?
-  val MAX_VELOCITY: LinearVelocity = 144.85.inches.perSecond
-  val MAX_ACCELERATION: LinearAcceleration = 259.54.inches.perSecond.perSecond
+  val MAX_VELOCITY: LinearVelocity = 200.inches.perSecond
+  val MAX_ACCELERATION: LinearAcceleration = 250.inches.perSecond.perSecond
 
-  val ELEVATOR_TOLERANCE = 0.2.inches
+  val ELEVATOR_TOLERANCE = 0.25.inches
 
   val CARRIAGE_TO_BOTTOM = 11.0.inches
   val CARRIAGE_TO_BOTTOM_SIM = 0.3.meters // idk why its diff but this works better for as
@@ -48,15 +48,15 @@ object ElevatorConstants {
     val IDLE_ALGAE = 11.9.inches
     val CLIMB_HEIGHT = 25.0.inches
 
-    val INTAKE_CORAL = 16.25.inches // todo remeasure
+    val INTAKE_CORAL = 14.5.inches
     val INTAKE_ALGAE_GROUND = 11.0.inches - CARRIAGE_TO_BOTTOM
     val INTAKE_ALGAE_LOW = 34.56.inches - CARRIAGE_TO_BOTTOM
     val INTAKE_ALGAE_HIGH = 50.46.inches - CARRIAGE_TO_BOTTOM
 
-    val L1 = 28.25.inches - CARRIAGE_TO_BOTTOM - 0.5.inches
-    val L2 = 24.4.inches - CARRIAGE_TO_BOTTOM
-    val L3 = 40.25.inches - CARRIAGE_TO_BOTTOM
-    val L4 = 63.03.inches - CARRIAGE_TO_BOTTOM
+    val L1 = 28.25.inches - CARRIAGE_TO_BOTTOM + 1.inches
+    val L2 = 24.4.inches - CARRIAGE_TO_BOTTOM + 2.inches
+    val L3 = 40.25.inches - CARRIAGE_TO_BOTTOM + 2.inches
+    val L4 = 63.03.inches - CARRIAGE_TO_BOTTOM + 2.inches
 
     // prevent clipping rising up to L1
     val L1_INIT = L1 + 4.0.inches
@@ -75,26 +75,28 @@ object ElevatorConstants {
       18.0.inches // todo update with final robot to make sure nothing breaks !!!!!!
 
     val EJECT = IDLE_CORAL
+
+    val ARM_IDLE_PRIORITY_THRESHOLD = 25.inches
   }
 
   object PID {
     // TODO: tune all
-    val REAL_KP = 0.0.volts / 1.inches
-    val REAL_KI = 0.0.volts / (1.inches * 1.seconds)
-    val REAL_KD = 0.0.volts / (1.inches.perSecond)
+    val REAL_KP = 2.5.volts / 1.inches
+    val REAL_KI = 0.2.volts / (1.inches * 1.seconds)
+    val REAL_KD = 0.3.volts / (1.inches.perSecond)
 
     val SIM_KP = 1.95.volts / 1.inches
     val SIM_KI = 0.0.volts / (1.inches * 1.seconds)
     val SIM_KD = 0.23.volts / (1.inches.perSecond)
 
-    val KS = 0.0.volts
-    val KV = ((1 / MAX_VELOCITY.inMetersPerSecond).volts) / 1.0.meters.perSecond //  0.037
-    val KA = (2.0.volts) / 1.0.meters.perSecond.perSecond // 0.0025
+    val KS = 0.05.volts
+    val KV = ((.0 / MAX_VELOCITY.inMetersPerSecond).volts) / 1.0.meters.perSecond //  0.037
+    val KA = (0.0.volts) / 1.0.meters.perSecond.perSecond // 0.0025
 
     val KV_ADD = (0.0.volts) / 1.0.meters.perSecond //  0.037
 
     val KG_SIM = 0.3.volts
-    val KG_FIRST_STAGE = 0.0.volts
-    val KG_SECOND_STAGE = 0.0.volts
+    val KG_FIRST_STAGE = 0.2.volts
+    val KG_SECOND_STAGE = 0.3.volts
   }
 }

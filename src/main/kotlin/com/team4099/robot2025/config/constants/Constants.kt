@@ -123,8 +123,8 @@ object Constants {
 
   // leader is right motor and follower is left
   object Elevator {
-    const val LEADER_MOTOR_ID = 42 // right
-    const val FOLLOWER_MOTOR_ID = 41 // left
+    const val LEADER_MOTOR_ID = 41 // right
+    const val FOLLOWER_MOTOR_ID = 42 // left
   }
 
   object Gyro {
@@ -133,10 +133,10 @@ object Constants {
 
   object Arm {
     const val ARM_MOTOR_ID = 51
-    const val CANCODER_ID = 52
+    const val CANCODER_ID = 9
   }
   object ArmRollers {
-    const val ARM_ROLLERS_MOTOR_ID = 53
+    const val ARM_ROLLERS_MOTOR_ID = 55
   }
 
   object Rollers {
@@ -145,19 +145,20 @@ object Constants {
   }
 
   object Intake {
-    const val INTAKE_MOTOR_ID = 71
+    const val INTAKE_MOTOR_ID = 25
 
     object Rollers {
-      const val ROLLERS_MOTOR_ID = 72
+      const val ROLLERS_MOTOR_ID = 26
     }
   }
 
-  object Ramp {
-    const val RAMP_MOTOR_ID = 62
+  object Indexer {
+    const val INDEXER_MOTOR_ID = 58
   }
 
-  object Indexer {
-    const val INDEXER_MOTOR_ID = 81
+  object Candle {
+    const val CANDLE_ID_1 = 2
+    const val CANDLE_ID_2 = 3
   }
 
   object Alert {
@@ -169,6 +170,6 @@ object Constants {
   }
 
   object CanRange {
-    const val CANRANGE_ID = 91
+    const val CANRANGE_ID = 27
   }
 }

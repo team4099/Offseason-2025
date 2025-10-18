@@ -18,9 +18,14 @@ object ControlBoard {
   private val operator = XboxOneGamepad(Constants.Joysticks.SHOTGUN_PORT)
   private val technician = XboxOneGamepad(Constants.Joysticks.TECHNICIAN_PORT)
 
-  val rumbleConsumer =
+  val driverRumbleConsumer =
     Consumer<Boolean> {
       driver.setRumble(GenericHID.RumbleType.kBothRumble, if (it) 1.0 else 0.0)
+    }
+
+  val operatorRumbleConsumer =
+    Consumer<Boolean> {
+      operator.setRumble(GenericHID.RumbleType.kBothRumble, if (it) 1.0 else 0.0)
     }
 
   val strafe: Double
@@ -39,25 +44,31 @@ object ControlBoard {
     }
 
   val slowMode: Boolean
-    get() = driver.rightJoystickButton && driver.leftShoulderButton
+    get() = driver.rightJoystickButton
 
-  val intakeCoral = Trigger { operator.rightTriggerAxis > 0.5 }
+  val intakeCoral = Trigger { driver.leftTriggerAxis > 0.5 }
   val score = Trigger { driver.rightTriggerAxis > 0.5 }
-  val climbExtend = Trigger { operator.startButton }
-  val climbRetract = Trigger { operator.selectButton }
+  val climbExtend = Trigger { operator.leftShoulderButton }
+  val climbRetract = Trigger { operator.rightShoulderButton }
 
   val prepL1OrAlgaeGround = Trigger { operator.xButton }
   val prepL2OrProcessor = Trigger { operator.aButton }
   val prepL3OrAlgaeReef = Trigger { operator.bButton }
   val prepL4OrBarge = Trigger { operator.yButton }
 
-  val alignLeft = Trigger { driver.leftShoulderButton && !driver.rightShoulderButton }
-  val alignRight = Trigger { driver.rightShoulderButton && !driver.leftShoulderButton }
-  val alignCenter = Trigger { driver.leftShoulderButton || driver.rightShoulderButton }
+  val alignLeft = Trigger { driver.leftShoulderButton }
+  val alignRight = Trigger { driver.rightShoulderButton }
 
   val resetGyro = Trigger { driver.startButton && driver.selectButton }
-  val forceIdle = Trigger { operator.dPadDown }
-  val eject = Trigger { operator.dPadLeft }
+  val forceIdle = Trigger { driver.dPadDown || operator.dPadDown }
+  val resetGamePieceNone = Trigger {
+    operator.leftTriggerAxis > .5 && operator.rightTriggerAxis > .5
+  }
+  val resetGamePieceCoral = Trigger { operator.leftTriggerAxis > .5 && operator.leftJoystickButton }
+  val resetGamePieceAlgae = Trigger {
+    operator.leftTriggerAxis > .5 && operator.rightJoystickButton
+  }
+  val eject = Trigger { driver.dPadLeft || operator.dPadLeft }
 
   val test = Trigger { driver.dPadRight || operator.dPadRight || driver.xButton }
 }

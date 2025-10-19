@@ -64,8 +64,8 @@ object Robot : LoggedRobot() {
    */
 
   override fun robotInit() {
-    //elastic layout upload dont remove
-    WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
+    // elastic layout upload dont remove
+    WebServer.start(5800, Filesystem.getDeployDirectory().getPath())
     // running replays as fast as possible when replaying. (play in real time when robot is real or
     // sim)
     setUseTiming(

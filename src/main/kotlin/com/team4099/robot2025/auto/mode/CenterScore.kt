@@ -14,25 +14,24 @@ import edu.wpi.first.wpilibj2.command.WaitCommand
 import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.units.base.inSeconds
 
-class CenterScore (val drivetrain: Drive,val vision: Vision) : SequentialCommandGroup() {
-    init {
-      addRequirements(drivetrain)
+class CenterScore(val drivetrain: Drive, val vision: Vision) : SequentialCommandGroup() {
+  init {
+    addRequirements(drivetrain)
 
-      addCommands(
-        WaitCommand(0.5),
-        FollowChoreoPath(drivetrain, firstTrajectory),
-        superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L4),
-        WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds),
-        CoolerTargetTagCommand.alignLeftCommand(drivetrain, vision).withTimeout(3.0),
-        WaitCommand(.5),
-        superstructure.scoreCommand()
-      )
-    }
-
-    companion object {
-      val firstTrajectory =
-        Choreo.loadTrajectory<SwerveSample>("CenterScore/1CenterToL4.traj").get()
-
-      val startingPose = Pose2d(firstTrajectory.getInitialPose(false).get())
-    }
+    addCommands(
+      WaitCommand(0.5),
+      FollowChoreoPath(drivetrain, firstTrajectory),
+      superstructure.prepScoreCoralCommand(Constants.Universal.CoralLevel.L4),
+      WaitCommand(ArmConstants.TIME_TO_GOAL.inSeconds),
+      CoolerTargetTagCommand.alignLeftCommand(drivetrain, vision).withTimeout(3.0),
+      WaitCommand(.5),
+      superstructure.scoreCommand()
+    )
   }
+
+  companion object {
+    val firstTrajectory = Choreo.loadTrajectory<SwerveSample>("CenterScore/1CenterToL4.traj").get()
+
+    val startingPose = Pose2d(firstTrajectory.getInitialPose(false).get())
+  }
+}

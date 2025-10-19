@@ -60,7 +60,8 @@ class Rollers(val io: RollersIO) : SubsystemBase() {
       rollerStates.OPEN_LOOP -> {
         io.setVoltage(targetVoltage)
 
-        if (lastAlgaeTriggerTime < lastTransitionTime && hasAlgae) lastAlgaeTriggerTime = Clock.fpgaTime
+        if (lastAlgaeTriggerTime < lastTransitionTime && hasAlgae)
+          lastAlgaeTriggerTime = Clock.fpgaTime
 
         nextState = fromRequestToState(currentRequest)
       }

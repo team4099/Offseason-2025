@@ -516,7 +516,8 @@ class Superstructure(
 
         if (RobotBase.isReal() &&
           armRollers.hasAlgae &&
-          Clock.fpgaTime - armRollers.lastAlgaeTriggerTime > ArmRollersConstants.ALGAE_DETECTION_THRESHOLD ||
+          Clock.fpgaTime - armRollers.lastAlgaeTriggerTime >
+          ArmRollersConstants.ALGAE_DETECTION_THRESHOLD ||
           RobotBase.isSimulation() && overrideFlagForSim
         ) {
           theoreticalGamePieceArm = GamePiece.ALGAE

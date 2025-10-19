@@ -100,7 +100,7 @@ class CameraIOPhotonvision(
 
         if (mostRecentPipelineResult.bestTarget.bestCameraToTarget.translation.norm <
           VisionConstants.FIELD_POSE_RESET_DISTANCE_THRESHOLD.inMeters
-//          && !isAutoAligningSupplier.get()
+          //          && !isAutoAligningSupplier.get()
         ) {
           updateEstimationStdDevs(visionEst, mostRecentPipelineResult.getTargets())
 

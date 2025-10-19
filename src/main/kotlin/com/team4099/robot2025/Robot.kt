@@ -13,8 +13,10 @@ import com.team4099.robot2025.util.CustomLogger
 import com.team4099.robot2025.util.FMSData
 import com.team4099.robot2025.util.NTSafePublisher
 import edu.wpi.first.hal.AllianceStationID
+import edu.wpi.first.net.WebServer
 import edu.wpi.first.networktables.GenericEntry
 import edu.wpi.first.wpilibj.DriverStation
+import edu.wpi.first.wpilibj.Filesystem
 import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.livewindow.LiveWindow
@@ -62,6 +64,8 @@ object Robot : LoggedRobot() {
    */
 
   override fun robotInit() {
+    // elastic layout upload dont remove
+    WebServer.start(5800, Filesystem.getDeployDirectory().getPath())
     // running replays as fast as possible when replaying. (play in real time when robot is real or
     // sim)
     setUseTiming(

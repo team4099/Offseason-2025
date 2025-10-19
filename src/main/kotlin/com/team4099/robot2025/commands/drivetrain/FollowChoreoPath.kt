@@ -120,7 +120,7 @@ class FollowChoreoPath(val drivetrain: Drive, val trajectory: Trajectory<SwerveS
         xPID.wpiPidController, yPID.wpiPidController, thetaPID.wpiPidController
       )
 
-    swerveDriveController.setTolerance(Pose2d(2.5.inches, 2.5.inches, 4.degrees).pose2d)
+    swerveDriveController.setTolerance(Pose2d(2.5.inches, 2.5.inches, 10.degrees).pose2d)
   }
 
   override fun initialize() {

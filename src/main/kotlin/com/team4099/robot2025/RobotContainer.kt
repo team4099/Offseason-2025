@@ -93,13 +93,15 @@ object RobotContainer {
             VisionConstants.CAMERA_NAMES[0],
             VisionConstants.CAMERA_TRANSFORMS[0],
             drivetrain::addVisionMeasurement,
-            { drivetrain.pose.rotation }
+            { drivetrain.pose.rotation },
+            //            { vision.isAutoAligning }
           ),
           CameraIOPhotonvision(
             VisionConstants.CAMERA_NAMES[1],
             VisionConstants.CAMERA_TRANSFORMS[1],
             drivetrain::addVisionMeasurement,
-            { drivetrain.pose.rotation }
+            { drivetrain.pose.rotation },
+            //            { vision.isAutoAligning }
           ),
         )
 

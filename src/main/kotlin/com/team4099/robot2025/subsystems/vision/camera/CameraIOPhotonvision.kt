@@ -30,7 +30,8 @@ class CameraIOPhotonvision(
   private val identifier: String,
   transform: Transform3d,
   val poseMeasurementConsumer: (WPIPose2d?, Double, Matrix<N3?, N1?>) -> Unit,
-  val drivetrainRotationSupplier: Supplier<Angle>
+  val drivetrainRotationSupplier: Supplier<Angle>,
+//  val isAutoAligningSupplier: Supplier<Boolean>
 ) : CameraIO {
   //  private val fieldOrientedTransform =
   //    Transform3d(
@@ -99,6 +100,7 @@ class CameraIOPhotonvision(
 
         if (mostRecentPipelineResult.bestTarget.bestCameraToTarget.translation.norm <
           VisionConstants.FIELD_POSE_RESET_DISTANCE_THRESHOLD.inMeters
+          //          && !isAutoAligningSupplier.get()
         ) {
           updateEstimationStdDevs(visionEst, mostRecentPipelineResult.getTargets())
 

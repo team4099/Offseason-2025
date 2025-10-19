@@ -516,7 +516,8 @@ class Superstructure(
 
         if (RobotBase.isReal() &&
           armRollers.hasAlgae &&
-          Clock.fpgaTime - lastTransitionTime > ArmRollersConstants.ALGAE_DETECTION_THRESHOLD ||
+          Clock.fpgaTime - armRollers.lastAlgaeTriggerTime >
+          ArmRollersConstants.ALGAE_DETECTION_THRESHOLD ||
           RobotBase.isSimulation() && overrideFlagForSim
         ) {
           theoreticalGamePieceArm = GamePiece.ALGAE
@@ -739,9 +740,13 @@ class Superstructure(
             arm.currentRequest =
               Request.ArmRequest.ClosedLoop(ArmConstants.ANGLES.BARGE_POST_SHOOT_ANGLE)
 
-            if (arm.inputs.armPosition > ArmConstants.ANGLES.BARGE_SHOOT_THRESHOLD)
+            if (arm.inputs.armPosition < ArmConstants.ANGLES.BARGE_SHOOT_THRESHOLD)
               armRollers.currentRequest =
                 ArmRollersRequest.OpenLoop(ArmRollersConstants.OUTTAKE_ALGAE_VOLTAGE)
+            else {
+              armRollers.currentRequest =
+                ArmRollersRequest.OpenLoop(ArmRollersConstants.SCORE_KEEP_VOLTAGE)
+            }
           }
         }
 

@@ -13,13 +13,14 @@ object RollersConstants {
   val CORAL_CURRENT_THRESHOLD = 17.5.amps
   val CORAL_DETECTION_THRESHOLD = 0.5.seconds
   val ALGAE_CURRENT_THRESHOLD = 30.0.amps
-  val ALGAE_DETECTION_THRESHOLD = 1.0.seconds
+  val ALGAE_DETECTION_THRESHOLD = 2.0.seconds
 
   val IDLE_VOLTAGE = 0.0.volts
   val EJECT_VOLTAGE = (-3.0).volts
 
   val IDLE_CORAL_VOLTAGE = 0.5.volts
   val IDLE_ALGAE_VOLTAGE = 3.volts
+  val SCORE_KEEP_VOLTAGE = 5.volts
 
   val MOMENT_OF_INERTIA = 0.09344594214.grams.meterSquared
 
@@ -28,7 +29,7 @@ object RollersConstants {
 
   // TODO: Set intake voltage values
   val INTAKE_CORAL_VOLTAGE = 6.0.volts
-  val INTAKE_ALGAE_VOLTAGE = 8.0.volts
+  val INTAKE_ALGAE_VOLTAGE = 9.0.volts
 
   val OUTTAKE_CORAL_VOLTAGE = (-2.0).volts
   val OUTTAKE_ALGAE_VOLTAGE = (-10.0).volts

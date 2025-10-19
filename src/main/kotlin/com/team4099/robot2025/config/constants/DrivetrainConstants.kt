@@ -162,9 +162,9 @@ object DrivetrainConstants {
     val TELEOP_X_PID_KI = 0.0.meters.perSecond / (1.meters * 1.seconds)
     val TELEOP_X_PID_KD = 0.01.meters.perSecond.perMeterPerSecond
 
-    val TELEOP_Y_PID_KP = 2.5.meters.perSecond / 1.meters
+    val TELEOP_Y_PID_KP = 2.6.meters.perSecond / 1.meters
     val TELEOP_Y_PID_KI = 0.0.meters.perSecond / (1.meters * 1.seconds)
-    val TELEOP_Y_PID_KD = 0.01.meters.perSecond.perMeterPerSecond
+    val TELEOP_Y_PID_KD = 0.0.meters.perSecond.perMeterPerSecond
 
     val SIM_TELEOP_Y_PID_KP = 0.0.meters.perSecond / 1.meters
     val SIM_TELEOP_Y_PID_KI = 0.0.meters.perSecond / (1.meters * 1.seconds)

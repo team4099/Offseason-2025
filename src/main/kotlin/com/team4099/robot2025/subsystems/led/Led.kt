@@ -25,10 +25,11 @@ class Led(
     // todo for testing
     state =
       if (DriverStation.isDisabled()) {
-        if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue)
+        if (!DriverStation.getAlliance().isPresent) CandleState.NOTHING
+        else if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue)
           CandleState.BLUE_DISABLED
         else CandleState.RED_DISABLED
-      } else if (isAlignedSupplier.get()) CandleState.IS_ALIGNED
+      } // else if (isAlignedSupplier.get()) CandleState.IS_ALIGNED
       else if (isAligningSupplier.get()) CandleState.IS_ALIGNING
       else if (gamePieceArmSupplier.get() == Constants.Universal.GamePiece.CORAL)
         CandleState.HAS_CORAL

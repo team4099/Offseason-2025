@@ -22,6 +22,8 @@ import com.team4099.robot2025.subsystems.superstructure.Request.SuperstructureRe
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj.RobotBase
+import edu.wpi.first.wpilibj.smartdashboard.Field2d
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
@@ -59,6 +61,8 @@ class Superstructure(
   private val canrange: CANRange,
   private val led: Led
 ) : SubsystemBase() {
+
+  private var field: Field2d = Field2d()
 
   private var overrideFlagForSim = false
 
@@ -105,7 +109,14 @@ class Superstructure(
 
   private var lastTransitionTime = Clock.fpgaTime
 
+  init {
+    SmartDashboard.putData("Field", field)
+  }
+
   override fun periodic() {
+
+    field.robotPose = drivetrain.pose.pose2d
+
     val armStartTime = Clock.realTimestamp
     arm.periodic()
     CustomLogger.recordOutput(

@@ -1,22 +1,47 @@
 package com.team4099.robot2025.subsystems.vision.camera
 
+import com.team4099.robot2025.config.constants.VisionConstants
 import edu.wpi.first.math.MatBuilder
+import edu.wpi.first.math.Matrix
 import edu.wpi.first.math.Nat
+import edu.wpi.first.math.VecBuilder
+import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Transform3d
+import edu.wpi.first.math.numbers.N1
+import edu.wpi.first.math.numbers.N3
 import org.littletonrobotics.junction.LogTable
+import org.littletonrobotics.junction.Logger
 import org.littletonrobotics.junction.inputs.LoggableInputs
+import org.photonvision.EstimatedRobotPose
+import org.photonvision.PhotonCamera
+import org.photonvision.PhotonPoseEstimator
+import org.photonvision.simulation.PhotonCameraSim
 import org.photonvision.targeting.PhotonTrackedTarget
 import org.photonvision.targeting.TargetCorner
 import org.team4099.lib.geometry.Pose3d
 import org.team4099.lib.geometry.Pose3dWPILIB
+import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.seconds
+import org.team4099.lib.units.derived.Angle
+import org.team4099.lib.units.derived.inRotation2ds
+import java.util.Optional
+import java.util.function.Supplier
 
 interface CameraIO {
+  val identifier: String
+  val transform: org.team4099.lib.geometry.Transform3d
+  val poseMeasurementConsumer: (Pose2d?, Double, Matrix<N3?, N1?>) -> Unit
+  val drivetrainRotationSupplier: Supplier<Angle>
+
+  val camera: PhotonCamera
+  var cameraSim: PhotonCameraSim?
+  var curStdDevs: Matrix<N3?, N1?>
+  val photonEstimator: PhotonPoseEstimator
+
   class CameraInputs : LoggableInputs {
     var timestamp = 0.0.seconds
     var frame: Pose3d = Pose3d()
-    var fps = 0.0
     var usedTargets: List<Int> = listOf<Int>()
     var cameraTargets = mutableListOf<PhotonTrackedTarget>()
     var indices = 0
@@ -26,7 +51,6 @@ interface CameraIO {
     override fun toLog(table: LogTable?) {
       table?.put("timestampSeconds", timestamp.inSeconds)
       table?.put("frame", frame.pose3d)
-      table?.put("fps", fps)
       table?.put("usedTargets", usedTargets.toIntArray())
       table?.put("cameraMatrix", cameraMatrix.data)
       table?.put("distCoeff", distCoeff.data)
@@ -56,7 +80,6 @@ interface CameraIO {
     override fun fromLog(table: LogTable?) {
       table?.get("timestampSeconds", 0.0)?.let { timestamp = it.seconds }
       table?.get("frame", Pose3dWPILIB())?.let { frame = Pose3d(it.get(0)) }
-      table?.get("fps", 0.0)
       table?.get("usedTargets", intArrayOf())?.let { usedTargets = it.toList() }
 
       table?.get("cameraTargets/indices", 0)?.let { indices = it }
@@ -95,5 +118,98 @@ interface CameraIO {
     }
   }
 
-  fun updateInputs(inputs: CameraInputs) {}
+  // note(nathan): pv and pvsim use same exact logic so i put it in io
+  fun updateInputs(inputs: CameraInputs) {
+    if (camera.isConnected) {
+      if (camera.cameraMatrix.isPresent) {
+        inputs.cameraMatrix = camera.cameraMatrix.get()
+      }
+
+      if (camera.distCoeffs.isPresent) {
+        inputs.distCoeff = camera.distCoeffs.get()
+      }
+    }
+
+    val unreadResults = camera.allUnreadResults
+
+    if (unreadResults.isEmpty()) return
+
+    val mostRecentPipelineResult = unreadResults[unreadResults.size - 1]
+
+    inputs.timestamp = mostRecentPipelineResult.timestampSeconds.seconds
+    Logger.recordOutput("Vision/$identifier/timestampIG", mostRecentPipelineResult.timestampSeconds)
+
+    inputs.cameraTargets = mostRecentPipelineResult.targets
+
+    if (mostRecentPipelineResult.hasTargets()) {
+      val visionEst: Optional<EstimatedRobotPose> = photonEstimator.update(mostRecentPipelineResult)
+
+      if (visionEst.isPresent) {
+        inputs.usedTargets = visionEst.get().targetsUsed.map { it.fiducialId }
+
+        val poseEst = visionEst.get().estimatedPose
+        inputs.frame = Pose3d(poseEst)
+
+        if (mostRecentPipelineResult.bestTarget.bestCameraToTarget.translation.norm <
+          VisionConstants.FIELD_POSE_RESET_DISTANCE_THRESHOLD.inMeters
+        ) {
+          updateEstimationStdDevs(visionEst, mostRecentPipelineResult.getTargets())
+
+          val poseEst2d = poseEst.toPose2d()
+
+          poseMeasurementConsumer(
+            Pose2d(poseEst2d.x, poseEst.y, drivetrainRotationSupplier.get().inRotation2ds),
+            visionEst.get().timestampSeconds,
+            curStdDevs
+          )
+        }
+      }
+    }
+  }
+
+  // from documentation
+  fun updateEstimationStdDevs(
+    estimatedPose: Optional<EstimatedRobotPose>?,
+    targets: MutableList<PhotonTrackedTarget>
+  ) {
+    if (estimatedPose == null || estimatedPose.isEmpty) {
+      curStdDevs = VisionConstants.singleTagStdDevs
+      return
+    }
+    var estStdDevs = VisionConstants.singleTagStdDevs
+    var numTags = 0
+    var avgDist = 0.0
+
+    // Precalculation - see how many tags we found, and calculate an average-distance metric
+    for (tgt in targets) {
+      val tagPose = photonEstimator.fieldTags.getTagPose(tgt.getFiducialId())
+      if (tagPose.isEmpty) continue
+      numTags++
+      avgDist +=
+        tagPose
+          .get()
+          .toPose2d()
+          .translation
+          .getDistance(estimatedPose.get().estimatedPose.toPose2d().translation)
+    }
+
+    if (numTags == 0) {
+      curStdDevs = VisionConstants.singleTagStdDevs
+    } else {
+      // One or more tags visible, run the full heuristic.
+      avgDist /= numTags.toDouble()
+      // Decrease std devs if multiple targets are visible
+      if (numTags > 1) estStdDevs = VisionConstants.multiTagStdDevs
+      // Increase std devs based on (average) distance
+      if (numTags == 1 && avgDist > 4)
+        estStdDevs =
+          VecBuilder.fill(
+            Double.Companion.MAX_VALUE,
+            Double.Companion.MAX_VALUE,
+            Double.Companion.MAX_VALUE
+          )
+      else estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30))
+      curStdDevs = estStdDevs
+    }
+  }
 }

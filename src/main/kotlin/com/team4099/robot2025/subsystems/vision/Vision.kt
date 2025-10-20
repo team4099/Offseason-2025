@@ -8,6 +8,7 @@ import com.team4099.robot2025.config.constants.FieldConstants
 import com.team4099.robot2025.config.constants.VisionConstants
 import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.subsystems.vision.camera.CameraIO
+import com.team4099.robot2025.util.CustomLogger
 import com.team4099.robot2025.util.FMSData
 import com.team4099.robot2025.util.toTransform3d
 import edu.wpi.first.apriltag.AprilTagFieldLayout
@@ -36,6 +37,7 @@ import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.cos
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inRadians
+import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.derived.sin
 import java.util.function.Supplier
 
@@ -71,6 +73,8 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
 
   var lastTrigVisionUpdate =
     TimestampedTrigVisionUpdate(Clock.fpgaTime, -1, Transform2d(Translation2d(), 0.degrees))
+
+  private val fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField)
 
   private var lastSeenTagId: Int? = null
   private var pulseEndTime = 0.0.seconds
@@ -142,6 +146,15 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
             if ((tag.fiducialId in VisionConstants.BLUE_REEF_TAGS && FMSData.isBlue) ||
               (tag.fiducialId in VisionConstants.RED_REEF_TAGS && !FMSData.isBlue)
             ) {
+
+              val aprilTagAlignmentAngle =
+                fieldLayout.getTagPose(tag.fiducialId).get().rotation.z.radians
+              //                if (FMSData.isBlue) {
+              //                  VisionConstants.BLUE_REEF_TAG_THETA_ALIGNMENTS[tag.fiducialId]
+              //                } else {
+              //                  VisionConstants.RED_REEF_TAG_THETA_ALIGNMENTS[tag.fiducialId]
+              //                }
+
               val fieldTTag =
                 FieldConstants.AprilTagLayoutType.OFFICIAL
                   .layout
@@ -172,9 +185,9 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
                 Transform3d(
                   Pose3d()
                     .transformBy(VisionConstants.CAMERA_TRANSFORMS[instance])
-                    .transformBy(Transform3d(cameraTTagTranslation3d, cameraTTagRotation3d))
-                    .toTransform3d()
-                    .transform3d,
+                    .transformBy(Transform3d(cameraTTagTranslation3d, Rotation3d()))
+                    .translation,
+                  Rotation3d(0.0.degrees, 0.0.degrees, aprilTagAlignmentAngle ?: 0.degrees)
                 )
 
               var fieldTRobot = Pose3d().transformBy(fieldTTag).transformBy(robotTTag.inverse())
@@ -304,6 +317,11 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
       }
     }
 
+    // visionConsumer.accept(visionUpdates)
+    Logger.recordOutput(
+      "LoggedRobot/Subsystems/VisionLoopTimeMS", (Clock.realTimestamp - startTime).inMilliseconds
+    )
+
     val now = Clock.fpgaTime
 
     val tagId0 = closestReefTags[0]?.first
@@ -313,6 +331,13 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
 
     val currentTagId = if (bothSeeingSameTag) tagId0 else null
     val distanceToTag = closestReefTagAcrossCams?.value?.second?.translation?.norm ?: 1000000.meters
+
+    CustomLogger.recordOutput(
+      "Vision/rumble",
+      currentTagId != null &&
+        currentTagId in tagIDFilter &&
+        distanceToTag <= VisionConstants.CONTROLLER_RUMBLE_DIST
+    )
 
     if (currentTagId != null &&
       currentTagId in tagIDFilter &&

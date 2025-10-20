@@ -1,8 +1,10 @@
 package com.team4099.robot2025
 
+import com.pathplanner.lib.commands.FollowPathCommand
 import com.team4099.lib.hal.Clock
 import com.team4099.robot2025.auto.AutonomousSelector
 import com.team4099.robot2025.auto.PathStore
+import com.team4099.robot2025.commands.drivetrain.DrivePathOTF
 import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.util.Alert
@@ -11,8 +13,10 @@ import com.team4099.robot2025.util.CustomLogger
 import com.team4099.robot2025.util.FMSData
 import com.team4099.robot2025.util.NTSafePublisher
 import edu.wpi.first.hal.AllianceStationID
+import edu.wpi.first.net.WebServer
 import edu.wpi.first.networktables.GenericEntry
 import edu.wpi.first.wpilibj.DriverStation
+import edu.wpi.first.wpilibj.Filesystem
 import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.livewindow.LiveWindow
@@ -60,6 +64,8 @@ object Robot : LoggedRobot() {
    */
 
   override fun robotInit() {
+    // elastic layout upload dont remove
+    WebServer.start(5800, Filesystem.getDeployDirectory().getPath())
     // running replays as fast as possible when replaying. (play in real time when robot is real or
     // sim)
     setUseTiming(
@@ -129,6 +135,9 @@ object Robot : LoggedRobot() {
     PathStore
     RobotContainer.mapDefaultCommands()
 
+    // init commands that have long startup
+    DrivePathOTF.warmupCommand()
+
     // Set the scheduler to log events for command initialize, interrupt, finish
     CommandScheduler.getInstance().onCommandInitialize { command: Command ->
       Logger.recordOutput("/ActiveCommands/${command.name}", true)
@@ -149,6 +158,8 @@ object Robot : LoggedRobot() {
         .withPosition(0, 1)
         .withWidget(BuiltInWidgets.kTextView)
         .entry
+
+    FollowPathCommand.warmupCommand().schedule()
   }
 
   override fun autonomousInit() {
@@ -205,10 +216,10 @@ object Robot : LoggedRobot() {
   }
 
   override fun teleopInit() {
-    RobotContainer.zeroSensors(isInAutonomous = false)
+    //    RobotContainer.zeroSensors(isInAutonomous = false)
     RobotContainer.mapTeleopControls()
     RobotContainer.getAutonomousCommand().cancel()
-    RobotContainer.requestIdle()
+    //    RobotContainer.requestIdle()
     RobotContainer.setDriveBrakeMode()
     if (Constants.Tuning.TUNING_MODE) {
       RobotContainer.mapTunableCommands()

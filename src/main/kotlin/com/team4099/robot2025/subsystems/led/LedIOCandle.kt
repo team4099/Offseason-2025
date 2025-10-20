@@ -2,15 +2,12 @@ package com.team4099.robot2025.subsystems.led
 
 import com.ctre.phoenix6.configs.CANdleConfiguration
 import com.ctre.phoenix6.controls.EmptyAnimation
-import com.ctre.phoenix6.controls.SolidColor
 import com.ctre.phoenix6.hardware.CANdle
 import com.ctre.phoenix6.signals.LossOfSignalBehaviorValue
-import com.ctre.phoenix6.signals.RGBWColor
-import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.LedConstants
 
-object LedIOCandle : LedIO {
-  private val candle = CANdle(Constants.Candle.CANDLE_ID)
+class LedIOCandle(val id: Int) : LedIO {
+  private val candle = CANdle(id)
   private val configs = CANdleConfiguration()
 
   init {
@@ -22,13 +19,10 @@ object LedIOCandle : LedIO {
   }
 
   override fun setState(state: LedConstants.CandleState) {
-    val color = RGBWColor(state.r, state.g, state.b)
+    candle.setControl(state.request)
+  }
 
-    val request =
-      when (state.animation) {
-        null -> SolidColor(LedConstants.START_INDEX, LedConstants.END_INDEX)
-        // add more animations when needed
-        else -> EmptyAnimation(0)
-      }
+  override fun turnOff() {
+    candle.setControl(EmptyAnimation(0))
   }
 }

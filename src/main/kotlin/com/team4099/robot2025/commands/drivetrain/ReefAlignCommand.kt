@@ -1,9 +1,8 @@
 package com.team4099.robot2025.commands.drivetrain
 
-import com.ctre.phoenix6.swerve.SwerveRequest
 import com.team4099.lib.hal.Clock
 import com.team4099.robot2025.config.constants.VisionConstants
-import com.team4099.robot2025.subsystems.drivetrain.CommandSwerveDrive
+import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
@@ -11,21 +10,22 @@ import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.CustomLogger
 import com.team4099.robot2025.util.FMSData
 import com.team4099.robot2025.util.driver.DriverProfile
-import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
+import org.team4099.lib.kinematics.ChassisSpeeds
 import org.team4099.lib.units.base.Time
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.seconds
 
+@Deprecated("note(nathan): i would rewrite this to be a lot simpler, using CoolerTTC.")
 class ReefAlignCommand(
   val driver: DriverProfile,
   val driveX: () -> Double,
   val driveY: () -> Double,
   val turn: () -> Double,
   val slowMode: () -> Boolean,
-  val drivetrain: CommandSwerveDrive,
+  val drivetrain: Drive,
   val elevator: Elevator,
   val superstructure: Superstructure,
   val vision: Vision,
@@ -115,7 +115,7 @@ class ReefAlignCommand(
     command.end(interrupted)
 
     CustomLogger.recordDebugOutput("ActiveCommands/TargetReefCommand", false)
-    drivetrain.setControl(SwerveRequest.ApplyRobotSpeeds().withSpeeds(ChassisSpeeds()))
+    drivetrain.runSpeeds(ChassisSpeeds())
 
     //    if (!DriverStation.isAutonomous()) {
     //      val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)

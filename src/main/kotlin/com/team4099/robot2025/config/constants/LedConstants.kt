@@ -1,14 +1,35 @@
 package com.team4099.robot2025.config.constants
 
-import com.ctre.phoenix.led.Animation
+import com.ctre.phoenix6.controls.ControlRequest
+import com.ctre.phoenix6.controls.LarsonAnimation
+import com.ctre.phoenix6.controls.RainbowAnimation
+import com.ctre.phoenix6.controls.SolidColor
+import com.ctre.phoenix6.controls.TwinkleAnimation
+import com.ctre.phoenix6.signals.AnimationDirectionValue
+import com.ctre.phoenix6.signals.RGBWColor
+import edu.wpi.first.wpilibj.util.Color
 
 object LedConstants {
-
   const val START_INDEX = 8
   const val END_INDEX = 399
 
-  enum class CandleState(val animation: Animation?, val r: Int, val g: Int, val b: Int) {
-    NOTHING(null, 0, 0, 0),
-    HAS_CORAL(null, 255, 0, 0)
+  enum class CandleState(val request: ControlRequest) {
+    NOTHING(SolidColor(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kGhostWhite))),
+    TEST(
+      RainbowAnimation(START_INDEX, END_INDEX)
+        .withDirection(AnimationDirectionValue.Forward)
+        .withFrameRate(20.0)
+    ),
+    HAS_CORAL(SolidColor(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kPurple))),
+    BLUE_DISABLED(TwinkleAnimation(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kFirstBlue))),
+    RED_DISABLED(LarsonAnimation(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kFirstRed))),
+    HAS_ALGAE(SolidColor(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kCyan))),
+    IS_ALIGNED(SolidColor(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kGreen))),
+    IS_ALIGNING(
+      RainbowAnimation(START_INDEX, END_INDEX)
+        .withDirection(AnimationDirectionValue.Forward)
+        .withFrameRate(20.0)
+    ),
+    INTAKING_CORAL(SolidColor(START_INDEX, END_INDEX).withColor(RGBWColor(Color.kTurquoise)))
   }
 }

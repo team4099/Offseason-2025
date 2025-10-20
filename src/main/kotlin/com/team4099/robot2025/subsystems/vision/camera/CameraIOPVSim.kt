@@ -13,14 +13,17 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy
 import org.photonvision.simulation.PhotonCameraSim
 import org.photonvision.simulation.SimCameraProperties
 import org.team4099.lib.geometry.Transform3d
+import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inRotation2ds
+import java.util.function.Supplier
 
 class CameraIOPVSim(
   override val identifier: String,
   override val transform: Transform3d,
   override val poseMeasurementConsumer: (Pose2d?, Double, Matrix<N3?, N1?>) -> Unit = { _, _, _ ->
-  }
+  },
+  override val drivetrainRotationSupplier: Supplier<Angle>
 ) : CameraIO {
   private val cameraProperties: SimCameraProperties = SimCameraProperties()
 

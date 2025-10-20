@@ -44,7 +44,7 @@ object ControlBoard {
     }
 
   val slowMode: Boolean
-    get() = driver.rightJoystickButton && driver.leftShoulderButton
+    get() = driver.rightJoystickButton
 
   val intakeCoral = Trigger { driver.leftTriggerAxis > 0.5 }
   val score = Trigger { driver.rightTriggerAxis > 0.5 }

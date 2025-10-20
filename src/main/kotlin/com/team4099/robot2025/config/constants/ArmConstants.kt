@@ -68,12 +68,14 @@ object ArmConstants {
     val L3_PREP_ANGLE = -(123.26.degrees + 90.degrees)
     val L4_PREP_ANGLE = -(127.68.degrees + 90.degrees)
 
-    val BARGE_ANGLE = -(152.17.degrees + 90.degrees)
+    val BARGE_ANGLE = -225.degrees
     val PROCESSOR_ANGLE = -(70.0.degrees + 90.degrees)
+    val BARGE_POST_SHOOT_ANGLE = -(270.degrees + 30.degrees)
+    val BARGE_SHOOT_THRESHOLD = -(270.degrees - 30.degrees)
 
     val ALGAE_GROUND_INTAKE_ANGLE = -(79.62.degrees + 90.degrees)
     val ALGAE_LOW_INTAKE_ANGLE = -(90.0.degrees + 90.degrees)
-    val ALGAE_HIGH_INTAKE_ANGLE = -(90.0.degrees + 90.degrees)
+    val ALGAE_HIGH_INTAKE_ANGLE = -(142.degrees)
 
     val SCORE_ANGLE_OFFSET = -40.degrees
 

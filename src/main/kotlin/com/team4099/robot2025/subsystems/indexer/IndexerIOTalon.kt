@@ -41,7 +41,7 @@ object IndexerIOTalon : IndexerIO {
 
   var motorAccel: StatusSignal<WPIAngularAcceleration>
 
-  val voltageControl = VoltageOut(0.0.volts.inVolts)
+  val voltageControl: VoltageOut = VoltageOut(0.0.volts.inVolts).withEnableFOC(true)
 
   private var indexerSensor =
     ctreAngularMechanismSensor(
@@ -51,8 +51,12 @@ object IndexerIOTalon : IndexerIO {
   init {
     indexerTalon.clearStickyFaults()
 
-    configs.CurrentLimits.SupplyCurrentLimit = IndexerConstants.SUPPLY_CURRENT_LIMIT.inAmperes
+    configs.CurrentLimits.SupplyCurrentLimit = IndexerConstants.SUPPLY_CURRENT_LOWER_LIMIT.inAmperes
     configs.CurrentLimits.StatorCurrentLimit = IndexerConstants.STATOR_CURRENT_LIMIT.inAmperes
+    //    configs.CurrentLimits.SupplyCurrentLowerLimit =
+    // IndexerConstants.SUPPLY_CURRENT_LOWER_LIMIT.inAmperes
+    //    configs.CurrentLimits.SupplyCurrentLowerTime =
+    // IndexerConstants.SUPPLY_CURRENT_LOWER_TIME.inSeconds
     configs.CurrentLimits.SupplyCurrentLimitEnable = true
     configs.CurrentLimits.StatorCurrentLimitEnable = true
     configs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
@@ -100,7 +104,6 @@ object IndexerIOTalon : IndexerIO {
       clamp(
         voltage, -IndexerConstants.VOLTAGE_COMPENSATION, IndexerConstants.VOLTAGE_COMPENSATION
       )
-    voltageControl.EnableFOC = true
     indexerTalon.setControl(voltageControl.withOutput(clampedVoltage.inVolts))
   }
 }

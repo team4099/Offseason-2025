@@ -23,12 +23,16 @@ import org.team4099.lib.geometry.Pose3dWPILIB
 import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.seconds
+import org.team4099.lib.units.derived.Angle
+import org.team4099.lib.units.derived.inRotation2ds
 import java.util.Optional
+import java.util.function.Supplier
 
 interface CameraIO {
   val identifier: String
   val transform: org.team4099.lib.geometry.Transform3d
   val poseMeasurementConsumer: (Pose2d?, Double, Matrix<N3?, N1?>) -> Unit
+  val drivetrainRotationSupplier: Supplier<Angle>
 
   val camera: PhotonCamera
   var cameraSim: PhotonCameraSim?
@@ -153,7 +157,11 @@ interface CameraIO {
 
           val poseEst2d = poseEst.toPose2d()
 
-          poseMeasurementConsumer(poseEst2d, visionEst.get().timestampSeconds, curStdDevs)
+          poseMeasurementConsumer(
+            Pose2d(poseEst2d.x, poseEst.y, drivetrainRotationSupplier.get().inRotation2ds),
+            visionEst.get().timestampSeconds,
+            curStdDevs
+          )
         }
       }
     }

@@ -153,17 +153,7 @@ object RobotContainer {
         { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
         { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
         { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-        {
-          ControlBoard.slowMode ||
-            superstructure.currentState ==
-            Superstructure.Companion.SuperstructureStates.GROUND_INTAKE_CORAL ||
-            superstructure.currentState ==
-            Superstructure.Companion.SuperstructureStates.INTAKE_ALGAE ||
-            superstructure.currentState ==
-            Superstructure.Companion.SuperstructureStates.SCORE_ALGAE &&
-            superstructure.algaeScoringLevel ==
-            Constants.Universal.AlgaeScoringLevel.BARGE
-        },
+        { true },
         drivetrain,
       )
   }

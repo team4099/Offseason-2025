@@ -1,0 +1,129 @@
+body {
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    min-height: 100vh;
+    background-color: black;
+    padding-top: 120px;  /* increased from 80px */
+    padding-left: 800px;
+}
+
+#reef {
+    position: relative;
+    width: 500px;
+    height: 500px;
+}
+
+.face {
+    position: absolute;
+    display: flex;
+    gap: 8px;
+}
+
+.L1 {
+    display: none;
+}
+
+.A, .B, .C, .D, .E, .F, .G, .H, .I, .J, .K, .L {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.L2, .L3, .L4 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.branch {
+    background-color: #808080;
+    color: white;
+    border: 1.5px solid grey;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.branch:hover {
+    background-color: #666666;
+}
+
+.branch.active {
+    background-color: white;
+    color: #808080;
+}
+
+.algae:hover {
+    background-color: #2f993f;
+}
+
+.algae.active {
+    background-color: transparent;
+    color: transparent;
+}
+
+/* Algae button - centered in the hexagon */
+.algae {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -275%);
+    background-color: #2E8B57;
+    color: white;
+    border: 3px solid #1a5c3a;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+/* Position each face around the hexagon */
+/* Top face - moved up */
+#reef .face:nth-child(1) {
+    top: -5%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Top-right face */
+#reef .face:nth-child(2) {
+    top: 15%;
+    right: 5%;
+    transform: rotate(60deg);
+}
+
+/* Bottom-right face */
+#reef .face:nth-child(3) {
+    bottom: 15%;
+    right: 5%;
+    transform: rotate(120deg);
+}
+
+/* Bottom face - moved down */
+#reef .face:nth-child(4) {
+    bottom: -5%;
+    left: 50%;
+    transform: translateX(-50%) rotate(180deg);
+}
+
+/* Bottom-left face */
+#reef .face:nth-child(5) {
+    bottom: 15%;
+    left: 5%;
+    transform: rotate(240deg);
+}
+
+/* Top-left face */
+#reef .face:nth-child(6) {
+    top: 15%;
+    left: 5%;
+    transform: rotate(300deg);
+}

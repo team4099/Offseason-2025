@@ -1,3 +1,5 @@
+import {NT4_Client} from "../Lib/NT4.js";
+
 const branchButtons = document.querySelectorAll(".branch");
 const algaeButtons = document.querySelectorAll(".algae");
 console.log(branchButtons);

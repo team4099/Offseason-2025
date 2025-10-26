@@ -4,7 +4,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue
 import com.team4099.robot2025.auto.AutonomousSelector
 import com.team4099.robot2025.commands.drivetrain.CoolerTargetTagCommand
 import com.team4099.robot2025.commands.drivetrain.DrivePathOTF
-import com.team4099.robot2025.commands.drivetrain.ResetGyroYawCommand
+import com.team4099.robot2025.commands.drivetrain.ResetGyroCommand
 import com.team4099.robot2025.commands.drivetrain.TeleopDriveCommand
 import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.Constants
@@ -21,10 +21,8 @@ import com.team4099.robot2025.subsystems.climber.Climber
 import com.team4099.robot2025.subsystems.climber.ClimberIO
 import com.team4099.robot2025.subsystems.climber.ClimberIOSim
 import com.team4099.robot2025.subsystems.drivetrain.Drive
-import com.team4099.robot2025.subsystems.drivetrain.GyroIO
 import com.team4099.robot2025.subsystems.drivetrain.GyroIOPigeon2
-import com.team4099.robot2025.subsystems.drivetrain.ModuleIOSim
-import com.team4099.robot2025.subsystems.drivetrain.ModuleIOTalonFX
+import com.team4099.robot2025.subsystems.drivetrain.ModuleIOTalonFXReal
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOSim
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOTalon
@@ -56,6 +54,11 @@ import org.team4099.lib.units.perSecond
 import java.util.function.Supplier
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersIOSim
+import com.team4099.robot2025.subsystems.drivetrain.GyroIOSim
+import com.team4099.robot2025.subsystems.drivetrain.ModuleIOTalonFXSim
+import org.ironmaple.simulation.SimulatedArena
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
+import org.littletonrobotics.junction.Logger
 
 object RobotContainer {
   private val drivetrain: Drive
@@ -76,9 +79,11 @@ object RobotContainer {
   val operatorRumbleState
     get() = canrange.rumbleTrigger || vision.autoAlignReadyRumble
 
+  var driveSimulation: SwerveDriveSimulation? = null
+
   init {
     if (RobotBase.isReal()) {
-      drivetrain = Drive(GyroIOPigeon2, ModuleIOTalonFX.generateModules())
+      drivetrain = Drive(GyroIOPigeon2, ModuleIOTalonFXReal.generateModules(), {pose -> {}} )
       elevator = Elevator(ElevatorIOTalon)
       arm = Arm(ArmIOTalon)
       armRollers = ArmRollers(RollersIOTalon)
@@ -115,7 +120,14 @@ object RobotContainer {
           LedIOCandle(Constants.Candle.CANDLE_ID_2)
         )
     } else {
-      drivetrain = Drive(object : GyroIO {}, ModuleIOSim.generateModules())
+      driveSimulation = SwerveDriveSimulation(Drive.mapleSimConfig, Pose2d(3.meters, 3.meters, 0.radians).pose2d)
+      SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation)
+
+      drivetrain = Drive(
+        GyroIOSim(driveSimulation!!.gyroSimulation),
+        ModuleIOTalonFXSim.generateModules(driveSimulation!!),
+        driveSimulation!!::setSimulationWorldPose
+      )
       elevator = Elevator(ElevatorIOSim)
       arm = Arm(ArmIOSIm)
       armRollers = ArmRollers(ArmRollersIOSim)
@@ -205,7 +217,7 @@ object RobotContainer {
       }
     )
 
-    ControlBoard.resetGyro.whileTrue(ResetGyroYawCommand(drivetrain))
+    ControlBoard.resetGyro.whileTrue(ResetGyroCommand(drivetrain))
     ControlBoard.forceIdle.whileTrue(superstructure.requestIdleCommand())
     ControlBoard.eject.whileTrue(superstructure.ejectCommand())
 
@@ -237,7 +249,7 @@ object RobotContainer {
       superstructure.resetGamepieceCommand(GamePiece.ALGAE)
     )
 
-    ControlBoard.test.whileTrue(InstantCommand())
+    ControlBoard.test.whileTrue(ResetGyroCommand(drivetrain))
   }
 
   fun mapTestControls() {}
@@ -248,4 +260,24 @@ object RobotContainer {
   fun getAutonomousLoadingCommand() = AutonomousSelector.getLoadingCommand(drivetrain)
 
   fun mapTunableCommands() {}
+
+  fun resetSimulationField() {
+    if (!RobotBase.isSimulation()) return
+
+    driveSimulation!!.setSimulationWorldPose(Pose2d(3.meters, 3.meters, 0.radians).pose2d)
+    SimulatedArena.getInstance().resetFieldForAuto()
+  }
+
+  fun updateSimulation() {
+    if (!RobotBase.isSimulation()) return
+
+    SimulatedArena.getInstance().simulationPeriodic()
+    Logger.recordOutput("FieldSimulation/RobotPosition", driveSimulation!!.simulatedDriveTrainPose);
+    SimulatedArena.getInstance().getGamePiecesArrayByType("Coral").mapIndexed { index, value ->
+      Logger.recordOutput("FieldSimulation/Coral/$index", value)
+    }
+    SimulatedArena.getInstance().getGamePiecesArrayByType("Algae").mapIndexed { index, value ->
+      Logger.recordOutput("FieldSimulation/Algae/$index", value)
+    }
+  }
 }

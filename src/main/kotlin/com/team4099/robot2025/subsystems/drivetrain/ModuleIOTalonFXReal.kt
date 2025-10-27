@@ -26,12 +26,15 @@ import java.util.Queue
  * Device configuration and other behaviors not exposed by TunerConstants can be customized here.
  */
 class ModuleIOTalonFXReal(
-  constants: SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>
+  constants:
+    SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>
 ) : ModuleIOTalonFX(constants) {
   // Create timestamp queue
   private val timestampQueue: Queue<Double> = PhoenixOdometryThread.instance.makeTimestampQueue()
-  private val drivePositionQueue: Queue<Double> = PhoenixOdometryThread.instance.registerSignal(driveTalon.position)
-  private val turnPositionQueue: Queue<Double> = PhoenixOdometryThread.instance.registerSignal(turnTalon.position)
+  private val drivePositionQueue: Queue<Double> =
+    PhoenixOdometryThread.instance.registerSignal(driveTalon.position)
+  private val turnPositionQueue: Queue<Double> =
+    PhoenixOdometryThread.instance.registerSignal(turnTalon.position)
 
   override fun updateInputs(inputs: ModuleIO.ModuleIOInputs) {
     super.updateInputs(inputs)

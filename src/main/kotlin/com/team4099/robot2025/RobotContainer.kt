@@ -22,7 +22,9 @@ import com.team4099.robot2025.subsystems.climber.ClimberIO
 import com.team4099.robot2025.subsystems.climber.ClimberIOSim
 import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.subsystems.drivetrain.GyroIOPigeon2
+import com.team4099.robot2025.subsystems.drivetrain.GyroIOSim
 import com.team4099.robot2025.subsystems.drivetrain.ModuleIOTalonFXReal
+import com.team4099.robot2025.subsystems.drivetrain.ModuleIOTalonFXSim
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOSim
 import com.team4099.robot2025.subsystems.elevator.ElevatorIOTalon
@@ -42,7 +44,9 @@ import com.team4099.robot2025.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.util.driver.Jessika
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
-import edu.wpi.first.wpilibj2.command.InstantCommand
+import org.ironmaple.simulation.SimulatedArena
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
+import org.littletonrobotics.junction.Logger
 import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.pplib.PathPlannerHolonomicDriveController
 import org.team4099.lib.smoothDeadband
@@ -54,11 +58,6 @@ import org.team4099.lib.units.perSecond
 import java.util.function.Supplier
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersIOSim
-import com.team4099.robot2025.subsystems.drivetrain.GyroIOSim
-import com.team4099.robot2025.subsystems.drivetrain.ModuleIOTalonFXSim
-import org.ironmaple.simulation.SimulatedArena
-import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
-import org.littletonrobotics.junction.Logger
 
 object RobotContainer {
   private val drivetrain: Drive
@@ -83,7 +82,7 @@ object RobotContainer {
 
   init {
     if (RobotBase.isReal()) {
-      drivetrain = Drive(GyroIOPigeon2, ModuleIOTalonFXReal.generateModules(), {pose -> {}} )
+      drivetrain = Drive(GyroIOPigeon2, ModuleIOTalonFXReal.generateModules(), { pose -> {} })
       elevator = Elevator(ElevatorIOTalon)
       arm = Arm(ArmIOTalon)
       armRollers = ArmRollers(RollersIOTalon)
@@ -119,14 +118,16 @@ object RobotContainer {
           LedIOCandle(Constants.Candle.CANDLE_ID_2)
         )
     } else {
-      driveSimulation = SwerveDriveSimulation(Drive.mapleSimConfig, Pose2d(3.meters, 3.meters, 0.radians).pose2d)
+      driveSimulation =
+        SwerveDriveSimulation(Drive.mapleSimConfig, Pose2d(3.meters, 3.meters, 0.radians).pose2d)
       SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation)
 
-      drivetrain = Drive(
-        GyroIOSim(driveSimulation!!.gyroSimulation),
-        ModuleIOTalonFXSim.generateModules(driveSimulation!!),
-        driveSimulation!!::setSimulationWorldPose
-      )
+      drivetrain =
+        Drive(
+          GyroIOSim(driveSimulation!!.gyroSimulation),
+          ModuleIOTalonFXSim.generateModules(driveSimulation!!),
+          driveSimulation!!::setSimulationWorldPose
+        )
       elevator = Elevator(ElevatorIOSim)
       arm = Arm(ArmIOSIm)
       armRollers = ArmRollers(ArmRollersIOSim)
@@ -286,7 +287,7 @@ object RobotContainer {
     if (!RobotBase.isSimulation()) return
 
     SimulatedArena.getInstance().simulationPeriodic()
-    Logger.recordOutput("FieldSimulation/RobotPosition", driveSimulation!!.simulatedDriveTrainPose);
+    Logger.recordOutput("FieldSimulation/RobotPosition", driveSimulation!!.simulatedDriveTrainPose)
     SimulatedArena.getInstance().getGamePiecesArrayByType("Coral").mapIndexed { index, value ->
       Logger.recordOutput("FieldSimulation/Coral/$index", value)
     }

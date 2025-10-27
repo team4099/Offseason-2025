@@ -10,9 +10,11 @@ class GyroIOSim(val gyroSimulation: GyroSimulation) : GyroIO {
   override fun updateInputs(inputs: GyroIO.GyroIOInputs) {
     inputs.connected = true
     inputs.yawPosition = gyroSimulation.gyroReading.radians.radians
-    inputs.yawVelocity = gyroSimulation.measuredAngularVelocity.`in`(RadiansPerSecond).radians.perSecond
+    inputs.yawVelocity =
+      gyroSimulation.measuredAngularVelocity.`in`(RadiansPerSecond).radians.perSecond
 
     inputs.odometryYawTimestamps = PhoenixUtil.simulationOdometryTimeStamps
-    inputs.odometryYawPositions = gyroSimulation.cachedGyroReadings.map { it.radians.radians }.toTypedArray()
+    inputs.odometryYawPositions =
+      gyroSimulation.cachedGyroReadings.map { it.radians.radians }.toTypedArray()
   }
 }

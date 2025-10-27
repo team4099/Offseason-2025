@@ -40,7 +40,6 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter
 import org.team4099.lib.units.base.inMilliseconds
 import java.nio.file.Files
 import java.nio.file.Paths
-import org.team4099.lib.geometry.Pose2d
 
 object Robot : LoggedRobot() {
   val logFolderAlert =
@@ -234,6 +233,6 @@ object Robot : LoggedRobot() {
   }
 
   override fun simulationPeriodic() {
-    RobotContainer.updateSimulation();
+    RobotContainer.updateSimulation()
   }
 }

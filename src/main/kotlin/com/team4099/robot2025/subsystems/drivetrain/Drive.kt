@@ -17,6 +17,7 @@ import com.pathplanner.lib.auto.AutoBuilder
 import com.pathplanner.lib.config.ModuleConfig
 import com.pathplanner.lib.config.PIDConstants
 import com.pathplanner.lib.config.RobotConfig
+import com.pathplanner.lib.controllers.PPHolonomicDriveController
 import com.pathplanner.lib.pathfinding.Pathfinding
 import com.pathplanner.lib.util.PathPlannerLogging
 import com.team4099.robot2025.config.constants.Constants
@@ -33,7 +34,11 @@ import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
 import edu.wpi.first.math.system.plant.DCMotor
+import edu.wpi.first.units.BaseUnits.VoltageUnit
 import edu.wpi.first.units.Units
+import edu.wpi.first.units.Units.KilogramSquareMeters
+import edu.wpi.first.units.Units.Kilograms
+import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.Alert
 import edu.wpi.first.wpilibj.DriverStation
@@ -43,6 +48,9 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.util.LocalADStarAK
+import org.ironmaple.simulation.drivesims.COTS
+import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig
+import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig
 import org.littletonrobotics.junction.Logger
 import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.geometry.Translation2d
@@ -64,22 +72,17 @@ import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.inMetersPerSecond
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
+import java.util.function.Consumer
 import kotlin.math.hypot
 import kotlin.math.max
 import edu.wpi.first.math.geometry.Pose2d as WPIPose2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds as WPIChassisSpeeds
-import com.pathplanner.lib.controllers.PPHolonomicDriveController
-import edu.wpi.first.units.BaseUnits.VoltageUnit
-import edu.wpi.first.units.Units.KilogramSquareMeters
-import edu.wpi.first.units.Units.Kilograms
-import edu.wpi.first.units.Units.Meters
-import java.util.function.Consumer
-import kotlin.math.absoluteValue
-import org.ironmaple.simulation.drivesims.COTS
-import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig
-import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig
 
-class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>, val resetSimulationPoseCallback: Consumer<edu.wpi.first.math.geometry.Pose2d>) : SubsystemBase() {
+class Drive(
+  private val gyroIO: GyroIO,
+  moduleIOs: Array<ModuleIO>,
+  val resetSimulationPoseCallback: Consumer<edu.wpi.first.math.geometry.Pose2d>
+) : SubsystemBase() {
   private val gyroInputs: GyroIO.GyroIOInputs = GyroIO.GyroIOInputs()
   private val modules = arrayOfNulls<Module>(4) // FL, FR, BL, BR
   private val sysId: SysIdRoutine
@@ -445,40 +448,49 @@ class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>, val resetSim
           )
         )
 
-    val mapleSimConfig = DriveTrainSimulationConfig.Default()
-      .withBumperSize(
-        Meters.of((DrivetrainConstants.DRIVETRAIN_LENGTH + DrivetrainConstants.BUMPER_WIDTH).inMeters),
-        Meters.of((DrivetrainConstants.DRIVETRAIN_WIDTH + DrivetrainConstants.BUMPER_WIDTH).inMeters)
+    val mapleSimConfig =
+      DriveTrainSimulationConfig.Default()
+        .withBumperSize(
+          Meters.of(
+            (DrivetrainConstants.DRIVETRAIN_LENGTH + DrivetrainConstants.BUMPER_WIDTH)
+              .inMeters
+          ),
+          Meters.of(
+            (DrivetrainConstants.DRIVETRAIN_WIDTH + DrivetrainConstants.BUMPER_WIDTH)
+              .inMeters
+          )
         )
-      .withTrackLengthTrackWidth(
-        Meters.of(TunerConstants.FrontLeft.LocationY.absoluteValue + TunerConstants.FrontRight.LocationY.absoluteValue),
-        Meters.of(TunerConstants.FrontLeft.LocationX.absoluteValue + TunerConstants.BackLeft.LocationX.absoluteValue)
-      )
-      .withRobotMass(Kilograms.of(Constants.Universal.ROBOT_WEIGHT.inKilograms))
-      .withGyro(COTS.ofPigeon2())
-      .withSwerveModules(
-        // FL, FR, BL, BR
-        // reason we map the factories is in case we have seperate
-        // modules (aka seperate ratios/constants) on some corners
-        *(
+        .withCustomModuleTranslations(
+          moduleTranslations.map { it.translation2d }.toTypedArray()
+        )
+        .withRobotMass(Kilograms.of(Constants.Universal.ROBOT_WEIGHT.inKilograms))
+        .withGyro(COTS.ofPigeon2())
+        .withSwerveModules(
+          // FL, FR, BL, BR
+          // reason we map the factories is in case we have seperate
+          // modules (aka seperate ratios/constants) on some corners
+          *(
             arrayOf(
               TunerConstants.FrontLeft,
               TunerConstants.FrontRight,
               TunerConstants.BackLeft,
               TunerConstants.BackRight
-            ).map {
-          SwerveModuleSimulationConfig(
-            DCMotor.getKrakenX60(1),
-            DCMotor.getKrakenX60(1),
-            it.DriveMotorGearRatio,
-            it.SteerMotorGearRatio,
-            VoltageUnit.of(it.DriveFrictionVoltage),
-            VoltageUnit.of(it.SteerFrictionVoltage),
-            Meters.of(it.WheelRadius),
-            KilogramSquareMeters.of(it.SteerInertia),
-            DrivetrainConstants.NITRILE_WHEEL_COF
-          )
-        }.toTypedArray())
-      )
+            )
+              .map {
+                SwerveModuleSimulationConfig(
+                  DCMotor.getKrakenX60(1),
+                  DCMotor.getKrakenX60(1),
+                  it.DriveMotorGearRatio,
+                  it.SteerMotorGearRatio,
+                  VoltageUnit.of(it.DriveFrictionVoltage),
+                  VoltageUnit.of(it.SteerFrictionVoltage),
+                  Meters.of(it.WheelRadius),
+                  KilogramSquareMeters.of(it.SteerInertia),
+                  DrivetrainConstants.NITRILE_WHEEL_COF
+                )
+              }
+              .toTypedArray()
+            )
+        )
   }
 }

@@ -11,20 +11,25 @@ import org.ironmaple.simulation.drivesims.SwerveModuleSimulation
 import org.team4099.lib.units.derived.radians
 
 class ModuleIOTalonFXSim(
-  constants: SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>,
+  constants:
+    SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>,
   val simulation: SwerveModuleSimulation
 ) : ModuleIOTalonFX(constants) {
   init {
     simulation.useDriveMotorController(PhoenixUtil.TalonFXMotorControllerSim(driveTalon))
-    simulation.useSteerMotorController(PhoenixUtil.TalonFXMotorControllerWithRemoteCancoderSim(turnTalon, cancoder))
+    simulation.useSteerMotorController(
+      PhoenixUtil.TalonFXMotorControllerWithRemoteCancoderSim(turnTalon, cancoder)
+    )
   }
 
   override fun updateInputs(inputs: ModuleIO.ModuleIOInputs) {
     super.updateInputs(inputs)
 
     inputs.odometryTimestamps = PhoenixUtil.simulationOdometryTimeStamps
-    inputs.odometryDrivePositions = simulation.cachedDriveWheelFinalPositions.map { it.`in`(Radians).radians }.toTypedArray()
-    inputs.odometryTurnPositions = simulation.cachedSteerAbsolutePositions.map { it.radians.radians }.toTypedArray()
+    inputs.odometryDrivePositions =
+      simulation.cachedDriveWheelFinalPositions.map { it.`in`(Radians).radians }.toTypedArray()
+    inputs.odometryTurnPositions =
+      simulation.cachedSteerAbsolutePositions.map { it.radians.radians }.toTypedArray()
   }
 
   companion object {

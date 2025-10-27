@@ -27,15 +27,15 @@ import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Current
 import edu.wpi.first.units.measure.Voltage
-import java.util.Queue
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.derived.rotations
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.perSecond
+import java.util.Queue
 
 abstract class ModuleIOTalonFX(
   val constants:
-  SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>
+    SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>
 ) : ModuleIO {
   protected val driveTalon: TalonFX
   protected val turnTalon: TalonFX
@@ -47,8 +47,10 @@ abstract class ModuleIOTalonFX(
 
   // Torque-current control requests
   protected val torqueCurrentRequest: TorqueCurrentFOC = TorqueCurrentFOC(0.0)
-  protected val positionTorqueCurrentRequest: PositionTorqueCurrentFOC = PositionTorqueCurrentFOC(0.0)
-  protected val velocityTorqueCurrentRequest: VelocityTorqueCurrentFOC = VelocityTorqueCurrentFOC(0.0)
+  protected val positionTorqueCurrentRequest: PositionTorqueCurrentFOC =
+    PositionTorqueCurrentFOC(0.0)
+  protected val velocityTorqueCurrentRequest: VelocityTorqueCurrentFOC =
+    VelocityTorqueCurrentFOC(0.0)
 
   // Inputs from drive motor
   private val drivePosition: StatusSignal<Angle>

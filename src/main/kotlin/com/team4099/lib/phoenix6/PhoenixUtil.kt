@@ -5,7 +5,8 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 // Also taken from AdvantageKit-TalonSwerveTemplate-MapleSim-Enhanced
-// Available at https://github.com/Shenzhen-Robotics-Alliance/AdvantageKit-TalonSwerveTemplate-MapleSim-Enhanced/blob/ce187a9d0ac6341f361703cf2b24c2f41448e400/src/main/java/frc/robot/util/PhoenixUtil.java
+// Available at
+// https://github.com/Shenzhen-Robotics-Alliance/AdvantageKit-TalonSwerveTemplate-MapleSim-Enhanced/blob/ce187a9d0ac6341f361703cf2b24c2f41448e400/src/main/java/frc/robot/util/PhoenixUtil.java
 package com.team4099.lib.phoenix6
 
 import com.ctre.phoenix6.BaseStatusSignal
@@ -24,12 +25,10 @@ import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.Timer
-import java.util.function.Supplier
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.motorsims.SimulatedBattery
 import org.ironmaple.simulation.motorsims.SimulatedMotorController
 import org.team4099.lib.units.derived.inVolts
-import org.team4099.lib.units.derived.inVoltsPerMeterPerSecond
 import org.team4099.lib.units.derived.inVoltsPerMeterPerSecondPerSecond
 import org.team4099.lib.units.derived.inVoltsPerMeters
 import org.team4099.lib.units.derived.inVoltsPerMetersPerSecond
@@ -37,9 +36,10 @@ import org.team4099.lib.units.derived.inVoltsPerMetersPerSecondPerSecond
 import org.team4099.lib.units.derived.inVoltsPerRadian
 import org.team4099.lib.units.derived.inVoltsPerRadianPerSecond
 import org.team4099.lib.units.derived.inVoltsPerRadianSeconds
+import java.util.function.Supplier
 
 object PhoenixUtil {
-  /** Attempts to run the command until no error is produced.  */
+  /** Attempts to run the command until no error is produced. */
   fun tryUntilOk(maxAttempts: Int, command: Supplier<StatusCode>) {
     for (i in 0 until maxAttempts) {
       val error = command.get()
@@ -47,12 +47,12 @@ object PhoenixUtil {
     }
   }
 
-  /** Signals for synchronized refresh.  */
+  /** Signals for synchronized refresh. */
   private var canivoreSignals = arrayOfNulls<BaseStatusSignal>(0)
 
   private var rioSignals = arrayOfNulls<BaseStatusSignal>(0)
 
-  /** Registers a set of signals for synchronized refresh.  */
+  /** Registers a set of signals for synchronized refresh. */
   fun registerSignals(canivore: Boolean, vararg signals: BaseStatusSignal?) {
     if (canivore) {
       val newSignals = arrayOfNulls<BaseStatusSignal>(canivoreSignals.size + signals.size)
@@ -67,7 +67,7 @@ object PhoenixUtil {
     }
   }
 
-  /** Refresh all registered signals.  */
+  /** Refresh all registered signals. */
   fun refreshAll() {
     if (canivoreSignals.size > 0) {
       BaseStatusSignal.refreshAll(*canivoreSignals)
@@ -81,9 +81,11 @@ object PhoenixUtil {
     get() {
       val odometryTimeStamps = DoubleArray(SimulatedArena.getSimulationSubTicksIn1Period())
       for (i in odometryTimeStamps.indices) {
-        odometryTimeStamps[i] = (Timer.getFPGATimestamp()
-            - 0.02
-            + i * SimulatedArena.getSimulationDt().`in`(Units.Seconds))
+        odometryTimeStamps[i] =
+          (
+            Timer.getFPGATimestamp() - 0.02 +
+              i * SimulatedArena.getSimulationDt().`in`(Units.Seconds)
+            )
       }
 
       return odometryTimeStamps
@@ -91,22 +93,19 @@ object PhoenixUtil {
 
   /**
    *
-   *
    * <h2>Regulates the [SwerveModuleConstants] for a single module.</h2>
    *
+   * This method applies specific adjustments to the [SwerveModuleConstants] for simulation
+   * purposes. These changes have no effect on real robot operations and address known simulation
+   * bugs:
    *
-   * This method applies specific adjustments to the [SwerveModuleConstants] for simulation purposes. These
-   * changes have no effect on real robot operations and address known simulation bugs:
-   *
-   *
-   *  * **Inverted Drive Motors:** Prevents drive PID issues caused by inverted configurations.
-   *  * **Non-zero CanCoder Offsets:** Fixes potential module state optimization issues.
-   *  * **Steer Motor PID:** Adjusts PID values tuned for real robots to improve simulation
+   * * **Inverted Drive Motors:** Prevents drive PID issues caused by inverted configurations.
+   * * **Non-zero CanCoder Offsets:** Fixes potential module state optimization issues.
+   * * **Steer Motor PID:** Adjusts PID values tuned for real robots to improve simulation
    * performance.
    *
-   *
-   * <h4>Note:This function is skipped when running on a real robot, ensuring no impact on constants used on real
-   * robot hardware.</h4>
+   * <h4>Note:This function is skipped when running on a real robot, ensuring no impact on constants
+   * used on real robot hardware.</h4>
    */
   fun regulateModuleConstantForSimulation(
     moduleConstants: SwerveModuleConstants<*, *, *>
@@ -186,7 +185,9 @@ object PhoenixUtil {
       remoteCancoderSimState.setRawPosition(mechanismAngle)
       remoteCancoderSimState.setVelocity(mechanismVelocity)
 
-      return super.updateControlSignal(mechanismAngle, mechanismVelocity, encoderAngle, encoderVelocity)
+      return super.updateControlSignal(
+        mechanismAngle, mechanismVelocity, encoderAngle, encoderVelocity
+      )
     }
   }
 }

@@ -37,7 +37,7 @@ import com.team4099.robot2025.subsystems.led.LedIO
 import com.team4099.robot2025.subsystems.led.LedIOCandle
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
 import com.team4099.robot2025.subsystems.vision.Vision
-import com.team4099.robot2025.subsystems.vision.camera.CameraIO
+import com.team4099.robot2025.subsystems.vision.camera.CameraIOPVSim
 import com.team4099.robot2025.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.util.driver.Jessika
 import edu.wpi.first.wpilibj.RobotBase
@@ -99,7 +99,6 @@ object RobotContainer {
             VisionConstants.CAMERA_TRANSFORMS[0],
             drivetrain::addVisionMeasurement,
             { drivetrain.pose.rotation },
-            //            { vision.isAutoAligning }
           ),
           CameraIOPhotonvision(
             VisionConstants.CAMERA_NAMES[1],
@@ -136,7 +135,22 @@ object RobotContainer {
       indexer = Indexer(IndexerIOSim)
       canrange = CANRange(object : CANRangeIO {})
 
-      vision = Vision(object : CameraIO {})
+      vision =
+        Vision(
+          CameraIOPVSim(
+            VisionConstants.CAMERA_NAMES[0],
+            VisionConstants.CAMERA_TRANSFORMS[0],
+            drivetrain::addVisionMeasurement,
+            { drivetrain.rotation }
+          ),
+          CameraIOPVSim(
+            VisionConstants.CAMERA_NAMES[1],
+            VisionConstants.CAMERA_TRANSFORMS[1],
+            drivetrain::addVisionMeasurement,
+            { drivetrain.rotation }
+          ),
+          poseSupplier = { drivetrain.pose.pose2d }
+        )
 
       led =
         Led(

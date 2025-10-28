@@ -48,6 +48,16 @@ import com.team4099.robot2025.config.constants.Constants.Universal.GamePiece as 
 import com.team4099.robot2025.config.constants.RollersConstants as ArmRollersConstants
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.superstructure.Request.RollersRequest as ArmRollersRequest
+import edu.wpi.first.math.geometry.Translation2d
+import edu.wpi.first.units.Units.Degrees
+import edu.wpi.first.units.Units.Meters
+import edu.wpi.first.units.Units.MetersPerSecond
+import org.ironmaple.simulation.SimulatedArena
+import org.ironmaple.simulation.drivesims.AbstractDriveTrainSimulation
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly
+import org.team4099.lib.units.base.inMeters
+import org.team4099.lib.units.derived.cos
+import org.team4099.lib.units.derived.sin
 
 class Superstructure(
   private val drivetrain: Drive,
@@ -59,7 +69,8 @@ class Superstructure(
   private val intake: Intake,
   private val indexer: Indexer,
   private val canrange: CANRange,
-  private val led: Led
+  private val led: Led,
+  private val driveSimulation: AbstractDriveTrainSimulation?
 ) : SubsystemBase() {
 
   private var field: Field2d = Field2d()
@@ -69,7 +80,7 @@ class Superstructure(
   var theoreticalGamePieceArm: GamePiece = GamePiece.CORAL // preload !!
   val theoreticalGamePieceHardstop: GamePiece
     get() =
-      if (canrange.inputs.isDetected || (RobotBase.isSimulation() && overrideFlagForSim))
+      if (canrange.inputs.isDetected || (RobotBase.isSimulation() && (overrideFlagForSim || intake.intakeSimulation?.gamePiecesAmount == 1)))
         GamePiece.CORAL
       else GamePiece.NONE
 
@@ -468,6 +479,7 @@ class Superstructure(
         } else if (currentRequest is SuperstructureRequest.Idle ||
           arm.isAtTargetedPosition && theoreticalGamePieceArm == GamePiece.CORAL
         ) {
+          intake.intakeSimulation?.setGamePiecesCount(0)
           currentRequest = SuperstructureRequest.Idle()
           nextState = SuperstructureStates.IDLE
         }
@@ -677,6 +689,21 @@ class Superstructure(
                   else -> ArmTunableValues.Angles.idleAngle.get()
                 } - ArmTunableValues.Angles.scoreOffset.get()
               )
+
+            if (RobotBase.isSimulation()) {
+              SimulatedArena.getInstance().addGamePieceProjectile(ReefscapeCoralOnFly(
+                driveSimulation!!.simulatedDriveTrainPose.translation,
+                Translation2d(
+                  ArmConstants.ARM_LENGTH.inMeters * arm.inputs.armPosition.cos,
+                  12.188297.inches.inMeters + elevator.inputs.elevatorPosition.inMeters
+                ),
+                driveSimulation!!.driveTrainSimulatedChassisSpeedsFieldRelative,
+                driveSimulation!!.simulatedDriveTrainPose.rotation,
+                Meters.of(elevator.inputs.elevatorPosition.inMeters + ArmConstants.ARM_LENGTH.inMeters * arm.inputs.armPosition.sin),
+                MetersPerSecond.of(2.0),
+                Degrees.of(360.0 - arm.inputs.armPosition.inDegrees)
+              ))
+            }
 
             if (arm.isAtTargetedPosition &&
               Clock.fpgaTime - lastTransitionTime >=

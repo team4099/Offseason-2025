@@ -133,7 +133,7 @@ object RobotContainer {
       arm = Arm(ArmIOSIm)
       armRollers = ArmRollers(ArmRollersIOSim)
       climber = Climber(ClimberIOSim)
-      intake = Intake(IntakeIOSim)
+      intake = Intake(IntakeIOSim(driveSimulation!!))
       indexer = Indexer(IndexerIOSim)
       canrange = CANRange(object : CANRangeIO {})
 
@@ -166,7 +166,7 @@ object RobotContainer {
 
     superstructure =
       Superstructure(
-        drivetrain, vision, elevator, arm, armRollers, climber, intake, indexer, canrange, led
+        drivetrain, vision, elevator, arm, armRollers, climber, intake, indexer, canrange, led, driveSimulation
       )
 
     //    led.isAlignedSupplier = Supplier { vision.isAligned }

@@ -37,6 +37,7 @@ import edu.wpi.first.units.measure.Angle as WPIAngle
 import edu.wpi.first.units.measure.Current as WPILibCurrent
 import edu.wpi.first.units.measure.Temperature as WPILibTemperature
 import edu.wpi.first.units.measure.Voltage as WPILibVoltage
+import org.ironmaple.simulation.IntakeSimulation
 
 object IntakeIOTalonFX : IntakeIO {
   private val pivotTalon: TalonFX = TalonFX(Constants.Intake.INTAKE_MOTOR_ID)
@@ -71,6 +72,8 @@ object IntakeIOTalonFX : IntakeIO {
   val pivotVoltageControl: VoltageOut = VoltageOut(0.volts.inVolts)
   val pivotPositionControl: MotionMagicVoltage = MotionMagicVoltage(0.degrees.inDegrees)
   val rollerVoltageControl: VoltageOut = VoltageOut(0.volts.inVolts).withEnableFOC(true)
+
+  override val intakeSimulation: IntakeSimulation? = null
 
   init {
     // Configure PID Values

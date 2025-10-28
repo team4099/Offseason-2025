@@ -4,6 +4,7 @@ import com.team4099.robot2025.config.constants.IntakeConstants
 import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import org.ironmaple.simulation.IntakeSimulation
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.degrees
@@ -46,6 +47,9 @@ class Intake(private val io: IntakeIO) : SubsystemBase() {
           IntakeConstants.INTAKE_TOLERANCE
         )
 
+  val intakeSimulation: IntakeSimulation?
+    get() = io.intakeSimulation
+
   override fun periodic() {
     io.updateInputs(inputs)
     CustomLogger.processInputs("Intake", inputs)
@@ -82,6 +86,11 @@ class Intake(private val io: IntakeIO) : SubsystemBase() {
             )
         )
           io.setRollerVoltage(rollerVoltageTarget)
+
+        if (isAtTargetedPosition) {
+          if (pivotPositionTarget == IntakeConstants.ANGLES.INTAKE_ANGLE) io.intakeSimulation?.startIntake()
+          else io.intakeSimulation?.stopIntake()
+        }
         nextState = fromRequestToState(currentRequest)
       }
     }

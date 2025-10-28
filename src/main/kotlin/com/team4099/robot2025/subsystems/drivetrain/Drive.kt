@@ -20,6 +20,7 @@ import com.pathplanner.lib.config.RobotConfig
 import com.pathplanner.lib.controllers.PPHolonomicDriveController
 import com.pathplanner.lib.pathfinding.Pathfinding
 import com.pathplanner.lib.util.PathPlannerLogging
+import com.team4099.lib.phoenix6.PhoenixUtil
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.subsystems.drivetrain.generated.TunerConstants
@@ -73,12 +74,11 @@ import org.team4099.lib.units.inMetersPerSecond
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import java.util.function.Consumer
+import kotlin.math.absoluteValue
 import kotlin.math.hypot
 import kotlin.math.max
 import edu.wpi.first.math.geometry.Pose2d as WPIPose2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds as WPIChassisSpeeds
-import com.team4099.lib.phoenix6.PhoenixUtil
-import kotlin.math.absoluteValue
 
 class Drive(
   private val gyroIO: GyroIO,
@@ -462,8 +462,14 @@ class Drive(
           )
         )
         .withTrackLengthTrackWidth(
-          Meters.of(TunerConstants.FrontLeft.LocationX.absoluteValue + TunerConstants.BackRight.LocationX.absoluteValue),
-          Meters.of(TunerConstants.FrontLeft.LocationY.absoluteValue + TunerConstants.BackRight.LocationY.absoluteValue)
+          Meters.of(
+            TunerConstants.FrontLeft.LocationX.absoluteValue +
+              TunerConstants.BackRight.LocationX.absoluteValue
+          ),
+          Meters.of(
+            TunerConstants.FrontLeft.LocationY.absoluteValue +
+              TunerConstants.BackRight.LocationY.absoluteValue
+          )
         )
         .withRobotMass(Kilograms.of(Constants.Universal.ROBOT_WEIGHT.inKilograms))
         .withGyro(COTS.ofPigeon2())

@@ -77,6 +77,8 @@ import kotlin.math.hypot
 import kotlin.math.max
 import edu.wpi.first.math.geometry.Pose2d as WPIPose2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds as WPIChassisSpeeds
+import com.team4099.lib.phoenix6.PhoenixUtil
+import kotlin.math.absoluteValue
 
 class Drive(
   private val gyroIO: GyroIO,
@@ -232,8 +234,7 @@ class Drive(
     Logger.recordOutput("Odometry/pose", pose.pose2d)
     Logger.recordOutput("SwerveChassisSpeeds/Measured", chassisSpeeds.chassisSpeedsWPILIB)
 
-    val curStates = moduleStates
-    for (i in 0..3) Logger.recordOutput("SwerveStates/Measured/state[$i]", curStates[i])
+    Logger.recordOutput("SwerveStates/Measured", *moduleStates)
   }
 
   /**
@@ -460,8 +461,9 @@ class Drive(
               .inMeters
           )
         )
-        .withCustomModuleTranslations(
-          moduleTranslations.map { it.translation2d }.toTypedArray()
+        .withTrackLengthTrackWidth(
+          Meters.of(TunerConstants.FrontLeft.LocationX.absoluteValue + TunerConstants.BackRight.LocationX.absoluteValue),
+          Meters.of(TunerConstants.FrontLeft.LocationY.absoluteValue + TunerConstants.BackRight.LocationY.absoluteValue)
         )
         .withRobotMass(Kilograms.of(Constants.Universal.ROBOT_WEIGHT.inKilograms))
         .withGyro(COTS.ofPigeon2())
@@ -471,10 +473,10 @@ class Drive(
           // modules (aka seperate ratios/constants) on some corners
           *(
             arrayOf(
-              TunerConstants.FrontLeft,
-              TunerConstants.FrontRight,
-              TunerConstants.BackLeft,
-              TunerConstants.BackRight
+              PhoenixUtil.regulateModuleConstantForSimulation(TunerConstants.FrontLeft),
+              PhoenixUtil.regulateModuleConstantForSimulation(TunerConstants.FrontRight),
+              PhoenixUtil.regulateModuleConstantForSimulation(TunerConstants.BackLeft),
+              PhoenixUtil.regulateModuleConstantForSimulation(TunerConstants.BackRight)
             )
               .map {
                 SwerveModuleSimulationConfig(

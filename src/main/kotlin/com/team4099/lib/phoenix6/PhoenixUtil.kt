@@ -141,6 +141,7 @@ object PhoenixUtil {
       )
       .withDriveFrictionVoltage(Units.Volts.of(0.1))
       .withSteerFrictionVoltage(Units.Volts.of(0.05))
+      .withDriveInertia(Units.KilogramSquareMeters.of(0.002))
       .withSteerInertia(Units.KilogramSquareMeters.of(0.05))
   }
 

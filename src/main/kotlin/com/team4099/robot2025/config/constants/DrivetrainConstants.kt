@@ -77,7 +77,7 @@ object DrivetrainConstants {
 
   const val MK4_DRIVE_SENSOR_GEAR_RATIO = (16.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0)
   const val MK4I_STEERING_SENSOR_GEAR_RATIO = 7.0 / 150.0
-  const val MK4N_STEERING_SENSOR_GEAR_RATIO = 1 / 18.75
+  const val MK4N_STEERING_SENSOR_GEAR_RATIO = 1.0 / 18.75
 
   val ALLOWED_STEERING_ANGLE_ERROR = 1.degrees
 
@@ -199,10 +199,10 @@ object DrivetrainConstants {
     //    val DRIVE_KA = 0.40499.volts / 1.0.meters.perSecond.perSecond
 
     val SIM_DRIVE_KS = 0.0.volts
-    val SIM_DRIVE_KV = 2.7.volts / 1.0.meters.perSecond
+    val SIM_DRIVE_KV = 0.0.volts / 1.0.meters.perSecond
     val SIM_DRIVE_KA = 0.0.volts / 1.0.meters.perSecond.perSecond
 
-    val SIM_DRIVE_KP = 1.5.volts / 1.meters.perSecond
+    val SIM_DRIVE_KP = 30.volts / 1.meters.perSecond
     val SIM_DRIVE_KI = 0.0.volts / (1.meters.perSecond * 1.seconds)
     val SIM_DRIVE_KD = 0.0.volts / 1.meters.perSecond.perSecond
 

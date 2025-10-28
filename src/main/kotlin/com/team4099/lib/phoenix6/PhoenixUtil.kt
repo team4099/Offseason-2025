@@ -141,8 +141,8 @@ object PhoenixUtil {
       )
       .withDriveFrictionVoltage(Units.Volts.of(0.1))
       .withSteerFrictionVoltage(Units.Volts.of(0.05))
-      .withDriveInertia(Units.KilogramSquareMeters.of(0.002))
-      .withSteerInertia(Units.KilogramSquareMeters.of(0.05))
+      .withDriveInertia(Units.KilogramSquareMeters.of(0.01))
+      .withSteerInertia(Units.KilogramSquareMeters.of(0.1))
   }
 
   open class TalonFXMotorControllerSim(talonFX: TalonFX) : SimulatedMotorController {

@@ -80,9 +80,9 @@ class CoolerTargetTagCommand(
 
       xPID =
         PIDController(
-          DrivetrainConstants.PID.SIM_TELEOP_Y_PID_KP,
-          DrivetrainConstants.PID.SIM_TELEOP_Y_PID_KI,
-          DrivetrainConstants.PID.SIM_TELEOP_Y_PID_KD
+          DrivetrainConstants.PID.SIM_TELEOP_X_PID_KP,
+          DrivetrainConstants.PID.SIM_TELEOP_X_PID_KI,
+          DrivetrainConstants.PID.SIM_TELEOP_X_PID_KD
         )
     } else {
       if (DriverStation.isAutonomous()) {
@@ -169,7 +169,8 @@ class CoolerTargetTagCommand(
       xPID.calculate(setpointTranslation.x, xTargetOffset * setpointTranslation.x.sign) *
         setpointTranslation.x.sign
     var yvel = -yPID.calculate(setpointTranslation.y, yTargetOffset)
-    var thetavel = -thetaPID.calculate(drivetrain.rotation, setpointRotation + thetaTargetOffset)
+    var thetavel = thetaPID.calculate(drivetrain.rotation, setpointRotation + thetaTargetOffset) *
+        if (RobotBase.isReal()) -1.0 else 1.0
 
     CustomLogger.recordOutput("CoolerTargetTagCommand/xvelmps", xvel.inMetersPerSecond)
     CustomLogger.recordOutput("CoolerTargetTagCommand/yvelmps", yvel.inMetersPerSecond)

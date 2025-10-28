@@ -166,14 +166,17 @@ object DrivetrainConstants {
     val TELEOP_Y_PID_KI = 0.0.meters.perSecond / (1.meters * 1.seconds)
     val TELEOP_Y_PID_KD = 0.0.meters.perSecond.perMeterPerSecond
 
-    val SIM_TELEOP_Y_PID_KP = 0.0.meters.perSecond / 1.meters
-    val SIM_TELEOP_Y_PID_KI = 0.0.meters.perSecond / (1.meters * 1.seconds)
-    val SIM_TELEOP_Y_PID_KD = 0.0.meters.perSecond.perMeterPerSecond
+    val SIM_TELEOP_Y_PID_KP = TELEOP_Y_PID_KP
+    val SIM_TELEOP_Y_PID_KI = TELEOP_Y_PID_KI
+    val SIM_TELEOP_Y_PID_KD = TELEOP_Y_PID_KD
 
-    val SIM_AUTO_THETA_PID_KP = 4.0.degrees.perSecond / 1.degrees
-    val SIM_AUTO_THETA_PID_KI = 0.0.degrees.perSecond / (1.degrees * 1.seconds)
-    val SIM_AUTO_THETA_PID_KD =
-      (0.degrees.perSecond / (1.degrees / 1.seconds)).radiansPerSecondPerRadiansPerSecond
+    val SIM_TELEOP_X_PID_KP = TELEOP_X_PID_KP
+    val SIM_TELEOP_X_PID_KI = TELEOP_X_PID_KI
+    val SIM_TELEOP_X_PID_KD = TELEOP_X_PID_KD
+
+    val SIM_AUTO_THETA_PID_KP = AUTO_REEF_PID_KP
+    val SIM_AUTO_THETA_PID_KI = AUTO_REEF_PID_KI
+    val SIM_AUTO_THETA_PID_KD = AUTO_REEF_PID_KD
 
     val MAX_AUTO_ANGULAR_VEL = 5.radians.perSecond
     val MAX_AUTO_ANGULAR_ACCEL = 10.radians.perSecond.perSecond
@@ -202,7 +205,7 @@ object DrivetrainConstants {
     val SIM_DRIVE_KV = 0.0.volts / 1.0.meters.perSecond
     val SIM_DRIVE_KA = 0.0.volts / 1.0.meters.perSecond.perSecond
 
-    val SIM_DRIVE_KP = 30.volts / 1.meters.perSecond
+    val SIM_DRIVE_KP = 20.volts / 1.meters.perSecond
     val SIM_DRIVE_KI = 0.0.volts / (1.meters.perSecond * 1.seconds)
     val SIM_DRIVE_KD = 0.0.volts / 1.meters.perSecond.perSecond
 

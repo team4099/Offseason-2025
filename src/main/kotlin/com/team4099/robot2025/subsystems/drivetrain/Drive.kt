@@ -79,10 +79,12 @@ import kotlin.math.hypot
 import kotlin.math.max
 import edu.wpi.first.math.geometry.Pose2d as WPIPose2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds as WPIChassisSpeeds
+import java.util.function.Supplier
 
 class Drive(
   private val gyroIO: GyroIO,
   moduleIOs: Array<ModuleIO>,
+  val getSimulationPoseCallback: Supplier<edu.wpi.first.math.geometry.Pose2d>,
   val resetSimulationPoseCallback: Consumer<edu.wpi.first.math.geometry.Pose2d>
 ) : SubsystemBase() {
   private val gyroInputs: GyroIO.GyroIOInputs = GyroIO.GyroIOInputs()
@@ -360,7 +362,8 @@ class Drive(
 
   var pose: Pose2d
     /** Returns the current odometry pose. */
-    get() = Pose2d(poseEstimator.estimatedPosition)
+    get() =
+       Pose2d(if (RobotBase.isReal()) poseEstimator.estimatedPosition else getSimulationPoseCallback.get())
     /** Resets the current odometry pose. */
     set(pose) {
       resetSimulationPoseCallback.accept(pose.pose2d)

@@ -4,7 +4,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue
 import com.team4099.robot2025.auto.AutonomousSelector
 import com.team4099.robot2025.commands.drivetrain.CoolerTargetTagCommand
 import com.team4099.robot2025.commands.drivetrain.DrivePathOTF
-import com.team4099.robot2025.commands.drivetrain.ResetGyroCommand
+import com.team4099.robot2025.commands.drivetrain.ResetGyroYawCommand
 import com.team4099.robot2025.commands.drivetrain.TeleopDriveCommand
 import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.Constants
@@ -82,7 +82,7 @@ object RobotContainer {
 
   init {
     if (RobotBase.isReal()) {
-      drivetrain = Drive(GyroIOPigeon2, ModuleIOTalonFXReal.generateModules(), { pose -> {} })
+      drivetrain = Drive(GyroIOPigeon2, ModuleIOTalonFXReal.generateModules(), { edu.wpi.first.math.geometry.Pose2d.kZero } , { pose -> {} })
       elevator = Elevator(ElevatorIOTalon)
       arm = Arm(ArmIOTalon)
       armRollers = ArmRollers(RollersIOTalon)
@@ -126,6 +126,7 @@ object RobotContainer {
         Drive(
           GyroIOSim(driveSimulation!!.gyroSimulation),
           ModuleIOTalonFXSim.generateModules(driveSimulation!!),
+          driveSimulation!!::getSimulatedDriveTrainPose,
           driveSimulation!!::setSimulationWorldPose
         )
       elevator = Elevator(ElevatorIOSim)
@@ -232,7 +233,7 @@ object RobotContainer {
       }
     )
 
-    ControlBoard.resetGyro.whileTrue(ResetGyroCommand(drivetrain))
+    ControlBoard.resetGyro.whileTrue(ResetGyroYawCommand(drivetrain))
     ControlBoard.forceIdle.whileTrue(superstructure.requestIdleCommand())
     ControlBoard.eject.whileTrue(superstructure.ejectCommand())
 
@@ -264,7 +265,7 @@ object RobotContainer {
       superstructure.resetGamepieceCommand(GamePiece.ALGAE)
     )
 
-    ControlBoard.test.whileTrue(ResetGyroCommand(drivetrain))
+    ControlBoard.test.whileTrue(ResetGyroYawCommand(drivetrain))
   }
 
   fun mapTestControls() {}

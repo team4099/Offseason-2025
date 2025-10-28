@@ -18,6 +18,7 @@ const toRobotPrefix = "/ReefControls/ToRobot/";
 const toDashboardPrefix = "/ReefControls/ToDashboard/";
 const coralTopicName = "Coral";
 const algaeTopicName = "Algae";
+const
 
 const ntClient = new NT4_Client(
     window.location.hostname,
@@ -62,6 +63,8 @@ window.addEventListener("load", () => {
     ntClient.publishTopic(toRobotPrefix + coralTopicName, "boolean[]");
     ntClient.publishTopic(toRobotPrefix + algaeTopicName, "int");
     ntClient.connect();
+
+    initializeDraggableList();
 });
 
 
@@ -70,3 +73,67 @@ let algaeStates = Array.from(document.querySelectorAll(".algae")).map(algae => a
 
 ntClient.addSample(toRobotPrefix + coralTopicName, coralStates);
 ntClient.addSample(toRobotPrefix + algaeTopicName, algaeStates);
+
+// Draggable List Functionality
+const listContainer = document.getElementById('listContainer');
+const listItems = document.querySelectorAll('.list-item');
+
+function initializeDraggableList() {
+    const listContainer = document.getElementById('listContainer');
+    const listItems = document.querySelectorAll('.list-item');
+
+    let draggedElement = null;
+
+    listItems.forEach(item => {
+        item.addEventListener('dragstart', (e) => {
+            draggedElement = item;
+            item.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        });
+
+        item.addEventListener('dragend', (e) => {
+            item.classList.remove('dragging');
+            document.querySelectorAll('.list-item').forEach(el => {
+                el.classList.remove('drag-over');
+            });
+        });
+
+        item.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+
+            if (item !== draggedElement) {
+                item.classList.add('drag-over');
+            }
+        });
+
+        item.addEventListener('dragleave', (e) => {
+            item.classList.remove('drag-over');
+        });
+
+        item.addEventListener('drop', (e) => {
+            e.preventDefault();
+            item.classList.remove('drag-over');
+
+            if (item !== draggedElement) {
+                const allItems = [...listContainer.querySelectorAll('.list-item')];
+                const draggedIndex = allItems.indexOf(draggedElement);
+                const targetIndex = allItems.indexOf(item);
+
+                if (draggedIndex < targetIndex) {
+                    item.parentNode.insertBefore(draggedElement, item.nextSibling);
+                } else {
+                    item.parentNode.insertBefore(draggedElement, item);
+                }
+            }
+        });
+    });
+}
+
+function getListOrder() {
+    const listContainer = document.getElementById('listContainer');
+    const listItems = listContainer.querySelectorAll('.list-item');
+    return Array.from(listItems).map(item => item.textContent.trim());
+}
+
+

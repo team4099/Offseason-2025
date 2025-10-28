@@ -701,7 +701,7 @@ class Superstructure(
                 driveSimulation!!.simulatedDriveTrainPose.rotation,
                 Meters.of(elevator.inputs.elevatorPosition.inMeters + ArmConstants.ARM_LENGTH.inMeters * arm.inputs.armPosition.sin),
                 MetersPerSecond.of(2.0),
-                Degrees.of(360.0 - arm.inputs.armPosition.inDegrees)
+                Degrees.of(360.0 - arm.inputs.armPosition.absoluteValue.inDegrees)
               ))
             }
 

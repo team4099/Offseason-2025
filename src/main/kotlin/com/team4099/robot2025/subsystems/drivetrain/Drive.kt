@@ -453,7 +453,7 @@ class Drive(
           )
         )
 
-    val mapleSimConfig =
+    val mapleSimConfig: DriveTrainSimulationConfig =
       DriveTrainSimulationConfig.Default()
         .withBumperSize(
           Meters.of(

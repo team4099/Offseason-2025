@@ -125,31 +125,31 @@ object PhoenixUtil {
       .withDriveMotorInverted(false)
       .withSteerMotorInverted(false) // Disable CanCoder inversion
       .withEncoderInverted(false) // Adjust steer motor PID gains for simulation
-//      .withDriveMotorGains(
-//        Slot0Configs()
-//          .withKP(DrivetrainConstants.PID.SIM_DRIVE_KP.inVoltsPerMetersPerSecond)
-//          .withKI(DrivetrainConstants.PID.SIM_DRIVE_KI.inVoltsPerMeters)
-//          .withKD(DrivetrainConstants.PID.SIM_DRIVE_KD.inVoltsPerMetersPerSecondPerSecond)
-////          .withKS(DrivetrainConstants.PID.SIM_DRIVE_KS.inVolts)
-////          .withKV(DrivetrainConstants.PID.SIM_DRIVE_KV.inVoltsPerMetersPerSecond)
-////          .withKA(DrivetrainConstants.PID.SIM_DRIVE_KA.inVoltsPerMeterPerSecondPerSecond)
-//          .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
-//      )
+      .withDriveMotorGains(
+        Slot0Configs()
+          .withKP(DrivetrainConstants.PID.SIM_DRIVE_KP.inVoltsPerMetersPerSecond)
+          .withKI(DrivetrainConstants.PID.SIM_DRIVE_KI.inVoltsPerMeters)
+          .withKD(DrivetrainConstants.PID.SIM_DRIVE_KD.inVoltsPerMetersPerSecondPerSecond)
+          .withKS(DrivetrainConstants.PID.SIM_DRIVE_KS.inVolts)
+          .withKV(DrivetrainConstants.PID.SIM_DRIVE_KV.inVoltsPerMetersPerSecond)
+          .withKA(DrivetrainConstants.PID.SIM_DRIVE_KA.inVoltsPerMeterPerSecondPerSecond)
+          .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
+      )
       .withSteerMotorGains(
         Slot0Configs()
           .withKP(DrivetrainConstants.PID.SIM_STEERING_KP.inVoltsPerRadian)
           .withKI(DrivetrainConstants.PID.SIM_STEERING_KI.inVoltsPerRadianSeconds)
           .withKD(DrivetrainConstants.PID.SIM_STEERING_KD.inVoltsPerRadianPerSecond)
           .withKS(0.0)
-          .withKV(DrivetrainConstants.PID.SIM_STEERING_KV.inVoltsPerMeterPerSecond)
+          .withKV(DrivetrainConstants.PID.SIM_STEERING_KV.inVoltsPerRadianPerSecond)
           .withKA(0.0)
           .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
       )
-      .withSteerMotorGearRatio(16.0)
-      .withDriveFrictionVoltage(Units.Volts.of(0.3))
-      .withSteerFrictionVoltage(Units.Volts.of(0.3))
+//      .withDriveFrictionVoltage(Units.Volts.of(0.3))
+//      .withSteerFrictionVoltage(Units.Volts.of(0.3))
 //      .withDriveInertia(Units.KilogramSquareMeters.of(0.01))
-      .withSteerInertia(Units.KilogramSquareMeters.of(0.05))
+//      .withSteerInertia(Units.KilogramSquareMeters.of(0.05))
+      .withSlipCurrent(120.0)
   }
 
   open class TalonFXMotorControllerSim(talonFX: TalonFX) : SimulatedMotorController {

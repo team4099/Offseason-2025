@@ -59,6 +59,7 @@ import java.util.function.Supplier
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersIOSim
 import com.team4099.robot2025.subsystems.vision.camera.CameraIO
+import edu.wpi.first.wpilibj2.command.Commands.runOnce
 
 object RobotContainer {
   private val drivetrain: Drive
@@ -241,26 +242,6 @@ object RobotContainer {
     ControlBoard.forceIdle.whileTrue(superstructure.requestIdleCommand())
     ControlBoard.eject.whileTrue(superstructure.ejectCommand())
 
-    ControlBoard.test.onTrue(
-      DrivePathOTF(
-        drivetrain,
-        { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-        { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-        { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-        { drivetrain.pose.pose2d },
-        VisionConstants.OTF_PATHS[vision.lastTrigVisionUpdate.targetTagID]
-          ?: listOf(
-            Supplier { Pose2d(4.748.meters, 1.56.meters, 27.216.degrees) },
-            Supplier { Pose2d(6.1.meters, 2.996.meters, 87.degrees) },
-            Supplier { Pose2d(6.1.meters, 4.093.meters, 90.degrees) }
-          ),
-        0.0.degrees,
-        PathPlannerHolonomicDriveController.Companion.GoalEndState(
-          0.0.meters.perSecond, 180.degrees
-        )
-      )
-    )
-
     ControlBoard.resetGamePieceNone.whileTrue(superstructure.resetGamepieceCommand(GamePiece.NONE))
     ControlBoard.resetGamePieceCoral.whileTrue(
       superstructure.resetGamepieceCommand(GamePiece.CORAL)
@@ -269,7 +250,7 @@ object RobotContainer {
       superstructure.resetGamepieceCommand(GamePiece.ALGAE)
     )
 
-    ControlBoard.test.whileTrue(ResetGyroYawCommand(drivetrain))
+    ControlBoard.test.whileTrue(runOnce({ resetSimulationField() }))
   }
 
   fun mapTestControls() {}

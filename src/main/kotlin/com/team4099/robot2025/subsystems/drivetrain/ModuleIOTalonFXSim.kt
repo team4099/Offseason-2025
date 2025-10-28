@@ -21,8 +21,8 @@ class ModuleIOTalonFXSim(
       PhoenixUtil.TalonFXMotorControllerWithRemoteCancoderSim(turnTalon, cancoder)
     )
 
-    super.positionTorqueCurrentRequest.withUpdateFreqHz(50.0).withUseTimesync(false)
-    super.positionVoltageRequest.withUpdateFreqHz(50.0).withUseTimesync(false)
+//    super.positionTorqueCurrentRequest.withUpdateFreqHz(50.0).withUseTimesync(false)
+//    super.positionVoltageRequest.withUpdateFreqHz(50.0).withUseTimesync(false)
   }
 
   override fun updateInputs(inputs: ModuleIO.ModuleIOInputs) {

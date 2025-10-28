@@ -37,6 +37,7 @@ import edu.wpi.first.math.numbers.N3
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.BaseUnits.VoltageUnit
 import edu.wpi.first.units.Units
+import edu.wpi.first.units.Units.Volts
 import edu.wpi.first.units.Units.KilogramSquareMeters
 import edu.wpi.first.units.Units.Kilograms
 import edu.wpi.first.units.Units.Meters
@@ -482,10 +483,10 @@ class Drive(
           // modules (aka seperate ratios/constants) on some corners
           *(
             arrayOf(
-              PhoenixUtil.regulateModuleConstantForSimulation(TunerConstants.FrontLeft),
-              PhoenixUtil.regulateModuleConstantForSimulation(TunerConstants.FrontRight),
-              PhoenixUtil.regulateModuleConstantForSimulation(TunerConstants.BackLeft),
-              PhoenixUtil.regulateModuleConstantForSimulation(TunerConstants.BackRight)
+              TunerConstants.FrontLeft,
+              TunerConstants.FrontRight,
+              TunerConstants.BackLeft,
+              TunerConstants.BackRight
             )
               .map {
                 SwerveModuleSimulationConfig(
@@ -493,8 +494,8 @@ class Drive(
                   DCMotor.getKrakenX60(1),
                   it.DriveMotorGearRatio,
                   it.SteerMotorGearRatio,
-                  VoltageUnit.of(it.DriveFrictionVoltage),
-                  VoltageUnit.of(it.SteerFrictionVoltage),
+                  Volts.of(it.DriveFrictionVoltage),
+                  Volts.of(it.SteerFrictionVoltage),
                   Meters.of(it.WheelRadius),
                   KilogramSquareMeters.of(it.SteerInertia),
                   DrivetrainConstants.NITRILE_WHEEL_COF

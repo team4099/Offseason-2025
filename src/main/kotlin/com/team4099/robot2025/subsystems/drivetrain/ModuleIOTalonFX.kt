@@ -41,9 +41,9 @@ abstract class ModuleIOTalonFX(
   protected val turnTalon: TalonFX
   protected val cancoder: CANcoder
 
-  private val voltageRequest = VoltageOut(0.0).withEnableFOC(true)
-  private val positionVoltageRequest = MotionMagicVoltage(0.0).withEnableFOC(true)
-  private val velocityVoltageRequest = VelocityVoltage(0.0).withEnableFOC(true)
+  protected val voltageRequest = VoltageOut(0.0).withEnableFOC(true)
+  protected val positionVoltageRequest = MotionMagicVoltage(0.0).withEnableFOC(true)
+  protected val velocityVoltageRequest = VelocityVoltage(0.0).withEnableFOC(true)
 
   // Torque-current control requests
   protected val torqueCurrentRequest: TorqueCurrentFOC = TorqueCurrentFOC(0.0)

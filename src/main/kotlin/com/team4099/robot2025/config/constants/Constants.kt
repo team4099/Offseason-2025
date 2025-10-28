@@ -25,6 +25,8 @@ object Constants {
     val LOOP_PERIOD_TIME = 20.milli.seconds
     val POWER_DISTRIBUTION_HUB_ID = 1
 
+    const val SIMULATE_VISION = false
+
     enum class GamePiece {
       CORAL,
       ALGAE,
@@ -54,7 +56,7 @@ object Constants {
 
     val HIGH_ALGAE_REEF_TAGS = intArrayOf(7, 9, 11, 18, 20, 22)
 
-    val ROBOT_WEIGHT = 135.pounds
+    val ROBOT_WEIGHT = 130.pounds
     val ROBOT_MOI = 6.76.kilo.grams.meterSquared
   }
 

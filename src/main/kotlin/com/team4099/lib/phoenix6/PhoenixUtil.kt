@@ -11,7 +11,9 @@ package com.team4099.lib.phoenix6
 
 import com.ctre.phoenix6.BaseStatusSignal
 import com.ctre.phoenix6.StatusCode
+import com.ctre.phoenix6.configs.CANcoderConfiguration
 import com.ctre.phoenix6.configs.Slot0Configs
+import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.hardware.CANcoder
 import com.ctre.phoenix6.hardware.TalonFX
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue
@@ -37,6 +39,10 @@ import org.team4099.lib.units.derived.inVoltsPerRadian
 import org.team4099.lib.units.derived.inVoltsPerRadianPerSecond
 import org.team4099.lib.units.derived.inVoltsPerRadianSeconds
 import java.util.function.Supplier
+import org.team4099.lib.units.derived.inVoltsPerDegree
+import org.team4099.lib.units.derived.inVoltsPerDegreePerSecond
+import org.team4099.lib.units.derived.inVoltsPerDegreeSeconds
+import org.team4099.lib.units.derived.inVoltsPerMeterPerSecond
 
 object PhoenixUtil {
   /** Attempts to run the command until no error is produced. */
@@ -108,8 +114,8 @@ object PhoenixUtil {
    * used on real robot hardware.</h4>
    */
   fun regulateModuleConstantForSimulation(
-    moduleConstants: SwerveModuleConstants<*, *, *>
-  ): SwerveModuleConstants<*, *, *> {
+    moduleConstants: SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>
+  ): SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?> {
     // Skip regulation if running on a real robot
     if (RobotBase.isReal()) return moduleConstants
 
@@ -119,30 +125,31 @@ object PhoenixUtil {
       .withDriveMotorInverted(false)
       .withSteerMotorInverted(false) // Disable CanCoder inversion
       .withEncoderInverted(false) // Adjust steer motor PID gains for simulation
-      .withDriveMotorGains(
-        Slot0Configs()
-          .withKP(DrivetrainConstants.PID.SIM_DRIVE_KP.inVoltsPerMetersPerSecond)
-          .withKI(DrivetrainConstants.PID.SIM_DRIVE_KI.inVoltsPerMeters)
-          .withKD(DrivetrainConstants.PID.SIM_DRIVE_KD.inVoltsPerMetersPerSecondPerSecond)
-          .withKS(DrivetrainConstants.PID.SIM_DRIVE_KS.inVolts)
-          .withKV(DrivetrainConstants.PID.SIM_DRIVE_KV.inVoltsPerMetersPerSecond)
-          .withKA(DrivetrainConstants.PID.SIM_DRIVE_KA.inVoltsPerMeterPerSecondPerSecond)
-          .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
-      )
+//      .withDriveMotorGains(
+//        Slot0Configs()
+//          .withKP(DrivetrainConstants.PID.SIM_DRIVE_KP.inVoltsPerMetersPerSecond)
+//          .withKI(DrivetrainConstants.PID.SIM_DRIVE_KI.inVoltsPerMeters)
+//          .withKD(DrivetrainConstants.PID.SIM_DRIVE_KD.inVoltsPerMetersPerSecondPerSecond)
+////          .withKS(DrivetrainConstants.PID.SIM_DRIVE_KS.inVolts)
+////          .withKV(DrivetrainConstants.PID.SIM_DRIVE_KV.inVoltsPerMetersPerSecond)
+////          .withKA(DrivetrainConstants.PID.SIM_DRIVE_KA.inVoltsPerMeterPerSecondPerSecond)
+//          .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
+//      )
       .withSteerMotorGains(
         Slot0Configs()
           .withKP(DrivetrainConstants.PID.SIM_STEERING_KP.inVoltsPerRadian)
           .withKI(DrivetrainConstants.PID.SIM_STEERING_KI.inVoltsPerRadianSeconds)
           .withKD(DrivetrainConstants.PID.SIM_STEERING_KD.inVoltsPerRadianPerSecond)
           .withKS(0.0)
-          .withKV(0.0)
+          .withKV(DrivetrainConstants.PID.SIM_STEERING_KV.inVoltsPerMeterPerSecond)
           .withKA(0.0)
           .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
       )
-      .withDriveFrictionVoltage(Units.Volts.of(0.1))
-      .withSteerFrictionVoltage(Units.Volts.of(0.05))
-      .withDriveInertia(Units.KilogramSquareMeters.of(0.01))
-      .withSteerInertia(Units.KilogramSquareMeters.of(0.1))
+      .withSteerMotorGearRatio(16.0)
+      .withDriveFrictionVoltage(Units.Volts.of(0.3))
+      .withSteerFrictionVoltage(Units.Volts.of(0.3))
+//      .withDriveInertia(Units.KilogramSquareMeters.of(0.01))
+      .withSteerInertia(Units.KilogramSquareMeters.of(0.05))
   }
 
   open class TalonFXMotorControllerSim(talonFX: TalonFX) : SimulatedMotorController {

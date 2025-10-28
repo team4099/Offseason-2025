@@ -58,6 +58,7 @@ import org.team4099.lib.units.perSecond
 import java.util.function.Supplier
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersIOSim
+import com.team4099.robot2025.subsystems.vision.camera.CameraIO
 
 object RobotContainer {
   private val drivetrain: Drive
@@ -137,22 +138,25 @@ object RobotContainer {
       indexer = Indexer(IndexerIOSim)
       canrange = CANRange(object : CANRangeIO {})
 
-      vision =
-        Vision(
-          CameraIOPVSim(
-            VisionConstants.CAMERA_NAMES[0],
-            VisionConstants.CAMERA_TRANSFORMS[0],
-            drivetrain::addVisionMeasurement,
-            { drivetrain.rotation }
-          ),
-          CameraIOPVSim(
-            VisionConstants.CAMERA_NAMES[1],
-            VisionConstants.CAMERA_TRANSFORMS[1],
-            drivetrain::addVisionMeasurement,
-            { drivetrain.rotation }
-          ),
-          poseSupplier = { drivetrain.pose.pose2d }
-        )
+      if (Constants.Universal.SIMULATE_VISION)
+        vision =
+          Vision(
+            CameraIOPVSim(
+              VisionConstants.CAMERA_NAMES[0],
+              VisionConstants.CAMERA_TRANSFORMS[0],
+              drivetrain::addVisionMeasurement,
+              { drivetrain.rotation }
+            ),
+            CameraIOPVSim(
+              VisionConstants.CAMERA_NAMES[1],
+              VisionConstants.CAMERA_TRANSFORMS[1],
+              drivetrain::addVisionMeasurement,
+              { drivetrain.rotation }
+            ),
+            poseSupplier = { drivetrain.pose.pose2d }
+          )
+      else
+        vision = Vision(poseSupplier = { Pose2d().pose2d })
 
       led =
         Led(
@@ -289,11 +293,7 @@ object RobotContainer {
 
     SimulatedArena.getInstance().simulationPeriodic()
     Logger.recordOutput("FieldSimulation/RobotPosition", driveSimulation!!.simulatedDriveTrainPose)
-    SimulatedArena.getInstance().getGamePiecesArrayByType("Coral").mapIndexed { index, value ->
-      Logger.recordOutput("FieldSimulation/Coral/$index", value)
-    }
-    SimulatedArena.getInstance().getGamePiecesArrayByType("Algae").mapIndexed { index, value ->
-      Logger.recordOutput("FieldSimulation/Algae/$index", value)
-    }
+    Logger.recordOutput("FieldSimulation/Coral", *SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"))
+    Logger.recordOutput("FieldSimulation/Algae", *SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"))
   }
 }

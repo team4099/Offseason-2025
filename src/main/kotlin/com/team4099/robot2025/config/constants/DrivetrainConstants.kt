@@ -28,6 +28,9 @@ import org.team4099.lib.units.inMetersPerSecond
 import org.team4099.lib.units.kilo
 import org.team4099.lib.units.perSecond
 import kotlin.math.sqrt
+import org.team4099.lib.units.derived.perRadian
+import org.team4099.lib.units.derived.perRadianPerSecond
+import org.team4099.lib.units.derived.perRadianSeconds
 
 object DrivetrainConstants {
   const val FOC_ENABLED = true
@@ -205,12 +208,13 @@ object DrivetrainConstants {
     val SIM_DRIVE_KV = 0.0.volts / 1.0.meters.perSecond
     val SIM_DRIVE_KA = 0.0.volts / 1.0.meters.perSecond.perSecond
 
-    val SIM_DRIVE_KP = 20.volts / 1.meters.perSecond
+    val SIM_DRIVE_KP = 10.volts / 1.meters.perSecond
     val SIM_DRIVE_KI = 0.0.volts / (1.meters.perSecond * 1.seconds)
-    val SIM_DRIVE_KD = 0.0.volts / 1.meters.perSecond.perSecond
+    val SIM_DRIVE_KD = 2.5.volts / 1.meters.perSecond.perSecond
 
-    val SIM_STEERING_KP = 0.3.volts.perDegree
-    val SIM_STEERING_KI = 0.0.volts.perDegreeSeconds
-    val SIM_STEERING_KD = 0.0.volts.perDegreePerSecond
+    val SIM_STEERING_KP = 70.volts.perRadian
+    val SIM_STEERING_KI = 0.0.volts.perRadianSeconds
+    val SIM_STEERING_KD = 4.5.volts.perRadianPerSecond
+    val SIM_STEERING_KV = 1.91.volts / 1.0.meters.perSecond
   }
 }

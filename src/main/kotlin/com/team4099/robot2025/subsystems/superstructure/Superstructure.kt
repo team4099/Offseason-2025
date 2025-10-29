@@ -56,6 +56,8 @@ import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.AbstractDriveTrainSimulation
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeAlgaeOnField
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly
+import org.team4099.lib.geometry.Pose2d
+import org.team4099.lib.geometry.Transform3d
 import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.derived.cos
 import org.team4099.lib.units.derived.radians
@@ -121,6 +123,7 @@ class Superstructure(
   var isAtRequestedState: Boolean = false
 
   private var lastTransitionTime = Clock.fpgaTime
+  private var lastSimProjectileShootTime = Clock.fpgaTime
 
   init {
     SmartDashboard.putData("Field", field)
@@ -216,12 +219,12 @@ class Superstructure(
       Logger.recordOutput(
         "SimulatedMechanisms/2",
         Pose3d(
-          Translation3d((-11.75).inches, 0.0.inches, 12.5747.inches),
+          Translation3d(11.75.inches, 0.0.inches, 12.5747.inches),
           Rotation3d(
             0.0.degrees,
-            /*IntakeConstants.ANGLES.INTAKE_ANGLE - */intake.inputs.pivotPosition,
+            -intake.inputs.pivotPosition,
             0.0.degrees
-          ) // model starts in intaking position
+          )
         )
           .pose3d
       )
@@ -231,12 +234,12 @@ class Superstructure(
         Pose3d(
           Translation3d(
             0.0.inches,
-            -5.0.inches,
+            5.0.inches,
             elevator.inputs.elevatorPosition + ElevatorConstants.CARRIAGE_TO_BOTTOM_SIM
           ),
           Rotation3d(
             0.0.degrees,
-            arm.inputs.armPosition + 90.degrees,
+            -(arm.inputs.armPosition + 90.degrees),
             0.0.degrees
           )
         )
@@ -268,17 +271,20 @@ class Superstructure(
       Logger.recordOutput(
         "RobotSimulation/Coral",
         if (theoreticalGamePieceArm == GamePiece.CORAL)
-          Pose3d(
-            Translation3d(
-              driveSimulation!!.simulatedDriveTrainPose.x.meters - ArmConstants.ARM_LENGTH * arm.inputs.armPosition.cos,
-              driveSimulation!!.simulatedDriveTrainPose.y.meters,
-              elevator.inputs.elevatorPosition + ElevatorConstants.CARRIAGE_TO_BOTTOM_SIM + ArmConstants.ARM_LENGTH * arm.inputs.armPosition.sin
-            ),
-            Rotation3d(
-              0.radians,
-              90.degrees - arm.inputs.armPosition.absoluteValue,
-              driveSimulation.simulatedDriveTrainPose.rotation.radians.radians
-            )
+          Pose3d(Pose2d(driveSimulation!!.simulatedDriveTrainPose))
+            .transformBy(
+              Transform3d(
+                Translation3d(
+                  ArmConstants.ARM_LENGTH * arm.inputs.armPosition.cos,
+                  0.meters,
+                  elevator.inputs.elevatorPosition + ElevatorConstants.CARRIAGE_TO_BOTTOM_SIM + ArmConstants.ARM_LENGTH * arm.inputs.armPosition.sin
+                ),
+                Rotation3d(
+                  0.radians,
+                  arm.inputs.armPosition.absoluteValue - 90.degrees,
+                  0.radians
+                )
+              )
           ).pose3d
         else Pose3d().pose3d
       )
@@ -711,18 +717,19 @@ class Superstructure(
                 } - ArmTunableValues.Angles.scoreOffset.get()
               )
 
-            if (RobotBase.isSimulation()) {
+            if (RobotBase.isSimulation() && lastSimProjectileShootTime < lastTransitionTime) {
+              lastSimProjectileShootTime = Clock.fpgaTime
               SimulatedArena.getInstance().addGamePieceProjectile(ReefscapeCoralOnFly(
                 driveSimulation!!.simulatedDriveTrainPose.translation,
                 Translation2d(
                   ArmConstants.ARM_LENGTH.inMeters * arm.inputs.armPosition.cos,
-                  12.188297.inches.inMeters + elevator.inputs.elevatorPosition.inMeters
+                  0.0
                 ),
                 driveSimulation!!.driveTrainSimulatedChassisSpeedsFieldRelative,
                 driveSimulation!!.simulatedDriveTrainPose.rotation,
-                Meters.of(elevator.inputs.elevatorPosition.inMeters + ArmConstants.ARM_LENGTH.inMeters * arm.inputs.armPosition.sin),
+                Meters.of(elevator.inputs.elevatorPosition.inMeters + ElevatorConstants.CARRIAGE_TO_BOTTOM_SIM.inMeters + ArmConstants.ARM_LENGTH.inMeters * arm.inputs.armPosition.sin),
                 MetersPerSecond.of(2.0),
-                Degrees.of(360.0 - arm.inputs.armPosition.absoluteValue.inDegrees)
+                Degrees.of(arm.inputs.armPosition.absoluteValue.inDegrees)
               ))
             }
 

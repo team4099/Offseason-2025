@@ -76,7 +76,7 @@ class IntakeIOSim(drivetrainSimulation: AbstractDriveTrainSimulation) : IntakeIO
     drivetrainSimulation,
     Meters.of(DrivetrainConstants.DRIVETRAIN_WIDTH.inMeters),
     Meters.of(IntakeConstants.LENGTH_EXTENDED.inMeters),
-    IntakeSimulation.IntakeSide.BACK,
+    IntakeSimulation.IntakeSide.FRONT,
     1
   )
 

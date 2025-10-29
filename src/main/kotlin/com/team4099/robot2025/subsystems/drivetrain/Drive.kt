@@ -457,11 +457,11 @@ class Drive(
       DriveTrainSimulationConfig.Default()
         .withBumperSize(
           Meters.of(
-            (DrivetrainConstants.DRIVETRAIN_LENGTH + DrivetrainConstants.BUMPER_WIDTH)
+            (DrivetrainConstants.DRIVETRAIN_LENGTH + DrivetrainConstants.BUMPER_WIDTH * 2)
               .inMeters
           ),
           Meters.of(
-            (DrivetrainConstants.DRIVETRAIN_WIDTH + DrivetrainConstants.BUMPER_WIDTH)
+            (DrivetrainConstants.DRIVETRAIN_WIDTH + DrivetrainConstants.BUMPER_WIDTH * 2)
               .inMeters
           )
         )

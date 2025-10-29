@@ -17,12 +17,12 @@ object ArmConstants {
   val ENCODER_ANGLE_OFFSET = 0.187.rotations
 
   val ARM_TOLERANCE = 2.5.degrees
-  val ARM_LENGTH = 26.1362839.inches
+  val ARM_LENGTH = 20.inches
   val ARM_MOMENT_OF_INERTIA = 0.00503098.kilo.grams.meterSquared
   val ARM_MASS = 4.5796764.pounds
 
-  val MIN_ROTATION = -90.degrees
-  val MAX_ROTATION = -270.0.degrees
+  val MIN_ROTATION = -325.degrees
+  val MAX_ROTATION = 45.degrees
 
   val GEAR_RATIO = (14.0 / 62.0) * (26.0 / 54.0) * (12.0 / 66.0)
   val ENCODER_TO_MECHANISM_GEAR_RATIO = 1.0

@@ -43,7 +43,7 @@ object ArmIOSIm : ArmIO {
       ArmConstants.ARM_LENGTH.inMeters,
       ArmConstants.MIN_ROTATION.inRadians,
       ArmConstants.MAX_ROTATION.inRadians,
-      true,
+      false,
       ArmConstants.MIN_ROTATION.inRadians
     )
 
@@ -62,7 +62,7 @@ object ArmIOSIm : ArmIO {
 
   private var armFeedforward =
     ArmFeedforward(
-      ArmConstants.PID.KS, ArmConstants.PID.KG, ArmConstants.PID.KV, ArmConstants.PID.KA
+      ArmConstants.PID.KS, kG = 0.0.volts, ArmConstants.PID.KV, ArmConstants.PID.KA
     )
 
   private var appliedVoltage = 0.0.volts

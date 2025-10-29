@@ -54,9 +54,11 @@ import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.Units.MetersPerSecond
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.AbstractDriveTrainSimulation
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeAlgaeOnField
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly
 import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.derived.cos
+import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.derived.sin
 
 class Superstructure(
@@ -202,7 +204,7 @@ class Superstructure(
           .pose3d
       )
 
-      CustomLogger.recordDebugOutput(
+      Logger.recordOutput(
         "SimulatedMechanisms/1",
         Pose3d(
           Translation3d(0.0.inches, 0.0.inches, elevator.inputs.elevatorPosition),
@@ -211,55 +213,74 @@ class Superstructure(
           .pose3d
       )
 
-      CustomLogger.recordDebugOutput(
+      Logger.recordOutput(
         "SimulatedMechanisms/2",
         Pose3d(
           Translation3d((-11.75).inches, 0.0.inches, 12.5747.inches),
           Rotation3d(
             0.0.degrees,
-            IntakeConstants.ANGLES.INTAKE_ANGLE - intake.inputs.pivotPosition,
+            /*IntakeConstants.ANGLES.INTAKE_ANGLE - */intake.inputs.pivotPosition,
             0.0.degrees
           ) // model starts in intaking position
         )
           .pose3d
       )
 
-      CustomLogger.recordDebugOutput(
+      Logger.recordOutput(
         "SimulatedMechanisms/3",
         Pose3d(
           Translation3d(
             0.0.inches,
-            0.0.inches,
+            -5.0.inches,
             elevator.inputs.elevatorPosition + ElevatorConstants.CARRIAGE_TO_BOTTOM_SIM
           ),
           Rotation3d(
             0.0.degrees,
-            ArmConstants.ANGLES.SIM_MECH_OFFSET - arm.inputs.armPosition,
+            arm.inputs.armPosition + 90.degrees,
             0.0.degrees
           )
         )
           .pose3d
       )
 
-      CustomLogger.recordDebugOutput(
-        "SimulatedMechanisms/4",
-        Pose3d(
-          Translation3d(0.008.meters, 0.35.meters, 0.373.meters),
-          Rotation3d(
-            -(
-              -ClimberConstants.SIM_CLIMBED_ANGLE.inDegrees *
-                abs(
-                  climber.inputs.climberPosition.inDegrees -
-                    ClimberConstants.FULLY_EXTENDED_ANGLE.inDegrees
-                ) /
-                ClimberConstants.FULLY_EXTENDED_ANGLE.inDegrees
-              )
-              .degrees, // ratchet to mechanism math
-            0.0.degrees,
-            0.0.degrees
-          )
-        )
-          .pose3d
+      // note: no climb?
+//      Logger.recordOutput(
+//        "SimulatedMechanisms/4",
+//        Pose3d(
+//          Translation3d(0.008.meters, 0.35.meters, 0.373.meters),
+//          Rotation3d(
+//            -(
+//              -ClimberConstants.SIM_CLIMBED_ANGLE.inDegrees *
+//                abs(
+//                  climber.inputs.climberPosition.inDegrees -
+//                    ClimberConstants.FULLY_EXTENDED_ANGLE.inDegrees
+//                ) /
+//                ClimberConstants.FULLY_EXTENDED_ANGLE.inDegrees
+//              )
+//              .degrees, // ratchet to mechanism math
+//            0.0.degrees,
+//            0.0.degrees
+//          )
+//        )
+//          .pose3d
+//      )
+
+      Logger.recordOutput(
+        "RobotSimulation/Coral",
+        if (theoreticalGamePieceArm == GamePiece.CORAL)
+          Pose3d(
+            Translation3d(
+              driveSimulation!!.simulatedDriveTrainPose.x.meters - ArmConstants.ARM_LENGTH * arm.inputs.armPosition.cos,
+              driveSimulation!!.simulatedDriveTrainPose.y.meters,
+              elevator.inputs.elevatorPosition + ElevatorConstants.CARRIAGE_TO_BOTTOM_SIM + ArmConstants.ARM_LENGTH * arm.inputs.armPosition.sin
+            ),
+            Rotation3d(
+              0.radians,
+              90.degrees - arm.inputs.armPosition.absoluteValue,
+              driveSimulation.simulatedDriveTrainPose.rotation.radians.radians
+            )
+          ).pose3d
+        else Pose3d().pose3d
       )
     }
 

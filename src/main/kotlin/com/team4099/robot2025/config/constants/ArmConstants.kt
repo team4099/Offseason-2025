@@ -18,6 +18,7 @@ object ArmConstants {
 
   val ARM_TOLERANCE = 2.5.degrees
   val ARM_LENGTH = 20.inches
+  val ARM_LENGTH_TO_ALGAE_CENTER = 18.inches + 16.inches / 2.0
   val ARM_MOMENT_OF_INERTIA = 0.00503098.kilo.grams.meterSquared
   val ARM_MASS = 4.5796764.pounds
 
@@ -31,6 +32,9 @@ object ArmConstants {
 
   val MAX_VELOCITY = 300.0
   val MAX_ACCELERATION = 250.0
+
+  val SIM_INTAKE_WIDTH = 6.5.inches
+  val SIM_INTAKE_HALFHEIGHT = 4.inches
 
   val TIME_TO_GOAL = 0.5.seconds
 

@@ -7,6 +7,9 @@ import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.wpilibj.simulation.BatterySim
 import edu.wpi.first.wpilibj.simulation.RoboRioSim
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim
+import org.dyn4j.geometry.HalfEllipse
+import org.ironmaple.simulation.IntakeSimulation
+import org.ironmaple.simulation.drivesims.AbstractDriveTrainSimulation
 import org.team4099.lib.controller.ArmFeedforward
 import org.team4099.lib.controller.ProfiledPIDController
 import org.team4099.lib.controller.TrapezoidProfile
@@ -32,7 +35,7 @@ import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.perSecond
 
-object ArmIOSIm : ArmIO {
+class ArmIOSim(drivetrainSimulation: AbstractDriveTrainSimulation) : ArmIO {
   val armSim =
     SingleJointedArmSim(
       DCMotor.getKrakenX60Foc(1),
@@ -66,6 +69,23 @@ object ArmIOSIm : ArmIO {
     )
 
   private var appliedVoltage = 0.0.volts
+
+  private val intakeShape = HalfEllipse(ArmConstants.SIM_INTAKE_WIDTH.inMeters, ArmConstants.SIM_INTAKE_HALFHEIGHT.inMeters)
+
+  override val intakeSimulation: IntakeSimulation
+
+  init {
+    intakeShape.translate(ArmConstants.ARM_LENGTH.inMeters, 0.0)
+
+     intakeSimulation = IntakeSimulation(
+      "Algae",
+      drivetrainSimulation,
+      intakeShape,
+      1
+    )
+  }
+
+
 
   override fun updateInputs(inputs: ArmIO.ArmIOInputs) {
     armSim.update(Constants.Universal.LOOP_PERIOD_TIME.inSeconds)

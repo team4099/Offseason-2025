@@ -39,7 +39,6 @@ import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inDegrees
 import org.team4099.lib.units.derived.volts
-import kotlin.math.abs
 import kotlin.math.max
 import com.team4099.robot2025.config.constants.Constants.Universal.AlgaeIntakeLevel as AlgaeIntakeLevel
 import com.team4099.robot2025.config.constants.Constants.Universal.AlgaeScoringLevel as AlgaeScoringLevel
@@ -54,7 +53,6 @@ import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.Units.MetersPerSecond
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.AbstractDriveTrainSimulation
-import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeAlgaeOnField
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly
 import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.geometry.Transform3d
@@ -84,7 +82,7 @@ class Superstructure(
   var theoreticalGamePieceArm: GamePiece = GamePiece.CORAL // preload !!
   val theoreticalGamePieceHardstop: GamePiece
     get() =
-      if (canrange.inputs.isDetected || (RobotBase.isSimulation() && (overrideFlagForSim || intake.intakeSimulation?.gamePiecesAmount == 1)))
+      if (canrange.inputs.isDetected || (RobotBase.isSimulation() && (overrideFlagForSim || intake.gintakeSimulation?.gamePiecesAmount == 1)))
         GamePiece.CORAL
       else GamePiece.NONE
 
@@ -288,6 +286,27 @@ class Superstructure(
           ).pose3d
         else Pose3d().pose3d
       )
+
+      Logger.recordOutput(
+        "RobotSimulation/Algae",
+        if (theoreticalGamePieceArm == GamePiece.ALGAE)
+          Pose3d(Pose2d(driveSimulation!!.simulatedDriveTrainPose))
+            .transformBy(
+              Transform3d(
+                Translation3d(
+                  ArmConstants.ARM_LENGTH_TO_ALGAE_CENTER * arm.inputs.armPosition.cos,
+                  0.meters,
+                  elevator.inputs.elevatorPosition + ElevatorConstants.CARRIAGE_TO_BOTTOM_SIM + ArmConstants.ARM_LENGTH_TO_ALGAE_CENTER * arm.inputs.armPosition.sin
+                ),
+                Rotation3d(
+                  0.radians,
+                  arm.inputs.armPosition.absoluteValue - 90.degrees,
+                  0.radians
+                )
+              )
+            ).pose3d
+        else Pose3d().pose3d
+      )
     }
 
     CustomLogger.recordOutput("Superstructure/currentRequest", currentRequest.javaClass.simpleName)
@@ -447,6 +466,8 @@ class Superstructure(
           }
         }
 
+        if (RobotBase.isSimulation()) intake.gintakeSimulation!!.startIntake()
+
         if (currentRequest is SuperstructureRequest.Eject) {
           nextState = SuperstructureStates.EJECT
         } else if (theoreticalGamePieceHardstop == GamePiece.CORAL ||
@@ -463,6 +484,8 @@ class Superstructure(
             IntakeTunableValues.idlePosition.get(), IntakeConstants.Rollers.IDLE_VOLTAGE
           )
         indexer.currentRequest = Request.IndexerRequest.Idle()
+
+        if (RobotBase.isSimulation()) intake.gintakeSimulation!!.stopIntake()
 
         if (intake.isAtTargetedPosition) {
           nextState =
@@ -506,7 +529,7 @@ class Superstructure(
         } else if (currentRequest is SuperstructureRequest.Idle ||
           arm.isAtTargetedPosition && theoreticalGamePieceArm == GamePiece.CORAL
         ) {
-          intake.intakeSimulation?.setGamePiecesCount(0)
+          intake.gintakeSimulation?.setGamePiecesCount(0)
           currentRequest = SuperstructureRequest.Idle()
           nextState = SuperstructureStates.IDLE
         }
@@ -564,11 +587,13 @@ class Superstructure(
           }
         }
 
+        if (RobotBase.isSimulation())
+
         if (RobotBase.isReal() &&
           armRollers.hasAlgae &&
           Clock.fpgaTime - armRollers.lastAlgaeTriggerTime >
           ArmRollersConstants.ALGAE_DETECTION_THRESHOLD ||
-          RobotBase.isSimulation() && overrideFlagForSim
+          RobotBase.isSimulation() && (overrideFlagForSim || arm.algaeIntakeSimulation?.gamePiecesAmount == 1)
         ) {
           theoreticalGamePieceArm = GamePiece.ALGAE
         }
@@ -828,6 +853,7 @@ class Superstructure(
         }
       }
       SuperstructureStates.CLEANUP_SCORE_ALGAE -> {
+        if (RobotBase.isSimulation()) arm.algaeIntakeSimulation?.setGamePiecesCount(0)
         nextState = SuperstructureStates.IDLE
       }
       SuperstructureStates.EJECT -> {

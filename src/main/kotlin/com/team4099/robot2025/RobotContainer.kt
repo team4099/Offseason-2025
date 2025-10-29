@@ -3,7 +3,6 @@ package com.team4099.robot2025
 import com.ctre.phoenix6.signals.NeutralModeValue
 import com.team4099.robot2025.auto.AutonomousSelector
 import com.team4099.robot2025.commands.drivetrain.CoolerTargetTagCommand
-import com.team4099.robot2025.commands.drivetrain.DrivePathOTF
 import com.team4099.robot2025.commands.drivetrain.ResetGyroYawCommand
 import com.team4099.robot2025.commands.drivetrain.TeleopDriveCommand
 import com.team4099.robot2025.config.ControlBoard
@@ -11,7 +10,7 @@ import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.Constants.Universal.GamePiece
 import com.team4099.robot2025.config.constants.VisionConstants
 import com.team4099.robot2025.subsystems.Arm.Arm
-import com.team4099.robot2025.subsystems.Arm.ArmIOSIm
+import com.team4099.robot2025.subsystems.Arm.ArmIOSim
 import com.team4099.robot2025.subsystems.Arm.ArmIOTalon
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOTalon
 import com.team4099.robot2025.subsystems.canRange.CANRange
@@ -48,17 +47,13 @@ import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
 import org.littletonrobotics.junction.Logger
 import org.team4099.lib.geometry.Pose2d
-import org.team4099.lib.pplib.PathPlannerHolonomicDriveController
 import org.team4099.lib.smoothDeadband
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.meters
-import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.radians
-import org.team4099.lib.units.perSecond
 import java.util.function.Supplier
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersIOSim
-import com.team4099.robot2025.subsystems.vision.camera.CameraIO
 import edu.wpi.first.wpilibj2.command.Commands.runOnce
 
 object RobotContainer {
@@ -132,7 +127,7 @@ object RobotContainer {
           driveSimulation!!::setSimulationWorldPose
         )
       elevator = Elevator(ElevatorIOSim)
-      arm = Arm(ArmIOSIm)
+      arm = Arm(ArmIOSim(driveSimulation!!))
       armRollers = ArmRollers(ArmRollersIOSim)
       climber = Climber(ClimberIOSim)
       intake = Intake(IntakeIOSim(driveSimulation!!))

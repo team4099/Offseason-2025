@@ -48,7 +48,7 @@ class Intake(private val io: IntakeIO) : SubsystemBase() {
           IntakeConstants.INTAKE_TOLERANCE
         )
 
-  val intakeSimulation: IntakeSimulation?
+  val gintakeSimulation: IntakeSimulation?
     get() = io.intakeSimulation
 
   override fun periodic() {
@@ -65,7 +65,7 @@ class Intake(private val io: IntakeIO) : SubsystemBase() {
     CustomLogger.recordOutput("Intake/isAtTargetedPosition", isAtTargetedPosition)
 
     if (RobotBase.isSimulation()) {
-      CustomLogger.recordOutput("Intake/intakeSimulationGamePieceNumber", intakeSimulation!!.gamePiecesAmount)
+      CustomLogger.recordOutput("Intake/intakeSimulationGamePieceNumber", gintakeSimulation!!.gamePiecesAmount)
     }
 
     when (currentState) {
@@ -95,9 +95,6 @@ class Intake(private val io: IntakeIO) : SubsystemBase() {
             )
         )
           io.setRollerVoltage(rollerVoltageTarget)
-
-        if (pivotPositionTarget == IntakeConstants.ANGLES.INTAKE_ANGLE) io.intakeSimulation?.startIntake()
-        else intakeSimulation?.stopIntake()
 
         nextState = fromRequestToState(currentRequest)
       }

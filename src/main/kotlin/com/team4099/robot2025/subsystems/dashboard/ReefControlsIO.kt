@@ -4,13 +4,17 @@ import org.littletonrobotics.junction.AutoLog
 interface ReefControlsIO {
   @AutoLog
   class ReefControlsIOInputs {
-    var coralState: BooleanArray = booleanArrayOf() // Bitfield
-    var algaeState: BooleanArray= booleanArrayOf() // Bitfield
+    var coralState: BooleanArray = booleanArrayOf()
+    var algaeState: BooleanArray= booleanArrayOf()
+    var priorities: Array<String> = arrayOf()
   }
 
   fun updateInputs(inputs: ReefControlsIOInputs) {}
 
-  fun setCoralState(value: Boolean) {}
+  fun setCoralState(value: BooleanArray) {}
 
-  fun setAlgaeState(value: Boolean) {}
+  fun setAlgaeState(value: BooleanArray) {}
+
+  fun setPriorities(value: Array<String>) {}
+
 }

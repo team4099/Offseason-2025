@@ -66,6 +66,8 @@ class Superstructure(
 
   private var overrideFlagForSim = false
 
+  var lastBranchAlignment = null;
+
   var theoreticalGamePieceArm: GamePiece = GamePiece.CORAL // preload !!
   val theoreticalGamePieceHardstop: GamePiece
     get() =

@@ -18,7 +18,7 @@ const toRobotPrefix = "/ReefControls/ToRobot/";
 const toDashboardPrefix = "/ReefControls/ToDashboard/";
 const coralTopicName = "Coral";
 const algaeTopicName = "Algae";
-const
+const prioritiesTopicName = "Priorities"
 
 const ntClient = new NT4_Client(
     window.location.hostname,
@@ -35,7 +35,10 @@ const ntClient = new NT4_Client(
             coralStates = value;
         } else if (topic.name === toDashboardPrefix + algaeTopicName) {
             algaeStates = value;
-        } else {
+        } else if (topic.name === toDashboardPrefix + prioritiesTopicName) {
+            priorities = value;
+        }
+        else {
             return;
         }
     },
@@ -62,6 +65,7 @@ window.addEventListener("load", () => {
 
     ntClient.publishTopic(toRobotPrefix + coralTopicName, "boolean[]");
     ntClient.publishTopic(toRobotPrefix + algaeTopicName, "int");
+    ntClient.publishTopic(toRobotPrefix + prioritiesTopicName, "string[]");
     ntClient.connect();
 
     initializeDraggableList();
@@ -70,6 +74,7 @@ window.addEventListener("load", () => {
 
 let coralStates = Array.from(document.querySelectorAll(".branch")).map(coral => coral.classList.contains("active"));
 let algaeStates = Array.from(document.querySelectorAll(".algae")).map(algae => algae.classList.contains("active"));
+let priorities = getListOrder();
 
 ntClient.addSample(toRobotPrefix + coralTopicName, coralStates);
 ntClient.addSample(toRobotPrefix + algaeTopicName, algaeStates);

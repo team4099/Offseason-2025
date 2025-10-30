@@ -31,6 +31,10 @@ object Constants {
       NONE
     }
 
+    enum class ReefFaces{
+
+    }
+
     enum class CoralLevel {
       NONE,
       L1,

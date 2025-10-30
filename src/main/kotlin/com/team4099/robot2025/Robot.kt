@@ -160,6 +160,8 @@ object Robot : LoggedRobot() {
         .entry
 
     FollowPathCommand.warmupCommand().schedule()
+
+    Logger.recordOutput("RobotSimulation/simulateVision", Constants.Universal.SIMULATE_VISION)
   }
 
   override fun autonomousInit() {

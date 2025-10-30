@@ -56,7 +56,7 @@ object Constants {
 
     val HIGH_ALGAE_REEF_TAGS = intArrayOf(7, 9, 11, 18, 20, 22)
 
-    val ROBOT_WEIGHT = 130.pounds
+    val ROBOT_WEIGHT = 135.pounds
     val ROBOT_MOI = 6.76.kilo.grams.meterSquared
   }
 

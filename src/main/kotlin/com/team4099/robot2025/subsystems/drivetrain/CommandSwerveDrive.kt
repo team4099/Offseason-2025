@@ -141,7 +141,10 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
   constructor(
     drivetrainConstants: SwerveDrivetrainConstants,
     vararg modules: SwerveModuleConstants<*, *, *>?
-  ) : super(drivetrainConstants, *MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules)) {
+  ) : super(
+    drivetrainConstants,
+    *MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules)
+  ) {
     if (Utils.isSimulation()) {
       startSimThread()
     }
@@ -163,10 +166,14 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
     odometryUpdateFrequency: Double,
     vararg modules: SwerveModuleConstants<*, *, *>?
 
-      // Note(Aryan): Replaced *modules parameter in super call with spread outputted by
-      // MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules)
-      // Change back if having problems with constants or smth similar
-  ) : super(drivetrainConstants, odometryUpdateFrequency, *MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules)) {
+    // Note(Aryan): Replaced *modules parameter in super call with spread outputted by
+    // MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules)
+    // Change back if having problems with constants or smth similar
+  ) : super(
+    drivetrainConstants,
+    odometryUpdateFrequency,
+    *MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules)
+  ) {
     if (Utils.isSimulation()) {
       startSimThread()
     }
@@ -238,7 +245,8 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
   }
 
   /**
-   * Adds extra logic to the CTRE resetPose method with to sync up simulation and real-world poses in maplesim
+   * Adds extra logic to the CTRE resetPose method with to sync up simulation and real-world poses
+   * in maplesim
    *
    * @param pose Current pose
    */
@@ -261,7 +269,6 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
 
     resettingPose = false
     super.resetPose(pose)
-
   }
 
   override fun periodic() {
@@ -293,22 +300,23 @@ class CommandSwerveDrive : TunerSwerveDrivetrain, Subsystem {
   }
 
   private fun startSimThread() {
-    mapleSimSwerveDrivetrain = MapleSimSwerveDrivetrain(
-      Seconds.of(kSimLoopPeriod),
-      Pounds.of(135.0),
-      Inches.of(DrivetrainConstants.DRIVETRAIN_LENGTH.inInches),
-      Inches.of(DrivetrainConstants.DRIVETRAIN_WIDTH.inInches),
-      DCMotor.getKrakenX60(1), // drive motor type
-      DCMotor.getKrakenX60(1), // steer motor type
-      DrivetrainConstants.NITRILE_WHEEL_COF,
-      moduleLocations,
-      pigeon2,
-      modules,
-      TunerConstants.FrontLeft,
-      TunerConstants.FrontRight,
-      TunerConstants.BackLeft,
-      TunerConstants.BackRight
-    )
+    mapleSimSwerveDrivetrain =
+      MapleSimSwerveDrivetrain(
+        Seconds.of(kSimLoopPeriod),
+        Pounds.of(135.0),
+        Inches.of(DrivetrainConstants.DRIVETRAIN_LENGTH.inInches),
+        Inches.of(DrivetrainConstants.DRIVETRAIN_WIDTH.inInches),
+        DCMotor.getKrakenX60(1), // drive motor type
+        DCMotor.getKrakenX60(1), // steer motor type
+        DrivetrainConstants.NITRILE_WHEEL_COF,
+        moduleLocations,
+        pigeon2,
+        modules,
+        TunerConstants.FrontLeft,
+        TunerConstants.FrontRight,
+        TunerConstants.BackLeft,
+        TunerConstants.BackRight
+      )
 
     /* Run simulation at a faster rate so PID gains behave more reasonably */
     simNotifier = Notifier(mapleSimSwerveDrivetrain!!::update)

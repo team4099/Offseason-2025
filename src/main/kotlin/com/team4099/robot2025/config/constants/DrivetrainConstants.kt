@@ -17,7 +17,6 @@ import org.team4099.lib.units.derived.ProportionalGain
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.meterSquared
 import org.team4099.lib.units.derived.metersPerSecondPerMetersPerSecond
-import org.team4099.lib.units.derived.perDegree
 import org.team4099.lib.units.derived.perDegreePerSecond
 import org.team4099.lib.units.derived.perDegreeSeconds
 import org.team4099.lib.units.derived.perMeterPerSecond
@@ -28,7 +27,6 @@ import org.team4099.lib.units.inMetersPerSecond
 import org.team4099.lib.units.kilo
 import org.team4099.lib.units.perSecond
 import kotlin.math.sqrt
-import org.team4099.lib.units.Value
 
 object DrivetrainConstants {
   const val FOC_ENABLED = true

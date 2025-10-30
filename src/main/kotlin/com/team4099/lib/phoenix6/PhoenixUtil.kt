@@ -6,7 +6,7 @@
 // the root directory of this project.
 // Also taken from AdvantageKit-TalonSwerveTemplate-MapleSim-Enhanced
 // Available at
-// https://github.com/Shenzhen-Robotics-Alliance/AdvantageKit-TalonSwerveTemplate-MapleSim-Enhanced/blob/ce187a9d0ac6341f361703cf2b24c2f41448e400/src/main/java/frc/robot/util/PhoenixUtil.java
+// https://github.com/Shenzhen-Robotics-Alliance/AdvantageKit-TalonSwerveTemplate-MapleSim-Enhanced
 package com.team4099.lib.phoenix6
 
 import com.ctre.phoenix6.BaseStatusSignal
@@ -27,6 +27,7 @@ import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.Timer
+import java.util.function.Supplier
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.motorsims.SimulatedBattery
 import org.ironmaple.simulation.motorsims.SimulatedMotorController
@@ -38,11 +39,6 @@ import org.team4099.lib.units.derived.inVoltsPerMetersPerSecondPerSecond
 import org.team4099.lib.units.derived.inVoltsPerRadian
 import org.team4099.lib.units.derived.inVoltsPerRadianPerSecond
 import org.team4099.lib.units.derived.inVoltsPerRadianSeconds
-import java.util.function.Supplier
-import org.team4099.lib.units.derived.inVoltsPerDegree
-import org.team4099.lib.units.derived.inVoltsPerDegreePerSecond
-import org.team4099.lib.units.derived.inVoltsPerDegreeSeconds
-import org.team4099.lib.units.derived.inVoltsPerMeterPerSecond
 
 object PhoenixUtil {
   /** Attempts to run the command until no error is produced. */
@@ -88,68 +84,36 @@ object PhoenixUtil {
       val odometryTimeStamps = DoubleArray(SimulatedArena.getSimulationSubTicksIn1Period())
       for (i in odometryTimeStamps.indices) {
         odometryTimeStamps[i] =
-          (
-            Timer.getFPGATimestamp() - 0.02 +
-              i * SimulatedArena.getSimulationDt().`in`(Units.Seconds)
-            )
+          (Timer.getFPGATimestamp() - 0.02 + i * SimulatedArena.getSimulationDt().`in`(Units.Seconds))
       }
 
       return odometryTimeStamps
     }
 
   /**
-   *
-   * <h2>Regulates the [SwerveModuleConstants] for a single module.</h2>
-   *
-   * This method applies specific adjustments to the [SwerveModuleConstants] for simulation
-   * purposes. These changes have no effect on real robot operations and address known simulation
-   * bugs:
-   *
-   * * **Inverted Drive Motors:** Prevents drive PID issues caused by inverted configurations.
-   * * **Non-zero CanCoder Offsets:** Fixes potential module state optimization issues.
-   * * **Steer Motor PID:** Adjusts PID values tuned for real robots to improve simulation
-   * performance.
-   *
-   * <h4>Note:This function is skipped when running on a real robot, ensuring no impact on constants
-   * used on real robot hardware.</h4>
+   * Regulates the [SwerveModuleConstants] for a single module.
    */
   fun regulateModuleConstantForSimulation(
     moduleConstants: SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>
   ): SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?> {
-    // Skip regulation if running on a real robot
     if (RobotBase.isReal()) return moduleConstants
 
-    // Apply simulation-specific adjustments to module constants
-    return moduleConstants // Disable encoder offsets
-      .withEncoderOffset(0.0) // Disable motor inversions for drive and steer motors
-      .withDriveMotorInverted(false)
-      .withSteerMotorInverted(false) // Disable CanCoder inversion
-      .withEncoderInverted(false) // Adjust steer motor PID gains for simulation
-      .withDriveMotorGains(
-        Slot0Configs()
-          .withKP(DrivetrainConstants.PID.SIM_DRIVE_KP.inVoltsPerMetersPerSecond)
+    return moduleConstants.withEncoderOffset(0.0).withDriveMotorInverted(false).withSteerMotorInverted(false)
+      .withEncoderInverted(false).withDriveMotorGains(
+        Slot0Configs().withKP(DrivetrainConstants.PID.SIM_DRIVE_KP.inVoltsPerMetersPerSecond)
           .withKI(DrivetrainConstants.PID.SIM_DRIVE_KI.inVoltsPerMeters)
           .withKD(DrivetrainConstants.PID.SIM_DRIVE_KD.inVoltsPerMetersPerSecondPerSecond)
           .withKS(DrivetrainConstants.PID.SIM_DRIVE_KS.inVolts)
           .withKV(DrivetrainConstants.PID.SIM_DRIVE_KV.inVoltsPerMetersPerSecond)
           .withKA(DrivetrainConstants.PID.SIM_DRIVE_KA.inVoltsPerMeterPerSecondPerSecond)
           .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
-      )
-      .withSteerMotorGains(
-        Slot0Configs()
-          .withKP(DrivetrainConstants.PID.SIM_STEERING_KP.inVoltsPerRadian)
+      ).withSteerMotorGains(
+        Slot0Configs().withKP(DrivetrainConstants.PID.SIM_STEERING_KP.inVoltsPerRadian)
           .withKI(DrivetrainConstants.PID.SIM_STEERING_KI.inVoltsPerRadianSeconds)
-          .withKD(DrivetrainConstants.PID.SIM_STEERING_KD.inVoltsPerRadianPerSecond)
-          .withKS(0.0)
-          .withKV(DrivetrainConstants.PID.SIM_STEERING_KV.inVoltsPerRadianPerSecond)
-          .withKA(0.0)
+          .withKD(DrivetrainConstants.PID.SIM_STEERING_KD.inVoltsPerRadianPerSecond).withKS(0.0)
+          .withKV(DrivetrainConstants.PID.SIM_STEERING_KV.inVoltsPerRadianPerSecond).withKA(0.0)
           .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
-      )
-//      .withDriveFrictionVoltage(Units.Volts.of(0.3))
-//      .withSteerFrictionVoltage(Units.Volts.of(0.3))
-//      .withDriveInertia(Units.KilogramSquareMeters.of(0.01))
-//      .withSteerInertia(Units.KilogramSquareMeters.of(0.05))
-      .withSlipCurrent(120.0)
+      ).withSlipCurrent(120.0)
   }
 
   open class TalonFXMotorControllerSim(talonFX: TalonFX) : SimulatedMotorController {
@@ -164,10 +128,7 @@ object PhoenixUtil {
     }
 
     override fun updateControlSignal(
-      mechanismAngle: Angle,
-      mechanismVelocity: AngularVelocity,
-      encoderAngle: Angle,
-      encoderVelocity: AngularVelocity
+      mechanismAngle: Angle, mechanismVelocity: AngularVelocity, encoderAngle: Angle, encoderVelocity: AngularVelocity
     ): Voltage {
       talonFXSimState.setRawRotorPosition(encoderAngle)
       talonFXSimState.setRotorVelocity(encoderVelocity)
@@ -185,10 +146,7 @@ object PhoenixUtil {
     private val remoteCancoderSimState: CANcoderSimState = cancoder.simState
 
     override fun updateControlSignal(
-      mechanismAngle: Angle,
-      mechanismVelocity: AngularVelocity,
-      encoderAngle: Angle,
-      encoderVelocity: AngularVelocity
+      mechanismAngle: Angle, mechanismVelocity: AngularVelocity, encoderAngle: Angle, encoderVelocity: AngularVelocity
     ): Voltage {
       remoteCancoderSimState.setRawPosition(mechanismAngle)
       remoteCancoderSimState.setVelocity(mechanismVelocity)

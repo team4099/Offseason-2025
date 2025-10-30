@@ -71,14 +71,15 @@ class IntakeIOSim(drivetrainSimulation: AbstractDriveTrainSimulation) : IntakeIO
   private var pivotAppliedVoltage = 0.0.volts
   private var rollersAppliedVoltage = 0.0.volts
 
-  override val intakeSimulation = IntakeSimulation.OverTheBumperIntake(
-    "Coral",
-    drivetrainSimulation,
-    Meters.of(DrivetrainConstants.DRIVETRAIN_WIDTH.inMeters),
-    Meters.of(IntakeConstants.LENGTH_EXTENDED.inMeters),
-    IntakeSimulation.IntakeSide.FRONT,
-    1
-  )
+  override val intakeSimulation =
+    IntakeSimulation.OverTheBumperIntake(
+      "Coral",
+      drivetrainSimulation,
+      Meters.of(DrivetrainConstants.DRIVETRAIN_WIDTH.inMeters),
+      Meters.of(IntakeConstants.LENGTH_EXTENDED.inMeters),
+      IntakeSimulation.IntakeSide.FRONT,
+      1
+    )
 
   init {
     armSim.setState(0.0, 0.0)

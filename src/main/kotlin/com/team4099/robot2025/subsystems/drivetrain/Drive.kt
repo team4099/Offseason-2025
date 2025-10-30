@@ -20,7 +20,6 @@ import com.pathplanner.lib.config.RobotConfig
 import com.pathplanner.lib.controllers.PPHolonomicDriveController
 import com.pathplanner.lib.pathfinding.Pathfinding
 import com.pathplanner.lib.util.PathPlannerLogging
-import com.team4099.lib.phoenix6.PhoenixUtil
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.subsystems.drivetrain.generated.TunerConstants
@@ -35,12 +34,11 @@ import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
 import edu.wpi.first.math.system.plant.DCMotor
-import edu.wpi.first.units.BaseUnits.VoltageUnit
 import edu.wpi.first.units.Units
-import edu.wpi.first.units.Units.Volts
 import edu.wpi.first.units.Units.KilogramSquareMeters
 import edu.wpi.first.units.Units.Kilograms
 import edu.wpi.first.units.Units.Meters
+import edu.wpi.first.units.Units.Volts
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.Alert
 import edu.wpi.first.wpilibj.DriverStation
@@ -75,12 +73,12 @@ import org.team4099.lib.units.inMetersPerSecond
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import java.util.function.Consumer
+import java.util.function.Supplier
 import kotlin.math.absoluteValue
 import kotlin.math.hypot
 import kotlin.math.max
 import edu.wpi.first.math.geometry.Pose2d as WPIPose2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds as WPIChassisSpeeds
-import java.util.function.Supplier
 
 class Drive(
   private val gyroIO: GyroIO,
@@ -364,7 +362,10 @@ class Drive(
   var pose: Pose2d
     /** Returns the current odometry pose. */
     get() =
-       Pose2d(if (RobotBase.isReal()) poseEstimator.estimatedPosition else getSimulationPoseCallback.get())
+      Pose2d(
+        if (RobotBase.isReal()) poseEstimator.estimatedPosition
+        else getSimulationPoseCallback.get()
+      )
     /** Resets the current odometry pose. */
     set(pose) {
       resetSimulationPoseCallback.accept(pose.pose2d)

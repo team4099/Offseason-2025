@@ -7,7 +7,8 @@ import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.units.derived.radians
 import kotlin.math.PI
 
-class ResetGyroYawCommand(val drivetrain: Drive, private val flipIfRed: Boolean = true) : Command() {
+class ResetGyroYawCommand(val drivetrain: Drive, private val flipIfRed: Boolean = true) :
+  Command() {
   init {
     addRequirements(drivetrain)
   }

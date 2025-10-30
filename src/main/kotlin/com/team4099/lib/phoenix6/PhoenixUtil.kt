@@ -7,6 +7,7 @@
 // Also taken from AdvantageKit-TalonSwerveTemplate-MapleSim-Enhanced
 // Available at
 // https://github.com/Shenzhen-Robotics-Alliance/AdvantageKit-TalonSwerveTemplate-MapleSim-Enhanced
+
 package com.team4099.lib.phoenix6
 
 import com.ctre.phoenix6.BaseStatusSignal
@@ -27,7 +28,6 @@ import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.Timer
-import java.util.function.Supplier
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.motorsims.SimulatedBattery
 import org.ironmaple.simulation.motorsims.SimulatedMotorController
@@ -39,6 +39,7 @@ import org.team4099.lib.units.derived.inVoltsPerMetersPerSecondPerSecond
 import org.team4099.lib.units.derived.inVoltsPerRadian
 import org.team4099.lib.units.derived.inVoltsPerRadianPerSecond
 import org.team4099.lib.units.derived.inVoltsPerRadianSeconds
+import java.util.function.Supplier
 
 object PhoenixUtil {
   /** Attempts to run the command until no error is produced. */
@@ -84,36 +85,48 @@ object PhoenixUtil {
       val odometryTimeStamps = DoubleArray(SimulatedArena.getSimulationSubTicksIn1Period())
       for (i in odometryTimeStamps.indices) {
         odometryTimeStamps[i] =
-          (Timer.getFPGATimestamp() - 0.02 + i * SimulatedArena.getSimulationDt().`in`(Units.Seconds))
+          (
+            Timer.getFPGATimestamp() - 0.02 +
+              i * SimulatedArena.getSimulationDt().`in`(Units.Seconds)
+            )
       }
 
       return odometryTimeStamps
     }
 
-  /**
-   * Regulates the [SwerveModuleConstants] for a single module.
-   */
   fun regulateModuleConstantForSimulation(
-    moduleConstants: SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>
-  ): SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?> {
-    if (RobotBase.isReal()) return moduleConstants
+    moduleConstants: ConfiguredSwerveModuleConstants
+  ): ConfiguredSwerveModuleConstants {
+    if (RobotBase.isReal()) {
+      return moduleConstants
+    }
 
-    return moduleConstants.withEncoderOffset(0.0).withDriveMotorInverted(false).withSteerMotorInverted(false)
-      .withEncoderInverted(false).withDriveMotorGains(
-        Slot0Configs().withKP(DrivetrainConstants.PID.SIM_DRIVE_KP.inVoltsPerMetersPerSecond)
+    return moduleConstants
+      .withEncoderOffset(0.0)
+      .withDriveMotorInverted(false)
+      .withSteerMotorInverted(false)
+      .withEncoderInverted(false)
+      .withDriveMotorGains(
+        Slot0Configs()
+          .withKP(DrivetrainConstants.PID.SIM_DRIVE_KP.inVoltsPerMetersPerSecond)
           .withKI(DrivetrainConstants.PID.SIM_DRIVE_KI.inVoltsPerMeters)
           .withKD(DrivetrainConstants.PID.SIM_DRIVE_KD.inVoltsPerMetersPerSecondPerSecond)
           .withKS(DrivetrainConstants.PID.SIM_DRIVE_KS.inVolts)
           .withKV(DrivetrainConstants.PID.SIM_DRIVE_KV.inVoltsPerMetersPerSecond)
           .withKA(DrivetrainConstants.PID.SIM_DRIVE_KA.inVoltsPerMeterPerSecondPerSecond)
           .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
-      ).withSteerMotorGains(
-        Slot0Configs().withKP(DrivetrainConstants.PID.SIM_STEERING_KP.inVoltsPerRadian)
+      )
+      .withSteerMotorGains(
+        Slot0Configs()
+          .withKP(DrivetrainConstants.PID.SIM_STEERING_KP.inVoltsPerRadian)
           .withKI(DrivetrainConstants.PID.SIM_STEERING_KI.inVoltsPerRadianSeconds)
-          .withKD(DrivetrainConstants.PID.SIM_STEERING_KD.inVoltsPerRadianPerSecond).withKS(0.0)
-          .withKV(DrivetrainConstants.PID.SIM_STEERING_KV.inVoltsPerRadianPerSecond).withKA(0.0)
+          .withKD(DrivetrainConstants.PID.SIM_STEERING_KD.inVoltsPerRadianPerSecond)
+          .withKS(0.0)
+          .withKV(DrivetrainConstants.PID.SIM_STEERING_KV.inVoltsPerRadianPerSecond)
+          .withKA(0.0)
           .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
-      ).withSlipCurrent(120.0)
+      )
+      .withSlipCurrent(120.0)
   }
 
   open class TalonFXMotorControllerSim(talonFX: TalonFX) : SimulatedMotorController {
@@ -128,7 +141,10 @@ object PhoenixUtil {
     }
 
     override fun updateControlSignal(
-      mechanismAngle: Angle, mechanismVelocity: AngularVelocity, encoderAngle: Angle, encoderVelocity: AngularVelocity
+      mechanismAngle: Angle,
+      mechanismVelocity: AngularVelocity,
+      encoderAngle: Angle,
+      encoderVelocity: AngularVelocity
     ): Voltage {
       talonFXSimState.setRawRotorPosition(encoderAngle)
       talonFXSimState.setRotorVelocity(encoderVelocity)
@@ -146,7 +162,10 @@ object PhoenixUtil {
     private val remoteCancoderSimState: CANcoderSimState = cancoder.simState
 
     override fun updateControlSignal(
-      mechanismAngle: Angle, mechanismVelocity: AngularVelocity, encoderAngle: Angle, encoderVelocity: AngularVelocity
+      mechanismAngle: Angle,
+      mechanismVelocity: AngularVelocity,
+      encoderAngle: Angle,
+      encoderVelocity: AngularVelocity
     ): Voltage {
       remoteCancoderSimState.setRawPosition(mechanismAngle)
       remoteCancoderSimState.setVelocity(mechanismVelocity)
@@ -157,3 +176,6 @@ object PhoenixUtil {
     }
   }
 }
+
+private typealias ConfiguredSwerveModuleConstants =
+  SwerveModuleConstants<TalonFXConfiguration?, TalonFXConfiguration?, CANcoderConfiguration?>

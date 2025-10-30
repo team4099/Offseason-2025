@@ -65,7 +65,9 @@ class Intake(private val io: IntakeIO) : SubsystemBase() {
     CustomLogger.recordOutput("Intake/isAtTargetedPosition", isAtTargetedPosition)
 
     if (RobotBase.isSimulation()) {
-      CustomLogger.recordOutput("Intake/intakeSimulationGamePieceNumber", gintakeSimulation!!.gamePiecesAmount)
+      CustomLogger.recordOutput(
+        "Intake/intakeSimulationGamePieceNumber", gintakeSimulation!!.gamePiecesAmount
+      )
     }
 
     when (currentState) {

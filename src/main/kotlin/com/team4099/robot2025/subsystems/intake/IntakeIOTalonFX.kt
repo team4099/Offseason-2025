@@ -12,6 +12,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue
 import com.team4099.lib.math.clamp
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.IntakeConstants
+import org.ironmaple.simulation.IntakeSimulation
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.celsius
 import org.team4099.lib.units.base.inAmperes
@@ -37,7 +38,6 @@ import edu.wpi.first.units.measure.Angle as WPIAngle
 import edu.wpi.first.units.measure.Current as WPILibCurrent
 import edu.wpi.first.units.measure.Temperature as WPILibTemperature
 import edu.wpi.first.units.measure.Voltage as WPILibVoltage
-import org.ironmaple.simulation.IntakeSimulation
 
 object IntakeIOTalonFX : IntakeIO {
   private val pivotTalon: TalonFX = TalonFX(Constants.Intake.INTAKE_MOTOR_ID)

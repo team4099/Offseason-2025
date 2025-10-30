@@ -64,13 +64,14 @@ class ArmIOSim(drivetrainSimulation: AbstractDriveTrainSimulation) : ArmIO {
     )
 
   private var armFeedforward =
-    ArmFeedforward(
-      ArmConstants.PID.KS, kG = 0.0.volts, ArmConstants.PID.KV, ArmConstants.PID.KA
-    )
+    ArmFeedforward(ArmConstants.PID.KS, kG = 0.0.volts, ArmConstants.PID.KV, ArmConstants.PID.KA)
 
   private var appliedVoltage = 0.0.volts
 
-  private val intakeShape = HalfEllipse(ArmConstants.SIM_INTAKE_WIDTH.inMeters, ArmConstants.SIM_INTAKE_HALFHEIGHT.inMeters)
+  private val intakeShape =
+    HalfEllipse(
+      ArmConstants.SIM_INTAKE_WIDTH.inMeters, ArmConstants.SIM_INTAKE_HALFHEIGHT.inMeters
+    )
 
   override val intakeSimulation: IntakeSimulation
 
@@ -79,15 +80,8 @@ class ArmIOSim(drivetrainSimulation: AbstractDriveTrainSimulation) : ArmIO {
 
     // its much harder (impossible?) to have a moving IntakeSimulation bounding box, so we
     // just pretend thats its always out (90 deg) and assume that the sim-driver is clever
-     intakeSimulation = IntakeSimulation(
-      "Algae",
-      drivetrainSimulation,
-      intakeShape,
-      1
-    )
+    intakeSimulation = IntakeSimulation("Algae", drivetrainSimulation, intakeShape, 1)
   }
-
-
 
   override fun updateInputs(inputs: ArmIO.ArmIOInputs) {
     armSim.update(Constants.Universal.LOOP_PERIOD_TIME.inSeconds)

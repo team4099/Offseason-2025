@@ -42,19 +42,18 @@ import com.team4099.robot2025.subsystems.vision.camera.CameraIOPVSim
 import com.team4099.robot2025.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.util.driver.Jessika
 import edu.wpi.first.wpilibj.RobotBase
+import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
 import org.littletonrobotics.junction.Logger
 import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.smoothDeadband
-import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.radians
 import java.util.function.Supplier
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersIOSim
-import edu.wpi.first.wpilibj2.command.Commands.runOnce
 
 object RobotContainer {
   private val drivetrain: Drive
@@ -79,7 +78,13 @@ object RobotContainer {
 
   init {
     if (RobotBase.isReal()) {
-      drivetrain = Drive(GyroIOPigeon2, ModuleIOTalonFXReal.generateModules(), { edu.wpi.first.math.geometry.Pose2d.kZero } , { pose -> {} })
+      drivetrain =
+        Drive(
+          GyroIOPigeon2,
+          ModuleIOTalonFXReal.generateModules(),
+          { edu.wpi.first.math.geometry.Pose2d.kZero },
+          { pose -> {} }
+        )
       elevator = Elevator(ElevatorIOTalon)
       arm = Arm(ArmIOTalon)
       armRollers = ArmRollers(RollersIOTalon)
@@ -151,8 +156,7 @@ object RobotContainer {
             ),
             poseSupplier = { drivetrain.pose.pose2d }
           )
-      else
-        vision = Vision(poseSupplier = { Pose2d().pose2d })
+      else vision = Vision(poseSupplier = { Pose2d().pose2d })
 
       led =
         Led(
@@ -166,7 +170,17 @@ object RobotContainer {
 
     superstructure =
       Superstructure(
-        drivetrain, vision, elevator, arm, armRollers, climber, intake, indexer, canrange, led, driveSimulation
+        drivetrain,
+        vision,
+        elevator,
+        arm,
+        armRollers,
+        climber,
+        intake,
+        indexer,
+        canrange,
+        led,
+        driveSimulation
       )
 
     //    led.isAlignedSupplier = Supplier { vision.isAligned }
@@ -269,7 +283,11 @@ object RobotContainer {
 
     SimulatedArena.getInstance().simulationPeriodic()
     Logger.recordOutput("FieldSimulation/RobotPosition", driveSimulation!!.simulatedDriveTrainPose)
-    Logger.recordOutput("FieldSimulation/Coral", *SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"))
-    Logger.recordOutput("FieldSimulation/Algae", *SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"))
+    Logger.recordOutput(
+      "FieldSimulation/Coral", *SimulatedArena.getInstance().getGamePiecesArrayByType("Coral")
+    )
+    Logger.recordOutput(
+      "FieldSimulation/Algae", *SimulatedArena.getInstance().getGamePiecesArrayByType("Algae")
+    )
   }
 }

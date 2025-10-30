@@ -169,7 +169,8 @@ class CoolerTargetTagCommand(
       xPID.calculate(setpointTranslation.x, xTargetOffset * setpointTranslation.x.sign) *
         setpointTranslation.x.sign
     var yvel = -yPID.calculate(setpointTranslation.y, yTargetOffset)
-    var thetavel = thetaPID.calculate(drivetrain.rotation, setpointRotation + thetaTargetOffset) *
+    var thetavel =
+      thetaPID.calculate(drivetrain.rotation, setpointRotation + thetaTargetOffset) *
         if (RobotBase.isReal()) -1.0 else 1.0
 
     CustomLogger.recordOutput("CoolerTargetTagCommand/xvelmps", xvel.inMetersPerSecond)
@@ -209,15 +210,38 @@ class CoolerTargetTagCommand(
 
   companion object {
     fun alignLeftCommand(drivetrain: Drive, vision: Vision): CoolerTargetTagCommand {
-      return CoolerTargetTagCommand(drivetrain, vision, xTargetOffset = DrivetrainConstants.DRIVETRAIN_LENGTH / 2 + DrivetrainConstants.BUMPER_WIDTH + 2.0.inches, yTargetOffset = (12.94 / 2).inches)
+      return CoolerTargetTagCommand(
+        drivetrain,
+        vision,
+        xTargetOffset =
+        DrivetrainConstants.DRIVETRAIN_LENGTH / 2 +
+          DrivetrainConstants.BUMPER_WIDTH +
+          2.0.inches,
+        yTargetOffset = (12.94 / 2).inches
+      )
     }
 
     fun alignRightCommand(drivetrain: Drive, vision: Vision): CoolerTargetTagCommand {
-      return CoolerTargetTagCommand(drivetrain, vision, xTargetOffset = DrivetrainConstants.DRIVETRAIN_LENGTH / 2 + DrivetrainConstants.BUMPER_WIDTH + 2.0.inches, yTargetOffset = (-12.94 / 2).inches)
+      return CoolerTargetTagCommand(
+        drivetrain,
+        vision,
+        xTargetOffset =
+        DrivetrainConstants.DRIVETRAIN_LENGTH / 2 +
+          DrivetrainConstants.BUMPER_WIDTH +
+          2.0.inches,
+        yTargetOffset = (-12.94 / 2).inches
+      )
     }
 
     fun alignCenter(drivetrain: Drive, vision: Vision): CoolerTargetTagCommand {
-      return CoolerTargetTagCommand(drivetrain, vision, xTargetOffset = DrivetrainConstants.DRIVETRAIN_LENGTH / 2 + DrivetrainConstants.BUMPER_WIDTH + 3.0.inches)
+      return CoolerTargetTagCommand(
+        drivetrain,
+        vision,
+        xTargetOffset =
+        DrivetrainConstants.DRIVETRAIN_LENGTH / 2 +
+          DrivetrainConstants.BUMPER_WIDTH +
+          3.0.inches
+      )
     }
   }
 }

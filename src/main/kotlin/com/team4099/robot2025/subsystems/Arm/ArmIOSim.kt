@@ -75,8 +75,10 @@ class ArmIOSim(drivetrainSimulation: AbstractDriveTrainSimulation) : ArmIO {
   override val intakeSimulation: IntakeSimulation
 
   init {
-    intakeShape.translate(ArmConstants.ARM_LENGTH.inMeters, 0.0)
+    intakeShape.translate(-ArmConstants.ARM_LENGTH.inMeters, 0.0)
 
+    // its much harder (impossible?) to have a moving IntakeSimulation bounding box, so we
+    // just pretend thats its always out (90 deg) and assume that the sim-driver is clever
      intakeSimulation = IntakeSimulation(
       "Algae",
       drivetrainSimulation,

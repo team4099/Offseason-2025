@@ -218,7 +218,7 @@ object RobotContainer {
     ControlBoard.alignLeft.whileTrue(
       ConditionalCommand(
         CoolerTargetTagCommand(drivetrain, vision),
-        CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (12.94 / 2).inches)
+        CoolerTargetTagCommand.alignLeftCommand(drivetrain, vision)
       ) {
         superstructure.theoreticalGamePieceArm == GamePiece.ALGAE
       }
@@ -227,7 +227,7 @@ object RobotContainer {
     ControlBoard.alignRight.whileTrue(
       ConditionalCommand(
         CoolerTargetTagCommand(drivetrain, vision),
-        CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (-12.94 / 2).inches)
+        CoolerTargetTagCommand.alignRightCommand(drivetrain, vision)
       ) {
         superstructure.theoreticalGamePieceArm == GamePiece.ALGAE
       }

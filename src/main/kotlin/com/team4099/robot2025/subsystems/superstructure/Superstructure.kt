@@ -1,9 +1,16 @@
 package com.team4099.robot2025.subsystems.superstructure
 
+import com.team4099.robot2025.config.constants.RollersConstants as ArmRollersConstants
+import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
+import com.team4099.robot2025.subsystems.superstructure.Request.RollersRequest as ArmRollersRequest
 import com.team4099.lib.hal.Clock
 import com.team4099.robot2025.config.constants.ArmConstants
 import com.team4099.robot2025.config.constants.ClimberConstants
 import com.team4099.robot2025.config.constants.Constants
+import com.team4099.robot2025.config.constants.Constants.Universal.AlgaeIntakeLevel
+import com.team4099.robot2025.config.constants.Constants.Universal.AlgaeScoringLevel
+import com.team4099.robot2025.config.constants.Constants.Universal.CoralLevel
+import com.team4099.robot2025.config.constants.Constants.Universal.GamePiece
 import com.team4099.robot2025.config.constants.ElevatorConstants
 import com.team4099.robot2025.config.constants.IndexerConstants
 import com.team4099.robot2025.config.constants.IntakeConstants
@@ -21,45 +28,41 @@ import com.team4099.robot2025.subsystems.led.Led
 import com.team4099.robot2025.subsystems.superstructure.Request.SuperstructureRequest
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.CustomLogger
+import edu.wpi.first.math.geometry.Translation2d
+import edu.wpi.first.units.Units.Degrees
+import edu.wpi.first.units.Units.Meters
+import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import kotlin.math.max
+import org.ironmaple.simulation.SimulatedArena
+import org.ironmaple.simulation.drivesims.AbstractDriveTrainSimulation
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeAlgaeOnFly
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly
 import org.littletonrobotics.junction.Logger
+import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.geometry.Pose3d
 import org.team4099.lib.geometry.Rotation3d
+import org.team4099.lib.geometry.Transform3d
 import org.team4099.lib.geometry.Translation3d
 import org.team4099.lib.units.base.inInches
+import org.team4099.lib.units.base.inMeters
 import org.team4099.lib.units.base.inMilliseconds
 import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.meters
+import org.team4099.lib.units.base.seconds
+import org.team4099.lib.units.derived.cos
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inDegrees
-import org.team4099.lib.units.derived.volts
-import kotlin.math.max
-import com.team4099.robot2025.config.constants.Constants.Universal.AlgaeIntakeLevel as AlgaeIntakeLevel
-import com.team4099.robot2025.config.constants.Constants.Universal.AlgaeScoringLevel as AlgaeScoringLevel
-import com.team4099.robot2025.config.constants.Constants.Universal.CoralLevel as CoralLevel
-import com.team4099.robot2025.config.constants.Constants.Universal.GamePiece as GamePiece
-import com.team4099.robot2025.config.constants.RollersConstants as ArmRollersConstants
-import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
-import com.team4099.robot2025.subsystems.superstructure.Request.RollersRequest as ArmRollersRequest
-import edu.wpi.first.math.geometry.Translation2d
-import edu.wpi.first.units.Units.Degrees
-import edu.wpi.first.units.Units.Meters
-import edu.wpi.first.units.Units.MetersPerSecond
-import org.ironmaple.simulation.SimulatedArena
-import org.ironmaple.simulation.drivesims.AbstractDriveTrainSimulation
-import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly
-import org.team4099.lib.geometry.Pose2d
-import org.team4099.lib.geometry.Transform3d
-import org.team4099.lib.units.base.inMeters
-import org.team4099.lib.units.derived.cos
 import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.derived.sin
+import org.team4099.lib.units.derived.volts
+import org.team4099.lib.units.inRadiansPerSecond
 
 class Superstructure(
   private val drivetrain: Drive,
@@ -587,7 +590,7 @@ class Superstructure(
           }
         }
 
-        if (RobotBase.isSimulation())
+        if (RobotBase.isSimulation()) arm.algaeIntakeSimulation?.startIntake()
 
         if (RobotBase.isReal() &&
           armRollers.hasAlgae &&
@@ -742,8 +745,10 @@ class Superstructure(
                 } - ArmTunableValues.Angles.scoreOffset.get()
               )
 
-            if (RobotBase.isSimulation() && lastSimProjectileShootTime < lastTransitionTime) {
+            // let the arm move a little for accurate arm velocity
+            if (RobotBase.isSimulation() && lastSimProjectileShootTime < lastTransitionTime && Clock.fpgaTime - lastTransitionTime > .1.seconds) {
               lastSimProjectileShootTime = Clock.fpgaTime
+              CustomLogger.recordOutput("RobotSimulation/projectileSpeedMPS", arm.inputs.armVelocity.inRadiansPerSecond * ArmConstants.ARM_LENGTH_TO_ALGAE_CENTER.inMeters)
               SimulatedArena.getInstance().addGamePieceProjectile(ReefscapeCoralOnFly(
                 driveSimulation!!.simulatedDriveTrainPose.translation,
                 Translation2d(
@@ -753,9 +758,13 @@ class Superstructure(
                 driveSimulation!!.driveTrainSimulatedChassisSpeedsFieldRelative,
                 driveSimulation!!.simulatedDriveTrainPose.rotation,
                 Meters.of(elevator.inputs.elevatorPosition.inMeters + ElevatorConstants.CARRIAGE_TO_BOTTOM_SIM.inMeters + ArmConstants.ARM_LENGTH.inMeters * arm.inputs.armPosition.sin),
-                MetersPerSecond.of(2.0),
+                MetersPerSecond.of(arm.inputs.armVelocity.inRadiansPerSecond * ArmConstants.ARM_LENGTH.inMeters),
                 Degrees.of(arm.inputs.armPosition.absoluteValue.inDegrees)
-              ))
+              )
+                .withProjectileTrajectoryDisplayCallBack { pose3ds ->
+                  Logger.recordOutput("RobotSimulation/ProjectileSuccessfulShot", *(pose3ds.toTypedArray()))
+                }
+              )
             }
 
             if (arm.isAtTargetedPosition &&
@@ -843,6 +852,37 @@ class Superstructure(
 
         if (currentRequest is SuperstructureRequest.Idle) {
           nextState = SuperstructureStates.CLEANUP_SCORE_ALGAE
+        }
+
+        if (
+          RobotBase.isSimulation() &&
+          lastSimProjectileShootTime < lastTransitionTime &&
+          (
+              algaeScoringLevel == AlgaeScoringLevel.PROCESSOR &&
+                  Clock.fpgaTime - lastTransitionTime > .1.seconds ||
+                  algaeScoringLevel == AlgaeScoringLevel.BARGE &&
+                  armRollers.targetVoltage == ArmRollersConstants.OUTTAKE_ALGAE_VOLTAGE
+              )
+          ) {
+          lastSimProjectileShootTime = Clock.fpgaTime
+          CustomLogger.recordOutput("RobotSimulation/projectileSpeedMPS", arm.inputs.armVelocity.inRadiansPerSecond * ArmConstants.ARM_LENGTH_TO_ALGAE_CENTER.inMeters)
+          SimulatedArena.getInstance().addGamePieceProjectile(
+            ReefscapeAlgaeOnFly(
+              driveSimulation!!.simulatedDriveTrainPose.translation,
+              Translation2d(
+                ArmConstants.ARM_LENGTH_TO_ALGAE_CENTER.inMeters * arm.inputs.armPosition.cos,
+                0.0
+              ),
+              driveSimulation!!.driveTrainSimulatedChassisSpeedsFieldRelative,
+              driveSimulation!!.simulatedDriveTrainPose.rotation,
+              Meters.of(elevator.inputs.elevatorPosition.inMeters + ElevatorConstants.CARRIAGE_TO_BOTTOM_SIM.inMeters + ArmConstants.ARM_LENGTH_TO_ALGAE_CENTER.inMeters * arm.inputs.armPosition.sin),
+              MetersPerSecond.of(arm.inputs.armVelocity.inRadiansPerSecond * ArmConstants.ARM_LENGTH_TO_ALGAE_CENTER.inMeters),
+              Degrees.of(arm.inputs.armPosition.absoluteValue.inDegrees)
+            )
+              .withProjectileTrajectoryDisplayCallBack { pose3ds ->
+                Logger.recordOutput("RobotSimulation/ProjectileShot", *(pose3ds.toTypedArray()))
+              }
+          )
         }
 
         if (Clock.fpgaTime - lastTransitionTime >=

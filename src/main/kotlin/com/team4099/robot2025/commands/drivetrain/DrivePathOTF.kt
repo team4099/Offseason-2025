@@ -118,7 +118,6 @@ class DrivePathOTF(
     )
 
   private val ppHolonomicDriveController: PathPlannerHolonomicDriveController
-  private val robotConfig: RobotConfig
   private val pathConstraints: PathConstraints
 
   private var request =
@@ -144,46 +143,6 @@ class DrivePathOTF(
         PathPlannerTranslationPID(poskP.get(), poskI.get(), poskD.get()),
         PathPlannerRotationPID(thetakP.get(), thetakI.get(), thetakD.get()),
         Constants.Universal.LOOP_PERIOD_TIME
-      )
-
-    robotConfig =
-      RobotConfig(
-        Constants.Universal.ROBOT_WEIGHT,
-        Constants.Universal.ROBOT_MOI,
-        ModuleConfig(
-          DrivetrainConstants.WHEEL_DIAMETER / 2.0,
-          DrivetrainConstants.DRIVE_SETPOINT_MAX,
-          DrivetrainConstants.NITRILE_WHEEL_COF,
-          DCMotor.getKrakenX60(1)
-            .withReduction(1.0 / DrivetrainConstants.MK4_DRIVE_SENSOR_GEAR_RATIO),
-          DrivetrainConstants.DRIVE_SUPPLY_CURRENT_LIMIT,
-          1
-        ),
-        // fl, fr, bl, br
-        Translation2d(
-          DrivetrainConstants.DRIVETRAIN_LENGTH / 2.0 -
-            DrivetrainConstants.WHEEL_DIAMETER / 2.0,
-          -DrivetrainConstants.DRIVETRAIN_WIDTH / 2.0 +
-            DrivetrainConstants.WHEEL_DIAMETER / 2.0
-        ),
-        Translation2d(
-          DrivetrainConstants.DRIVETRAIN_LENGTH / 2.0 -
-            DrivetrainConstants.WHEEL_DIAMETER / 2.0,
-          DrivetrainConstants.DRIVETRAIN_WIDTH / 2.0 -
-            DrivetrainConstants.WHEEL_DIAMETER / 2.0
-        ),
-        Translation2d(
-          -DrivetrainConstants.DRIVETRAIN_LENGTH / 2.0 +
-            DrivetrainConstants.WHEEL_DIAMETER / 2.0,
-          -DrivetrainConstants.DRIVETRAIN_WIDTH / 2.0 +
-            DrivetrainConstants.WHEEL_DIAMETER / 2.0
-        ),
-        Translation2d(
-          -DrivetrainConstants.DRIVETRAIN_LENGTH / 2.0 +
-            DrivetrainConstants.WHEEL_DIAMETER / 2.0,
-          DrivetrainConstants.DRIVETRAIN_WIDTH / 2.0 -
-            DrivetrainConstants.WHEEL_DIAMETER / 2.0
-        )
       )
 
     pathConstraints =
@@ -215,7 +174,7 @@ class DrivePathOTF(
           drivetrain.runSpeeds(ChassisSpeeds(speeds))
         },
         ppHolonomicDriveController.pplibController,
-        robotConfig.ppllibRobotConfig,
+        Drive.PP_CONFIG,
         { AllianceFlipUtil.shouldFlip() },
       )
 

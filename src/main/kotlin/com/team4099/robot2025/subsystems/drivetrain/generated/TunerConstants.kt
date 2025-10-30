@@ -53,7 +53,7 @@ object TunerConstants {
       .withKP(DrivetrainConstants.PID.STEERING_KP.inVoltsPerRadian)
       .withKI(DrivetrainConstants.PID.STEERING_KI.inVoltsPerRadianSeconds)
       .withKD(DrivetrainConstants.PID.STEERING_KD.inVoltsPerRadianPerSecond)
-      .withKV(DrivetrainConstants.PID.STEERING_KFF.inVoltsPerRadiansPerSecond)
+      .withKV(DrivetrainConstants.PID.STEERING_KV.inVoltsPerRadiansPerSecond)
       .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
 
   // When using closed-loop control, the drive motor uses the control
@@ -148,18 +148,14 @@ object TunerConstants {
   // This may need to be tuned to your individual robot
   private const val kCoupleRatio = 3.125
 
-  private const val kDriveGearRatio =
-    1.0 / DrivetrainConstants.MK4_DRIVE_SENSOR_GEAR_RATIO // 5.902777777777778
-  private const val kSteerGearRatioMK4N =
-    1.0 / DrivetrainConstants.MK4N_STEERING_SENSOR_GEAR_RATIO // 18.75
-  private const val kSteerGearRatioMK4I =
-    1.0 / DrivetrainConstants.MK4I_STEERING_SENSOR_GEAR_RATIO // 21.4285714286
+  private const val kDriveGearRatio = 5.902777777777778
+  private const val kSteerGearRatioMK4N = 18.75
   private val kWheelRadius: Length = DrivetrainConstants.WHEEL_DIAMETER / 2
 
   private const val kInvertLeftSide = true
   private const val kInvertRightSide = false
 
-  private const val kPigeonId = Constants.Gyro.PIGEON_2_ID
+  private const val kPigeonId = 1
 
   // These are only used for simulation
   private val kSteerInertia: MomentOfInertia = 0.04.kilo.grams.meterSquared
@@ -171,7 +167,7 @@ object TunerConstants {
 
   val CTREDrivetrainConstants: SwerveDrivetrainConstants =
     SwerveDrivetrainConstants()
-      .withCANBusName(kCANBus.getName())
+      .withCANBusName(kCANBus.name)
       .withPigeon2Id(kPigeonId)
       .withPigeon2Configs(pigeonConfigs)
 

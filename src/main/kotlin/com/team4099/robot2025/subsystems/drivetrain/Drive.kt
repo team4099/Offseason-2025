@@ -411,7 +411,7 @@ class Drive(
       )
 
     // PathPlanner config constants
-    private val PP_CONFIG: RobotConfig =
+    val PP_CONFIG: RobotConfig =
       RobotConfig(
         Constants.Universal.ROBOT_WEIGHT.inKilograms,
         Constants.Universal.ROBOT_MOI.inKilogramsMeterSquared,

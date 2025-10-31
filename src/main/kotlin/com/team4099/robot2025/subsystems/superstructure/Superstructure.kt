@@ -308,26 +308,26 @@ class Superstructure(
           GamePiece.ALGAE -> {
             // arm should move first in case elevator ends up moving down
             arm.currentRequest =
-              Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleAlgaeAngle.get())
+              Request.ArmRequest.ClosedLoop(ArmTunableValues.idleAlgaeAngle.get())
             armRollers.currentRequest =
               ArmRollersRequest.OpenLoop(ArmRollersConstants.IDLE_ALGAE_VOLTAGE)
             if (arm.isAtTargetedPosition) {
               elevator.currentRequest =
                 Request.ElevatorRequest.ClosedLoop(
-                  ElevatorTunableValues.Heights.idleAlgaeHeight.get()
+                  ElevatorTunableValues.idleAlgaeHeight.get()
                 )
             }
           }
           else -> {
             val armIdleAngle =
               if (theoreticalGamePieceArm == GamePiece.CORAL)
-                ArmTunableValues.Angles.idleCoralAngle.get()
-              else ArmTunableValues.Angles.idleAngle.get()
+                ArmTunableValues.idleCoralAngle.get()
+              else ArmTunableValues.idleAngle.get()
 
             val elevatorIdlePosition =
               if (theoreticalGamePieceArm == GamePiece.CORAL)
-                ElevatorTunableValues.Heights.idleCoralHeight.get()
-              else ElevatorTunableValues.Heights.idleHeight.get()
+                ElevatorTunableValues.idleCoralHeight.get()
+              else ElevatorTunableValues.idleHeight.get()
 
             armRollers.currentRequest =
               Request.RollersRequest.OpenLoop(
@@ -444,12 +444,12 @@ class Superstructure(
             IntakeTunableValues.idlePosition.get(), IntakeTunableValues.idleRollerVoltage.get()
           )
         arm.currentRequest =
-          Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.hardstopIntakeAngle.get())
+          Request.ArmRequest.ClosedLoop(ArmTunableValues.hardstopIntakeAngle.get())
 
         if (arm.isAtTargetedPosition) {
           elevator.currentRequest =
             Request.ElevatorRequest.ClosedLoop(
-              ElevatorTunableValues.Heights.intakeCoralHeight.get()
+              ElevatorTunableValues.intakeCoralHeight.get()
             )
           armRollers.currentRequest =
             ArmRollersRequest.OpenLoop(ArmRollersConstants.INTAKE_CORAL_VOLTAGE)
@@ -492,13 +492,13 @@ class Superstructure(
             // case 2: elevator is high enough for arm to move, but arms needs to move out before
             // elevator can move back down again
             arm.currentRequest =
-              Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.algaeGroundIntakeAngle.get())
+              Request.ArmRequest.ClosedLoop(ArmTunableValues.algaeGroundIntakeAngle.get())
 
             if (arm.isAtTargetedPosition) {
               // once arm is out, we can move the elevator back down
               elevator.currentRequest =
                 Request.ElevatorRequest.ClosedLoop(
-                  ElevatorTunableValues.Heights.intakeAlgaeGroundHeight.get()
+                  ElevatorTunableValues.intakeAlgaeGroundHeight.get()
                 )
             }
           }
@@ -507,9 +507,9 @@ class Superstructure(
           elevator.currentRequest =
             Request.ElevatorRequest.ClosedLoop(
               when (algaeIntakeLevel) {
-                AlgaeIntakeLevel.L2 -> ElevatorTunableValues.Heights.intakeAlgaeLowHeight.get()
-                AlgaeIntakeLevel.L3 -> ElevatorTunableValues.Heights.intakeAlgaeHighHeight.get()
-                else -> ElevatorTunableValues.Heights.idleHeight.get()
+                AlgaeIntakeLevel.L2 -> ElevatorTunableValues.intakeAlgaeLowHeight.get()
+                AlgaeIntakeLevel.L3 -> ElevatorTunableValues.intakeAlgaeHighHeight.get()
+                else -> ElevatorTunableValues.idleHeight.get()
               }
             )
 
@@ -517,9 +517,9 @@ class Superstructure(
             arm.currentRequest =
               Request.ArmRequest.ClosedLoop(
                 when (algaeIntakeLevel) {
-                  AlgaeIntakeLevel.L2 -> ArmTunableValues.Angles.algaeLowIntakeAngle.get()
-                  AlgaeIntakeLevel.L3 -> ArmTunableValues.Angles.algaeHighIntakeAngle.get()
-                  else -> ArmTunableValues.Angles.idleAngle.get()
+                  AlgaeIntakeLevel.L2 -> ArmTunableValues.algaeLowIntakeAngle.get()
+                  AlgaeIntakeLevel.L3 -> ArmTunableValues.algaeHighIntakeAngle.get()
+                  else -> ArmTunableValues.idleAngle.get()
                 }
               )
           }
@@ -587,17 +587,17 @@ class Superstructure(
         if (coralScoringLevel != lastPrepLevel && lastPrepLevel != CoralLevel.NONE) {
           arm.currentRequest =
             Request.ArmRequest.ClosedLoop(
-              ArmTunableValues.Angles.movingBetweenReefLevelsAngles.get()
+              ArmTunableValues.movingBetweenReefLevelsAngles.get()
             )
           if (arm.isAtTargetedPosition) {
             elevator.currentRequest =
               Request.ElevatorRequest.ClosedLoop(
                 when (coralScoringLevel) {
-                  CoralLevel.L1 -> ElevatorTunableValues.Heights.L1Height.get()
-                  CoralLevel.L2 -> ElevatorTunableValues.Heights.L2Height.get()
-                  CoralLevel.L3 -> ElevatorTunableValues.Heights.L3Height.get()
-                  CoralLevel.L4 -> ElevatorTunableValues.Heights.L4Height.get()
-                  else -> ElevatorTunableValues.Heights.idleHeight.get()
+                  CoralLevel.L1 -> ElevatorTunableValues.L1Height.get()
+                  CoralLevel.L2 -> ElevatorTunableValues.L2Height.get()
+                  CoralLevel.L3 -> ElevatorTunableValues.L3Height.get()
+                  CoralLevel.L4 -> ElevatorTunableValues.L4Height.get()
+                  else -> ElevatorTunableValues.idleHeight.get()
                 }
               )
             if (elevator.isAtTargetedPosition) lastPrepLevel = coralScoringLevel
@@ -608,16 +608,16 @@ class Superstructure(
             !arm.isAtTargetedPosition
           ) {
             elevator.currentRequest =
-              Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.Heights.l1InitHeight.get())
+              Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.l1InitHeight.get())
           } else {
             arm.currentRequest =
               Request.ArmRequest.ClosedLoop(
                 when (coralScoringLevel) {
-                  CoralLevel.L1 -> ArmTunableValues.Angles.l1PrepAngle.get()
-                  CoralLevel.L2 -> ArmTunableValues.Angles.l2PrepAngle.get()
-                  CoralLevel.L3 -> ArmTunableValues.Angles.l3PrepAngle.get()
-                  CoralLevel.L4 -> ArmTunableValues.Angles.l4PrepAngle.get()
-                  else -> ArmTunableValues.Angles.idleCoralAngle.get()
+                  CoralLevel.L1 -> ArmTunableValues.l1PrepAngle.get()
+                  CoralLevel.L2 -> ArmTunableValues.l2PrepAngle.get()
+                  CoralLevel.L3 -> ArmTunableValues.l3PrepAngle.get()
+                  CoralLevel.L4 -> ArmTunableValues.l4PrepAngle.get()
+                  else -> ArmTunableValues.idleCoralAngle.get()
                 }
               )
 
@@ -628,11 +628,11 @@ class Superstructure(
               elevator.currentRequest =
                 Request.ElevatorRequest.ClosedLoop(
                   when (coralScoringLevel) {
-                    CoralLevel.L1 -> ElevatorTunableValues.Heights.L1Height.get()
-                    CoralLevel.L2 -> ElevatorTunableValues.Heights.L2Height.get()
-                    CoralLevel.L3 -> ElevatorTunableValues.Heights.L3Height.get()
-                    CoralLevel.L4 -> ElevatorTunableValues.Heights.L4Height.get()
-                    else -> ElevatorTunableValues.Heights.idleHeight.get()
+                    CoralLevel.L1 -> ElevatorTunableValues.L1Height.get()
+                    CoralLevel.L2 -> ElevatorTunableValues.L2Height.get()
+                    CoralLevel.L3 -> ElevatorTunableValues.L3Height.get()
+                    CoralLevel.L4 -> ElevatorTunableValues.L4Height.get()
+                    else -> ElevatorTunableValues.idleHeight.get()
                   }
                 )
             }
@@ -671,11 +671,11 @@ class Superstructure(
             arm.currentRequest =
               Request.ArmRequest.ClosedLoop(
                 when (coralScoringLevel) {
-                  CoralLevel.L2 -> ArmTunableValues.Angles.l2PrepAngle.get()
-                  CoralLevel.L3 -> ArmTunableValues.Angles.l3PrepAngle.get()
-                  CoralLevel.L4 -> ArmTunableValues.Angles.l4PrepAngle.get()
-                  else -> ArmTunableValues.Angles.idleAngle.get()
-                } - ArmTunableValues.Angles.scoreOffset.get()
+                  CoralLevel.L2 -> ArmTunableValues.l2PrepAngle.get()
+                  CoralLevel.L3 -> ArmTunableValues.l3PrepAngle.get()
+                  CoralLevel.L4 -> ArmTunableValues.l4PrepAngle.get()
+                  else -> ArmTunableValues.idleAngle.get()
+                } - ArmTunableValues.scoreOffset.get()
               )
 
             if (arm.isAtTargetedPosition &&
@@ -695,19 +695,19 @@ class Superstructure(
             elevator.currentRequest =
               Request.ElevatorRequest.ClosedLoop(
                 if (theoreticalGamePieceArm == GamePiece.NONE)
-                  ElevatorTunableValues.Heights.idleHeight.get()
-                else ElevatorTunableValues.Heights.idleCoralHeight.get()
+                  ElevatorTunableValues.idleHeight.get()
+                else ElevatorTunableValues.idleCoralHeight.get()
               )
             if (elevator.isAtTargetedPosition) {
               arm.currentRequest =
-                Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleAngle.get())
+                Request.ArmRequest.ClosedLoop(ArmTunableValues.idleAngle.get())
               // now that arm is in a safe spot, idle will deal with the rest of the transition
               if (arm.isAtTargetedPosition) nextState = SuperstructureStates.IDLE
             }
           }
           else -> {
             arm.currentRequest =
-              Request.ArmRequest.ClosedLoop(ArmTunableValues.Angles.idleAngle.get())
+              Request.ArmRequest.ClosedLoop(ArmTunableValues.idleAngle.get())
             // now that arm is in a safe spot, idle will deal with the rest of the transition
             if (arm.isAtTargetedPosition) nextState = SuperstructureStates.IDLE
           }
@@ -718,18 +718,18 @@ class Superstructure(
         elevator.currentRequest =
           Request.ElevatorRequest.ClosedLoop(
             when (algaeScoringLevel) {
-              AlgaeScoringLevel.PROCESSOR -> ElevatorTunableValues.Heights.processorHeight.get()
-              AlgaeScoringLevel.BARGE -> ElevatorTunableValues.Heights.bargeHeight.get()
-              else -> ElevatorTunableValues.Heights.idleHeight.get()
+              AlgaeScoringLevel.PROCESSOR -> ElevatorTunableValues.processorHeight.get()
+              AlgaeScoringLevel.BARGE -> ElevatorTunableValues.bargeHeight.get()
+              else -> ElevatorTunableValues.idleHeight.get()
             }
           )
 
         arm.currentRequest =
           Request.ArmRequest.ClosedLoop(
             when (algaeScoringLevel) {
-              AlgaeScoringLevel.PROCESSOR -> ArmTunableValues.Angles.processorAngle.get()
-              AlgaeScoringLevel.BARGE -> ArmTunableValues.Angles.bargeAngle.get()
-              else -> ArmTunableValues.Angles.idleCoralAngle.get()
+              AlgaeScoringLevel.PROCESSOR -> ArmTunableValues.processorAngle.get()
+              AlgaeScoringLevel.BARGE -> ArmTunableValues.bargeAngle.get()
+              else -> ArmTunableValues.idleCoralAngle.get()
             }
           )
 

@@ -60,39 +60,26 @@ class Elevator(private val io: ElevatorIO) : SubsystemBase() {
   init {
     if (RobotBase.isReal()) {
       isHomed = false
-
-      ElevatorTunableValues.kP.initDefault(ElevatorConstants.PID.REAL_KP)
-      ElevatorTunableValues.kI.initDefault(ElevatorConstants.PID.REAL_KI)
-      ElevatorTunableValues.kD.initDefault(ElevatorConstants.PID.REAL_KD)
-
-      ElevatorTunableValues.kGFirst.initDefault(ElevatorConstants.PID.KG_FIRST_STAGE)
-      ElevatorTunableValues.kGSecond.initDefault(ElevatorConstants.PID.KG_SECOND_STAGE)
+      io.configPID(
+        ElevatorConstants.PID.REAL_KP,
+        ElevatorConstants.PID.REAL_KI,
+        ElevatorConstants.PID.REAL_KD
+      )
     } else {
       isHomed = true
-
-      ElevatorTunableValues.kP.initDefault(ElevatorConstants.PID.SIM_KP)
-      ElevatorTunableValues.kI.initDefault(ElevatorConstants.PID.SIM_KI)
-      ElevatorTunableValues.kD.initDefault(ElevatorConstants.PID.SIM_KD)
-
-      ElevatorTunableValues.kGFirst.initDefault(ElevatorConstants.PID.KG_SIM)
+      io.configPID(
+        ElevatorConstants.PID.SIM_KP,
+        ElevatorConstants.PID.SIM_KI,
+        ElevatorConstants.PID.SIM_KD
+      )
     }
 
-    ElevatorTunableValues.kS.initDefault(ElevatorConstants.PID.KS)
-    ElevatorTunableValues.kV.initDefault(ElevatorConstants.PID.KV)
-    ElevatorTunableValues.kA.initDefault(ElevatorConstants.PID.KA)
-
-    io.configPID(
-      ElevatorTunableValues.kP.get(),
-      ElevatorTunableValues.kI.get(),
-      ElevatorTunableValues.kD.get()
-    )
-
     io.configFF(
-      ElevatorTunableValues.kGFirst.get(),
-      ElevatorTunableValues.kGSecond.get(),
-      ElevatorTunableValues.kS.get(),
-      ElevatorTunableValues.kV.get(),
-      ElevatorTunableValues.kA.get()
+      ElevatorConstants.PID.KG_FIRST_STAGE,
+      ElevatorConstants.PID.KG_SECOND_STAGE,
+      ElevatorConstants.PID.KS,
+      ElevatorConstants.PID.KV,
+      ElevatorConstants.PID.KA
     )
   }
 

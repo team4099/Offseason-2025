@@ -46,35 +46,26 @@ class Arm(val io: ArmIO) : SubsystemBase() {
   var isHomed = false
 
   init {
+    io.configFF(
+      ArmConstants.PID.KG,
+      ArmConstants.PID.KS,
+      ArmConstants.PID.KV,
+      ArmConstants.PID.KA
+    )
 
     if (RobotBase.isReal()) {
-      isHomed = false
-
-      ArmTunableValues.armkP.initDefault(ArmConstants.PID.REAL_KP)
-      ArmTunableValues.armkI.initDefault(ArmConstants.PID.REAL_KI)
-      ArmTunableValues.armkD.initDefault(ArmConstants.PID.REAL_KD)
+      io.configPID(
+        ArmConstants.PID.REAL_KP,
+        ArmConstants.PID.REAL_KI,
+        ArmConstants.PID.REAL_KD,
+      )
     } else {
-      ArmTunableValues.armkP.initDefault(ArmConstants.PID.SIM_KP)
-      ArmTunableValues.armkI.initDefault(ArmConstants.PID.SIM_KI)
-      ArmTunableValues.armkD.initDefault(ArmConstants.PID.SIM_KD)
+      io.configPID(
+        ArmConstants.PID.SIM_KP,
+        ArmConstants.PID.SIM_KI,
+        ArmConstants.PID.SIM_KD
+      )
     }
-
-    ArmTunableValues.armkS.initDefault(ArmConstants.PID.KS)
-    ArmTunableValues.armkG.initDefault(ArmConstants.PID.KG)
-    ArmTunableValues.armkV.initDefault(ArmConstants.PID.KV)
-    ArmTunableValues.armkA.initDefault(ArmConstants.PID.KA)
-
-    io.configFF(
-      ArmTunableValues.armkG.get(),
-      ArmTunableValues.armkS.get(),
-      ArmTunableValues.armkV.get(),
-      ArmTunableValues.armkA.get()
-    )
-    io.configPID(
-      ArmTunableValues.armkP.get(),
-      ArmTunableValues.armkI.get(),
-      ArmTunableValues.armkD.get(),
-    )
   }
 
   override fun periodic() {

@@ -1,5 +1,6 @@
 package com.team4099.robot2025.subsystems.intake
 
+import org.ironmaple.simulation.IntakeSimulation
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 import org.team4099.lib.units.base.amps
@@ -24,6 +25,8 @@ import org.team4099.lib.units.perMinute
 import org.team4099.lib.units.perSecond
 
 interface IntakeIO {
+  val intakeSimulation: IntakeSimulation?
+
   class IntakeIOInputs : LoggableInputs {
     var pivotPosition = 0.0.degrees
     var pivotVelocity = 0.0.degrees.perSecond

@@ -12,6 +12,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue
 import com.team4099.lib.math.clamp
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.IntakeConstants
+import org.ironmaple.simulation.IntakeSimulation
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.celsius
 import org.team4099.lib.units.base.inAmperes
@@ -71,6 +72,8 @@ object IntakeIOTalonFX : IntakeIO {
   val pivotVoltageControl: VoltageOut = VoltageOut(0.volts.inVolts)
   val pivotPositionControl: MotionMagicVoltage = MotionMagicVoltage(0.degrees.inDegrees)
   val rollerVoltageControl: VoltageOut = VoltageOut(0.volts.inVolts).withEnableFOC(true)
+
+  override val intakeSimulation: IntakeSimulation? = null
 
   init {
     // Configure PID Values

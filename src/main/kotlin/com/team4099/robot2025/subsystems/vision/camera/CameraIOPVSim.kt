@@ -13,9 +13,12 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy
 import org.photonvision.simulation.PhotonCameraSim
 import org.photonvision.simulation.SimCameraProperties
 import org.team4099.lib.geometry.Transform3d
+import org.team4099.lib.units.base.inMilliseconds
+import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inRotation2ds
+import org.team4099.lib.units.micro
 import java.util.function.Supplier
 
 class CameraIOPVSim(
@@ -40,6 +43,12 @@ class CameraIOPVSim(
   init {
     cameraProperties.setCalibration(1280, 720, 100.0.degrees.inRotation2ds)
     cameraProperties.fps = 45.0
+
+    // examples from documentation
+    cameraProperties.setCalibError(0.25, 0.08)
+    cameraProperties.exposureTimeMs = 11.3.micro.seconds.inMilliseconds
+    cameraProperties.avgLatencyMs = 35.0
+    cameraProperties.latencyStdDevMs = 5.0
 
     cameraSim = PhotonCameraSim(camera, cameraProperties)
 

@@ -36,7 +36,7 @@ class CoolerTargetTagCommand(
   private val drivetrain: Drive,
   private val vision: Vision,
   private val xTargetOffset: Length =
-    DrivetrainConstants.DRIVETRAIN_LENGTH / 2 + DrivetrainConstants.BUMPER_WIDTH + 3.0.inches,
+    DrivetrainConstants.DRIVETRAIN_LENGTH / 2 + DrivetrainConstants.BUMPER_WIDTH,
   private val yTargetOffset: Length = 0.0.inches,
   private val thetaTargetOffset: Angle = 0.0.radians,
 ) : Command() {
@@ -80,9 +80,9 @@ class CoolerTargetTagCommand(
 
       xPID =
         PIDController(
-          DrivetrainConstants.PID.SIM_TELEOP_Y_PID_KP,
-          DrivetrainConstants.PID.SIM_TELEOP_Y_PID_KI,
-          DrivetrainConstants.PID.SIM_TELEOP_Y_PID_KD
+          DrivetrainConstants.PID.SIM_TELEOP_X_PID_KP,
+          DrivetrainConstants.PID.SIM_TELEOP_X_PID_KI,
+          DrivetrainConstants.PID.SIM_TELEOP_X_PID_KD
         )
     } else {
       if (DriverStation.isAutonomous()) {
@@ -169,7 +169,9 @@ class CoolerTargetTagCommand(
       xPID.calculate(setpointTranslation.x, xTargetOffset * setpointTranslation.x.sign) *
         setpointTranslation.x.sign
     var yvel = -yPID.calculate(setpointTranslation.y, yTargetOffset)
-    var thetavel = -thetaPID.calculate(drivetrain.rotation, setpointRotation + thetaTargetOffset)
+    var thetavel =
+      thetaPID.calculate(drivetrain.rotation, setpointRotation + thetaTargetOffset) *
+        if (RobotBase.isReal()) -1.0 else 1.0
 
     CustomLogger.recordOutput("CoolerTargetTagCommand/xvelmps", xvel.inMetersPerSecond)
     CustomLogger.recordOutput("CoolerTargetTagCommand/yvelmps", yvel.inMetersPerSecond)
@@ -193,7 +195,7 @@ class CoolerTargetTagCommand(
   }
 
   override fun isFinished(): Boolean {
-    return xPID.error < 1.2.inches && yPID.error < 1.2.inches && thetaPID.error < 3.degrees
+    return xPID.error < .8.inches && yPID.error < .8.inches && thetaPID.error < 2.5.degrees
   }
 
   override fun end(interrupted: Boolean) {
@@ -208,15 +210,38 @@ class CoolerTargetTagCommand(
 
   companion object {
     fun alignLeftCommand(drivetrain: Drive, vision: Vision): CoolerTargetTagCommand {
-      return CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (12.94 / 2).inches)
+      return CoolerTargetTagCommand(
+        drivetrain,
+        vision,
+        xTargetOffset =
+        DrivetrainConstants.DRIVETRAIN_LENGTH / 2 +
+          DrivetrainConstants.BUMPER_WIDTH +
+          2.0.inches,
+        yTargetOffset = (12.94 / 2).inches
+      )
     }
 
     fun alignRightCommand(drivetrain: Drive, vision: Vision): CoolerTargetTagCommand {
-      return CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (-12.94 / 2).inches)
+      return CoolerTargetTagCommand(
+        drivetrain,
+        vision,
+        xTargetOffset =
+        DrivetrainConstants.DRIVETRAIN_LENGTH / 2 +
+          DrivetrainConstants.BUMPER_WIDTH +
+          2.0.inches,
+        yTargetOffset = (-12.94 / 2).inches
+      )
     }
 
     fun alignCenter(drivetrain: Drive, vision: Vision): CoolerTargetTagCommand {
-      return CoolerTargetTagCommand(drivetrain, vision)
+      return CoolerTargetTagCommand(
+        drivetrain,
+        vision,
+        xTargetOffset =
+        DrivetrainConstants.DRIVETRAIN_LENGTH / 2 +
+          DrivetrainConstants.BUMPER_WIDTH +
+          2.0.inches
+      )
     }
   }
 }

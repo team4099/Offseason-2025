@@ -60,7 +60,7 @@ object ControlBoard {
   val alignRight = Trigger { driver.rightShoulderButton }
 
   val resetGyro = Trigger { driver.startButton && driver.selectButton }
-  val forceIdle = Trigger { driver.dPadDown || operator.dPadDown }
+  val forceIdle = Trigger { driver.dPadDown || operator.dPadDown || driver.xButton }
   val resetGamePieceNone = Trigger {
     operator.leftTriggerAxis > .5 && operator.rightTriggerAxis > .5
   }

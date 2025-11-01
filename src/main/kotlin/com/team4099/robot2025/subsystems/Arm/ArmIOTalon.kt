@@ -58,6 +58,8 @@ object ArmIOTalon : ArmIO {
   private val configs: TalonFXConfiguration = TalonFXConfiguration()
   var slot0Configs = configs.Slot0
 
+  override val intakeSimulation = null
+
   var statorCurrentSignal: StatusSignal<WPICurrent>
   var supplyCurrentSignal: StatusSignal<WPICurrent>
   var tempSignal: StatusSignal<WPITemp>

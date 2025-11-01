@@ -46,6 +46,8 @@ object IntakeConstants {
 
   val FORCE_DOWN_VOLTAGE = (-3).volts
 
+  val LENGTH_EXTENDED = 13.inches
+
   object ANGLES {
     val INTAKE_ANGLE = (-40).degrees
     val STOW_ANGLE = 117.5.degrees

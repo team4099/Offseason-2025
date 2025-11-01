@@ -7,6 +7,9 @@ import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.wpilibj.simulation.BatterySim
 import edu.wpi.first.wpilibj.simulation.RoboRioSim
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim
+import org.dyn4j.geometry.HalfEllipse
+import org.ironmaple.simulation.IntakeSimulation
+import org.ironmaple.simulation.drivesims.AbstractDriveTrainSimulation
 import org.team4099.lib.controller.ArmFeedforward
 import org.team4099.lib.controller.ProfiledPIDController
 import org.team4099.lib.controller.TrapezoidProfile
@@ -32,7 +35,7 @@ import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.perSecond
 
-object ArmIOSIm : ArmIO {
+class ArmIOSim(drivetrainSimulation: AbstractDriveTrainSimulation) : ArmIO {
   val armSim =
     SingleJointedArmSim(
       DCMotor.getKrakenX60Foc(1),
@@ -43,7 +46,7 @@ object ArmIOSIm : ArmIO {
       ArmConstants.ARM_LENGTH.inMeters,
       ArmConstants.MIN_ROTATION.inRadians,
       ArmConstants.MAX_ROTATION.inRadians,
-      true,
+      false,
       ArmConstants.MIN_ROTATION.inRadians
     )
 
@@ -61,11 +64,24 @@ object ArmIOSIm : ArmIO {
     )
 
   private var armFeedforward =
-    ArmFeedforward(
-      ArmConstants.PID.KS, ArmConstants.PID.KG, ArmConstants.PID.KV, ArmConstants.PID.KA
-    )
+    ArmFeedforward(ArmConstants.PID.KS, kG = 0.0.volts, ArmConstants.PID.KV, ArmConstants.PID.KA)
 
   private var appliedVoltage = 0.0.volts
+
+  private val intakeShape =
+    HalfEllipse(
+      ArmConstants.SIM_INTAKE_WIDTH.inMeters, ArmConstants.SIM_INTAKE_HALFHEIGHT.inMeters
+    )
+
+  override val intakeSimulation: IntakeSimulation
+
+  init {
+    intakeShape.translate(-ArmConstants.ARM_LENGTH.inMeters, 0.0)
+
+    // its much harder (impossible?) to have a moving IntakeSimulation bounding box, so we
+    // just pretend thats its always out (90 deg) and assume that the sim-driver is clever
+    intakeSimulation = IntakeSimulation("Algae", drivetrainSimulation, intakeShape, 1)
+  }
 
   override fun updateInputs(inputs: ArmIO.ArmIOInputs) {
     armSim.update(Constants.Universal.LOOP_PERIOD_TIME.inSeconds)

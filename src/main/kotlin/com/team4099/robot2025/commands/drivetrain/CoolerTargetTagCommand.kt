@@ -240,7 +240,7 @@ class CoolerTargetTagCommand(
         xTargetOffset =
         DrivetrainConstants.DRIVETRAIN_LENGTH / 2 +
           DrivetrainConstants.BUMPER_WIDTH +
-          3.0.inches
+          2.0.inches
       )
     }
   }

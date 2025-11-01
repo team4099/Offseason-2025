@@ -758,9 +758,13 @@ class Superstructure(
               lastSimProjectileShootTime = Clock.fpgaTime
               CustomLogger.recordOutput(
                 "RobotSimulation/projectileSpeedMPS",
-                arm.inputs.armVelocity.inRadiansPerSecond *
+                arm.inputs.armVelocity.absoluteValue.inRadiansPerSecond *
                   ArmConstants.ARM_LENGTH_TO_ALGAE_CENTER.inMeters
               )
+              CustomLogger.recordOutput(
+                "RobotSimulation/launchAngle", -arm.inputs.armPosition.inDegrees - 270
+              )
+
               SimulatedArena.getInstance()
                 .addGamePieceProjectile(
                   ReefscapeCoralOnFly(
@@ -778,15 +782,14 @@ class Superstructure(
                         arm.inputs.armPosition.sin
                     ),
                     MetersPerSecond.of(
-                      arm.inputs.armVelocity.inRadiansPerSecond *
+                      arm.inputs.armVelocity.absoluteValue.inRadiansPerSecond *
                         ArmConstants.ARM_LENGTH.inMeters
                     ),
-                    Degrees.of(arm.inputs.armPosition.absoluteValue.inDegrees)
+                    Degrees.of(360 - arm.inputs.armPosition.inDegrees)
                   )
                     .withProjectileTrajectoryDisplayCallBack { pose3ds ->
                       Logger.recordOutput(
-                        "RobotSimulation/ProjectileSuccessfulShot",
-                        *(pose3ds.toTypedArray())
+                        "RobotSimulation/ProjectileShot", *(pose3ds.toTypedArray())
                       )
                     }
                 )
@@ -891,7 +894,7 @@ class Superstructure(
           lastSimProjectileShootTime = Clock.fpgaTime
           CustomLogger.recordOutput(
             "RobotSimulation/projectileSpeedMPS",
-            arm.inputs.armVelocity.inRadiansPerSecond *
+            arm.inputs.armVelocity.absoluteValue.inRadiansPerSecond *
               ArmConstants.ARM_LENGTH_TO_ALGAE_CENTER.inMeters
           )
           SimulatedArena.getInstance()
@@ -912,10 +915,10 @@ class Superstructure(
                     arm.inputs.armPosition.sin
                 ),
                 MetersPerSecond.of(
-                  arm.inputs.armVelocity.inRadiansPerSecond *
+                  arm.inputs.armVelocity.absoluteValue.inRadiansPerSecond *
                     ArmConstants.ARM_LENGTH_TO_ALGAE_CENTER.inMeters
                 ),
-                Degrees.of(arm.inputs.armPosition.absoluteValue.inDegrees)
+                Degrees.of(270 + arm.inputs.armPosition.inDegrees)
               )
                 .withProjectileTrajectoryDisplayCallBack { pose3ds ->
                   Logger.recordOutput(

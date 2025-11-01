@@ -313,9 +313,7 @@ class Superstructure(
               ArmRollersRequest.OpenLoop(ArmRollersConstants.IDLE_ALGAE_VOLTAGE)
             if (arm.isAtTargetedPosition) {
               elevator.currentRequest =
-                Request.ElevatorRequest.ClosedLoop(
-                  ElevatorTunableValues.idleAlgaeHeight.get()
-                )
+                Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.idleAlgaeHeight.get())
             }
           }
           else -> {
@@ -448,9 +446,7 @@ class Superstructure(
 
         if (arm.isAtTargetedPosition) {
           elevator.currentRequest =
-            Request.ElevatorRequest.ClosedLoop(
-              ElevatorTunableValues.intakeCoralHeight.get()
-            )
+            Request.ElevatorRequest.ClosedLoop(ElevatorTunableValues.intakeCoralHeight.get())
           armRollers.currentRequest =
             ArmRollersRequest.OpenLoop(ArmRollersConstants.INTAKE_CORAL_VOLTAGE)
 
@@ -586,9 +582,7 @@ class Superstructure(
         // if moving from one prep level to another
         if (coralScoringLevel != lastPrepLevel && lastPrepLevel != CoralLevel.NONE) {
           arm.currentRequest =
-            Request.ArmRequest.ClosedLoop(
-              ArmTunableValues.movingBetweenReefLevelsAngles.get()
-            )
+            Request.ArmRequest.ClosedLoop(ArmTunableValues.movingBetweenReefLevelsAngles.get())
           if (arm.isAtTargetedPosition) {
             elevator.currentRequest =
               Request.ElevatorRequest.ClosedLoop(
@@ -699,15 +693,13 @@ class Superstructure(
                 else ElevatorTunableValues.idleCoralHeight.get()
               )
             if (elevator.isAtTargetedPosition) {
-              arm.currentRequest =
-                Request.ArmRequest.ClosedLoop(ArmTunableValues.idleAngle.get())
+              arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmTunableValues.idleAngle.get())
               // now that arm is in a safe spot, idle will deal with the rest of the transition
               if (arm.isAtTargetedPosition) nextState = SuperstructureStates.IDLE
             }
           }
           else -> {
-            arm.currentRequest =
-              Request.ArmRequest.ClosedLoop(ArmTunableValues.idleAngle.get())
+            arm.currentRequest = Request.ArmRequest.ClosedLoop(ArmTunableValues.idleAngle.get())
             // now that arm is in a safe spot, idle will deal with the rest of the transition
             if (arm.isAtTargetedPosition) nextState = SuperstructureStates.IDLE
           }

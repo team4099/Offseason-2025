@@ -4,18 +4,6 @@ import com.team4099.lib.logging.LoggedTunableValue
 import com.team4099.robot2025.config.constants.ArmConstants
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inDegrees
-import org.team4099.lib.units.derived.inVolts
-import org.team4099.lib.units.derived.inVoltsPerDegree
-import org.team4099.lib.units.derived.inVoltsPerDegreePerSecond
-import org.team4099.lib.units.derived.inVoltsPerDegreeSeconds
-import org.team4099.lib.units.derived.inVoltsPerRadianPerSecond
-import org.team4099.lib.units.derived.inVoltsPerRadianPerSecondPerSecond
-import org.team4099.lib.units.derived.perDegree
-import org.team4099.lib.units.derived.perDegreePerSecond
-import org.team4099.lib.units.derived.perDegreeSeconds
-import org.team4099.lib.units.derived.perRadianPerSecond
-import org.team4099.lib.units.derived.perRadianPerSecondPerSecond
-import org.team4099.lib.units.derived.volts
 
 object ArmTunableValues {
   val idleAngle =
@@ -70,9 +58,7 @@ object ArmTunableValues {
 
   val bargeAngle =
     LoggedTunableValue(
-      "arm/bargeAngle",
-      ArmConstants.ANGLES.BARGE_ANGLE,
-      Pair({ it.inDegrees }, { it.degrees })
+      "arm/bargeAngle", ArmConstants.ANGLES.BARGE_ANGLE, Pair({ it.inDegrees }, { it.degrees })
     )
   val processorAngle =
     LoggedTunableValue(

@@ -49,15 +49,11 @@ class Climber(private val io: ClimberIO) : SubsystemBase() {
   init {
     if (RobotBase.isReal()) {
       io.configClimberPID(
-        ClimberConstants.PID.KP_REAL,
-        ClimberConstants.PID.KI_REAL,
-        ClimberConstants.PID.KD_REAL
+        ClimberConstants.PID.KP_REAL, ClimberConstants.PID.KI_REAL, ClimberConstants.PID.KD_REAL
       )
     } else {
       io.configClimberPID(
-        ClimberConstants.PID.KP_SIM,
-        ClimberConstants.PID.KI_SIM,
-        ClimberConstants.PID.KD_SIM
+        ClimberConstants.PID.KP_SIM, ClimberConstants.PID.KI_SIM, ClimberConstants.PID.KD_SIM
       )
     }
 

@@ -46,12 +46,7 @@ class Arm(val io: ArmIO) : SubsystemBase() {
   var isHomed = false
 
   init {
-    io.configFF(
-      ArmConstants.PID.KG,
-      ArmConstants.PID.KS,
-      ArmConstants.PID.KV,
-      ArmConstants.PID.KA
-    )
+    io.configFF(ArmConstants.PID.KG, ArmConstants.PID.KS, ArmConstants.PID.KV, ArmConstants.PID.KA)
 
     if (RobotBase.isReal()) {
       io.configPID(
@@ -60,11 +55,7 @@ class Arm(val io: ArmIO) : SubsystemBase() {
         ArmConstants.PID.REAL_KD,
       )
     } else {
-      io.configPID(
-        ArmConstants.PID.SIM_KP,
-        ArmConstants.PID.SIM_KI,
-        ArmConstants.PID.SIM_KD
-      )
+      io.configPID(ArmConstants.PID.SIM_KP, ArmConstants.PID.SIM_KI, ArmConstants.PID.SIM_KD)
     }
   }
 

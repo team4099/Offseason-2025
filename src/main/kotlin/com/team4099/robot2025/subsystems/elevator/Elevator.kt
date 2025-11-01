@@ -68,9 +68,7 @@ class Elevator(private val io: ElevatorIO) : SubsystemBase() {
     } else {
       isHomed = true
       io.configPID(
-        ElevatorConstants.PID.SIM_KP,
-        ElevatorConstants.PID.SIM_KI,
-        ElevatorConstants.PID.SIM_KD
+        ElevatorConstants.PID.SIM_KP, ElevatorConstants.PID.SIM_KI, ElevatorConstants.PID.SIM_KD
       )
     }
 

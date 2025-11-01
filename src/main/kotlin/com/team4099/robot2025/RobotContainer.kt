@@ -39,6 +39,7 @@ import com.team4099.robot2025.subsystems.led.LedIO
 import com.team4099.robot2025.subsystems.led.LedIOCandle
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
 import com.team4099.robot2025.subsystems.vision.Vision
+import com.team4099.robot2025.subsystems.vision.camera.CameraIO
 import com.team4099.robot2025.subsystems.vision.camera.CameraIOPVSim
 import com.team4099.robot2025.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.util.driver.Jessika
@@ -90,12 +91,14 @@ object RobotContainer {
       vision =
         Vision(
           CameraIOPhotonvision(
+            CameraIO.DetectionPipeline.APRIL_TAG,
             VisionConstants.CAMERA_NAMES[0],
             VisionConstants.CAMERA_TRANSFORMS[0],
             drivetrain::addVisionMeasurement,
             { drivetrain.pose.rotation },
           ),
           CameraIOPhotonvision(
+            CameraIO.DetectionPipeline.APRIL_TAG,
             VisionConstants.CAMERA_NAMES[1],
             VisionConstants.CAMERA_TRANSFORMS[1],
             drivetrain::addVisionMeasurement,
@@ -126,12 +129,14 @@ object RobotContainer {
       vision =
         Vision(
           CameraIOPVSim(
+            CameraIO.DetectionPipeline.APRIL_TAG,
             VisionConstants.CAMERA_NAMES[0],
             VisionConstants.CAMERA_TRANSFORMS[0],
             drivetrain::addVisionMeasurement,
             { drivetrain.rotation }
           ),
           CameraIOPVSim(
+            CameraIO.DetectionPipeline.APRIL_TAG,
             VisionConstants.CAMERA_NAMES[1],
             VisionConstants.CAMERA_TRANSFORMS[1],
             drivetrain::addVisionMeasurement,

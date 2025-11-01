@@ -159,6 +159,8 @@ object VisionConstants {
   val XY_STDDEV = 0.05
   val THETA_STDDEV = 10.0
 
+  val CONFIDENCE_THRESHOLD = 0.0
+
   val CAMERA_TRANSFORMS =
     listOf(
       Transform3d(

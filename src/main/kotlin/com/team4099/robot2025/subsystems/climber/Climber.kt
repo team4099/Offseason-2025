@@ -48,55 +48,25 @@ class Climber(private val io: ClimberIO) : SubsystemBase() {
 
   init {
     if (RobotBase.isReal()) {
-      ClimberTunableValues.kP.initDefault(ClimberConstants.PID.KP_REAL)
-      ClimberTunableValues.kI.initDefault(ClimberConstants.PID.KI_REAL)
-      ClimberTunableValues.kD.initDefault(ClimberConstants.PID.KD_REAL)
+      io.configClimberPID(
+        ClimberConstants.PID.KP_REAL, ClimberConstants.PID.KI_REAL, ClimberConstants.PID.KD_REAL
+      )
     } else {
-      ClimberTunableValues.kP.initDefault(ClimberConstants.PID.KP_SIM)
-      ClimberTunableValues.kI.initDefault(ClimberConstants.PID.KI_SIM)
-      ClimberTunableValues.kD.initDefault(ClimberConstants.PID.KD_SIM)
+      io.configClimberPID(
+        ClimberConstants.PID.KP_SIM, ClimberConstants.PID.KI_SIM, ClimberConstants.PID.KD_SIM
+      )
     }
 
-    ClimberTunableValues.kS.initDefault(ClimberConstants.PID.KG_DEFAULT)
-    ClimberTunableValues.kGDefault.initDefault(ClimberConstants.PID.KG_DEFAULT)
-    ClimberTunableValues.kGLatched.initDefault(ClimberConstants.PID.KG_LATCHED)
-    ClimberTunableValues.kGUnLatched.initDefault(ClimberConstants.PID.KG_UNLATCHED)
-    ClimberTunableValues.kV.initDefault(ClimberConstants.PID.KV)
-    ClimberTunableValues.kA.initDefault(ClimberConstants.PID.KA)
+    io.configClimberFF(
+      ClimberConstants.PID.KG_DEFAULT,
+      ClimberConstants.PID.KS,
+      ClimberConstants.PID.KV,
+      ClimberConstants.PID.KA
+    )
   }
 
   override fun periodic() {
     io.updateInputs(inputs)
-
-    val hasPIDChanged: Boolean =
-      ClimberTunableValues.kP.hasChanged() ||
-        ClimberTunableValues.kI.hasChanged() ||
-        ClimberTunableValues.kD.hasChanged()
-
-    val hasFFChanged: Boolean =
-      ClimberTunableValues.kS.hasChanged() ||
-        ClimberTunableValues.kGDefault.hasChanged() ||
-        ClimberTunableValues.kGLatched.hasChanged() ||
-        ClimberTunableValues.kGUnLatched.hasChanged() ||
-        ClimberTunableValues.kV.hasChanged() ||
-        ClimberTunableValues.kA.hasChanged()
-
-    if (hasPIDChanged) {
-      io.configClimberPID(
-        ClimberTunableValues.kP.get(),
-        ClimberTunableValues.kI.get(),
-        ClimberTunableValues.kD.get()
-      )
-    }
-
-    if (hasFFChanged) {
-      io.configClimberFF(
-        ClimberTunableValues.kGDefault.get(),
-        ClimberTunableValues.kS.get(),
-        ClimberTunableValues.kV.get(),
-        ClimberTunableValues.kA.get()
-      )
-    }
 
     CustomLogger.processInputs("Climber", inputs)
 

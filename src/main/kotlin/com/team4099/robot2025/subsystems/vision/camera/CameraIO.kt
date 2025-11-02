@@ -64,22 +64,36 @@ interface CameraIO {
       table?.put("cameraTargets/indices", cameraTargets.size)
 
       for (targetIndex in cameraTargets.indices) {
-        table?.put("cameraTargets/$targetIndex/id", cameraTargets[targetIndex].fiducialId)
         table?.put("cameraTargets/$targetIndex/yaw", cameraTargets[targetIndex].yaw)
         table?.put("cameraTargets/$targetIndex/pitch", cameraTargets[targetIndex].pitch)
         table?.put("cameraTargets/$targetIndex/area", cameraTargets[targetIndex].area)
         table?.put("cameraTargets/$targetIndex/skew", cameraTargets[targetIndex].skew)
-        for (i in 0..3) {
-          table?.put(
-            "cameraTargets/$targetIndex/corners/$i",
-            cameraTargets[targetIndex].detectedCorners[i]
-          )
-        }
         table?.put(
           "cameraTargets/$targetIndex/cameraToTarget",
           cameraTargets[targetIndex].bestCameraToTarget
         )
-        table?.put("cameraTargets/$targetIndex/ambiguity", cameraTargets[targetIndex].poseAmbiguity)
+
+        if (cameraTargets[targetIndex].fiducialId != -1) {
+          table?.put("cameraTargets/$targetIndex/id", cameraTargets[targetIndex].fiducialId)
+
+          for (i in 0..3) {
+            table?.put(
+              "cameraTargets/$targetIndex/corners/$i",
+              cameraTargets[targetIndex].detectedCorners[i]
+            )
+          }
+          table?.put(
+            "cameraTargets/$targetIndex/ambiguity", cameraTargets[targetIndex].poseAmbiguity
+          )
+        } else {
+          table?.put(
+            "cameraTargets/$targetIndex/classId",
+            cameraTargets[targetIndex].detectedObjectClassID
+          )
+          table?.put(
+            "cameraTargets/$targetIndex/confidence", cameraTargets[targetIndex].objDetectConf
+          )
+        }
       }
     }
 
@@ -145,14 +159,10 @@ interface CameraIO {
     inputs.timestamp = mostRecentPipelineResult.timestampSeconds.seconds
     Logger.recordOutput("Vision/$identifier/timestampIG", mostRecentPipelineResult.timestampSeconds)
 
+    inputs.cameraTargets = mostRecentPipelineResult.targets
+
     when (pipeline) {
       DetectionPipeline.APRIL_TAG -> {
-        inputs.cameraTargets =
-          mostRecentPipelineResult
-            .targets
-            .filter { it.fiducialId != -1 || it.objDetectId == -1 }
-            .toMutableList()
-
         if (mostRecentPipelineResult.hasTargets()) {
           val visionEst: Optional<EstimatedRobotPose> =
             photonEstimator.update(mostRecentPipelineResult)
@@ -179,13 +189,7 @@ interface CameraIO {
           }
         }
       }
-      DetectionPipeline.OBJECT_DETECTION -> {
-        inputs.cameraTargets =
-          mostRecentPipelineResult
-            .targets
-            .filter { it.fiducialId == -1 || it.objDetectId != -1 }
-            .toMutableList()
-      }
+      DetectionPipeline.OBJECT_DETECTION -> {}
     }
   }
 

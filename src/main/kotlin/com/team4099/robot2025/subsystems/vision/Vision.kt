@@ -11,11 +11,11 @@ import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.subsystems.vision.camera.CameraIO
 import com.team4099.robot2025.util.CustomLogger
 import com.team4099.robot2025.util.FMSData
+import com.team4099.robot2025.util.toPose3d
 import com.team4099.robot2025.util.toTransform3d
 import edu.wpi.first.apriltag.AprilTagFieldLayout
 import edu.wpi.first.apriltag.AprilTagFields
 import edu.wpi.first.math.VecBuilder
-import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.littletonrobotics.junction.Logger
 import org.photonvision.PhotonUtils
 import org.photonvision.simulation.VisionSystemSim
+import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.geometry.Pose3d
 import org.team4099.lib.geometry.Rotation3d
 import org.team4099.lib.geometry.Transform2d
@@ -76,7 +77,8 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
   var lastTrigVisionUpdate =
     TimestampedTrigVisionUpdate(Clock.fpgaTime, -1, Transform2d(Translation2d(), 0.degrees))
 
-  var lastObjVisionUpdate = TimestampedObjectVisionUpdate(Clock.fpgaTime, -1, Transform3d())
+  var lastCoralVisionUpdate = TimestampedObjectVisionUpdate(Clock.fpgaTime, -1, Transform3d())
+  var lastAlgaeVisionUpdate = TimestampedObjectVisionUpdate(Clock.fpgaTime, -1, Transform3d())
 
   private val fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField)
 
@@ -99,7 +101,7 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
   }
 
   override fun periodic() {
-    visionSim?.update(poseSupplier.get())
+    visionSim?.update(poseSupplier.get().pose2d)
 
     Logger.recordOutput(
       "Vision/cameraTransform1",
@@ -330,33 +332,61 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
               it.objDetectId != -1 && it.objDetectConf >= VisionConstants.CONFIDENCE_THRESHOLD
             }
 
-          for (obj in objTargets) {
-            val robotTObj =
-              Transform3d(
-                Translation3d(obj.bestCameraToTarget.translation),
-                Rotation3d(obj.bestCameraToTarget.rotation)
-              )
+          for (idx in objTargets.indices) {
+            // object pose detection credit to 5990 TRIGON Robot Template on Github, available at
+            // https://github.com/Programming-TRIGON/RobotTemplate/blob/2d24e98f5e7f5b22657669d6d2a23f5c06f8231d/
+            // src/main/java/frc/trigon/robot/misc/objectdetectioncamera/ObjectDetectionCamera.java#L62
+            val rotation =
+              Rotation3d(0.radians, -objTargets[idx].pitch.degrees, -objTargets[idx].yaw.degrees)
 
-            if (lastObjVisionUpdate.robotTObject == Transform3d() ||
-              robotTObj.translation.norm < lastObjVisionUpdate.robotTObject.translation.norm
-            ) {
-              lastObjVisionUpdate =
-                TimestampedObjectVisionUpdate(
-                  inputs[instance].timestamp, obj.detectedObjectClassID, robotTObj
-                )
+            val objectRotationStart =
+              VisionConstants.CAMERA_TRANSFORMS[instance].toPose3d()
+                .plus(Transform3d(Translation3d(), rotation))
+            val xTransform =
+              VisionConstants.CAMERA_TRANSFORMS[instance].z / objectRotationStart.rotation.y.sin
+            val objectRotationStartToGround =
+              Transform3d(Translation3d(xTransform, 0.meters, 0.meters), Rotation3d())
+
+            val robotTObject =
+              objectRotationStart.transformBy(objectRotationStartToGround).toTransform3d()
+
+            // todo change to only update to closest coral/algae, rather than update to last target
+            when (objTargets[idx].detectedObjectClassID) {
+              VisionConstants.OBJECT_CLASS.CORAL.id -> {
+                lastCoralVisionUpdate =
+                  TimestampedObjectVisionUpdate(
+                    inputs[instance].timestamp,
+                    VisionConstants.OBJECT_CLASS.CORAL.id,
+                    robotTObject
+                  )
+              }
+              VisionConstants.OBJECT_CLASS.ALGAE.id -> {
+                lastAlgaeVisionUpdate =
+                  TimestampedObjectVisionUpdate(
+                    inputs[instance].timestamp,
+                    VisionConstants.OBJECT_CLASS.ALGAE.id,
+                    robotTObject
+                  )
+              }
             }
           }
 
           CustomLogger.recordOutput(
-            "Vision/LastObjectVisionUpdate/timestampSeconds",
-            lastObjVisionUpdate.timestamp.inSeconds
+            "Vision/LastCoralVisionUpdate/timestampSeconds",
+            lastCoralVisionUpdate.timestamp.inSeconds
           )
           CustomLogger.recordOutput(
-            "Vision/LastObjectVisionUpdate/classID", lastObjVisionUpdate.targetClassID
+            "Vision/LastCoralVisionUpdate/transform",
+            lastCoralVisionUpdate.robotTObject.transform3d
+          )
+
+          CustomLogger.recordOutput(
+            "Vision/LastAlgaeVisionUpdate/timestampSeconds",
+            lastAlgaeVisionUpdate.timestamp.inSeconds
           )
           CustomLogger.recordOutput(
-            "Vision/LastObjectVisionUpdate/transform",
-            lastObjVisionUpdate.robotTObject.transform3d
+            "Vision/LastAlgaeVisionUpdate/transform",
+            lastAlgaeVisionUpdate.robotTObject.transform3d
           )
         }
       }

@@ -105,6 +105,14 @@ object RobotContainer {
             { drivetrain.pose.rotation },
             //            { vision.isAutoAligning }
           ),
+          CameraIOPhotonvision(
+            CameraIO.DetectionPipeline.OBJECT_DETECTION,
+            VisionConstants.CAMERA_NAMES[2],
+            VisionConstants.CAMERA_TRANSFORMS[2],
+            drivetrain::addVisionMeasurement,
+            { drivetrain.pose.rotation },
+          ),
+          poseSupplier = { drivetrain.pose }
         )
 
       led =
@@ -142,7 +150,7 @@ object RobotContainer {
             drivetrain::addVisionMeasurement,
             { drivetrain.rotation }
           ),
-          poseSupplier = { drivetrain.pose.pose2d }
+          poseSupplier = { drivetrain.pose }
         )
 
       led =

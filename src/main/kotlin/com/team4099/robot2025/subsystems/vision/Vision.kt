@@ -81,7 +81,7 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
   var lastTrigVisionUpdate =
     TimestampedTrigVisionUpdate(Clock.fpgaTime, -1, Transform2d(Translation2d(), 0.degrees))
 
-  var objectsDetected =
+  var objectsDetected:MutableList<MutableList<Translation2d>> =
     if(RobotBase.isReal()){
     MutableList(max(VisionConstants.OBJECT_CLASS.values().map { it.id })) {
       mutableListOf<Translation2d>()

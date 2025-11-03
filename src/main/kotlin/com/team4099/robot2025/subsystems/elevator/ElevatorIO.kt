@@ -42,48 +42,48 @@ interface ElevatorIO {
 
     var isSimulating = false
 
-    override fun toLog(table: LogTable?) {
-      table?.put("elevatorPositionInches", elevatorPosition.inInches)
-      table?.put("elevatorVelocityInchesPerSecond", elevatorVelocity.inInchesPerSecond)
-      table?.put("elevatorLeaderAppliedVoltage", leaderAppliedVoltage.inVolts)
-      table?.put("elevatorFollowerAppliedVoltage", followerAppliedVoltage.inVolts)
-      table?.put("elevatorLeaderTempCelsius", leaderTemperature.inCelsius)
-      table?.put("elevatorFollowerTempCelsius", followerTemperature.inCelsius)
-      table?.put("elevatorLeaderSupplyCurrent", leaderSupplyCurrent.inAmperes)
-      table?.put("elevatorFollowerSupplyCurrent", followerSupplyCurrent.inAmperes)
-      table?.put("elevatorLeaderStatorCurrent", leaderStatorCurrent.inAmperes)
-      table?.put("elevatorFollowerStatorCurrent", followerStatorCurrent.inAmperes)
+    override fun toLog(table: LogTable) {
+      table.put("elevatorPositionInches", elevatorPosition.inInches)
+      table.put("elevatorVelocityInchesPerSecond", elevatorVelocity.inInchesPerSecond)
+      table.put("elevatorLeaderAppliedVoltage", leaderAppliedVoltage.inVolts)
+      table.put("elevatorFollowerAppliedVoltage", followerAppliedVoltage.inVolts)
+      table.put("elevatorLeaderTempCelsius", leaderTemperature.inCelsius)
+      table.put("elevatorFollowerTempCelsius", followerTemperature.inCelsius)
+      table.put("elevatorLeaderSupplyCurrent", leaderSupplyCurrent.inAmperes)
+      table.put("elevatorFollowerSupplyCurrent", followerSupplyCurrent.inAmperes)
+      table.put("elevatorLeaderStatorCurrent", leaderStatorCurrent.inAmperes)
+      table.put("elevatorFollowerStatorCurrent", followerStatorCurrent.inAmperes)
     }
 
-    override fun fromLog(table: LogTable?) {
-      table?.get("elevatorPositionInches", elevatorPosition.inInches)?.let {
+    override fun fromLog(table: LogTable) {
+      table.get("elevatorPositionInches", elevatorPosition.inInches).let {
         elevatorPosition = it.inches
       }
-      table?.get("elevatorVelocityInchesPerSecond", elevatorVelocity.inInchesPerSecond)?.let {
+      table.get("elevatorVelocityInchesPerSecond", elevatorVelocity.inInchesPerSecond).let {
         elevatorVelocity = it.inches.perSecond
       }
-      table?.get("elevatorLeaderAppliedVoltage", leaderAppliedVoltage.inVolts)?.let {
+      table.get("elevatorLeaderAppliedVoltage", leaderAppliedVoltage.inVolts).let {
         leaderAppliedVoltage = it.volts
       }
-      table?.get("elevatorFollowerAppliedVoltage", followerAppliedVoltage.inVolts)?.let {
+      table.get("elevatorFollowerAppliedVoltage", followerAppliedVoltage.inVolts).let {
         followerAppliedVoltage = it.volts
       }
-      table?.get("elevatorLeaderTempCelsius", leaderTemperature.inCelsius)?.let {
+      table.get("elevatorLeaderTempCelsius", leaderTemperature.inCelsius).let {
         leaderTemperature = it.celsius
       }
-      table?.get("elevatorFollowerTempCelsius", followerTemperature.inCelsius)?.let {
+      table.get("elevatorFollowerTempCelsius", followerTemperature.inCelsius).let {
         followerTemperature = it.celsius
       }
-      table?.get("elevatorLeaderSupplyCurrent", leaderSupplyCurrent.inAmperes)?.let {
+      table.get("elevatorLeaderSupplyCurrent", leaderSupplyCurrent.inAmperes).let {
         leaderSupplyCurrent = it.amps
       }
-      table?.get("elevatorFollowerSupplyCurrent", followerSupplyCurrent.inAmperes)?.let {
+      table.get("elevatorFollowerSupplyCurrent", followerSupplyCurrent.inAmperes).let {
         followerSupplyCurrent = it.amps
       }
-      table?.get("elevatorLeaderSupplyCurrent", leaderStatorCurrent.inAmperes)?.let {
+      table.get("elevatorLeaderSupplyCurrent", leaderStatorCurrent.inAmperes).let {
         leaderStatorCurrent = it.amps
       }
-      table?.get("elevatorFollowerSupplyCurrent", followerStatorCurrent.inAmperes)?.let {
+      table.get("elevatorFollowerSupplyCurrent", followerStatorCurrent.inAmperes).let {
         followerStatorCurrent = it.amps
       }
     }

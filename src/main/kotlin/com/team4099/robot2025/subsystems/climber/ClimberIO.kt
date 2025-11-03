@@ -51,85 +51,85 @@ interface ClimberIO {
 
     var isSimulated: Boolean = false
 
-    override fun toLog(table: LogTable?) {
-      table?.put("climberPositionDegrees", climberPosition.inDegrees)
-      table?.put("climberVelocityDegreesPerSecond", climberVelocity.inDegreesPerSecond)
-      table?.put(
+    override fun toLog(table: LogTable) {
+      table.put("climberPositionDegrees", climberPosition.inDegrees)
+      table.put("climberVelocityDegreesPerSecond", climberVelocity.inDegreesPerSecond)
+      table.put(
         "climberAccelerationDegreesPerSecondPerSecond",
         climberAcceleration.inDegreesPerSecondPerSecond
       )
-      table?.put("climberTorqueNewtonMeters", climberTorque.inNewtons)
-      table?.put("climberAppliedVolts", climberAppliedVoltage.inVolts)
-      table?.put("climberDutyCycleVolts", climberDutyCycle.inVolts)
-      table?.put("climberStatorCurrentAmps", climberStatorCurrent.inAmperes)
-      table?.put("climberSupplyCurrentAmps", climberSupplyCurrent.inAmperes)
-      table?.put("climberTemperatureCelsius", climberTemperature.inCelsius)
+      table.put("climberTorqueNewtonMeters", climberTorque.inNewtons)
+      table.put("climberAppliedVolts", climberAppliedVoltage.inVolts)
+      table.put("climberDutyCycleVolts", climberDutyCycle.inVolts)
+      table.put("climberStatorCurrentAmps", climberStatorCurrent.inAmperes)
+      table.put("climberSupplyCurrentAmps", climberSupplyCurrent.inAmperes)
+      table.put("climberTemperatureCelsius", climberTemperature.inCelsius)
 
-      table?.put("rollersVelocityDegreesPerSecond", rollersVelocity.inDegreesPerSecond)
-      table?.put("rollersAppliedVolts", rollersAppliedVoltage.inVolts)
-      table?.put("rollersStatorCurrentAmps", rollersStatorCurrent.inAmperes)
-      table?.put("rollersSupplyCurrentAmps", rollersSupplyCurrent.inAmperes)
-      table?.put("rollersTemperatureCelsius", rollersTemperature.inCelsius)
+      table.put("rollersVelocityDegreesPerSecond", rollersVelocity.inDegreesPerSecond)
+      table.put("rollersAppliedVolts", rollersAppliedVoltage.inVolts)
+      table.put("rollersStatorCurrentAmps", rollersStatorCurrent.inAmperes)
+      table.put("rollersSupplyCurrentAmps", rollersSupplyCurrent.inAmperes)
+      table.put("rollersTemperatureCelsius", rollersTemperature.inCelsius)
     }
 
-    override fun fromLog(table: LogTable?) {
+    override fun fromLog(table: LogTable) {
       // ---------- CLIMBER ----------
-      table?.get("climberPositionDegrees", climberPosition.inDegrees)?.let {
+      table.get("climberPositionDegrees", climberPosition.inDegrees).let {
         climberPosition = it.degrees
       }
 
-      table?.get("climberVelocityDegreesPerSecond", climberVelocity.inDegreesPerSecond)?.let {
+      table.get("climberVelocityDegreesPerSecond", climberVelocity.inDegreesPerSecond).let {
         climberVelocity = it.degrees.perSecond
       }
 
-      table?.get(
+      table.get(
         "climberAccelerationDegreesPerSecondPerSecond",
         climberAcceleration.inDegreesPerSecondPerSecond
       )
-        ?.let { climberAcceleration = it.degrees.perSecond.perSecond }
+        .let { climberAcceleration = it.degrees.perSecond.perSecond }
 
-      table?.get("climberTorqueNewtonMeters", climberTorque.inNewtons)?.let {
+      table.get("climberTorqueNewtonMeters", climberTorque.inNewtons).let {
         climberTorque = it.newtons
       }
 
-      table?.get("climberAppliedVolts", climberAppliedVoltage.inVolts)?.let {
+      table.get("climberAppliedVolts", climberAppliedVoltage.inVolts).let {
         climberAppliedVoltage = it.volts
       }
 
-      table?.get("climberDutyCycleVolts", climberDutyCycle.inVolts)?.let {
+      table.get("climberDutyCycleVolts", climberDutyCycle.inVolts).let {
         climberDutyCycle = it.volts
       }
 
-      table?.get("climberStatorCurrentAmps", climberStatorCurrent.inAmperes)?.let {
+      table.get("climberStatorCurrentAmps", climberStatorCurrent.inAmperes).let {
         climberStatorCurrent = it.amps
       }
 
-      table?.get("climberSupplyCurrentAmps", climberSupplyCurrent.inAmperes)?.let {
+      table.get("climberSupplyCurrentAmps", climberSupplyCurrent.inAmperes).let {
         climberSupplyCurrent = it.amps
       }
 
-      table?.get("climberTemperatureCelsius", climberTemperature.inCelsius)?.let {
+      table.get("climberTemperatureCelsius", climberTemperature.inCelsius).let {
         climberTemperature = it.celsius
       }
 
       // ---------- ROLLERS ----------
-      table?.get("rollersVelocityDegreesPerSecond", rollersVelocity.inDegreesPerSecond)?.let {
+      table.get("rollersVelocityDegreesPerSecond", rollersVelocity.inDegreesPerSecond).let {
         rollersVelocity = it.degrees.perSecond
       }
 
-      table?.get("rollersAppliedVolts", rollersAppliedVoltage.inVolts)?.let {
+      table.get("rollersAppliedVolts", rollersAppliedVoltage.inVolts).let {
         rollersAppliedVoltage = it.volts
       }
 
-      table?.get("rollersStatorCurrentAmps", rollersStatorCurrent.inAmperes)?.let {
+      table.get("rollersStatorCurrentAmps", rollersStatorCurrent.inAmperes).let {
         rollersStatorCurrent = it.amps
       }
 
-      table?.get("rollersSupplyCurrentAmps", rollersSupplyCurrent.inAmperes)?.let {
+      table.get("rollersSupplyCurrentAmps", rollersSupplyCurrent.inAmperes).let {
         rollersSupplyCurrent = it.amps
       }
 
-      table?.get("rollersTemperatureCelsius", rollersTemperature.inCelsius)?.let {
+      table.get("rollersTemperatureCelsius", rollersTemperature.inCelsius).let {
         rollersTemperature = it.celsius
       }
     }

@@ -45,58 +45,58 @@ interface IntakeIO {
 
     var isSimulating = false
 
-    override fun toLog(table: LogTable?) {
-      table?.put("armPositionDegrees", pivotPosition.inDegrees)
-      table?.put("armVelocityDegreesPerSec", pivotVelocity.inDegreesPerSecond)
+    override fun toLog(table: LogTable) {
+      table.put("armPositionDegrees", pivotPosition.inDegrees)
+      table.put("armVelocityDegreesPerSec", pivotVelocity.inDegreesPerSecond)
 
-      table?.put("armAppliedVoltage", pivotAppliedVoltage.inVolts)
+      table.put("armAppliedVoltage", pivotAppliedVoltage.inVolts)
 
-      table?.put("armSupplyCurrentAmps", pivotSupplyCurrent.inAmperes)
+      table.put("armSupplyCurrentAmps", pivotSupplyCurrent.inAmperes)
 
-      table?.put("armStatorCurrentAmps", pivotStatorCurrent.inAmperes)
+      table.put("armStatorCurrentAmps", pivotStatorCurrent.inAmperes)
 
-      table?.put("armTempCelsius", pivotTemp.inCelsius)
+      table.put("armTempCelsius", pivotTemp.inCelsius)
 
-      table?.put("rollerVelocityRPM", rollerVelocity.inRotationsPerMinute)
+      table.put("rollerVelocityRPM", rollerVelocity.inRotationsPerMinute)
 
-      table?.put("rollerAppliedVoltage", rollerAppliedVoltage.inVolts)
+      table.put("rollerAppliedVoltage", rollerAppliedVoltage.inVolts)
 
-      table?.put("rollerSupplyCurrentAmps", rollerSupplyCurrent.inAmperes)
+      table.put("rollerSupplyCurrentAmps", rollerSupplyCurrent.inAmperes)
 
-      table?.put("rollerStatorCurrentAmps", rollerStatorCurrent.inAmperes)
+      table.put("rollerStatorCurrentAmps", rollerStatorCurrent.inAmperes)
 
-      table?.put("rollerTempCelsius", rollerTemp.inCelsius)
+      table.put("rollerTempCelsius", rollerTemp.inCelsius)
     }
 
-    override fun fromLog(table: LogTable?) {
-      table?.get("armPositionDegrees", pivotPosition.inDegrees)?.let { pivotPosition = it.degrees }
-      table?.get("armVelocityDegreesPerSec", pivotVelocity.inDegreesPerSecond)?.let {
+    override fun fromLog(table: LogTable) {
+      table.get("armPositionDegrees", pivotPosition.inDegrees).let { pivotPosition = it.degrees }
+      table.get("armVelocityDegreesPerSec", pivotVelocity.inDegreesPerSecond).let {
         pivotVelocity = it.degrees.perSecond
       }
-      table?.get("armAppliedVoltage", pivotAppliedVoltage.inVolts)?.let {
+      table.get("armAppliedVoltage", pivotAppliedVoltage.inVolts).let {
         pivotAppliedVoltage = it.volts
       }
-      table?.get("armSupplyCurrentAmps", pivotSupplyCurrent.inAmperes)?.let {
+      table.get("armSupplyCurrentAmps", pivotSupplyCurrent.inAmperes).let {
         pivotSupplyCurrent = it.amps
       }
-      table?.get("armStatorCurrentAmps", pivotStatorCurrent.inAmperes)?.let {
+      table.get("armStatorCurrentAmps", pivotStatorCurrent.inAmperes).let {
         pivotStatorCurrent = it.amps
       }
-      table?.get("armTempCelsius", pivotTemp.inCelsius)?.let { pivotTemp = it.celsius }
+      table.get("armTempCelsius", pivotTemp.inCelsius).let { pivotTemp = it.celsius }
 
-      table?.get("rollerVelocityRPM", rollerVelocity.inRotationsPerMinute)?.let {
+      table.get("rollerVelocityRPM", rollerVelocity.inRotationsPerMinute).let {
         rollerVelocity = it.rotations.perSecond
       }
-      table?.get("rollerAppliedVoltage", rollerAppliedVoltage.inVolts)?.let {
+      table.get("rollerAppliedVoltage", rollerAppliedVoltage.inVolts).let {
         rollerAppliedVoltage = it.volts
       }
-      table?.get("rollerSupplyCurrentAmps", rollerSupplyCurrent.inAmperes)?.let {
+      table.get("rollerSupplyCurrentAmps", rollerSupplyCurrent.inAmperes).let {
         rollerSupplyCurrent = it.amps
       }
-      table?.get("rollerStatorCurrentAmps", rollerStatorCurrent.inAmperes)?.let {
+      table.get("rollerStatorCurrentAmps", rollerStatorCurrent.inAmperes).let {
         rollerStatorCurrent = it.amps
       }
-      table?.get("rollerTempCelsius", rollerTemp.inCelsius)?.let { rollerTemp = it.celsius }
+      table.get("rollerTempCelsius", rollerTemp.inCelsius).let { rollerTemp = it.celsius }
     }
   }
 

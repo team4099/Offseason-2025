@@ -5,6 +5,7 @@ import com.team4099.lib.logging.TunableNumber
 import com.team4099.lib.vision.TimestampedObjectVisionUpdate
 import com.team4099.lib.vision.TimestampedTrigVisionUpdate
 import com.team4099.lib.vision.TimestampedVisionUpdate
+import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.FieldConstants
 import com.team4099.robot2025.config.constants.VisionConstants
 import com.team4099.robot2025.subsystems.superstructure.Request
@@ -111,7 +112,7 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
   private var visionSim: VisionSystemSim? = null
 
   init {
-    if (RobotBase.isSimulation()) {
+    if (RobotBase.isSimulation() && Constants.Universal.SIMULATE_VISION) {
       visionSim = VisionSystemSim("main")
       visionSim!!.addAprilTags(AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField))
 

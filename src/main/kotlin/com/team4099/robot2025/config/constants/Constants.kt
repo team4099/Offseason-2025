@@ -25,6 +25,8 @@ object Constants {
     val LOOP_PERIOD_TIME = 20.milli.seconds
     val POWER_DISTRIBUTION_HUB_ID = 1
 
+    const val SIMULATE_VISION = true
+
     enum class GamePiece {
       CORAL,
       ALGAE,
@@ -65,8 +67,6 @@ object Constants {
   object Tuning {
     const val TUNING_MODE = true
     const val DEBUGING_MODE = false
-    const val SIMULATE_DRIFT = false
-    const val DRIFT_CONSTANT = 0.001
 
     enum class SimType {
       SIM,
@@ -83,40 +83,6 @@ object Constants {
     const val TURN_DEADBAND = 0.05
   }
 
-  object Drivetrain {
-
-    enum class DrivetrainType {
-      PHOENIX_TALON,
-      REV_NEO
-    }
-
-    val DRIVETRAIN_TYPE = DrivetrainType.PHOENIX_TALON
-
-    const val FRONT_LEFT_DRIVE_ID = 11
-    const val FRONT_LEFT_STEERING_ID = 21
-    const val FRONT_LEFT_CANCODER = 1
-
-    val FRONT_LEFT_MODULE_NAME = "Front Left Wheel"
-
-    const val FRONT_RIGHT_DRIVE_ID = 12
-    const val FRONT_RIGHT_STEERING_ID = 22
-    const val FRONT_RIGHT_CANCODER = 2
-
-    val FRONT_RIGHT_MODULE_NAME = "Front Right Wheel"
-
-    const val BACK_LEFT_DRIVE_ID = 13
-    const val BACK_LEFT_STEERING_ID = 23
-    const val BACK_LEFT_CANCODER = 0
-
-    val BACK_LEFT_MODULE_NAME = "Back Left Wheel"
-
-    const val BACK_RIGHT_DRIVE_ID = 14
-    const val BACK_RIGHT_STEERING_ID = 24
-    const val BACK_RIGHT_CANCODER = 3
-
-    val BACK_RIGHT_MODULE_NAME = "Back Right Wheel"
-  }
-
   object Climber {
     const val CLIMBER_MOTOR_ID = 31
   }
@@ -125,10 +91,6 @@ object Constants {
   object Elevator {
     const val LEADER_MOTOR_ID = 41 // right
     const val FOLLOWER_MOTOR_ID = 42 // left
-  }
-
-  object Gyro {
-    const val PIGEON_2_ID = 1
   }
 
   object Arm {
@@ -141,7 +103,6 @@ object Constants {
 
   object Rollers {
     const val ROLLERS_MOTOR_ID = 61
-    const val CANDI_ID = 62
   }
 
   object Intake {
@@ -163,10 +124,6 @@ object Constants {
 
   object Alert {
     val TABS = arrayOf("Pre-match", "In-match")
-  }
-
-  object LED {
-    const val LED_CANDLE_ID = 1
   }
 
   object CanRange {

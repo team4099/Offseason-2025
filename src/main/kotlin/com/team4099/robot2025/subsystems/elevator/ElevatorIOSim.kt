@@ -71,12 +71,12 @@ object ElevatorIOSim : ElevatorIO {
 
     inputs.leaderTemperature = 0.0.celsius
     inputs.leaderStatorCurrent = 0.0.amps
-    inputs.leaderSupplyCurrent = elevatorSim.currentDrawAmps.amps / 2
+    inputs.leaderSupplyCurrent = elevatorSim.currentDrawAmps.amps
     inputs.leaderAppliedVoltage = lastAppliedVoltage
 
     inputs.followerTemperature = 0.0.celsius
     inputs.followerStatorCurrent = 0.0.amps
-    inputs.followerSupplyCurrent = elevatorSim.currentDrawAmps.amps / 2
+    inputs.followerSupplyCurrent = elevatorSim.currentDrawAmps.amps
     inputs.followerAppliedVoltage = lastAppliedVoltage
 
     inputs.isSimulating = true

@@ -3,7 +3,9 @@ package com.team4099.robot2025.subsystems.intake
 import com.team4099.robot2025.config.constants.IntakeConstants
 import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.util.CustomLogger
+import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import org.ironmaple.simulation.IntakeSimulation
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.degrees
@@ -46,6 +48,9 @@ class Intake(private val io: IntakeIO) : SubsystemBase() {
           IntakeConstants.INTAKE_TOLERANCE
         )
 
+  val gintakeSimulation: IntakeSimulation?
+    get() = io.intakeSimulation
+
   override fun periodic() {
     io.updateInputs(inputs)
     CustomLogger.processInputs("Intake", inputs)
@@ -59,6 +64,12 @@ class Intake(private val io: IntakeIO) : SubsystemBase() {
 
     CustomLogger.recordOutput("Intake/isAtTargetedPosition", isAtTargetedPosition)
 
+    if (RobotBase.isSimulation()) {
+      CustomLogger.recordOutput(
+        "Intake/intakeSimulationGamePieceNumber", gintakeSimulation!!.gamePiecesAmount
+      )
+    }
+
     when (currentState) {
       IntakeState.UNINITIALIZED -> {
         nextState = fromRequestToState(currentRequest)
@@ -70,6 +81,10 @@ class Intake(private val io: IntakeIO) : SubsystemBase() {
       IntakeState.OPEN_LOOP -> {
         io.setPivotVoltage(pivotVoltageTarget)
         io.setRollerVoltage(rollerVoltageTarget)
+
+        if (pivotVoltageTarget < 0.volts) io.intakeSimulation?.startIntake()
+        else io.intakeSimulation?.stopIntake()
+
         nextState = fromRequestToState(currentRequest)
       }
       IntakeState.TARGETING_POSITION -> {
@@ -82,6 +97,7 @@ class Intake(private val io: IntakeIO) : SubsystemBase() {
             )
         )
           io.setRollerVoltage(rollerVoltageTarget)
+
         nextState = fromRequestToState(currentRequest)
       }
     }

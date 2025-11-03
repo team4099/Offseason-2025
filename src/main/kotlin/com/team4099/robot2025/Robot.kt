@@ -160,6 +160,8 @@ object Robot : LoggedRobot() {
         .entry
 
     FollowPathCommand.warmupCommand().schedule()
+
+    Logger.recordOutput("RobotSimulation/simulateVision", Constants.Universal.SIMULATE_VISION)
   }
 
   override fun autonomousInit() {
@@ -176,6 +178,7 @@ object Robot : LoggedRobot() {
   override fun disabledInit() {
     // RobotContainer.requestIdle()
     // autonomousCommand.cancel()
+    RobotContainer.resetSimulationField()
   }
 
   override fun robotPeriodic() {
@@ -213,6 +216,10 @@ object Robot : LoggedRobot() {
     DebugLogger.recordDebugOutput("LoggedRobot/port2", port2.voltage)
     Logger.recordOutput("LoggedRobot/port3", port3.voltage)
      */
+
+    if (isSimulation()) {
+      DriverStation.silenceJoystickConnectionWarning(true)
+    }
   }
 
   override fun teleopInit() {
@@ -229,5 +236,9 @@ object Robot : LoggedRobot() {
   override fun testInit() {
     RobotContainer.mapTestControls()
     RobotContainer.getAutonomousCommand().cancel()
+  }
+
+  override fun simulationPeriodic() {
+    RobotContainer.updateSimulation()
   }
 }

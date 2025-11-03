@@ -15,8 +15,6 @@ class Rollers(val io: RollersIO) : SubsystemBase() {
 
   var currentState = rollerStates.UNINITIALIZED
 
-  var lastVoltageTarget = 0.0.volts
-
   var lastRollerRunTime = Clock.fpgaTime
 
   val hasCoral: Boolean

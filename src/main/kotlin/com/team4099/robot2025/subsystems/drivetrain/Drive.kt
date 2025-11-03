@@ -35,6 +35,10 @@ import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units
+import edu.wpi.first.units.Units.KilogramSquareMeters
+import edu.wpi.first.units.Units.Kilograms
+import edu.wpi.first.units.Units.Meters
+import edu.wpi.first.units.Units.Volts
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.Alert
 import edu.wpi.first.wpilibj.DriverStation
@@ -44,6 +48,9 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import frc.robot.util.LocalADStarAK
+import org.ironmaple.simulation.drivesims.COTS
+import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig
+import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig
 import org.littletonrobotics.junction.Logger
 import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.geometry.Translation2d
@@ -65,12 +72,20 @@ import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.inMetersPerSecond
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
+import java.util.function.Consumer
+import java.util.function.Supplier
+import kotlin.math.absoluteValue
 import kotlin.math.hypot
 import kotlin.math.max
 import edu.wpi.first.math.geometry.Pose2d as WPIPose2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds as WPIChassisSpeeds
 
-class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>) : SubsystemBase() {
+class Drive(
+  private val gyroIO: GyroIO,
+  moduleIOs: Array<ModuleIO>,
+  val getSimulationPoseCallback: Supplier<edu.wpi.first.math.geometry.Pose2d>,
+  val resetSimulationPoseCallback: Consumer<edu.wpi.first.math.geometry.Pose2d>
+) : SubsystemBase() {
   private val gyroInputs: GyroIO.GyroIOInputs = GyroIO.GyroIOInputs()
   private val modules = arrayOfNulls<Module>(4) // FL, FR, BL, BR
   private val sysId: SysIdRoutine
@@ -220,8 +235,7 @@ class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>) : SubsystemB
     Logger.recordOutput("Odometry/pose", pose.pose2d)
     Logger.recordOutput("SwerveChassisSpeeds/Measured", chassisSpeeds.chassisSpeedsWPILIB)
 
-    val curStates = moduleStates
-    for (i in 0..3) Logger.recordOutput("SwerveStates/Measured/state[$i]", curStates[i])
+    Logger.recordOutput("SwerveStates/Measured", *moduleStates)
   }
 
   /**
@@ -347,9 +361,14 @@ class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>) : SubsystemB
 
   var pose: Pose2d
     /** Returns the current odometry pose. */
-    get() = Pose2d(poseEstimator.estimatedPosition)
+    get() =
+      Pose2d(
+        if (RobotBase.isReal()) poseEstimator.estimatedPosition
+        else getSimulationPoseCallback.get()
+      )
     /** Resets the current odometry pose. */
     set(pose) {
+      resetSimulationPoseCallback.accept(pose.pose2d)
       poseEstimator.resetPosition(rawGyroRotation.inRotation2ds, modulePositions, pose.pose2d)
     }
 
@@ -392,7 +411,7 @@ class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>) : SubsystemB
       )
 
     // PathPlanner config constants
-    private val PP_CONFIG: RobotConfig =
+    val PP_CONFIG: RobotConfig =
       RobotConfig(
         Constants.Universal.ROBOT_WEIGHT.inKilograms,
         Constants.Universal.ROBOT_MOI.inKilogramsMeterSquared,
@@ -433,6 +452,58 @@ class Drive(private val gyroIO: GyroIO, moduleIOs: Array<ModuleIO>) : SubsystemB
             TunerConstants.BackRight.LocationX.meters,
             TunerConstants.BackRight.LocationY.meters
           )
+        )
+
+    val mapleSimConfig: DriveTrainSimulationConfig =
+      DriveTrainSimulationConfig.Default()
+        .withBumperSize(
+          Meters.of(
+            (DrivetrainConstants.DRIVETRAIN_LENGTH + DrivetrainConstants.BUMPER_WIDTH * 2)
+              .inMeters
+          ),
+          Meters.of(
+            (DrivetrainConstants.DRIVETRAIN_WIDTH + DrivetrainConstants.BUMPER_WIDTH * 2)
+              .inMeters
+          )
+        )
+        .withTrackLengthTrackWidth(
+          Meters.of(
+            TunerConstants.FrontLeft.LocationX.absoluteValue +
+              TunerConstants.BackRight.LocationX.absoluteValue
+          ),
+          Meters.of(
+            TunerConstants.FrontLeft.LocationY.absoluteValue +
+              TunerConstants.BackRight.LocationY.absoluteValue
+          )
+        )
+        .withRobotMass(Kilograms.of(Constants.Universal.ROBOT_WEIGHT.inKilograms))
+        .withGyro(COTS.ofPigeon2())
+        .withSwerveModules(
+          // FL, FR, BL, BR
+          // reason we map the factories is in case we have seperate
+          // modules (aka seperate ratios/constants) on some corners
+          *(
+            arrayOf(
+              TunerConstants.FrontLeft,
+              TunerConstants.FrontRight,
+              TunerConstants.BackLeft,
+              TunerConstants.BackRight
+            )
+              .map {
+                SwerveModuleSimulationConfig(
+                  DCMotor.getKrakenX60(1),
+                  DCMotor.getKrakenX60(1),
+                  it.DriveMotorGearRatio,
+                  it.SteerMotorGearRatio,
+                  Volts.of(it.DriveFrictionVoltage),
+                  Volts.of(it.SteerFrictionVoltage),
+                  Meters.of(it.WheelRadius),
+                  KilogramSquareMeters.of(it.SteerInertia),
+                  DrivetrainConstants.NITRILE_WHEEL_COF
+                )
+              }
+              .toTypedArray()
+            )
         )
   }
 }

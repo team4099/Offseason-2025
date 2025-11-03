@@ -1,5 +1,6 @@
 package com.team4099.robot2025.subsystems.Arm
 
+import org.ironmaple.simulation.IntakeSimulation
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
 import org.team4099.lib.units.base.amps
@@ -25,6 +26,8 @@ import org.team4099.lib.units.inDegreesPerSecondPerSecond
 import org.team4099.lib.units.perSecond
 
 interface ArmIO {
+  val intakeSimulation: IntakeSimulation?
+
   class ArmIOInputs : LoggableInputs {
     var armPosition = 0.0.degrees
     var armAbsoluteEncoderPosition = 0.0.degrees

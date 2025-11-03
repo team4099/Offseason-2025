@@ -5,6 +5,7 @@ import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import org.ironmaple.simulation.IntakeSimulation
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inDegrees
@@ -44,6 +45,9 @@ class Arm(val io: ArmIO) : SubsystemBase() {
     }
 
   var isHomed = false
+
+  val algaeIntakeSimulation: IntakeSimulation?
+    get() = io.intakeSimulation
 
   init {
     io.configFF(ArmConstants.PID.KG, ArmConstants.PID.KS, ArmConstants.PID.KV, ArmConstants.PID.KA)

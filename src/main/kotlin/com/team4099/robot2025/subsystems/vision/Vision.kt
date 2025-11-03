@@ -32,7 +32,6 @@ import org.team4099.lib.geometry.Transform2d
 import org.team4099.lib.geometry.Transform3d
 import org.team4099.lib.geometry.Transform3dWPILIB
 import org.team4099.lib.geometry.Translation2d
-import org.team4099.lib.geometry.Translation2dWPILIB
 import org.team4099.lib.geometry.Translation3d
 import org.team4099.lib.units.base.inInches
 import org.team4099.lib.units.base.inMeters
@@ -45,12 +44,9 @@ import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inRadians
 import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.derived.sin
-import java.util.Collections.max
 import java.util.function.Supplier
-import kotlin.math.max
 
-class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supplier { Pose2d() }) :
-  SubsystemBase() {
+class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d>) : SubsystemBase() {
   val io: List<CameraIO> = cameras.toList()
   val inputs = List(io.size) { CameraIO.CameraInputs() }
 
@@ -82,19 +78,8 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
   var lastTrigVisionUpdate =
     TimestampedTrigVisionUpdate(Clock.fpgaTime, -1, Transform2d(Translation2d(), 0.degrees))
 
-  var objectsDetected:MutableList<MutableList<Translation2d>> =
-    if(RobotBase.isReal()){
-    MutableList(max(VisionConstants.OBJECT_CLASS.values().map { it.id })) {
-      mutableListOf<Translation2d>()
-    }} else {
-      var poses = SimulatedArena.getInstance().getGamePiecesByType("coral")
-      var translations = mutableListOf<Translation2d>()
-      for(pose in poses){
-          translations.add (Translation2d(pose.pose3d.x.meters, pose.pose3d.y.meters))
-        }
-      mutableListOf(translations)
-    }
-
+  var objectsDetected: MutableList<MutableList<Translation2d>> =
+    MutableList(VisionConstants.OBJECT_CLASS.values().size) { mutableListOf() }
 
   var lastObjectVisionUpdates: MutableList<TimestampedObjectVisionUpdate> =
     VisionConstants.OBJECT_CLASS
@@ -354,37 +339,57 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
               it.objDetectId != -1 && it.objDetectConf >= VisionConstants.CONFIDENCE_THRESHOLD
             }
 
-          objectsDetected =
-            MutableList(max(VisionConstants.OBJECT_CLASS.values().map { it.id })) {
-              mutableListOf<Translation2d>()
+          if (RobotBase.isReal()) {
+            objectsDetected =
+              MutableList(VisionConstants.OBJECT_CLASS.values().size) { mutableListOf() }
+
+            for (idx in objTargets.indices) {
+              // object pose detection credit to 5990 TRIGON Robot Template on Github, available at
+              // https://github.com/Programming-TRIGON/RobotTemplate/blob/2d24e98f5e7f5b22657669d6d2a23f5c06f8231d/
+              // src/main/java/frc/trigon/robot/misc/objectdetectioncamera/ObjectDetectionCamera.java#L62
+              val rotation =
+                Rotation3d(
+                  0.radians, -objTargets[idx].pitch.degrees, -objTargets[idx].yaw.degrees
+                )
+
+              val cameraRotationToObject =
+                VisionConstants.CAMERA_TRANSFORMS[instance].toPose3d()
+                  .plus(Transform3d(Translation3d(), rotation))
+              val xTransform =
+                VisionConstants.CAMERA_TRANSFORMS[instance].z /
+                  cameraRotationToObject.rotation.y.sin
+
+              val robotTObject =
+                cameraRotationToObject
+                  .transformBy(
+                    Transform3d(Translation3d(xTransform, 0.meters, 0.meters), Rotation3d())
+                  )
+                  .toPose2d()
+                  .translation
+
+              when (objTargets[idx].detectedObjectClassID) {
+                VisionConstants.OBJECT_CLASS.CORAL.id -> {
+                  objectsDetected[VisionConstants.OBJECT_CLASS.CORAL.id].add(robotTObject)
+                }
+                VisionConstants.OBJECT_CLASS.ALGAE.id -> {
+                  objectsDetected[VisionConstants.OBJECT_CLASS.ALGAE.id].add(robotTObject)
+                }
+              }
             }
+          } else {
+            objectsDetected =
+              MutableList(VisionConstants.OBJECT_CLASS.values().size) { mutableListOf() }
 
-          for (idx in objTargets.indices) {
-            // object pose detection credit to 5990 TRIGON Robot Template on Github, available at
-            // https://github.com/Programming-TRIGON/RobotTemplate/blob/2d24e98f5e7f5b22657669d6d2a23f5c06f8231d/
-            // src/main/java/frc/trigon/robot/misc/objectdetectioncamera/ObjectDetectionCamera.java#L62
-            val rotation =
-              Rotation3d(0.radians, -objTargets[idx].pitch.degrees, -objTargets[idx].yaw.degrees)
-
-            val objectRotationStart =
-              VisionConstants.CAMERA_TRANSFORMS[instance].toPose3d()
-                .plus(Transform3d(Translation3d(), rotation))
-            val xTransform =
-              VisionConstants.CAMERA_TRANSFORMS[instance].z / objectRotationStart.rotation.y.sin
-            val objectRotationStartToGround =
-              Transform3d(Translation3d(xTransform, 0.meters, 0.meters), Rotation3d())
-
-            val robotTObject =
-              objectRotationStart.transformBy(objectRotationStartToGround).toPose2d().translation
-
-            // todo change to only update to closest coral/algae, rather than update to last target
-            when (objTargets[idx].detectedObjectClassID) {
-              VisionConstants.OBJECT_CLASS.CORAL.id -> {
-                objectsDetected[VisionConstants.OBJECT_CLASS.CORAL.id].add(robotTObject)
-              }
-              VisionConstants.OBJECT_CLASS.ALGAE.id -> {
-                objectsDetected[VisionConstants.OBJECT_CLASS.ALGAE.id].add(robotTObject)
-              }
+            for (objIdx in VisionConstants.OBJECT_CLASS.values().indices) {
+              objectsDetected[objIdx] =
+                SimulatedArena.getInstance()
+                  .getGamePiecesByType(
+                    VisionConstants.OBJECT_CLASS.values()[objIdx].mapleSimType!!
+                  )
+                  .map {
+                    Transform2d(poseSupplier.get(), Pose2d(it.pose3d.toPose2d())).translation
+                  }
+                  .toMutableList()
             }
           }
 
@@ -397,6 +402,15 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
             }
 
             CustomLogger.recordOutput(
+              "Vision/${VisionConstants.CAMERA_NAMES[instance]}/${objects.name}/objectsDetectedPoses",
+              *(
+                objectsDetected[objects.id]
+                  .map { poseSupplier.get().plus(Transform2d(it, 0.radians)).pose2d }
+                  .toTypedArray()
+                )
+            )
+
+            CustomLogger.recordOutput(
               "Vision/Last${objects.name}VisionUpdate/timestampSeconds",
               lastObjectVisionUpdates[objects.id].timestamp.inSeconds
             )
@@ -404,6 +418,14 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
             CustomLogger.recordOutput(
               "Vision/Last${objects.name}VisionUpdate/robotTObject",
               lastObjectVisionUpdates[objects.id].robotTObject.translation2d
+            )
+
+            CustomLogger.recordOutput(
+              "Vision/Last${objects.name}VisionUpdate/closestObjectPose",
+              poseSupplier
+                .get()
+                .plus(Transform2d(lastObjectVisionUpdates[objects.id].robotTObject, 0.radians))
+                .pose2d
             )
           }
         }

@@ -65,7 +65,7 @@ object Constants {
   }
 
   object Tuning {
-    const val TUNING_MODE = true
+    const val TUNING_MODE = false
     const val DEBUGING_MODE = false
 
     enum class SimType {

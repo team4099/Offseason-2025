@@ -170,6 +170,13 @@ object RobotContainer {
               drivetrain::addVisionMeasurement,
               { drivetrain.rotation }
             ),
+            CameraIOPVSim(
+              CameraIO.DetectionPipeline.OBJECT_DETECTION,
+              VisionConstants.CAMERA_NAMES[2],
+              VisionConstants.CAMERA_TRANSFORMS[2],
+              drivetrain::addVisionMeasurement,
+              { drivetrain.rotation }
+            ),
             poseSupplier = { drivetrain.pose }
           )
       else vision = Vision(poseSupplier = { Pose2d() })

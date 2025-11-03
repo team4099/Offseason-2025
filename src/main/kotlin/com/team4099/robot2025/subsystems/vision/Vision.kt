@@ -20,6 +20,7 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import org.ironmaple.simulation.SimulatedArena
 import org.littletonrobotics.junction.Logger
 import org.photonvision.PhotonUtils
 import org.photonvision.simulation.VisionSystemSim
@@ -30,6 +31,7 @@ import org.team4099.lib.geometry.Transform2d
 import org.team4099.lib.geometry.Transform3d
 import org.team4099.lib.geometry.Transform3dWPILIB
 import org.team4099.lib.geometry.Translation2d
+import org.team4099.lib.geometry.Translation2dWPILIB
 import org.team4099.lib.geometry.Translation3d
 import org.team4099.lib.units.base.inInches
 import org.team4099.lib.units.base.inMeters
@@ -80,9 +82,18 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
     TimestampedTrigVisionUpdate(Clock.fpgaTime, -1, Transform2d(Translation2d(), 0.degrees))
 
   var objectsDetected =
+    if(RobotBase.isReal()){
     MutableList(max(VisionConstants.OBJECT_CLASS.values().map { it.id })) {
       mutableListOf<Translation2d>()
+    }} else {
+      var poses = SimulatedArena.getInstance().getGamePiecesByType("coral")
+      var translations = mutableListOf<Translation2d>()
+      for(pose in poses){
+          translations.add (Translation2d(pose.pose3d.x.meters, pose.pose3d.y.meters))
+        }
+      mutableListOf(translations)
     }
+
 
   var lastObjectVisionUpdates: MutableList<TimestampedObjectVisionUpdate> =
     VisionConstants.OBJECT_CLASS

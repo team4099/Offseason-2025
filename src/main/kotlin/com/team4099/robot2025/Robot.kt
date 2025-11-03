@@ -216,6 +216,10 @@ object Robot : LoggedRobot() {
     DebugLogger.recordDebugOutput("LoggedRobot/port2", port2.voltage)
     Logger.recordOutput("LoggedRobot/port3", port3.voltage)
      */
+
+    if (isSimulation()) {
+      DriverStation.silenceJoystickConnectionWarning(true)
+    }
   }
 
   override fun teleopInit() {

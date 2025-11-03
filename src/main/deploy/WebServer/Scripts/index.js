@@ -2,10 +2,13 @@ import {NT4_Client} from "../Lib/NT4.js";
 
 const branchButtons = document.querySelectorAll(".branch");
 const algaeButtons = document.querySelectorAll(".algae");
-console.log(branchButtons);
+let coralStates = Array.from(document.querySelectorAll(".branch")).map(coral => coral.classList.contains("active"));
 branchButtons.forEach(btn => {
     btn.addEventListener("click", (event) => {
+        console.log(branchButtons);
         btn.classList.toggle("active");
+        coralStates = Array.from(document.querySelectorAll(".branch")).map(coral => coral.classList.contains("active"));
+        console.log(coralStates);
     });
 });
     algaeButtons.forEach(btn => {
@@ -72,16 +75,12 @@ window.addEventListener("load", () => {
 });
 
 
-let coralStates = Array.from(document.querySelectorAll(".branch")).map(coral => coral.classList.contains("active"));
+
 let algaeStates = Array.from(document.querySelectorAll(".algae")).map(algae => algae.classList.contains("active"));
 let priorities = getListOrder();
 
 ntClient.addSample(toRobotPrefix + coralTopicName, coralStates);
 ntClient.addSample(toRobotPrefix + algaeTopicName, algaeStates);
-
-// Draggable List Functionality
-const listContainer = document.getElementById('listContainer');
-const listItems = document.querySelectorAll('.list-item');
 
 function initializeDraggableList() {
     const listContainer = document.getElementById('listContainer');
@@ -136,9 +135,10 @@ function initializeDraggableList() {
 }
 
 function getListOrder() {
-    const listContainer = document.getElementById('listContainer');
+     const listContainer = document.getElementById('listContainer');
     const listItems = listContainer.querySelectorAll('.list-item');
     return Array.from(listItems).map(item => item.textContent.trim());
+
 }
 
 

@@ -192,7 +192,7 @@ object RobotContainer {
         CoolerTargetTagCommand(drivetrain, vision),
         CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (12.94 / 2).inches)
       ) {
-        superstructure.theoreticalGamePieceArm == GamePiece.ALGAE
+        superstructure.theoreticalGamePieceArm == GamePiece.NONE
       }
     )
 
@@ -201,7 +201,7 @@ object RobotContainer {
         CoolerTargetTagCommand(drivetrain, vision),
         CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (-12.94 / 2).inches)
       ) {
-        superstructure.theoreticalGamePieceArm == GamePiece.ALGAE
+        superstructure.theoreticalGamePieceArm == GamePiece.NONE
       }
     )
 

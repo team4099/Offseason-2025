@@ -2,6 +2,7 @@ package com.team4099.robot2025.commands.drivetrain
 
 import com.team4099.lib.hal.Clock
 import com.team4099.lib.math.asPose2d
+import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.subsystems.vision.Vision
@@ -132,12 +133,17 @@ class CoolerTargetTagCommand(
     vision.isAutoAligning = true
     hasThetaAligned = false
     hasPointedAt = false
-
+    LastAlignedBranch = (if(yTargetOffset < 0.meters ){
+      Constants.Universal.tagsTFace[ vision.lastTrigVisionUpdate.targetTagID.toString() +"R"]
+    }else{
+      Constants.Universal.tagsTFace[vision.lastTrigVisionUpdate.targetTagID.toString()+"L"]
+    }).toString()
     CustomLogger.recordOutput("CoolerTargetTagCommand/lastInitialized", Clock.fpgaTime.inSeconds)
   }
 
   override fun execute() {
     CustomLogger.recordOutput("ActiveCommands/CoolerTargetTagCommand", true)
+
 
     val lastUpdate = vision.lastTrigVisionUpdate
     val odomTTag = lastUpdate.robotTReefTag
@@ -207,6 +213,8 @@ class CoolerTargetTagCommand(
   }
 
   companion object {
+     var LastAlignedBranch:String = "";
+
     fun alignLeftCommand(drivetrain: Drive, vision: Vision): CoolerTargetTagCommand {
       return CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (12.94 / 2).inches)
     }

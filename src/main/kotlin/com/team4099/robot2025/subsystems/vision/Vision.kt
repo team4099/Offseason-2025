@@ -79,21 +79,16 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
   var lastTrigVisionUpdate =
     TimestampedTrigVisionUpdate(Clock.fpgaTime, -1, Transform2d(Translation2d(), 0.degrees))
 
+  var objectsDetected =
+    MutableList(max(VisionConstants.OBJECT_CLASS.values().map { it.id })) {
+      mutableListOf<Translation2d>()
+    }
+
   var lastObjectVisionUpdates: MutableList<TimestampedObjectVisionUpdate> =
     VisionConstants.OBJECT_CLASS
       .values()
       .map { TimestampedObjectVisionUpdate(Clock.fpgaTime, it, Translation2d()) }
       .toMutableList()
-  //    MutableList(max(VisionConstants.OBJECT_CLASS.values().map { it.id })) {
-  //    TimestampedObjectVisionUpdate(Clock.fpgaTime,
-  //      VisionConstants.OBJECT_CLASS.ALGAE,
-  //      Translation2d()
-  //    ),
-  //    TimestampedObjectVisionUpdate(Clock.fpgaTime,
-  //      VisionConstants.OBJECT_CLASS.CORAL,
-  //      Translation2d()
-  //    )
-  //  }
 
   private val fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField)
 
@@ -347,7 +342,7 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
               it.objDetectId != -1 && it.objDetectConf >= VisionConstants.CONFIDENCE_THRESHOLD
             }
 
-          val objectsDetected =
+          objectsDetected =
             MutableList(max(VisionConstants.OBJECT_CLASS.values().map { it.id })) {
               mutableListOf<Translation2d>()
             }

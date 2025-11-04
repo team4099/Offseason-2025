@@ -5,7 +5,6 @@ import com.team4099.robot2025.auto.mode.CenterScore
 import com.team4099.robot2025.auto.mode.ExamplePathAuto
 import com.team4099.robot2025.auto.mode.ThreeL4CoralStation
 import com.team4099.robot2025.auto.mode.ThreeL4CoralStationLeft
-import com.team4099.robot2025.auto.mode.ThreeL4ProcessorLolipop
 import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
@@ -121,12 +120,6 @@ object AutonomousSelector {
             drivetrain.pose = AllianceFlipUtil.apply(ThreeL4CoralStationLeft.startingPose)
           })
           .andThen(ThreeL4CoralStationLeft(drivetrain, elevator, superstructure, vision))
-      AutonomousMode.THREE_L4_LOLLIPOP ->
-        return WaitCommand(waitTime.inSeconds)
-          .andThen({
-            drivetrain.pose = AllianceFlipUtil.apply(ThreeL4ProcessorLolipop.startingPose)
-          })
-          .andThen(ThreeL4ProcessorLolipop(drivetrain, elevator, superstructure, vision))
       else -> return InstantCommand()
     }
   }

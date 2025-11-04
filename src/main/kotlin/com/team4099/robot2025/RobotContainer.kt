@@ -5,6 +5,7 @@ import com.team4099.robot2025.auto.AutonomousSelector
 import com.team4099.robot2025.commands.drivetrain.CoolerTargetTagCommand
 import com.team4099.robot2025.commands.drivetrain.DrivePathOTF
 import com.team4099.robot2025.commands.drivetrain.ResetGyroYawCommand
+import com.team4099.robot2025.commands.drivetrain.TargetObjectCommand
 import com.team4099.robot2025.commands.drivetrain.TeleopDriveCommand
 import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.Constants
@@ -300,6 +301,9 @@ object RobotContainer {
           0.0.meters.perSecond, 180.degrees
         )
       )
+    )
+    ControlBoard.targetObject.onTrue(
+      TargetObjectCommand(drivetrain, vision, VisionConstants.OBJECT_CLASS.CORAL, superstructure)
     )
   }
 

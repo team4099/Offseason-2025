@@ -81,7 +81,7 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d>) : Sub
   var objectsDetected: MutableList<MutableList<Translation2d>> =
     MutableList(VisionConstants.OBJECT_CLASS.values().size) { mutableListOf() }
 
-  var lastObjectVisionUpdates: MutableList<TimestampedObjectVisionUpdate> =
+  var lastObjectVisionUpdate: MutableList<TimestampedObjectVisionUpdate> =
     VisionConstants.OBJECT_CLASS
       .values()
       .map { TimestampedObjectVisionUpdate(Clock.fpgaTime, it, Translation2d()) }
@@ -397,7 +397,7 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d>) : Sub
             val closestObject = objectsDetected[objects.id].minByOrNull { it.translation2d.norm }
 
             if (closestObject != null) {
-              lastObjectVisionUpdates[objects.id] =
+              lastObjectVisionUpdate[objects.id] =
                 TimestampedObjectVisionUpdate(inputs[instance].timestamp, objects, closestObject)
             }
 
@@ -412,19 +412,19 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d>) : Sub
 
             CustomLogger.recordOutput(
               "Vision/Last${objects.name}VisionUpdate/timestampSeconds",
-              lastObjectVisionUpdates[objects.id].timestamp.inSeconds
+              lastObjectVisionUpdate[objects.id].timestamp.inSeconds
             )
 
             CustomLogger.recordOutput(
               "Vision/Last${objects.name}VisionUpdate/robotTObject",
-              lastObjectVisionUpdates[objects.id].robotTObject.translation2d
+              lastObjectVisionUpdate[objects.id].robotTObject.translation2d
             )
 
             CustomLogger.recordOutput(
               "Vision/Last${objects.name}VisionUpdate/closestObjectPose",
               poseSupplier
                 .get()
-                .plus(Transform2d(lastObjectVisionUpdates[objects.id].robotTObject, 0.radians))
+                .plus(Transform2d(lastObjectVisionUpdate[objects.id].robotTObject, 0.radians))
                 .pose2d
             )
           }

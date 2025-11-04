@@ -13,7 +13,6 @@ import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.radians
-import org.team4099.lib.units.perSecond
 import java.util.function.Supplier
 
 object VisionConstants {
@@ -137,8 +136,6 @@ object VisionConstants {
 
   val CAMERA_NAMES = listOf("raven_1", "raven_2", "raven_o1")
 
-  val OBJECT_APPROACH_SPEED = 6.meters.perSecond
-
   // x, y, θ
   // TODO tune
   val singleTagStdDevs: Matrix<N3?, N1?> = VecBuilder.fill(4.0, 4.0, 10.0)
@@ -152,5 +149,4 @@ object VisionConstants {
     ALGAE(0, "Algae"),
     CORAL(1, "Coral")
   }
-
 }

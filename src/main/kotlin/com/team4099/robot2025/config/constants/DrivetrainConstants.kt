@@ -49,6 +49,8 @@ object DrivetrainConstants {
   val MAX_AUTO_VEL = 3.meters.perSecond // 4
   val MAX_AUTO_ACCEL = 4.meters.perSecond.perSecond // 3
 
+  val OBJECT_APPROACH_SPEED = 1.meters.perSecond
+
   const val MK4_DRIVE_SENSOR_GEAR_RATIO = (16.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0)
   const val MK4I_STEERING_SENSOR_GEAR_RATIO = 7.0 / 150.0
   const val MK4N_STEERING_SENSOR_GEAR_RATIO = 1.0 / 18.75

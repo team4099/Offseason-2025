@@ -302,7 +302,7 @@ object RobotContainer {
         )
       )
     )
-    ControlBoard.targetObject.onTrue(
+    ControlBoard.targetObject.whileTrue(
       TargetObjectCommand(drivetrain, vision, VisionConstants.OBJECT_CLASS.CORAL, superstructure)
     )
   }

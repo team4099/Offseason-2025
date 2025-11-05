@@ -63,6 +63,8 @@ object Robot : LoggedRobot() {
 
    */
 
+  var loopCycleCounter = 0
+
   override fun robotInit() {
     // elastic layout upload dont remove
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath())
@@ -193,12 +195,12 @@ object Robot : LoggedRobot() {
     // checking for logging errors
     logReceiverQueueAlert.set(Logger.getReceiverQueueFault())
 
-    val superstructureLoopTimeMS = Clock.realTimestamp
-    RobotContainer.superstructure.periodic()
-    Logger.recordOutput(
-      "LoggedRobot/Subsystems/SuperstructureLoopTimeMS",
-      (Clock.realTimestamp - superstructureLoopTimeMS).inMilliseconds
-    )
+//    val superstructureLoopTimeMS = Clock.realTimestamp
+//    RobotContainer.superstructure.periodic()
+//    Logger.recordOutput(
+//      "LoggedRobot/Subsystems/SuperstructureLoopTimeMS",
+//      (Clock.realTimestamp - superstructureLoopTimeMS).inMilliseconds
+//    )
 
     Logger.recordOutput(
       "LoggedRobot/RemainingRamMB", Runtime.getRuntime().freeMemory() / 1024 / 1024
@@ -220,6 +222,9 @@ object Robot : LoggedRobot() {
     if (isSimulation()) {
       DriverStation.silenceJoystickConnectionWarning(true)
     }
+
+//    println("Loop cycle counter (Robot.kt): $loopCycleCounter")
+//    loopCycleCounter++
   }
 
   override fun teleopInit() {
@@ -232,6 +237,8 @@ object Robot : LoggedRobot() {
       RobotContainer.mapTunableCommands()
     }
   }
+
+  override fun teleopPeriodic() {}
 
   override fun testInit() {
     RobotContainer.mapTestControls()

@@ -145,16 +145,16 @@ object DrivetrainConstants {
     val DRIVE_KV = 2.117.volts / 1.0.meters.perSecond
     val DRIVE_KA = 0.0.volts / 1.0.meters.perSecond.perSecond
 
-    val SIM_DRIVE_KP = 5.volts / 1.meters.perSecond
+    val SIM_DRIVE_KP = DRIVE_KP
     val SIM_DRIVE_KI = DRIVE_KI
     val SIM_DRIVE_KD = DRIVE_KD
     val SIM_DRIVE_KS = DRIVE_KS
-    val SIM_DRIVE_KV = 5.volts / 1.0.meters.perSecond
+    val SIM_DRIVE_KV = DRIVE_KV
     val SIM_DRIVE_KA = DRIVE_KA
 
-    val SIM_STEERING_KP = 30.volts.perRadian
-    val SIM_STEERING_KI = 0.0.volts.perRadianSeconds
-    val SIM_STEERING_KD = 4.5.volts.perRadianPerSecond
-    val SIM_STEERING_KV = 4.volts / 1.0.radians.perSecond
+    val SIM_STEERING_KP = STEERING_KP
+    val SIM_STEERING_KI = STEERING_KI
+    val SIM_STEERING_KD = STEERING_KD
+    val SIM_STEERING_KV = STEERING_KV
   }
 }

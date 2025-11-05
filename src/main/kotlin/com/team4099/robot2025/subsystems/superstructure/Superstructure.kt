@@ -1,6 +1,8 @@
 package com.team4099.robot2025.subsystems.superstructure
 
 import com.team4099.lib.hal.Clock
+import com.team4099.robot2025.Robot
+import com.team4099.robot2025.Robot.loopCycleCounter
 import com.team4099.robot2025.config.constants.ArmConstants
 import com.team4099.robot2025.config.constants.ClimberConstants
 import com.team4099.robot2025.config.constants.Constants
@@ -136,62 +138,63 @@ class Superstructure(
   }
 
   override fun periodic() {
+//    println("Loop cycle counter (Superstructure.kt): ${Robot.loopCycleCounter}")
 
     field.robotPose = drivetrain.pose.pose2d
 
-    val armStartTime = Clock.realTimestamp
-    arm.periodic()
-    CustomLogger.recordOutput(
-      "LoggedRobot/Subsystems/armLoopTimeMS", (Clock.realTimestamp - armStartTime).inMilliseconds
-    )
-
-    val armRollersStartTime = Clock.realTimestamp
-    armRollers.periodic()
-    CustomLogger.recordOutput(
-      "LoggedRobot/Subsystems/armRollersLoopTimeMS",
-      (Clock.realTimestamp - armRollersStartTime).inMilliseconds
-    )
-
-    val canRangeStartTime = Clock.realTimestamp
-    canrange.periodic()
-    CustomLogger.recordOutput(
-      "LoggedRobot/Subsystems/canRangeLoopTimeMS",
-      (Clock.realTimestamp - canRangeStartTime).inMilliseconds
-    )
-
-    val climberStartTime = Clock.realTimestamp
-    climber.periodic()
-    CustomLogger.recordOutput(
-      "LoggedRobot/Subsystems/climberLoopTimeMS",
-      (Clock.realTimestamp - climberStartTime).inMilliseconds
-    )
-
-    val elevatorStartTime = Clock.realTimestamp
-    elevator.periodic()
-    CustomLogger.recordOutput(
-      "LoggedRobot/Subsystems/elevatorLoopTimeMS",
-      (Clock.realTimestamp - elevatorStartTime).inMilliseconds
-    )
-
-    val indexerStartTime = Clock.realTimestamp
-    indexer.periodic()
-    CustomLogger.recordOutput(
-      "LoggedRobot/Subsystems/indexerLoopTimeMS",
-      (Clock.realTimestamp - indexerStartTime).inMilliseconds
-    )
-
-    val intakeStartTime = Clock.realTimestamp
-    intake.periodic()
-    CustomLogger.recordOutput(
-      "LoggedRobot/Subsystems/intakeLoopTimeMS",
-      (Clock.realTimestamp - intakeStartTime).inMilliseconds
-    )
-
-    val ledStartTime = Clock.realTimestamp
-    led.periodic()
-    CustomLogger.recordOutput(
-      "LoggedRobot/Subsystems/ledLoopTimeMS", (Clock.realTimestamp - ledStartTime).inMilliseconds
-    )
+//    val armStartTime = Clock.realTimestamp
+//    arm.periodic()
+//    CustomLogger.recordOutput(
+//      "LoggedRobot/Subsystems/armLoopTimeMS", (Clock.realTimestamp - armStartTime).inMilliseconds
+//    )
+//
+//    val armRollersStartTime = Clock.realTimestamp
+//    armRollers.periodic()
+//    CustomLogger.recordOutput(
+//      "LoggedRobot/Subsystems/armRollersLoopTimeMS",
+//      (Clock.realTimestamp - armRollersStartTime).inMilliseconds
+//    )
+//
+//    val canRangeStartTime = Clock.realTimestamp
+//    canrange.periodic()
+//    CustomLogger.recordOutput(
+//      "LoggedRobot/Subsystems/canRangeLoopTimeMS",
+//      (Clock.realTimestamp - canRangeStartTime).inMilliseconds
+//    )
+//
+//    val climberStartTime = Clock.realTimestamp
+//    climber.periodic()
+//    CustomLogger.recordOutput(
+//      "LoggedRobot/Subsystems/climberLoopTimeMS",
+//      (Clock.realTimestamp - climberStartTime).inMilliseconds
+//    )
+//
+//    val elevatorStartTime = Clock.realTimestamp
+//    elevator.periodic()
+//    CustomLogger.recordOutput(
+//      "LoggedRobot/Subsystems/elevatorLoopTimeMS",
+//      (Clock.realTimestamp - elevatorStartTime).inMilliseconds
+//    )
+//
+//    val indexerStartTime = Clock.realTimestamp
+//    indexer.periodic()
+//    CustomLogger.recordOutput(
+//      "LoggedRobot/Subsystems/indexerLoopTimeMS",
+//      (Clock.realTimestamp - indexerStartTime).inMilliseconds
+//    )
+//
+//    val intakeStartTime = Clock.realTimestamp
+//    intake.periodic()
+//    CustomLogger.recordOutput(
+//      "LoggedRobot/Subsystems/intakeLoopTimeMS",
+//      (Clock.realTimestamp - intakeStartTime).inMilliseconds
+//    )
+//
+//    val ledStartTime = Clock.realTimestamp
+//    led.periodic()
+//    CustomLogger.recordOutput(
+//      "LoggedRobot/Subsystems/ledLoopTimeMS", (Clock.realTimestamp - ledStartTime).inMilliseconds
+//    )
 
     if (RobotBase.isSimulation()) {
       /** 0 - first stage 1 - carriage 2 - intake pivot 3 - arm 4 - climb pivot */

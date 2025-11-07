@@ -43,6 +43,7 @@ import com.team4099.robot2025.subsystems.vision.camera.CameraIOPVSim
 import com.team4099.robot2025.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.util.driver.Jessika
 import edu.wpi.first.wpilibj.RobotBase
+import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
@@ -57,7 +58,6 @@ import org.team4099.lib.units.perSecond
 import java.util.function.Supplier
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersIOSim
-import edu.wpi.first.wpilibj2.command.CommandScheduler
 
 object RobotContainer {
   private val drivetrain: Drive
@@ -191,8 +191,24 @@ object RobotContainer {
     led.gamePieceArmSupplier = Supplier { superstructure.theoreticalGamePieceArm }
     led.stateSupplier = Supplier { superstructure.currentState }
 
+    // unregister subsystems which get magically registered to the commandscheduler
     CommandScheduler.getInstance().unregisterAllSubsystems()
-    CommandScheduler.getInstance().registerSubsystem(drivetrain, vision, elevator, arm, armRollers, climber, intake, indexer, canrange, led, superstructure)
+
+    // subsystem periodics get ran in the order registered. superstructure should always be last
+    CommandScheduler.getInstance()
+      .registerSubsystem(
+        drivetrain,
+        vision,
+        elevator,
+        arm,
+        armRollers,
+        climber,
+        intake,
+        indexer,
+        canrange,
+        led,
+        superstructure
+      )
   }
 
   fun mapDefaultCommands() {

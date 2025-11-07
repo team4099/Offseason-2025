@@ -63,8 +63,6 @@ object Robot : LoggedRobot() {
 
    */
 
-  var loopCycleCounter = 0
-
   override fun robotInit() {
     // elastic layout upload dont remove
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath())
@@ -184,23 +182,13 @@ object Robot : LoggedRobot() {
   }
 
   override fun robotPeriodic() {
-    //    RobotContainer.measurementsWithTimestamps.forEach {
-    // RobotContainer.addVisionMeasurement(it) }
-
-    var startTime = Clock.realTimestamp
+    val startTime = Clock.realTimestamp
 
     // begin scheduling all commands
     CommandScheduler.getInstance().run()
 
     // checking for logging errors
     logReceiverQueueAlert.set(Logger.getReceiverQueueFault())
-
-//    val superstructureLoopTimeMS = Clock.realTimestamp
-//    RobotContainer.superstructure.periodic()
-//    Logger.recordOutput(
-//      "LoggedRobot/Subsystems/SuperstructureLoopTimeMS",
-//      (Clock.realTimestamp - superstructureLoopTimeMS).inMilliseconds
-//    )
 
     Logger.recordOutput(
       "LoggedRobot/RemainingRamMB", Runtime.getRuntime().freeMemory() / 1024 / 1024
@@ -212,19 +200,10 @@ object Robot : LoggedRobot() {
 
     ControlBoard.driverRumbleConsumer.accept(RobotContainer.driverRumbleState)
     ControlBoard.operatorRumbleConsumer.accept(RobotContainer.operatorRumbleState)
-    /*
-    DebugLogger.recordDebugOutput("LoggedRobot/port0", port0.voltage)
-    DebugLogger.recordDebugOutput("LoggedRobot/port1", port1.voltage)
-    DebugLogger.recordDebugOutput("LoggedRobot/port2", port2.voltage)
-    Logger.recordOutput("LoggedRobot/port3", port3.voltage)
-     */
 
     if (isSimulation()) {
       DriverStation.silenceJoystickConnectionWarning(true)
     }
-
-//    println("Loop cycle counter (Robot.kt): $loopCycleCounter")
-//    loopCycleCounter++
   }
 
   override fun teleopInit() {

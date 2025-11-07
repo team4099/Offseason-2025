@@ -194,7 +194,9 @@ object RobotContainer {
     // unregister subsystems which get magically registered to the commandscheduler
     CommandScheduler.getInstance().unregisterAllSubsystems()
 
-    // subsystem periodics get ran in the order registered. superstructure should always be last
+    // subsystem periodics get ran in the order registered
+    // superstructure should always get run last, except for leds which should reflect the most
+    // recent state
     CommandScheduler.getInstance()
       .registerSubsystem(
         drivetrain,

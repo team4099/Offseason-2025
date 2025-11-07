@@ -47,6 +47,7 @@ import org.team4099.lib.geometry.Transform3d
 import org.team4099.lib.geometry.Translation3d
 import org.team4099.lib.units.base.inInches
 import org.team4099.lib.units.base.inMeters
+import org.team4099.lib.units.base.inMilliseconds
 import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.meters
@@ -135,6 +136,8 @@ class Superstructure(
   }
 
   override fun periodic() {
+    val startTime = Clock.fpgaTime
+
     field.robotPose = drivetrain.pose.pose2d
 
     if (RobotBase.isSimulation()) {
@@ -913,6 +916,11 @@ class Superstructure(
     if (nextState != currentState) lastTransitionTime = Clock.fpgaTime
 
     currentState = nextState
+
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/SuperstructureLoopTimeMS",
+      (Clock.fpgaTime - startTime).inMilliseconds
+    )
   }
 
   fun requestIdleCommand(): Command {

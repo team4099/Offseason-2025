@@ -17,10 +17,7 @@ class TeleopDriveCommand(
   val turn: () -> Double,
   val slowMode: () -> Boolean,
   val drivetrain: Drive,
-  private val flipIfRed: Boolean = true
 ) : Command() {
-
-  private val joystick = CommandXboxController(0)
 
   init {
     addRequirements(drivetrain)

@@ -2,6 +2,7 @@ package com.team4099.robot2025
 
 import com.ctre.phoenix6.signals.NeutralModeValue
 import com.team4099.robot2025.auto.AutonomousSelector
+import com.team4099.robot2025.commands.drivetrain.AutofaceReefCommand
 import com.team4099.robot2025.commands.drivetrain.CoolerTargetTagCommand
 import com.team4099.robot2025.commands.drivetrain.DrivePathOTF
 import com.team4099.robot2025.commands.drivetrain.ResetGyroYawCommand
@@ -55,6 +56,7 @@ import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.perSecond
 import java.util.function.Supplier
+import javax.naming.ldap.Control
 import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersIOSim
 
@@ -262,25 +264,47 @@ object RobotContainer {
       superstructure.resetGamepieceCommand(GamePiece.ALGAE)
     )
 
-    ControlBoard.test.onTrue(
-      DrivePathOTF(
+    ControlBoard.test.whileTrue(
+      AutofaceReefCommand(
         drivetrain,
+        driver = Jessika(),
         { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
         { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
         { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-        { drivetrain.pose.pose2d },
-        VisionConstants.OTF_PATHS[vision.lastTrigVisionUpdate.targetTagID]
-          ?: listOf(
-            Supplier { Pose2d(4.748.meters, 1.56.meters, 27.216.degrees) },
-            Supplier { Pose2d(6.1.meters, 2.996.meters, 87.degrees) },
-            Supplier { Pose2d(6.1.meters, 4.093.meters, 90.degrees) }
-          ),
-        0.0.degrees,
-        PathPlannerHolonomicDriveController.Companion.GoalEndState(
-          0.0.meters.perSecond, 180.degrees
-        )
+        {
+          ControlBoard.slowMode ||
+              superstructure.currentState ==
+              Superstructure.Companion.SuperstructureStates.GROUND_INTAKE_CORAL ||
+              superstructure.currentState ==
+              Superstructure.Companion.SuperstructureStates.INTAKE_ALGAE ||
+              superstructure.currentState ==
+              Superstructure.Companion.SuperstructureStates.SCORE_ALGAE &&
+              superstructure.algaeScoringLevel ==
+              Constants.Universal.AlgaeScoringLevel.BARGE
+        },
+        vision
       )
     )
+
+//    ControlBoard.test.onTrue(
+//      DrivePathOTF(
+//        drivetrain,
+//        { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
+//        { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
+//        { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
+//        { drivetrain.pose.pose2d },
+//        VisionConstants.OTF_PATHS[vision.lastTrigVisionUpdate.targetTagID]
+//          ?: listOf(
+//            Supplier { Pose2d(4.748.meters, 1.56.meters, 27.216.degrees) },
+//            Supplier { Pose2d(6.1.meters, 2.996.meters, 87.degrees) },
+//            Supplier { Pose2d(6.1.meters, 4.093.meters, 90.degrees) }
+//          ),
+//        0.0.degrees,
+//        PathPlannerHolonomicDriveController.Companion.GoalEndState(
+//          0.0.meters.perSecond, 180.degrees
+//        )
+//      )
+//    )
   }
 
   fun mapTestControls() {}

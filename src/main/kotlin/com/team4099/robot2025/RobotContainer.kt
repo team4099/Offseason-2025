@@ -44,6 +44,7 @@ import com.team4099.robot2025.subsystems.vision.camera.CameraIOPVSim
 import com.team4099.robot2025.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.util.driver.Jessika
 import edu.wpi.first.wpilibj.RobotBase
+import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
@@ -206,6 +207,27 @@ object RobotContainer {
     //    led.isAlignedSupplier = Supplier { vision.isAligned }
     led.gamePieceArmSupplier = Supplier { superstructure.theoreticalGamePieceArm }
     led.stateSupplier = Supplier { superstructure.currentState }
+
+    // unregister subsystems which get magically registered to the commandscheduler
+    CommandScheduler.getInstance().unregisterAllSubsystems()
+
+    // subsystem periodics get ran in the order registered
+    // superstructure should always get run last, except for leds which should reflect the most
+    // recent state
+    CommandScheduler.getInstance()
+      .registerSubsystem(
+        drivetrain,
+        vision,
+        elevator,
+        arm,
+        armRollers,
+        climber,
+        intake,
+        indexer,
+        canrange,
+        led,
+        superstructure
+      )
   }
 
   fun mapDefaultCommands() {

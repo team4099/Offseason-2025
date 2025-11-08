@@ -8,8 +8,7 @@ import edu.wpi.first.wpilibj.simulation.BatterySim
 import edu.wpi.first.wpilibj.simulation.ElevatorSim
 import edu.wpi.first.wpilibj.simulation.RoboRioSim
 import org.team4099.lib.controller.ElevatorFeedforward
-import org.team4099.lib.controller.ProfiledPIDController
-import org.team4099.lib.controller.TrapezoidProfile
+import org.team4099.lib.controller.PIDController
 import org.team4099.lib.units.base.Length
 import org.team4099.lib.units.base.Meter
 import org.team4099.lib.units.base.amps
@@ -46,13 +45,10 @@ object ElevatorIOSim : ElevatorIO {
   private var lastAppliedVoltage = 0.0.volts
 
   private val elevatorPIDController =
-    ProfiledPIDController(
+    PIDController(
       ElevatorConstants.PID.SIM_KP,
       ElevatorConstants.PID.SIM_KI,
       ElevatorConstants.PID.SIM_KD,
-      TrapezoidProfile.Constraints(
-        ElevatorConstants.MAX_VELOCITY, ElevatorConstants.MAX_ACCELERATION
-      )
     )
 
   private var elevatorFFController =
@@ -99,8 +95,7 @@ object ElevatorIOSim : ElevatorIO {
   }
 
   override fun setPosition(position: Length) {
-    elevatorPIDController.setGoal(position)
-    val pidOutput = elevatorPIDController.calculate(elevatorSim.positionMeters.meters)
+    val pidOutput = elevatorPIDController.calculate(elevatorSim.positionMeters.meters, position)
     val ffOutput =
       elevatorFFController.calculate(elevatorSim.velocityMetersPerSecond.meters.perSecond)
     setVoltage(pidOutput + ffOutput)

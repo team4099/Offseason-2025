@@ -4,6 +4,11 @@ import org.team4099.lib.units.base.grams
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.pounds
 import org.team4099.lib.units.base.seconds
+import org.team4099.lib.units.derived.DerivativeGain
+import org.team4099.lib.units.derived.IntegralGain
+import org.team4099.lib.units.derived.ProportionalGain
+import org.team4099.lib.units.derived.Radian
+import org.team4099.lib.units.derived.Volt
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.meterSquared
 import org.team4099.lib.units.derived.rotations
@@ -39,13 +44,13 @@ object ArmConstants {
   val TIME_TO_GOAL = 0.5.seconds
 
   object PID {
-    val REAL_KP = 1.5.volts / 1.degrees
-    val REAL_KI = 0.0.volts / (1.degrees * 1.seconds)
-    val REAL_KD = 0.05.volts / (1.degrees.perSecond)
+    val REAL_KP: ProportionalGain<Radian, Volt> = 1.5.volts / 1.degrees
+    val REAL_KI: IntegralGain<Radian, Volt> = 0.0.volts / (1.degrees * 1.seconds)
+    val REAL_KD: DerivativeGain<Radian, Volt> = 0.05.volts / (1.degrees.perSecond)
 
-    val SIM_KP = 0.75.volts / 1.degrees
-    val SIM_KI = 0.0.volts / (1.degrees * 1.seconds)
-    val SIM_KD = 0.02.volts / (1.degrees.perSecond)
+    val SIM_KP: ProportionalGain<Radian, Volt> = .5.volts / 1.degrees
+    val SIM_KI: IntegralGain<Radian, Volt> = 0.0.volts / (1.degrees * 1.seconds)
+    val SIM_KD: DerivativeGain<Radian, Volt> = 0.005.volts / (1.degrees.perSecond)
 
     val KS = 0.2.volts
     val KV = ((0.0 / MAX_VELOCITY).volts) / 1.0.degrees.perSecond //  0.037

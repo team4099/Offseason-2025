@@ -381,7 +381,7 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d>) : Sub
               MutableList(VisionConstants.OBJECT_CLASS.values().size) { mutableListOf() }
 
             for (objIdx in VisionConstants.OBJECT_CLASS.values().indices) {
-              objectsDetected[objIdx] =
+              objectsDetected[objIdx].addAll(
                 SimulatedArena.getInstance()
                   .getGamePiecesByType(
                     VisionConstants.OBJECT_CLASS.values()[objIdx].mapleSimType!!
@@ -389,7 +389,15 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d>) : Sub
                   .map {
                     Transform2d(poseSupplier.get(), Pose2d(it.pose3d.toPose2d())).translation
                   }
-                  .toMutableList()
+              )
+            }
+
+            objectsDetected.forEach {
+              it.addAll(
+                SimulatedArena.getInstance().getGamePiecesByType("CoralAlgaeStack").map { pose ->
+                  Transform2d(poseSupplier.get(), Pose2d(pose.pose3d.toPose2d())).translation
+                }
+              )
             }
           }
 

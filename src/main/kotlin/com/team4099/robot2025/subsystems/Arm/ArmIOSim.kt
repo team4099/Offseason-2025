@@ -11,8 +11,7 @@ import org.dyn4j.geometry.HalfEllipse
 import org.ironmaple.simulation.IntakeSimulation
 import org.ironmaple.simulation.drivesims.AbstractDriveTrainSimulation
 import org.team4099.lib.controller.ArmFeedforward
-import org.team4099.lib.controller.ProfiledPIDController
-import org.team4099.lib.controller.TrapezoidProfile
+import org.team4099.lib.controller.PIDController
 import org.team4099.lib.units.base.amps
 import org.team4099.lib.units.base.celsius
 import org.team4099.lib.units.base.inKilograms
@@ -38,7 +37,7 @@ import org.team4099.lib.units.perSecond
 class ArmIOSim(drivetrainSimulation: AbstractDriveTrainSimulation) : ArmIO {
   val armSim =
     SingleJointedArmSim(
-      DCMotor.getKrakenX60Foc(1),
+      DCMotor.getKrakenX60(1),
       1 / ArmConstants.GEAR_RATIO,
       SingleJointedArmSim.estimateMOI(
         ArmConstants.ARM_LENGTH.inMeters, ArmConstants.ARM_MASS.inKilograms
@@ -46,25 +45,23 @@ class ArmIOSim(drivetrainSimulation: AbstractDriveTrainSimulation) : ArmIO {
       ArmConstants.ARM_LENGTH.inMeters,
       ArmConstants.MIN_ROTATION.inRadians,
       ArmConstants.MAX_ROTATION.inRadians,
-      false,
-      ArmConstants.MIN_ROTATION.inRadians
+      true,
+      -90.degrees.inRadians
     )
 
   var armTargetPos = -1337.degrees
 
-  private val armController =
-    ProfiledPIDController(
+  private var armController =
+    PIDController(
       ArmConstants.PID.SIM_KP,
       ArmConstants.PID.SIM_KI,
       ArmConstants.PID.SIM_KD,
-      TrapezoidProfile.Constraints(
-        ArmConstants.MAX_VELOCITY.degrees.perSecond,
-        ArmConstants.MAX_ACCELERATION.degrees.perSecond.perSecond
-      )
     )
 
   private var armFeedforward =
-    ArmFeedforward(ArmConstants.PID.KS, kG = 0.0.volts, ArmConstants.PID.KV, ArmConstants.PID.KA)
+    ArmFeedforward(
+      ArmConstants.PID.KS, ArmConstants.PID.KG, ArmConstants.PID.KV, ArmConstants.PID.KA
+    )
 
   private var appliedVoltage = 0.0.volts
 

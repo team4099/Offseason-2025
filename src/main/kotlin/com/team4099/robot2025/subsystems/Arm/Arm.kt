@@ -1,11 +1,13 @@
 package com.team4099.robot2025.subsystems.Arm
 
+import com.team4099.lib.hal.Clock
 import com.team4099.robot2025.config.constants.ArmConstants
 import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.ironmaple.simulation.IntakeSimulation
+import org.team4099.lib.units.base.inMicroseconds
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inDegrees
@@ -64,6 +66,8 @@ class Arm(val io: ArmIO) : SubsystemBase() {
   }
 
   override fun periodic() {
+    val startTime = Clock.fpgaTime
+
     io.updateInputs(inputs)
 
     CustomLogger.processInputs("Arm", inputs)
@@ -75,29 +79,6 @@ class Arm(val io: ArmIO) : SubsystemBase() {
 
     CustomLogger.recordOutput("Arm/targetVoltage", armTargetVoltage.inVolts)
     CustomLogger.recordOutput("Arm/targetPosition", armPositionTarget.inDegrees)
-
-    //    if (ArmTunableValues.armkP.hasChanged() ||
-    //      ArmTunableValues.armkI.hasChanged() ||
-    //      ArmTunableValues.armkD.hasChanged()
-    //    ) {
-    //      io.configPID(
-    //        ArmTunableValues.armkP.get(), ArmTunableValues.armkI.get(),
-    // ArmTunableValues.armkD.get()
-    //      )
-    //    }
-    //
-    //    if (ArmTunableValues.armkS.hasChanged() ||
-    //      ArmTunableValues.armkV.hasChanged() ||
-    //      ArmTunableValues.armkA.hasChanged() ||
-    //      ArmTunableValues.armkG.hasChanged()
-    //    ) {
-    //      io.configFF(
-    //        ArmTunableValues.armkG.get(),
-    //        ArmTunableValues.armkS.get(),
-    //        ArmTunableValues.armkV.get(),
-    //        ArmTunableValues.armkA.get()
-    //      )
-    //    }
 
     var nextState = currentState
     when (currentState) {
@@ -120,6 +101,10 @@ class Arm(val io: ArmIO) : SubsystemBase() {
       }
     }
     currentState = nextState
+
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/ArmLoopTimeMS", (Clock.fpgaTime - startTime).inMicroseconds
+    )
   }
 
   companion object {

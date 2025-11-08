@@ -96,6 +96,8 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
   }
 
   override fun periodic() {
+    val startTime = Clock.fpgaTime
+
     visionSim?.update(poseSupplier.get())
 
     Logger.recordOutput(
@@ -110,8 +112,6 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
     )
 
     Logger.recordOutput("Vision/currentTrigUpdateID", lastTrigVisionUpdate.targetTagID)
-
-    val startTime = Clock.realTimestamp
 
     currentState = fromRequestToState(currentRequest)
 
@@ -318,11 +318,6 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
       }
     }
 
-    // visionConsumer.accept(visionUpdates)
-    Logger.recordOutput(
-      "LoggedRobot/Subsystems/VisionLoopTimeMS", (Clock.realTimestamp - startTime).inMilliseconds
-    )
-
     val now = Clock.fpgaTime
 
     val tagId0 = closestReefTags[0]?.first
@@ -358,7 +353,7 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d> = Supp
     }
 
     Logger.recordOutput(
-      "LoggedRobot/VisionLoopTimeMS", (Clock.realTimestamp - startTime).inMilliseconds
+      "LoggedRobot/Subsystems/VisionLoopTimeMS", (Clock.realTimestamp - startTime).inMilliseconds
     )
   }
 

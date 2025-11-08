@@ -5,6 +5,7 @@ import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.config.constants.VisionConstants
 import com.team4099.robot2025.subsystems.drivetrain.Drive
+import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.CustomLogger
@@ -60,22 +61,16 @@ class TargetObjectCommand(
     } else {
       thetaPID =
         PIDController(
-          DrivetrainConstants.PID.TELEOP_THETA_PID_KP,
-          DrivetrainConstants.PID.TELEOP_THETA_PID_KI,
-          DrivetrainConstants.PID.TELEOP_THETA_PID_KD
+          DrivetrainConstants.PID.OBJECT_ALIGN_KP,
+          DrivetrainConstants.PID.OBJECT_ALIGN_KI,
+          DrivetrainConstants.PID.OBJECT_ALIGN_KD
         )
     }
     thetaPID.enableContinuousInput(-PI.radians, PI.radians)
   }
   override fun initialize() {
     startTime = Clock.fpgaTime
-
     thetaPID.reset()
-
-    thetaPID.enableContinuousInput(-PI.radians, PI.radians)
-
-    vision.isAligned = false
-    vision.isAutoAligning = true
     hasThetaAligned = false
 
     CustomLogger.recordOutput("TargetObjectCommand/lastInitialized", Clock.fpgaTime.inSeconds)
@@ -91,19 +86,18 @@ class TargetObjectCommand(
     CustomLogger.recordOutput("TargetObjectCommand/odomTObjectExists", exists)
     if (!exists || Clock.realTimestamp - lastUpdate.timestamp > .2.seconds) end(interrupted = true)
 
+    superstructure.currentRequest = Request.SuperstructureRequest.IntakeCoral()
+
     CustomLogger.recordOutput("TargetObjectCommand/odomTObjectx", robotTObject.x.inMeters)
     CustomLogger.recordOutput("TargetObjectCommand/odomTObjecty", robotTObject.y.inMeters)
 
     val setpointRotation: Value<Radian> =
-      robotTObject.translation2d.angle.radians.radians +
-        drivetrain
-          .pose
-          .rotation // atan2(-robotTObject.y.inMeters, -robotTObject.x.inMeters).radians
+      robotTObject.translation2d.angle.radians.radians + drivetrain.pose.rotation
 
     CustomLogger.recordOutput("TargetObjectCommand/setPointRotation", setpointRotation.inDegrees)
     CustomLogger.recordOutput("TargetObjectCommand/driverot", drivetrain.rotation.inDegrees)
 
-    var thetavel =
+    val thetavel =
       thetaPID.calculate(drivetrain.pose.rotation, setpointRotation) *
         if (RobotBase.isReal()) -1.0 else 1.0
 
@@ -111,7 +105,10 @@ class TargetObjectCommand(
     CustomLogger.recordOutput("TargetObjectCommand/thetaerror", thetaPID.error.inDegrees)
     CustomLogger.recordOutput("TargetObjectCommand/hasThetaAligned", hasThetaAligned)
 
-    if (hasThetaAligned || thetaPID.error.absoluteValue < 4.49.degrees) {
+    if ((hasThetaAligned || thetaPID.error.absoluteValue < 8.36.degrees) &&
+      superstructure.currentState ==
+      Superstructure.Companion.SuperstructureStates.GROUND_INTAKE_CORAL
+    ) {
       hasThetaAligned = true
 
       drivetrain.runSpeeds(
@@ -125,9 +122,6 @@ class TargetObjectCommand(
     }
   }
   override fun end(interrupted: Boolean) {
-    if (!interrupted) vision.isAligned = true
-    vision.isAutoAligning = false
-
     drivetrain.runSpeeds(ChassisSpeeds())
     CustomLogger.recordOutput("ActiveCommands/TargetObjectCommand", false)
 
@@ -135,7 +129,7 @@ class TargetObjectCommand(
   }
 
   override fun isFinished(): Boolean {
-    return if (targetObjectClass.name == "Coral") {
+    return if (targetObjectClass == VisionConstants.OBJECT_CLASS.CORAL) {
       superstructure.theoreticalGamePieceHardstop != Constants.Universal.GamePiece.NONE
     } else {
       superstructure.theoreticalGamePieceArm != Constants.Universal.GamePiece.NONE

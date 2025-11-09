@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 class LevelPicker(val io: ReefControlsIO, vision: Vision) : SubsystemBase() {
 
   val inputs = ReefControlsIO.ReefControlsIOInputs()
-  val lastAlignedBranch: IntArray = CoolerTargetTagCommand.LastAlignedBranch
+  var lastAlignedBranch: IntArray = CoolerTargetTagCommand.LastAlignedBranch
   var levelDecision: Constants.Universal.CoralLevel = Constants.Universal.CoralLevel.NONE
 
   override fun periodic() {
@@ -20,6 +20,8 @@ class LevelPicker(val io: ReefControlsIO, vision: Vision) : SubsystemBase() {
     CustomLogger.recordOutput("Dashboard/ReefState/Priorities", inputs.priorities)
 
     CustomLogger.recordOutput("Dashboard/LevelDecision", levelDecision)
+    CustomLogger.recordOutput("Dashboard/LastAlignedBranch", lastAlignedBranch)
+     lastAlignedBranch = CoolerTargetTagCommand.LastAlignedBranch
     if (!lastAlignedBranch.contentEquals(intArrayOf(0, 0, 0))) {
       levelDecision = branchToDecision(lastAlignedBranch)
     }
@@ -27,6 +29,7 @@ class LevelPicker(val io: ReefControlsIO, vision: Vision) : SubsystemBase() {
 
   fun branchToDecision(lastAlignedBranch: IntArray): Constants.Universal.CoralLevel {
     for (priority in inputs.priorities) {
+      CustomLogger.recordOutput("Dashboard/priority", priority)
       when (priority) {
         "Fill L4" -> {
           if (!inputs.coralState[lastAlignedBranch[0]]) {
@@ -48,6 +51,6 @@ class LevelPicker(val io: ReefControlsIO, vision: Vision) : SubsystemBase() {
         }
       }
     }
-    return Constants.Universal.CoralLevel.NONE
+    return Constants.Universal.CoralLevel.L4
   }
 }

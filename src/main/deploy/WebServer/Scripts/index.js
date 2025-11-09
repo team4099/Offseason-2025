@@ -79,6 +79,8 @@ window.addEventListener("load", () => {
 let algaeStates = Array.from(document.querySelectorAll(".algae")).map(algae => algae.classList.contains("active"));
 let priorities = getListOrder();
 
+console.log(priorities);
+
 ntClient.addSample(toRobotPrefix + coralTopicName, coralStates);
 ntClient.addSample(toRobotPrefix + algaeTopicName, algaeStates);
 

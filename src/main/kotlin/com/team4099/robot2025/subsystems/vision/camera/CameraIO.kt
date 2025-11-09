@@ -29,6 +29,12 @@ import java.util.Optional
 import java.util.function.Supplier
 
 interface CameraIO {
+  enum class DetectionPipeline {
+    APRIL_TAG,
+    OBJECT_DETECTION
+  }
+
+  val pipeline: DetectionPipeline
   val identifier: String
   val transform: org.team4099.lib.geometry.Transform3d
   val poseMeasurementConsumer: (Pose2d?, Double, Matrix<N3?, N1?>) -> Unit
@@ -58,22 +64,36 @@ interface CameraIO {
       table.put("cameraTargets/indices", cameraTargets.size)
 
       for (targetIndex in cameraTargets.indices) {
-        table.put("cameraTargets/$targetIndex/id", cameraTargets[targetIndex].fiducialId)
         table.put("cameraTargets/$targetIndex/yaw", cameraTargets[targetIndex].yaw)
         table.put("cameraTargets/$targetIndex/pitch", cameraTargets[targetIndex].pitch)
         table.put("cameraTargets/$targetIndex/area", cameraTargets[targetIndex].area)
         table.put("cameraTargets/$targetIndex/skew", cameraTargets[targetIndex].skew)
-        for (i in 0..3) {
-          table.put(
-            "cameraTargets/$targetIndex/corners/$i",
-            cameraTargets[targetIndex].detectedCorners[i]
-          )
-        }
         table.put(
           "cameraTargets/$targetIndex/cameraToTarget",
           cameraTargets[targetIndex].bestCameraToTarget
         )
-        table.put("cameraTargets/$targetIndex/ambiguity", cameraTargets[targetIndex].poseAmbiguity)
+
+        if (cameraTargets[targetIndex].fiducialId != -1) {
+          table.put("cameraTargets/$targetIndex/id", cameraTargets[targetIndex].fiducialId)
+
+          for (i in 0..3) {
+            table.put(
+              "cameraTargets/$targetIndex/corners/$i",
+              cameraTargets[targetIndex].detectedCorners[i]
+            )
+          }
+          table.put(
+            "cameraTargets/$targetIndex/ambiguity", cameraTargets[targetIndex].poseAmbiguity
+          )
+        } else {
+          table.put(
+            "cameraTargets/$targetIndex/classId",
+            cameraTargets[targetIndex].detectedObjectClassID
+          )
+          table.put(
+            "cameraTargets/$targetIndex/confidence", cameraTargets[targetIndex].objDetectConf
+          )
+        }
       }
     }
 
@@ -140,29 +160,35 @@ interface CameraIO {
 
     inputs.cameraTargets = mostRecentPipelineResult.targets
 
-    if (mostRecentPipelineResult.hasTargets()) {
-      val visionEst: Optional<EstimatedRobotPose> = photonEstimator.update(mostRecentPipelineResult)
+    when (pipeline) {
+      DetectionPipeline.APRIL_TAG -> {
+        if (mostRecentPipelineResult.hasTargets()) {
+          val visionEst: Optional<EstimatedRobotPose> =
+            photonEstimator.update(mostRecentPipelineResult)
 
-      if (visionEst.isPresent) {
-        inputs.usedTargets = visionEst.get().targetsUsed.map { it.fiducialId }
+          if (visionEst.isPresent) {
+            inputs.usedTargets = visionEst.get().targetsUsed.map { it.fiducialId }
 
-        val poseEst = visionEst.get().estimatedPose
-        inputs.frame = Pose3d(poseEst)
+            val poseEst = visionEst.get().estimatedPose
+            inputs.frame = Pose3d(poseEst)
 
-        if (mostRecentPipelineResult.bestTarget.bestCameraToTarget.translation.norm <
-          VisionConstants.FIELD_POSE_RESET_DISTANCE_THRESHOLD.inMeters
-        ) {
-          updateEstimationStdDevs(visionEst, mostRecentPipelineResult.getTargets())
+            if (mostRecentPipelineResult.bestTarget.bestCameraToTarget.translation.norm <
+              VisionConstants.FIELD_POSE_RESET_DISTANCE_THRESHOLD.inMeters
+            ) {
+              updateEstimationStdDevs(visionEst, mostRecentPipelineResult.getTargets())
 
-          val poseEst2d = poseEst.toPose2d()
+              val poseEst2d = poseEst.toPose2d()
 
-          poseMeasurementConsumer(
-            Pose2d(poseEst2d.x, poseEst.y, drivetrainRotationSupplier.get().inRotation2ds),
-            visionEst.get().timestampSeconds,
-            curStdDevs
-          )
+              poseMeasurementConsumer(
+                Pose2d(poseEst2d.x, poseEst.y, drivetrainRotationSupplier.get().inRotation2ds),
+                visionEst.get().timestampSeconds,
+                curStdDevs
+              )
+            }
+          }
         }
       }
+      DetectionPipeline.OBJECT_DETECTION -> {}
     }
   }
 

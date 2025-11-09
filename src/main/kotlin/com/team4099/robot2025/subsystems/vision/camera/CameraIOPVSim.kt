@@ -22,6 +22,7 @@ import org.team4099.lib.units.micro
 import java.util.function.Supplier
 
 class CameraIOPVSim(
+  override val pipeline: CameraIO.DetectionPipeline,
   override val identifier: String,
   override val transform: Transform3d,
   override val poseMeasurementConsumer: (Pose2d?, Double, Matrix<N3?, N1?>) -> Unit = { _, _, _ ->

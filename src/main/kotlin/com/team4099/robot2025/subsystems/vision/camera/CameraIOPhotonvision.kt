@@ -16,6 +16,7 @@ import org.team4099.lib.units.derived.Angle
 import java.util.function.Supplier
 
 class CameraIOPhotonvision(
+  override val pipeline: CameraIO.DetectionPipeline,
   override val identifier: String,
   override val transform: Transform3d,
   override val poseMeasurementConsumer: (Pose2d?, Double, Matrix<N3?, N1?>) -> Unit,

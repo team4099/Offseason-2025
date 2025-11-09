@@ -20,6 +20,8 @@ import com.team4099.robot2025.subsystems.canRange.CANRangeReal
 import com.team4099.robot2025.subsystems.climber.Climber
 import com.team4099.robot2025.subsystems.climber.ClimberIO
 import com.team4099.robot2025.subsystems.climber.ClimberIOSim
+import com.team4099.robot2025.subsystems.dashboard.LevelPicker
+import com.team4099.robot2025.subsystems.dashboard.ReefControlsIOServer
 import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.subsystems.drivetrain.GyroIOPigeon2
 import com.team4099.robot2025.subsystems.drivetrain.GyroIOSim
@@ -68,6 +70,7 @@ object RobotContainer {
   private val indexer: Indexer
   private val canrange: CANRange
   private val led: Led
+  private val levelPicker: LevelPicker
   val superstructure: Superstructure
 
   val driverRumbleState
@@ -188,7 +191,7 @@ object RobotContainer {
           object : LedIO {}
         )
     }
-
+      levelPicker = LevelPicker(ReefControlsIOServer, vision)
     superstructure =
       Superstructure(
         drivetrain,
@@ -226,6 +229,7 @@ object RobotContainer {
         indexer,
         canrange,
         led,
+        levelPicker,
         superstructure
       )
   }

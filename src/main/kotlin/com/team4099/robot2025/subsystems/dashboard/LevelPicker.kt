@@ -5,8 +5,9 @@ import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.CustomLogger
 import com.team4099.robot2025.util.VirtualSubsystem
+import edu.wpi.first.wpilibj2.command.SubsystemBase
 
-class LevelPicker(val io: ReefControlsIO, vision: Vision) : VirtualSubsystem() {
+class LevelPicker(val io: ReefControlsIO, vision: Vision) : SubsystemBase() {
 
   val inputs = ReefControlsIO.ReefControlsIOInputs()
   val lastAlignedBranch: IntArray = CoolerTargetTagCommand.LastAlignedBranch

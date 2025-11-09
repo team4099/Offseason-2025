@@ -10,7 +10,14 @@ import edu.wpi.first.networktables.StringArraySubscriber
 import edu.wpi.first.wpilibj.Filesystem
 import java.nio.file.Paths
 
-class ReefControlsIOServer : ReefControlsIO {
+object ReefControlsIOServer : ReefControlsIO {
+
+  private const val toRobotTable = "/ReefControls/ToRobot"
+  private const val toDashboardTable = "/ReefControls/ToDashboard"
+  private const val coralTopicName = "Coral"
+  private const val algaeTopicName = "Algae"
+  private const val prioritiesTopicName = "Priorities"
+
   private val coralStateIn: BooleanArraySubscriber
   private val algaeStateIn: BooleanArraySubscriber
   private val prioritiesIn: StringArraySubscriber
@@ -55,8 +62,7 @@ class ReefControlsIOServer : ReefControlsIO {
     inputs.algaeState =
       if (algaeStateIn.readQueue().size > 0) algaeStateIn.get() else booleanArrayOf(true)
     inputs.priorities =
-      (if (prioritiesIn.readQueue().size > 0) arrayOf(prioritiesIn.get()) else arrayOf()) as
-      Array<String> // idk if this is rlly safe tbh
+      (if (prioritiesIn.readQueue().size > 0) prioritiesIn.get() else arrayOf())
   }
 
   public override fun setCoralState(value: BooleanArray) {
@@ -71,11 +77,7 @@ class ReefControlsIOServer : ReefControlsIO {
     prioritiesOut.set(value)
   }
 
-  companion object {
-    private const val toRobotTable = "/ReefControls/ToRobot"
-    private const val toDashboardTable = "/ReefControls/ToDashboard"
-    private const val coralTopicName = "Coral"
-    private const val algaeTopicName = "Algae"
-    private const val prioritiesTopicName = "Priorities"
-  }
+
+
+
 }

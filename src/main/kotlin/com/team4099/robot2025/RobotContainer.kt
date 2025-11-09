@@ -42,6 +42,7 @@ import com.team4099.robot2025.subsystems.vision.camera.CameraIOPVSim
 import com.team4099.robot2025.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.util.driver.Jessika
 import edu.wpi.first.wpilibj.RobotBase
+import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
@@ -72,6 +73,8 @@ object RobotContainer {
 
   val operatorRumbleState
     get() = canrange.rumbleTrigger || vision.autoAlignReadyRumble
+
+  var forceStopAutoaim: Boolean = false
 
   var driveSimulation: SwerveDriveSimulation? = null
 
@@ -206,8 +209,8 @@ object RobotContainer {
             superstructure.algaeScoringLevel ==
             Constants.Universal.AlgaeScoringLevel.BARGE
         },
-        vision,
-        { superstructure.theoreticalGamePieceArm }
+        { superstructure.theoreticalGamePieceArm },
+        { forceStopAutoaim }
       )
   }
 
@@ -260,28 +263,7 @@ object RobotContainer {
       superstructure.resetGamepieceCommand(GamePiece.ALGAE)
     )
 
-    //    ControlBoard.test.whileTrue(
-    //      AutofaceReefCommand(
-    //        drivetrain,
-    //        driver = Jessika(),
-    //        { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //        { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //        { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-    //        {
-    //          ControlBoard.slowMode ||
-    //            superstructure.currentState ==
-    //            Superstructure.Companion.SuperstructureStates.GROUND_INTAKE_CORAL ||
-    //            superstructure.currentState ==
-    //            Superstructure.Companion.SuperstructureStates.INTAKE_ALGAE ||
-    //            superstructure.currentState ==
-    //            Superstructure.Companion.SuperstructureStates.SCORE_ALGAE &&
-    //            superstructure.algaeScoringLevel ==
-    //            Constants.Universal.AlgaeScoringLevel.BARGE
-    //        },
-    //        vision,
-    //        { superstructure.theoreticalGamePieceArm }
-    //      )
-    //    )
+    ControlBoard.forceStopAutoAim.onTrue(runOnce({ forceStopAutoaim = !forceStopAutoaim }))
 
     //    ControlBoard.test.onTrue(
     //      DrivePathOTF(
@@ -321,9 +303,7 @@ object RobotContainer {
   }
 
   fun updateSimulation() {
-    Logger.recordOutput(
-      "aaa/aaa", ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND)
-    )
+    Logger.recordOutput("aaa/aaa", forceStopAutoaim)
     if (!RobotBase.isSimulation()) return
 
     SimulatedArena.getInstance().simulationPeriodic()

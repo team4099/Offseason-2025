@@ -64,6 +64,9 @@ object DrivetrainConstants {
 
   const val NITRILE_WHEEL_COF = 1.2
 
+  val DRIVE_ESCAPE_THRESHOLD = 0.4
+  val TURN_ESCAPE_THRESHOLD = 0.4
+
   object PID {
     val AUTO_POS_KP: ProportionalGain<Meter, Velocity<Meter>>
       get() {

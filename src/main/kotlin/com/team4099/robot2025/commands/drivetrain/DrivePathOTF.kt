@@ -66,9 +66,6 @@ class DrivePathOTF(
   private val initialHeading: Angle,
   private val goalEndState: GoalEndState
 ) : Command() {
-  private val DRIVE_ESCAPE_THRESHOLD = 0.4
-  private val TURN_ESCAPE_THRESHOLD = 0.4
-
   private lateinit var command: FollowPathCommand
 
   private val thetakP =
@@ -183,9 +180,9 @@ class DrivePathOTF(
 
   override fun isFinished(): Boolean {
     return command.isFinished ||
-      driveX.asDouble >= DRIVE_ESCAPE_THRESHOLD ||
-      driveY.asDouble >= DRIVE_ESCAPE_THRESHOLD ||
-      turn.asDouble >= TURN_ESCAPE_THRESHOLD
+      driveX.asDouble >= DrivetrainConstants.DRIVE_ESCAPE_THRESHOLD ||
+      driveY.asDouble >= DrivetrainConstants.DRIVE_ESCAPE_THRESHOLD ||
+      turn.asDouble >= DrivetrainConstants.TURN_ESCAPE_THRESHOLD
   }
 
   override fun end(interrupted: Boolean) {

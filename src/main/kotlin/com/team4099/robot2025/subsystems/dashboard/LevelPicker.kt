@@ -1,13 +1,16 @@
 package com.team4099.robot2025.subsystems.dashboard
 
 import com.team4099.robot2025.commands.drivetrain.CoolerTargetTagCommand
+import com.team4099.robot2025.config.constants.Constants
+import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.CustomLogger
 import com.team4099.robot2025.util.VirtualSubsystem
 
-class LevelPicker(val io: ReefControlsIO) : VirtualSubsystem() {
+class LevelPicker(val io: ReefControlsIO, vision: Vision) : VirtualSubsystem() {
 
- val inputs = ReefControlsIO.ReefControlsIOInputs()
-  val x = CoolerTargetTagCommand.LastAlignedBranch
+  val inputs = ReefControlsIO.ReefControlsIOInputs()
+  val lastAlignedBranch: IntArray = CoolerTargetTagCommand.LastAlignedBranch
+  var levelDecision: Constants.Universal.CoralLevel = Constants.Universal.CoralLevel.NONE
 
   override fun periodic() {
     io.updateInputs(inputs)
@@ -15,6 +18,35 @@ class LevelPicker(val io: ReefControlsIO) : VirtualSubsystem() {
     CustomLogger.recordOutput("Dashboard/ReefState/Algae", inputs.algaeState)
     CustomLogger.recordOutput("Dashboard/ReefState/Priorities", inputs.priorities)
 
+    CustomLogger.recordOutput("Dashboard/LevelDecision", levelDecision)
+    if (!lastAlignedBranch.contentEquals(intArrayOf(0, 0, 0))) {
+      levelDecision = branchToDecision(lastAlignedBranch)
+    }
+  }
 
+  fun branchToDecision(lastAlignedBranch: IntArray): Constants.Universal.CoralLevel {
+    for (priority in inputs.priorities) {
+      when (priority) {
+        "Fill L4" -> {
+          if (!inputs.coralState[lastAlignedBranch[0]]) {
+            return Constants.Universal.CoralLevel.L4
+          }
+        }
+        "Fill L3" -> {
+          if (!inputs.coralState[lastAlignedBranch[1]]) {
+            return Constants.Universal.CoralLevel.L3
+          }
+        }
+        "Fill L2" -> {
+          if (!inputs.coralState[lastAlignedBranch[2]]) {
+            return Constants.Universal.CoralLevel.L2
+          }
+        }
+        else -> {
+          return Constants.Universal.CoralLevel.L1
+        }
+      }
+    }
+    return Constants.Universal.CoralLevel.NONE
   }
 }

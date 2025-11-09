@@ -133,17 +133,21 @@ class CoolerTargetTagCommand(
     vision.isAutoAligning = true
     hasThetaAligned = false
     hasPointedAt = false
-    LastAlignedBranch = (if(yTargetOffset < 0.meters ){
-      Constants.Universal.tagsTFace[ vision.lastTrigVisionUpdate.targetTagID.toString() +"R"]
-    }else{
-      Constants.Universal.tagsTFace[vision.lastTrigVisionUpdate.targetTagID.toString()+"L"]
-    }).toString()
+    LastAlignedBranch =
+      (
+        (
+          if (yTargetOffset < 0.meters) {
+            Constants.Universal.tagsTFace[vision.lastTrigVisionUpdate.targetTagID.toString() + "R"]
+          } else {
+            Constants.Universal.tagsTFace[vision.lastTrigVisionUpdate.targetTagID.toString() + "L"]
+          }
+          )!!
+        )
     CustomLogger.recordOutput("CoolerTargetTagCommand/lastInitialized", Clock.fpgaTime.inSeconds)
   }
 
   override fun execute() {
     CustomLogger.recordOutput("ActiveCommands/CoolerTargetTagCommand", true)
-
 
     val lastUpdate = vision.lastTrigVisionUpdate
     val odomTTag = lastUpdate.robotTReefTag
@@ -213,7 +217,7 @@ class CoolerTargetTagCommand(
   }
 
   companion object {
-     var LastAlignedBranch:String = "";
+    var LastAlignedBranch: IntArray = intArrayOf(0, 0, 0)
 
     fun alignLeftCommand(drivetrain: Drive, vision: Vision): CoolerTargetTagCommand {
       return CoolerTargetTagCommand(drivetrain, vision, yTargetOffset = (12.94 / 2).inches)

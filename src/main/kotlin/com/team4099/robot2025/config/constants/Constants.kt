@@ -31,33 +31,35 @@ object Constants {
       NONE
     }
 
-    val tagsTFace: Map<String, String>
-      get() = mapOf(
-        "18L" to  "A",
-        "18R" to "B",
-        "17L" to "C",
-        "17R" to "D",
-        "22L" to "E",
-        "22R" to "F",
-        "21L" to "G",
-        "21R" to "H",
-        "20L" to "I",
-        "20R" to "J",
-        "19L" to "K",
-        "19R" to "L",
-        "7L" to  "A",
-        "7R" to "B",
-        "8L" to "C",
-        "8R" to "D",
-        "9L" to "E",
-        "9R" to "F",
-        "10L" to "G",
-        "10R" to "H",
-        "11L" to "I",
-        "11R" to "J",
-        "6L" to "K",
-        "6R" to "L"
-        ).withDefault { "XX" }
+    val tagsTFace: Map<String, IntArray>
+      get() =
+        mapOf(
+          "18L" to intArrayOf(21, 22, 23),
+          "18R" to intArrayOf(18, 19, 20),
+          "17L" to intArrayOf(15, 16, 17),
+          "17R" to intArrayOf(12, 13, 14),
+          "22L" to intArrayOf(9, 10, 11),
+          "22R" to intArrayOf(6, 7, 8),
+          "21L" to intArrayOf(3, 4, 5),
+          "21R" to intArrayOf(0, 1, 2),
+          "20L" to intArrayOf(30, 31, 32),
+          "20R" to intArrayOf(35, 34, 33),
+          "19L" to intArrayOf(27, 28, 29),
+          "19R" to intArrayOf(24, 25, 26),
+          "7L" to intArrayOf(21, 22, 23),
+          "7R" to intArrayOf(18, 19, 20),
+          "8L" to intArrayOf(15, 16, 17),
+          "8R" to intArrayOf(12, 13, 14),
+          "9L" to intArrayOf(9, 10, 11),
+          "9R" to intArrayOf(6, 7, 8),
+          "10L" to intArrayOf(3, 4, 5),
+          "10R" to intArrayOf(0, 1, 2),
+          "11L" to intArrayOf(30, 31, 32),
+          "11R" to intArrayOf(35, 34, 33),
+          "6L" to intArrayOf(27, 28, 29),
+          "6R" to intArrayOf(24, 25, 26)
+        )
+          .withDefault { intArrayOf(0, 0, 0) }
 
     enum class CoralLevel {
       NONE,

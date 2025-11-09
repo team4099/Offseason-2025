@@ -83,7 +83,7 @@ object DrivetrainConstants {
   private val baseBluePose =
     Pose2d(reefCenterBlue.x + BOUNDING_RECTANGLE_WIDTH.inMeters / 2, 4.0, Rotation2d.kZero)
 
-  val reefCenterRed = Translation2d((57.feet + (6 + 7 / 8).inches - 4.5.meters).inMeters, 4.0)
+  val reefCenterRed = Translation2d((57.feet + (6 + 7.0 / 8.0).inches - 4.5.meters).inMeters, 4.0)
   private val baseRedPose =
     Pose2d(reefCenterRed.x + BOUNDING_RECTANGLE_WIDTH.inMeters / 2, 4.0, Rotation2d.kZero)
 

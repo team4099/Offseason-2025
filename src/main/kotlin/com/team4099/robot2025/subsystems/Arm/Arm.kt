@@ -5,6 +5,7 @@ import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import org.ironmaple.simulation.IntakeSimulation
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inDegrees
@@ -45,36 +46,21 @@ class Arm(val io: ArmIO) : SubsystemBase() {
 
   var isHomed = false
 
+  val algaeIntakeSimulation: IntakeSimulation?
+    get() = io.intakeSimulation
+
   init {
+    io.configFF(ArmConstants.PID.KG, ArmConstants.PID.KS, ArmConstants.PID.KV, ArmConstants.PID.KA)
 
     if (RobotBase.isReal()) {
-      isHomed = false
-
-      ArmTunableValues.armkP.initDefault(ArmConstants.PID.REAL_KP)
-      ArmTunableValues.armkI.initDefault(ArmConstants.PID.REAL_KI)
-      ArmTunableValues.armkD.initDefault(ArmConstants.PID.REAL_KD)
+      io.configPID(
+        ArmConstants.PID.REAL_KP,
+        ArmConstants.PID.REAL_KI,
+        ArmConstants.PID.REAL_KD,
+      )
     } else {
-      ArmTunableValues.armkP.initDefault(ArmConstants.PID.SIM_KP)
-      ArmTunableValues.armkI.initDefault(ArmConstants.PID.SIM_KI)
-      ArmTunableValues.armkD.initDefault(ArmConstants.PID.SIM_KD)
+      io.configPID(ArmConstants.PID.SIM_KP, ArmConstants.PID.SIM_KI, ArmConstants.PID.SIM_KD)
     }
-
-    ArmTunableValues.armkS.initDefault(ArmConstants.PID.KS)
-    ArmTunableValues.armkG.initDefault(ArmConstants.PID.KG)
-    ArmTunableValues.armkV.initDefault(ArmConstants.PID.KV)
-    ArmTunableValues.armkA.initDefault(ArmConstants.PID.KA)
-
-    io.configFF(
-      ArmTunableValues.armkG.get(),
-      ArmTunableValues.armkS.get(),
-      ArmTunableValues.armkV.get(),
-      ArmTunableValues.armkA.get()
-    )
-    io.configPID(
-      ArmTunableValues.armkP.get(),
-      ArmTunableValues.armkI.get(),
-      ArmTunableValues.armkD.get(),
-    )
   }
 
   override fun periodic() {

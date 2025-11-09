@@ -2,11 +2,15 @@ package com.team4099.robot2025.subsystems.intake
 
 import com.team4099.lib.math.clamp
 import com.team4099.robot2025.config.constants.Constants
+import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.config.constants.IntakeConstants
 import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.math.system.plant.LinearSystemId
+import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.wpilibj.simulation.FlywheelSim
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim
+import org.ironmaple.simulation.IntakeSimulation
+import org.ironmaple.simulation.drivesims.AbstractDriveTrainSimulation
 import org.team4099.lib.controller.ProfiledPIDController
 import org.team4099.lib.controller.TrapezoidProfile
 import org.team4099.lib.units.base.amps
@@ -29,7 +33,7 @@ import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.perMinute
 import org.team4099.lib.units.perSecond
 
-object IntakeIOSim : IntakeIO {
+class IntakeIOSim(drivetrainSimulation: AbstractDriveTrainSimulation) : IntakeIO {
 
   private val armSim: SingleJointedArmSim =
     SingleJointedArmSim(
@@ -66,6 +70,16 @@ object IntakeIOSim : IntakeIO {
 
   private var pivotAppliedVoltage = 0.0.volts
   private var rollersAppliedVoltage = 0.0.volts
+
+  override val intakeSimulation =
+    IntakeSimulation.OverTheBumperIntake(
+      "Coral",
+      drivetrainSimulation,
+      Meters.of(DrivetrainConstants.DRIVETRAIN_WIDTH.inMeters),
+      Meters.of(IntakeConstants.LENGTH_EXTENDED.inMeters),
+      IntakeSimulation.IntakeSide.FRONT,
+      1
+    )
 
   init {
     armSim.setState(0.0, 0.0)

@@ -10,6 +10,7 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
+
 package com.team4099.robot2025.subsystems.drivetrain
 
 import com.ctre.phoenix6.BaseStatusSignal

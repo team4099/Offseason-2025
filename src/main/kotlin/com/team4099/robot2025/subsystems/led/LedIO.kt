@@ -6,8 +6,8 @@ import org.littletonrobotics.junction.inputs.LoggableInputs
 
 interface LedIO {
   class LEDIOInputs : LoggableInputs {
-    override fun toLog(table: LogTable?) {}
-    override fun fromLog(table: LogTable?) {}
+    override fun toLog(table: LogTable) {}
+    override fun fromLog(table: LogTable) {}
   }
 
   fun setState(state: LedConstants.CandleState) {}

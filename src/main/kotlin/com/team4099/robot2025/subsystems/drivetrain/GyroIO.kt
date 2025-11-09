@@ -30,31 +30,31 @@ interface GyroIO {
     var odometryYawTimestamps: DoubleArray = doubleArrayOf()
     var odometryYawPositions: Array<Angle> = arrayOf()
 
-    override fun toLog(table: LogTable?) {
-      table?.put("connected", connected)
-      table?.put("yawPositionDegrees", yawPosition.inDegrees)
-      table?.put("yawVelocityDegPerSec", yawVelocity.inDegreesPerSecond)
+    override fun toLog(table: LogTable) {
+      table.put("connected", connected)
+      table.put("yawPositionDegrees", yawPosition.inDegrees)
+      table.put("yawVelocityDegPerSec", yawVelocity.inDegreesPerSecond)
 
-      table?.put("odometryYawTimestamps", odometryYawTimestamps)
-      table?.put(
-        "odometryYawPoisitionsDegrees",
+      table.put("odometryYawTimestamps", odometryYawTimestamps)
+      table.put(
+        "odometryYawPositionsDegrees",
         odometryYawPositions.map { angle: Angle -> angle.inDegrees }.toDoubleArray()
       )
     }
 
-    override fun fromLog(table: LogTable?) {
-      table?.get("connected", connected)?.let { connected = it }
-      table?.get("yawPositionDegrees", yawPosition.inDegrees)?.let { yawPosition = it.degrees }
-      table?.get("yawVelocityDegPerSec", yawVelocity.inDegreesPerSecond)?.let {
+    override fun fromLog(table: LogTable) {
+      table.get("connected", connected).let { connected = it }
+      table.get("yawPositionDegrees", yawPosition.inDegrees).let { yawPosition = it.degrees }
+      table.get("yawVelocityDegPerSec", yawVelocity.inDegreesPerSecond).let {
         yawVelocity = it.degrees.perSecond
       }
 
-      table?.get("odometryYawTimestamps", odometryYawTimestamps)?.let { odometryYawTimestamps = it }
-      table?.get(
+      table.get("odometryYawTimestamps", odometryYawTimestamps).let { odometryYawTimestamps = it }
+      table.get(
         "odometryYawPositionDegrees",
         odometryYawPositions.map { angle: Angle -> angle.inDegrees }.toDoubleArray()
       )
-        ?.let {
+        .let {
           odometryYawPositions =
             it.map { angleDegrees: Double -> angleDegrees.degrees }.toTypedArray()
         }

@@ -6,6 +6,7 @@ import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.team4099.lib.units.base.inInches
+import org.team4099.lib.units.base.inMilliseconds
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.inVolts
@@ -82,33 +83,9 @@ class Elevator(private val io: ElevatorIO) : SubsystemBase() {
   }
 
   override fun periodic() {
-    io.updateInputs(inputs)
+    val startTime = Clock.fpgaTime
 
-    //    if (ElevatorTunableValues.kP.hasChanged() ||
-    //      ElevatorTunableValues.kI.hasChanged() ||
-    //      ElevatorTunableValues.kD.hasChanged()
-    //    ) {
-    //      io.configPID(
-    //        ElevatorTunableValues.kP.get(),
-    //        ElevatorTunableValues.kI.get(),
-    //        ElevatorTunableValues.kD.get()
-    //      )
-    //    }
-    //
-    //    if (ElevatorTunableValues.kGFirst.hasChanged() ||
-    //      ElevatorTunableValues.kGSecond.hasChanged() ||
-    //      ElevatorTunableValues.kS.hasChanged() ||
-    //      ElevatorTunableValues.kV.hasChanged() ||
-    //      ElevatorTunableValues.kA.hasChanged()
-    //    ) {
-    //      io.configFF(
-    //        ElevatorTunableValues.kGFirst.get(),
-    //        ElevatorTunableValues.kGSecond.get(),
-    //        ElevatorTunableValues.kS.get(),
-    //        ElevatorTunableValues.kV.get(),
-    //        ElevatorTunableValues.kA.get()
-    //      )
-    //    }
+    io.updateInputs(inputs)
 
     CustomLogger.processInputs("Elevator", inputs)
 
@@ -162,6 +139,10 @@ class Elevator(private val io: ElevatorIO) : SubsystemBase() {
       }
     }
     currentState = nextState
+
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/ElevatorLoopTimeMS", (Clock.fpgaTime - startTime).inMilliseconds
+    )
   }
 
   private fun setVoltage(targetVoltage: ElectricalPotential) {

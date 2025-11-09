@@ -70,5 +70,7 @@ object ControlBoard {
   }
   val eject = Trigger { driver.dPadLeft || operator.dPadLeft }
 
+  val targetCoral = intakeCoral
+
   val test = Trigger { driver.dPadRight || operator.dPadRight }
 }

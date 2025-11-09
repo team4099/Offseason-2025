@@ -5,6 +5,7 @@ import com.team4099.robot2025.config.constants.IndexerConstants
 import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import org.team4099.lib.units.base.inMilliseconds
 import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.volts
 
@@ -30,6 +31,8 @@ class Indexer(val io: IndexerIO) : SubsystemBase() {
     }
 
   override fun periodic() {
+    val startTime = Clock.fpgaTime
+
     io.updateInputs(inputs)
 
     CustomLogger.processInputs("Indexer", inputs)
@@ -61,6 +64,10 @@ class Indexer(val io: IndexerIO) : SubsystemBase() {
     if (nextState != currentState) lastTransitionTime = Clock.fpgaTime
 
     currentState = nextState
+
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/IndexerLoopTimeMS", (Clock.fpgaTime - startTime).inMilliseconds
+    )
   }
 
   companion object {

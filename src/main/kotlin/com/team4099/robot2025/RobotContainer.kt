@@ -303,7 +303,6 @@ object RobotContainer {
   }
 
   fun updateSimulation() {
-    Logger.recordOutput("aaa/aaa", forceStopAutoaim)
     if (!RobotBase.isSimulation()) return
 
     SimulatedArena.getInstance().simulationPeriodic()

@@ -71,7 +71,7 @@ object DrivetrainConstants {
   const val NITRILE_WHEEL_COF = 1.2
 
   const val DRIVE_ESCAPE_THRESHOLD = 0.4
-  const val TURN_ESCAPE_THRESHOLD = 0.4
+  const val TURN_ESCAPE_THRESHOLD = 0.3
 
   val REEF_INRADIUS = 65.49.inches / 2
   val REEF_CIRCUMRADIUS = REEF_INRADIUS / 30.degrees.cos

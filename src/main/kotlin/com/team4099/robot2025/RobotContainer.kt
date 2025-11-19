@@ -10,7 +10,6 @@ import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.Constants.Universal.GamePiece
 import com.team4099.robot2025.config.constants.VisionConstants
-import com.team4099.robot2025.subsystems.Arm.Arm
 import com.team4099.robot2025.subsystems.Arm.ArmIOSim
 import com.team4099.robot2025.subsystems.Arm.ArmIOTalon
 import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOTalon
@@ -44,7 +43,6 @@ import com.team4099.robot2025.subsystems.vision.camera.CameraIOPVSim
 import com.team4099.robot2025.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.util.driver.Jessika
 import edu.wpi.first.wpilibj.RobotBase
-import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
@@ -61,7 +59,7 @@ object RobotContainer {
   private val drivetrain: Drive
   private val vision: Vision
   private val elevator: Elevator
-  private val arm: Arm
+  private val arm: com.team4099.robot2025.subsystems.superstructure.arm.Arm
   private val armRollers: ArmRollers
   private val climber: Climber
   private val intake: Intake
@@ -88,7 +86,7 @@ object RobotContainer {
           { pose -> {} }
         )
       elevator = Elevator(ElevatorIOTalon)
-      arm = Arm(ArmIOTalon)
+      arm = com.team4099.robot2025.subsystems.superstructure.arm.Arm(ArmIOTalon)
       armRollers = ArmRollers(RollersIOTalon)
       climber = Climber(object : ClimberIO {})
       intake = Intake(IntakeIOTalonFX)
@@ -144,7 +142,7 @@ object RobotContainer {
           driveSimulation!!::setSimulationWorldPose
         )
       elevator = Elevator(ElevatorIOSim)
-      arm = Arm(ArmIOSim(driveSimulation!!))
+      arm = com.team4099.robot2025.subsystems.superstructure.arm.Arm(ArmIOSim(driveSimulation!!))
       armRollers = ArmRollers(ArmRollersIOSim)
       climber = Climber(ClimberIOSim)
       intake = Intake(IntakeIOSim(driveSimulation!!))
@@ -207,27 +205,6 @@ object RobotContainer {
     //    led.isAlignedSupplier = Supplier { vision.isAligned }
     led.gamePieceArmSupplier = Supplier { superstructure.theoreticalGamePieceArm }
     led.stateSupplier = Supplier { superstructure.currentState }
-
-    // unregister subsystems which get magically registered to the commandscheduler
-    CommandScheduler.getInstance().unregisterAllSubsystems()
-
-    // subsystem periodics get ran in the order registered
-    // superstructure should always get run last, except for leds which should reflect the most
-    // recent state
-    CommandScheduler.getInstance()
-      .registerSubsystem(
-        drivetrain,
-        vision,
-        elevator,
-        arm,
-        armRollers,
-        climber,
-        intake,
-        indexer,
-        canrange,
-        led,
-        superstructure
-      )
   }
 
   fun mapDefaultCommands() {

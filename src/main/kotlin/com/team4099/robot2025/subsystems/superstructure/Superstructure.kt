@@ -11,7 +11,6 @@ import com.team4099.robot2025.config.constants.Constants.Universal.GamePiece
 import com.team4099.robot2025.config.constants.ElevatorConstants
 import com.team4099.robot2025.config.constants.IndexerConstants
 import com.team4099.robot2025.config.constants.IntakeConstants
-import com.team4099.robot2025.subsystems.Arm.Arm
 import com.team4099.robot2025.subsystems.Arm.ArmTunableValues
 import com.team4099.robot2025.subsystems.canRange.CANRange
 import com.team4099.robot2025.subsystems.climber.Climber
@@ -68,7 +67,7 @@ class Superstructure(
   private val drivetrain: Drive,
   private val vision: Vision,
   private val elevator: Elevator,
-  private val arm: Arm,
+  private val arm: com.team4099.robot2025.subsystems.superstructure.arm.Arm,
   private val armRollers: ArmRollers,
   private val climber: Climber,
   private val intake: Intake,

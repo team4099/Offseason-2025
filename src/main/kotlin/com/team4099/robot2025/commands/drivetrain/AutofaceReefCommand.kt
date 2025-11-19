@@ -129,9 +129,6 @@ class AutofaceReefCommand(
         )
       )
     }
-
-    CustomLogger.recordOutput("AutofaceReefCommand/resetFlag", resetFlag)
-    CustomLogger.recordOutput("AutofaceReefCommand/aligned", aligned)
   }
 
   private fun getWantedRotation(curPose: Pose2d): Angle {

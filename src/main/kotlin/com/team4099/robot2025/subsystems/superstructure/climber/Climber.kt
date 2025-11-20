@@ -65,7 +65,7 @@ class Climber(private val io: ClimberIO) : ControlledByStateMachine() {
     )
   }
 
-  override fun loop() {
+  override fun onLoop() {
     io.updateInputs(inputs)
 
     CustomLogger.processInputs("Climber", inputs)

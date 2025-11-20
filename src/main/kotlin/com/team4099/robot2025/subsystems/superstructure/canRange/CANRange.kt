@@ -11,7 +11,7 @@ class CANRange(val io: CANRangeIO) : ControlledByStateMachine() {
   var rumbleTime = (-1337).seconds
   var hasRumbledForThisDetection = false
 
-  override fun loop() {
+  override fun onLoop() {
     io.updateInputs(inputs)
 
     CustomLogger.processInputs("CANRange", inputs)

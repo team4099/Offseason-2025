@@ -29,7 +29,7 @@ class Indexer(val io: IndexerIO) : ControlledByStateMachine() {
       field = value
     }
 
-  override fun loop() {
+  override fun onLoop() {
     io.updateInputs(inputs)
 
     CustomLogger.processInputs("Indexer", inputs)

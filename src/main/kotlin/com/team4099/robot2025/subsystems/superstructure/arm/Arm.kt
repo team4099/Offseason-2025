@@ -63,7 +63,7 @@ class Arm(val io: ArmIO) : ControlledByStateMachine() {
     }
   }
 
-  override fun loop() {
+  override fun onLoop() {
     io.updateInputs(inputs)
 
     CustomLogger.processInputs("Arm", inputs)

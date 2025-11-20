@@ -51,7 +51,7 @@ class Intake(private val io: IntakeIO) : ControlledByStateMachine() {
   val gintakeSimulation: IntakeSimulation?
     get() = io.intakeSimulation
 
-  override fun loop() {
+  override fun onLoop() {
     io.updateInputs(inputs)
     CustomLogger.processInputs("Intake", inputs)
     CustomLogger.recordOutput("Intake/currentState", currentState.toString())

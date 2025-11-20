@@ -45,7 +45,7 @@ class Rollers(val io: RollersIO) : ControlledByStateMachine() {
       field = value
     }
 
-  override fun loop() {
+  override fun onLoop() {
     io.updateInputs(inputs)
     CustomLogger.processInputs("Rollers", inputs)
     CustomLogger.recordOutput("Rollers/currentState", currentState.toString())

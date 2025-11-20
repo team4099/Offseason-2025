@@ -138,48 +138,48 @@ class Superstructure(
     val startTime = Clock.fpgaTime
 
     val armStartTime = Clock.fpgaTime
-    arm.loop()
+    arm.onLoop()
     CustomLogger.recordOutput(
       "LoggedRobot/Subsystems/ArmLoopTimeMS", (Clock.fpgaTime - armStartTime).inMilliseconds
     )
 
     val armRollersStartTime = Clock.fpgaTime
-    armRollers.loop()
+    armRollers.onLoop()
     CustomLogger.recordOutput(
       "LoggedRobot/Subsystems/RollersLoopTimeMS",
       (Clock.fpgaTime - armRollersStartTime).inMilliseconds
     )
 
     val canRangeStartTime = Clock.fpgaTime
-    canrange.loop()
+    canrange.onLoop()
     CustomLogger.recordOutput(
       "LoggedRobot/Subsystems/CANRangeLoopTimeMS",
       (Clock.fpgaTime - canRangeStartTime).inMilliseconds
     )
 
     val climberStartTime = Clock.fpgaTime
-    climber.loop()
+    climber.onLoop()
     CustomLogger.recordOutput(
       "LoggedRobot/Subsystems/ClimberLoopTimeMS",
       (Clock.fpgaTime - climberStartTime).inMilliseconds
     )
 
     val elevatorStartTime = Clock.fpgaTime
-    elevator.loop()
+    elevator.onLoop()
     CustomLogger.recordOutput(
       "LoggedRobot/Subsystems/ElevatorLoopTimeMS",
       (Clock.fpgaTime - elevatorStartTime).inMilliseconds
     )
 
     val indexerStartTime = Clock.fpgaTime
-    indexer.loop()
+    indexer.onLoop()
     CustomLogger.recordOutput(
       "LoggedRobot/Subsystems/IndexerLoopTimeMS",
       (Clock.fpgaTime - indexerStartTime).inMilliseconds
     )
 
     val intakeStartTime = Clock.fpgaTime
-    intake.loop()
+    intake.onLoop()
     CustomLogger.recordOutput(
       "LoggedRobot/Subsystems/IntakeLoopTimeMS",
       (Clock.fpgaTime - intakeStartTime).inMilliseconds

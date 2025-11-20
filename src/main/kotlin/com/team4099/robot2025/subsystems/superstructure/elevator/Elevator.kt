@@ -81,7 +81,7 @@ class Elevator(private val io: ElevatorIO) : ControlledByStateMachine() {
     )
   }
 
-  override fun loop() {
+  override fun onLoop() {
     io.updateInputs(inputs)
 
     CustomLogger.processInputs("Elevator", inputs)

@@ -5,7 +5,7 @@ import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.util.sendable.SendableRegistry
 
 /**
- * This abstract class creates "fake" subsystems with a "fake" periodic ([loop]). These will have
+ * This abstract class creates "fake" subsystems with a "fake" periodic ([onLoop]). These will have
  * their loops run by Superstructure during its periodic. This enables us to cleanly control the
  * order in which subsystem loops run.
  *
@@ -30,7 +30,7 @@ abstract class ControlledByStateMachine(name: String?) : Sendable {
   /**
    * The method to be run on every loop cycle, preceding the superstructure's state machine logic.
    */
-  abstract fun loop()
+  abstract fun onLoop()
 
   /**
    * @see [edu.wpi.first.wpilibj2.command.SubsystemBase]

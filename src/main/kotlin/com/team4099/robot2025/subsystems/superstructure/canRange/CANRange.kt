@@ -3,8 +3,6 @@ package com.team4099.robot2025.subsystems.superstructure.canRange
 import com.team4099.lib.hal.Clock
 import com.team4099.robot2025.util.ControlledByStateMachine
 import com.team4099.robot2025.util.CustomLogger
-import edu.wpi.first.wpilibj2.command.SubsystemBase
-import org.team4099.lib.units.base.inMilliseconds
 import org.team4099.lib.units.base.seconds
 
 class CANRange(val io: CANRangeIO) : ControlledByStateMachine() {
@@ -14,8 +12,6 @@ class CANRange(val io: CANRangeIO) : ControlledByStateMachine() {
   var hasRumbledForThisDetection = false
 
   override fun loop() {
-    val startTime = Clock.fpgaTime
-
     io.updateInputs(inputs)
 
     CustomLogger.processInputs("CANRange", inputs)
@@ -33,9 +29,5 @@ class CANRange(val io: CANRangeIO) : ControlledByStateMachine() {
       hasRumbledForThisDetection = false
       rumbleTrigger = false
     }
-
-    CustomLogger.recordOutput(
-      "LoggedRobot/Subsystems/CANRangeLoopTimeMS", (Clock.fpgaTime - startTime).inMilliseconds
-    )
   }
 }

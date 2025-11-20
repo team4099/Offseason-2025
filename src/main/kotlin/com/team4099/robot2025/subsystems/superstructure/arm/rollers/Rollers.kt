@@ -5,7 +5,6 @@ import com.team4099.robot2025.config.constants.RollersConstants
 import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.util.ControlledByStateMachine
 import com.team4099.robot2025.util.CustomLogger
-import org.team4099.lib.units.base.inMilliseconds
 import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.volts
@@ -47,8 +46,6 @@ class Rollers(val io: RollersIO) : ControlledByStateMachine() {
     }
 
   override fun loop() {
-    val startTime = Clock.fpgaTime
-
     io.updateInputs(inputs)
     CustomLogger.processInputs("Rollers", inputs)
     CustomLogger.recordOutput("Rollers/currentState", currentState.toString())
@@ -69,10 +66,6 @@ class Rollers(val io: RollersIO) : ControlledByStateMachine() {
     }
     if (nextState != currentState) lastTransitionTime = Clock.fpgaTime
     currentState = nextState
-
-    CustomLogger.recordOutput(
-      "LoggedRobot/Subsystems/RollersLoopTimeMS", (Clock.fpgaTime - startTime).inMilliseconds
-    )
   }
 
   companion object {

@@ -2,17 +2,15 @@ package com.team4099.robot2025.subsystems.superstructure.elevator
 
 import com.team4099.lib.hal.Clock
 import com.team4099.robot2025.config.constants.ElevatorConstants
+import com.team4099.robot2025.util.ControlledByStateMachine
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj.RobotBase
-import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.team4099.lib.units.base.inInches
-import org.team4099.lib.units.base.inMilliseconds
 import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.inVolts
 import org.team4099.lib.units.derived.volts
 import com.team4099.robot2025.subsystems.superstructure.Request.ElevatorRequest as ElevatorRequest
-import com.team4099.robot2025.util.ControlledByStateMachine
 
 class Elevator(private val io: ElevatorIO) : ControlledByStateMachine() {
   val inputs = ElevatorIO.ElevatorInputs()
@@ -84,8 +82,6 @@ class Elevator(private val io: ElevatorIO) : ControlledByStateMachine() {
   }
 
   override fun loop() {
-    val startTime = Clock.fpgaTime
-
     io.updateInputs(inputs)
 
     CustomLogger.processInputs("Elevator", inputs)
@@ -140,10 +136,6 @@ class Elevator(private val io: ElevatorIO) : ControlledByStateMachine() {
       }
     }
     currentState = nextState
-
-    CustomLogger.recordOutput(
-      "LoggedRobot/Subsystems/ElevatorLoopTimeMS", (Clock.fpgaTime - startTime).inMilliseconds
-    )
   }
 
   private fun setVoltage(targetVoltage: ElectricalPotential) {

@@ -1,13 +1,10 @@
 package com.team4099.robot2025.subsystems.superstructure.climber
 
-import com.team4099.lib.hal.Clock
 import com.team4099.robot2025.config.constants.ClimberConstants
 import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.util.ControlledByStateMachine
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj.RobotBase
-import edu.wpi.first.wpilibj2.command.SubsystemBase
-import org.team4099.lib.units.base.inMilliseconds
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.degrees
@@ -69,8 +66,6 @@ class Climber(private val io: ClimberIO) : ControlledByStateMachine() {
   }
 
   override fun loop() {
-    val startTime = Clock.fpgaTime
-
     io.updateInputs(inputs)
 
     CustomLogger.processInputs("Climber", inputs)
@@ -107,10 +102,6 @@ class Climber(private val io: ClimberIO) : ControlledByStateMachine() {
     }
 
     currentState = nextState
-
-    CustomLogger.recordOutput(
-      "LoggedRobot/Subsystems/ClimberLoopTimeMS", (Clock.fpgaTime - startTime).inMilliseconds
-    )
   }
 
   companion object {

@@ -1,13 +1,11 @@
 package com.team4099.robot2025.subsystems.superstructure.arm
 
-import com.team4099.lib.hal.Clock
 import com.team4099.robot2025.config.constants.ArmConstants
 import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.util.ControlledByStateMachine
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj.RobotBase
 import org.ironmaple.simulation.IntakeSimulation
-import org.team4099.lib.units.base.inMicroseconds
 import org.team4099.lib.units.derived.ElectricalPotential
 import org.team4099.lib.units.derived.degrees
 import org.team4099.lib.units.derived.inDegrees
@@ -17,8 +15,7 @@ import org.team4099.lib.units.derived.volts
 class Arm(val io: ArmIO) : ControlledByStateMachine() {
   val inputs = ArmIO.ArmIOInputs()
 
-  var currentState: ArmState =
-    ArmState.UNINITIALIZED
+  var currentState: ArmState = ArmState.UNINITIALIZED
 
   var isZeroed = false
 
@@ -67,8 +64,6 @@ class Arm(val io: ArmIO) : ControlledByStateMachine() {
   }
 
   override fun loop() {
-    val startTime = Clock.fpgaTime
-
     io.updateInputs(inputs)
 
     CustomLogger.processInputs("Arm", inputs)
@@ -84,32 +79,24 @@ class Arm(val io: ArmIO) : ControlledByStateMachine() {
     var nextState = currentState
     when (currentState) {
       ArmState.UNINITIALIZED -> {
-        nextState =
-          fromRequestToState(currentRequest)
+        nextState = fromRequestToState(currentRequest)
       }
       ArmState.HOME -> {
         io.zeroEncoder()
         currentRequest = Request.ArmRequest.OpenLoop(0.volts)
         isZeroed = true
-        nextState =
-          fromRequestToState(currentRequest)
+        nextState = fromRequestToState(currentRequest)
       }
       ArmState.OPEN_LOOP -> {
         io.setVoltage(armTargetVoltage)
-        nextState =
-          fromRequestToState(currentRequest)
+        nextState = fromRequestToState(currentRequest)
       }
       ArmState.TARGETING_POS -> {
         io.setPosition(armPositionTarget)
-        nextState =
-          fromRequestToState(currentRequest)
+        nextState = fromRequestToState(currentRequest)
       }
     }
     currentState = nextState
-
-    CustomLogger.recordOutput(
-      "LoggedRobot/Subsystems/ArmLoopTimeMS", (Clock.fpgaTime - startTime).inMicroseconds
-    )
   }
 
   companion object {

@@ -8,8 +8,8 @@ import com.team4099.robot2025.config.constants.ArmConstants
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.RollersConstants
 import com.team4099.robot2025.subsystems.drivetrain.Drive
-import com.team4099.robot2025.subsystems.elevator.Elevator
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
+import com.team4099.robot2025.subsystems.superstructure.elevator.Elevator
 import com.team4099.robot2025.subsystems.vision.Vision
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup
 import edu.wpi.first.wpilibj2.command.WaitCommand

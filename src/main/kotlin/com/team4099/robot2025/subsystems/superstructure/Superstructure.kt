@@ -14,6 +14,7 @@ import com.team4099.robot2025.config.constants.IntakeConstants
 import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.subsystems.led.Led
 import com.team4099.robot2025.subsystems.superstructure.Request.SuperstructureRequest
+import com.team4099.robot2025.subsystems.superstructure.arm.Arm
 import com.team4099.robot2025.subsystems.superstructure.arm.ArmTunableValues
 import com.team4099.robot2025.subsystems.superstructure.canRange.CANRange
 import com.team4099.robot2025.subsystems.superstructure.climber.Climber
@@ -67,7 +68,7 @@ class Superstructure(
   private val drivetrain: Drive,
   private val vision: Vision,
   private val elevator: Elevator,
-  private val arm: com.team4099.robot2025.subsystems.superstructure.arm.Arm,
+  private val arm: Arm,
   private val armRollers: ArmRollers,
   private val climber: Climber,
   private val intake: Intake,

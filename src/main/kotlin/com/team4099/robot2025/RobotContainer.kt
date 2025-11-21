@@ -19,6 +19,7 @@ import com.team4099.robot2025.subsystems.led.Led
 import com.team4099.robot2025.subsystems.led.LedIO
 import com.team4099.robot2025.subsystems.led.LedIOCandle
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
+import com.team4099.robot2025.subsystems.superstructure.arm.Arm
 import com.team4099.robot2025.subsystems.superstructure.arm.ArmIOSim
 import com.team4099.robot2025.subsystems.superstructure.arm.ArmIOTalon
 import com.team4099.robot2025.subsystems.superstructure.arm.rollers.RollersIOTalon
@@ -59,7 +60,7 @@ object RobotContainer {
   private val drivetrain: Drive
   private val vision: Vision
   private val elevator: Elevator
-  private val arm: com.team4099.robot2025.subsystems.superstructure.arm.Arm
+  private val arm: Arm
   private val armRollers: ArmRollers
   private val climber: Climber
   private val intake: Intake
@@ -86,7 +87,7 @@ object RobotContainer {
           { pose -> {} }
         )
       elevator = Elevator(ElevatorIOTalon)
-      arm = com.team4099.robot2025.subsystems.superstructure.arm.Arm(ArmIOTalon)
+      arm = Arm(ArmIOTalon)
       armRollers = ArmRollers(RollersIOTalon)
       climber = Climber(object : ClimberIO {})
       intake = Intake(IntakeIOTalonFX)
@@ -142,7 +143,7 @@ object RobotContainer {
           driveSimulation!!::setSimulationWorldPose
         )
       elevator = Elevator(ElevatorIOSim)
-      arm = com.team4099.robot2025.subsystems.superstructure.arm.Arm(ArmIOSim(driveSimulation!!))
+      arm = Arm(ArmIOSim(driveSimulation!!))
       armRollers = ArmRollers(ArmRollersIOSim)
       climber = Climber(ClimberIOSim)
       intake = Intake(IntakeIOSim(driveSimulation!!))

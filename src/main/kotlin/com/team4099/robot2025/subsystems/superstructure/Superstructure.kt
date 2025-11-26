@@ -11,18 +11,18 @@ import com.team4099.robot2025.config.constants.Constants.Universal.GamePiece
 import com.team4099.robot2025.config.constants.ElevatorConstants
 import com.team4099.robot2025.config.constants.IndexerConstants
 import com.team4099.robot2025.config.constants.IntakeConstants
-import com.team4099.robot2025.subsystems.Arm.Arm
-import com.team4099.robot2025.subsystems.Arm.ArmTunableValues
-import com.team4099.robot2025.subsystems.canRange.CANRange
-import com.team4099.robot2025.subsystems.climber.Climber
 import com.team4099.robot2025.subsystems.drivetrain.Drive
-import com.team4099.robot2025.subsystems.elevator.Elevator
-import com.team4099.robot2025.subsystems.elevator.ElevatorTunableValues
-import com.team4099.robot2025.subsystems.indexer.Indexer
-import com.team4099.robot2025.subsystems.intake.Intake
-import com.team4099.robot2025.subsystems.intake.IntakeTunableValues
 import com.team4099.robot2025.subsystems.led.Led
 import com.team4099.robot2025.subsystems.superstructure.Request.SuperstructureRequest
+import com.team4099.robot2025.subsystems.superstructure.arm.Arm
+import com.team4099.robot2025.subsystems.superstructure.arm.ArmTunableValues
+import com.team4099.robot2025.subsystems.superstructure.canRange.CANRange
+import com.team4099.robot2025.subsystems.superstructure.climber.Climber
+import com.team4099.robot2025.subsystems.superstructure.elevator.Elevator
+import com.team4099.robot2025.subsystems.superstructure.elevator.ElevatorTunableValues
+import com.team4099.robot2025.subsystems.superstructure.indexer.Indexer
+import com.team4099.robot2025.subsystems.superstructure.intake.Intake
+import com.team4099.robot2025.subsystems.superstructure.intake.IntakeTunableValues
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.math.geometry.Translation2d
@@ -61,8 +61,8 @@ import org.team4099.lib.units.derived.volts
 import org.team4099.lib.units.inRadiansPerSecond
 import kotlin.math.max
 import com.team4099.robot2025.config.constants.RollersConstants as ArmRollersConstants
-import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.superstructure.Request.RollersRequest as ArmRollersRequest
+import com.team4099.robot2025.subsystems.superstructure.arm.rollers.Rollers as ArmRollers
 
 class Superstructure(
   private val drivetrain: Drive,
@@ -137,6 +137,54 @@ class Superstructure(
 
   override fun periodic() {
     val startTime = Clock.fpgaTime
+
+    val armStartTime = Clock.fpgaTime
+    arm.onLoop()
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/ArmLoopTimeMS", (Clock.fpgaTime - armStartTime).inMilliseconds
+    )
+
+    val armRollersStartTime = Clock.fpgaTime
+    armRollers.onLoop()
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/RollersLoopTimeMS",
+      (Clock.fpgaTime - armRollersStartTime).inMilliseconds
+    )
+
+    val canRangeStartTime = Clock.fpgaTime
+    canrange.onLoop()
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/CANRangeLoopTimeMS",
+      (Clock.fpgaTime - canRangeStartTime).inMilliseconds
+    )
+
+    val climberStartTime = Clock.fpgaTime
+    climber.onLoop()
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/ClimberLoopTimeMS",
+      (Clock.fpgaTime - climberStartTime).inMilliseconds
+    )
+
+    val elevatorStartTime = Clock.fpgaTime
+    elevator.onLoop()
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/ElevatorLoopTimeMS",
+      (Clock.fpgaTime - elevatorStartTime).inMilliseconds
+    )
+
+    val indexerStartTime = Clock.fpgaTime
+    indexer.onLoop()
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/IndexerLoopTimeMS",
+      (Clock.fpgaTime - indexerStartTime).inMilliseconds
+    )
+
+    val intakeStartTime = Clock.fpgaTime
+    intake.onLoop()
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/IntakeLoopTimeMS",
+      (Clock.fpgaTime - intakeStartTime).inMilliseconds
+    )
 
     field.robotPose = drivetrain.pose.pose2d
 

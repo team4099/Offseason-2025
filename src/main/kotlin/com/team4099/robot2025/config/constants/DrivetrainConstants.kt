@@ -1,5 +1,9 @@
 package com.team4099.robot2025.config.constants
 
+import edu.wpi.first.math.geometry.Pose2d
+import edu.wpi.first.math.geometry.Rectangle2d
+import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.wpilibj.RobotBase
 import org.team4099.lib.units.Velocity
 import org.team4099.lib.units.base.Meter
@@ -12,7 +16,9 @@ import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.DerivativeGain
 import org.team4099.lib.units.derived.IntegralGain
 import org.team4099.lib.units.derived.ProportionalGain
+import org.team4099.lib.units.derived.cos
 import org.team4099.lib.units.derived.degrees
+import org.team4099.lib.units.derived.inRotation2ds
 import org.team4099.lib.units.derived.metersPerSecondPerMetersPerSecond
 import org.team4099.lib.units.derived.perDegreePerSecond
 import org.team4099.lib.units.derived.perDegreeSeconds
@@ -62,6 +68,89 @@ object DrivetrainConstants {
   val DRIVE_COMPENSATION_VOLTAGE = 12.volts
 
   const val NITRILE_WHEEL_COF = 1.2
+
+  const val DRIVE_ESCAPE_THRESHOLD = 0.4
+  const val TURN_ESCAPE_THRESHOLD = 0.3
+
+  val REEF_INRADIUS = 65.49.inches / 2
+  val REEF_CIRCUMRADIUS = REEF_INRADIUS / 30.degrees.cos
+
+  private val BOUNDING_RECTANGLE_WIDTH = 4.meters
+  private val BOUNDING_RECTANGLE_HEIGHT = 37.41.inches
+
+  val reefCenterBlue = Translation2d(4.5, 4.0)
+  private val baseBluePose =
+    Pose2d(reefCenterBlue.x + BOUNDING_RECTANGLE_WIDTH.inMeters / 2, 4.0, Rotation2d.kZero)
+
+  val reefCenterRed = Translation2d((57.feet + (6 + 7.0 / 8.0).inches - 4.5.meters).inMeters, 4.0)
+  private val baseRedPose =
+    Pose2d(reefCenterRed.x + BOUNDING_RECTANGLE_WIDTH.inMeters / 2, 4.0, Rotation2d.kZero)
+
+  val BOUNDING_RECTANGLES =
+    mapOf(
+      // blue
+      Rectangle2d(
+        baseBluePose.rotateAround(reefCenterBlue, 0.degrees.inRotation2ds),
+        BOUNDING_RECTANGLE_WIDTH.inMeters,
+        BOUNDING_RECTANGLE_HEIGHT.inMeters
+      ) to 0.degrees,
+      Rectangle2d(
+        baseBluePose.rotateAround(reefCenterBlue, 60.degrees.inRotation2ds),
+        BOUNDING_RECTANGLE_WIDTH.inMeters,
+        BOUNDING_RECTANGLE_HEIGHT.inMeters
+      ) to 60.degrees,
+      Rectangle2d(
+        baseBluePose.rotateAround(reefCenterBlue, 120.degrees.inRotation2ds),
+        BOUNDING_RECTANGLE_WIDTH.inMeters,
+        BOUNDING_RECTANGLE_HEIGHT.inMeters
+      ) to 120.degrees,
+      Rectangle2d(
+        baseBluePose.rotateAround(reefCenterBlue, 180.degrees.inRotation2ds),
+        BOUNDING_RECTANGLE_WIDTH.inMeters,
+        BOUNDING_RECTANGLE_HEIGHT.inMeters
+      ) to 180.degrees,
+      Rectangle2d(
+        baseBluePose.rotateAround(reefCenterBlue, 240.degrees.inRotation2ds),
+        BOUNDING_RECTANGLE_WIDTH.inMeters,
+        BOUNDING_RECTANGLE_HEIGHT.inMeters
+      ) to -120.degrees,
+      Rectangle2d(
+        baseBluePose.rotateAround(reefCenterBlue, 300.degrees.inRotation2ds),
+        BOUNDING_RECTANGLE_WIDTH.inMeters,
+        BOUNDING_RECTANGLE_HEIGHT.inMeters
+      ) to -60.degrees,
+      // red
+      Rectangle2d(
+        baseRedPose.rotateAround(reefCenterRed, 0.degrees.inRotation2ds),
+        BOUNDING_RECTANGLE_WIDTH.inMeters,
+        BOUNDING_RECTANGLE_HEIGHT.inMeters
+      ) to 0.degrees,
+      Rectangle2d(
+        baseRedPose.rotateAround(reefCenterRed, 60.degrees.inRotation2ds),
+        BOUNDING_RECTANGLE_WIDTH.inMeters,
+        BOUNDING_RECTANGLE_HEIGHT.inMeters
+      ) to 60.degrees,
+      Rectangle2d(
+        baseRedPose.rotateAround(reefCenterRed, 120.degrees.inRotation2ds),
+        BOUNDING_RECTANGLE_WIDTH.inMeters,
+        BOUNDING_RECTANGLE_HEIGHT.inMeters
+      ) to 120.degrees,
+      Rectangle2d(
+        baseRedPose.rotateAround(reefCenterRed, 180.degrees.inRotation2ds),
+        BOUNDING_RECTANGLE_WIDTH.inMeters,
+        BOUNDING_RECTANGLE_HEIGHT.inMeters
+      ) to 180.degrees,
+      Rectangle2d(
+        baseRedPose.rotateAround(reefCenterRed, 240.degrees.inRotation2ds),
+        BOUNDING_RECTANGLE_WIDTH.inMeters,
+        BOUNDING_RECTANGLE_HEIGHT.inMeters
+      ) to -120.degrees,
+      Rectangle2d(
+        baseRedPose.rotateAround(reefCenterRed, 300.degrees.inRotation2ds),
+        BOUNDING_RECTANGLE_WIDTH.inMeters,
+        BOUNDING_RECTANGLE_HEIGHT.inMeters
+      ) to -60.degrees,
+    )
 
   object PID {
     val AUTO_POS_KP: ProportionalGain<Meter, Velocity<Meter>>

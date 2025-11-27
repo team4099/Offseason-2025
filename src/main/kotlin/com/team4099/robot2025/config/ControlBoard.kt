@@ -70,6 +70,8 @@ object ControlBoard {
   }
   val eject = Trigger { driver.dPadLeft || operator.dPadLeft }
 
+  val forceStopAutoAim = Trigger { driver.aButton }
+
   val targetCoral = intakeCoral
 
   val test = Trigger { driver.dPadRight || operator.dPadRight }

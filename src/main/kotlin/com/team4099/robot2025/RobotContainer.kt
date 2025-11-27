@@ -2,10 +2,10 @@ package com.team4099.robot2025
 
 import com.ctre.phoenix6.signals.NeutralModeValue
 import com.team4099.robot2025.auto.AutonomousSelector
+import com.team4099.robot2025.commands.drivetrain.AutofaceReefCommand
 import com.team4099.robot2025.commands.drivetrain.CoolerTargetTagCommand
 import com.team4099.robot2025.commands.drivetrain.ResetGyroYawCommand
 import com.team4099.robot2025.commands.drivetrain.TargetObjectCommand
-import com.team4099.robot2025.commands.drivetrain.TeleopDriveCommand
 import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.Constants.Universal.GamePiece
@@ -44,6 +44,7 @@ import com.team4099.robot2025.subsystems.vision.camera.CameraIOPVSim
 import com.team4099.robot2025.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.util.driver.Jessika
 import edu.wpi.first.wpilibj.RobotBase
+import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
@@ -74,6 +75,8 @@ object RobotContainer {
 
   val operatorRumbleState
     get() = canrange.rumbleTrigger || vision.autoAlignReadyRumble
+
+  var forceStopAutoaim: Boolean = false
 
   var driveSimulation: SwerveDriveSimulation? = null
 
@@ -210,7 +213,8 @@ object RobotContainer {
 
   fun mapDefaultCommands() {
     drivetrain.defaultCommand =
-      TeleopDriveCommand(
+      AutofaceReefCommand(
+        drivetrain,
         driver = Jessika(),
         { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
         { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
@@ -226,7 +230,8 @@ object RobotContainer {
             superstructure.algaeScoringLevel ==
             Constants.Universal.AlgaeScoringLevel.BARGE
         },
-        drivetrain,
+        { superstructure.theoreticalGamePieceArm },
+        { forceStopAutoaim }
       )
   }
 
@@ -278,6 +283,8 @@ object RobotContainer {
     ControlBoard.resetGamePieceAlgae.whileTrue(
       superstructure.resetGamepieceCommand(GamePiece.ALGAE)
     )
+
+    ControlBoard.forceStopAutoAim.onTrue(runOnce({ forceStopAutoaim = !forceStopAutoaim }))
 
     ControlBoard.targetCoral.whileTrue(
       TargetObjectCommand(drivetrain, vision, VisionConstants.OBJECT_CLASS.CORAL, superstructure)

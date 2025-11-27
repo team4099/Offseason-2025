@@ -23,9 +23,6 @@ import org.team4099.lib.units.derived.metersPerSecondPerMetersPerSecond
 import org.team4099.lib.units.derived.perDegreePerSecond
 import org.team4099.lib.units.derived.perDegreeSeconds
 import org.team4099.lib.units.derived.perMeterPerSecond
-import org.team4099.lib.units.derived.perRadian
-import org.team4099.lib.units.derived.perRadianPerSecond
-import org.team4099.lib.units.derived.perRadianSeconds
 import org.team4099.lib.units.derived.radians
 import org.team4099.lib.units.derived.radiansPerSecondPerRadiansPerSecond
 import org.team4099.lib.units.derived.volts
@@ -54,6 +51,8 @@ object DrivetrainConstants {
 
   val MAX_AUTO_VEL = 3.meters.perSecond // 4
   val MAX_AUTO_ACCEL = 4.meters.perSecond.perSecond // 3
+
+  val OBJECT_APPROACH_SPEED = 2.meters.perSecond
 
   const val MK4_DRIVE_SENSOR_GEAR_RATIO = (16.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0)
   const val MK4I_STEERING_SENSOR_GEAR_RATIO = 7.0 / 150.0
@@ -209,6 +208,11 @@ object DrivetrainConstants {
     val TELEOP_Y_PID_KI = 0.0.meters.perSecond / (1.meters * 1.seconds)
     val TELEOP_Y_PID_KD = 0.0.meters.perSecond.perMeterPerSecond
 
+    val OBJECT_ALIGN_KP = 15.degrees.perSecond / 1.degrees
+    val OBJECT_ALIGN_KI = 0.0.degrees.perSecond / (1.degrees * 1.seconds)
+    val OBJECT_ALIGN_KD =
+      (2.degrees.perSecond / (1.degrees / 1.seconds)).radiansPerSecondPerRadiansPerSecond
+
     val SIM_TELEOP_Y_PID_KP = TELEOP_Y_PID_KP
     val SIM_TELEOP_Y_PID_KI = TELEOP_Y_PID_KI
     val SIM_TELEOP_Y_PID_KD = TELEOP_Y_PID_KD
@@ -234,16 +238,16 @@ object DrivetrainConstants {
     val DRIVE_KV = 2.117.volts / 1.0.meters.perSecond
     val DRIVE_KA = 0.0.volts / 1.0.meters.perSecond.perSecond
 
-    val SIM_DRIVE_KP = 5.volts / 1.meters.perSecond
+    val SIM_DRIVE_KP = DRIVE_KP
     val SIM_DRIVE_KI = DRIVE_KI
     val SIM_DRIVE_KD = DRIVE_KD
     val SIM_DRIVE_KS = DRIVE_KS
-    val SIM_DRIVE_KV = 5.volts / 1.0.meters.perSecond
+    val SIM_DRIVE_KV = DRIVE_KV
     val SIM_DRIVE_KA = DRIVE_KA
 
-    val SIM_STEERING_KP = 30.volts.perRadian
-    val SIM_STEERING_KI = 0.0.volts.perRadianSeconds
-    val SIM_STEERING_KD = 4.5.volts.perRadianPerSecond
-    val SIM_STEERING_KV = 4.volts / 1.0.radians.perSecond
+    val SIM_STEERING_KP = STEERING_KP
+    val SIM_STEERING_KI = STEERING_KI
+    val SIM_STEERING_KD = STEERING_KD
+    val SIM_STEERING_KV = STEERING_KV
   }
 }

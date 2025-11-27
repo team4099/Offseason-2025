@@ -1,11 +1,13 @@
 package com.team4099.robot2025.subsystems.led
 
+import com.team4099.lib.hal.Clock
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.LedConstants.CandleState
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
 import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import org.team4099.lib.units.base.inMilliseconds
 import java.util.function.Supplier
 
 class Led(
@@ -22,7 +24,8 @@ class Led(
   private var lastState: CandleState? = null
 
   override fun periodic() {
-    // todo for testing
+    val startTime = Clock.fpgaTime
+
     state =
       if (DriverStation.isDisabled()) {
         if (!DriverStation.getAlliance().isPresent) CandleState.NOTHING
@@ -50,5 +53,9 @@ class Led(
 
       CustomLogger.processInputs("Led/$instance", inputs[instance])
     }
+
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/LEDLoopTimeMS", (Clock.fpgaTime - startTime).inMilliseconds
+    )
   }
 }

@@ -85,9 +85,9 @@ object ElevatorConstants {
     val REAL_KI = 0.2.volts / (1.inches * 1.seconds)
     val REAL_KD = 0.3.volts / (1.inches.perSecond)
 
-    val SIM_KP = 3.67.volts / 1.inches
-    val SIM_KI = 0.2.volts / (1.inches * 1.seconds)
-    val SIM_KD = 0.2.volts / (1.inches.perSecond)
+    val SIM_KP = 3.0.volts / 1.inches
+    val SIM_KI = 0.0.volts / (1.inches * 1.seconds)
+    val SIM_KD = 0.08.volts / (1.inches.perSecond)
 
     val KS = 0.05.volts
     val KV = ((.0 / MAX_VELOCITY.inMetersPerSecond).volts) / 1.0.meters.perSecond //  0.037

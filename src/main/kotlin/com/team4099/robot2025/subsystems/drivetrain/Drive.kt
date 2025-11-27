@@ -20,10 +20,12 @@ import com.pathplanner.lib.config.RobotConfig
 import com.pathplanner.lib.controllers.PPHolonomicDriveController
 import com.pathplanner.lib.pathfinding.Pathfinding
 import com.pathplanner.lib.util.PathPlannerLogging
+import com.team4099.lib.hal.Clock
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.subsystems.drivetrain.generated.TunerConstants
 import com.team4099.robot2025.util.AllianceFlipUtil
+import com.team4099.robot2025.util.CustomLogger
 import edu.wpi.first.hal.FRCNetComm
 import edu.wpi.first.hal.HAL
 import edu.wpi.first.math.Matrix
@@ -58,6 +60,7 @@ import org.team4099.lib.geometry.Twist2d
 import org.team4099.lib.kinematics.ChassisSpeeds
 import org.team4099.lib.units.base.inKilograms
 import org.team4099.lib.units.base.inMeters
+import org.team4099.lib.units.base.inMilliseconds
 import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.Angle
 import org.team4099.lib.units.derived.inKilogramsMeterSquared
@@ -174,6 +177,8 @@ class Drive(
   }
 
   override fun periodic() {
+    val startTime = Clock.fpgaTime
+
     odometryLock.lock() // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs)
     Logger.processInputs("Drive/Gyro", gyroInputs)
@@ -236,6 +241,10 @@ class Drive(
     Logger.recordOutput("SwerveChassisSpeeds/Measured", chassisSpeeds.chassisSpeedsWPILIB)
 
     Logger.recordOutput("SwerveStates/Measured", *moduleStates)
+
+    CustomLogger.recordOutput(
+      "LoggedRobot/Subsystems/DriveLoopTimeMS", (Clock.fpgaTime - startTime).inMilliseconds
+    )
   }
 
   /**

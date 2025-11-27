@@ -90,7 +90,9 @@ class AutofaceReefCommand(
     val speed = driver.driveSpeedClampedSupplier(driveX, driveY, slowMode)
     val rotation = driver.rotationSpeedClampedSupplier(turn, slowMode)
 
-    if (turn.asDouble.absoluteValue > DrivetrainConstants.TURN_ESCAPE_THRESHOLD)
+    if (gamePieceSupplier.get() == Constants.Universal.GamePiece.CORAL &&
+      turn.asDouble.absoluteValue > DrivetrainConstants.TURN_ESCAPE_THRESHOLD
+    )
       lastOverridenTime = Clock.fpgaTime
 
     if (Clock.fpgaTime - lastOverridenTime > 2.seconds &&

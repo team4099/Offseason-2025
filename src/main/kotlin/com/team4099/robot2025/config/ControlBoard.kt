@@ -72,5 +72,7 @@ object ControlBoard {
 
   val forceStopAutoAim = Trigger { driver.aButton }
 
+  val targetCoral = intakeCoral
+
   val test = Trigger { driver.dPadRight || operator.dPadRight }
 }

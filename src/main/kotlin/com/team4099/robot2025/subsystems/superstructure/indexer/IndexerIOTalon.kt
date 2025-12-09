@@ -53,10 +53,6 @@ object IndexerIOTalon : IndexerIO {
 
     configs.CurrentLimits.SupplyCurrentLimit = IndexerConstants.SUPPLY_CURRENT_LOWER_LIMIT.inAmperes
     configs.CurrentLimits.StatorCurrentLimit = IndexerConstants.STATOR_CURRENT_LIMIT.inAmperes
-    //    configs.CurrentLimits.SupplyCurrentLowerLimit =
-    // IndexerConstants.SUPPLY_CURRENT_LOWER_LIMIT.inAmperes
-    //    configs.CurrentLimits.SupplyCurrentLowerTime =
-    // IndexerConstants.SUPPLY_CURRENT_LOWER_TIME.inSeconds
     configs.CurrentLimits.SupplyCurrentLimitEnable = true
     configs.CurrentLimits.StatorCurrentLimitEnable = true
     configs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive
@@ -97,6 +93,7 @@ object IndexerIOTalon : IndexerIO {
       } else {
         NeutralModeValue.Coast
       }
+    indexerTalon.configurator.apply(configs)
   }
 
   override fun setVoltage(voltage: ElectricalPotential) {

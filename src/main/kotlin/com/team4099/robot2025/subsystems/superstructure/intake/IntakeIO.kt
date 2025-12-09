@@ -111,10 +111,9 @@ interface IntakeIO {
   fun setRollerVoltage(voltage: ElectricalPotential) {}
 
   /**
-   * Sets the position of the arm motor, specifically the length of the arm
+   * Sets the position of the arm motor, specifically the angle of the arm
    *
    * @param position the position to set the arm to
-   * @param feedforward changes voltages to compensate for external forces
    */
   fun setPivotPosition(position: Angle) {}
 

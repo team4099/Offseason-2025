@@ -14,6 +14,7 @@ package com.team4099.robot2025.subsystems.drivetrain
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration
 import com.ctre.phoenix6.configs.TalonFXConfiguration
+import com.ctre.phoenix6.signals.NeutralModeValue
 import com.ctre.phoenix6.swerve.SwerveModuleConstants
 import com.team4099.robot2025.config.constants.DrivetrainConstants
 import edu.wpi.first.math.geometry.Rotation2d
@@ -104,6 +105,10 @@ class Module(
   fun stop() {
     io.setDriveOpenLoop(0.0)
     io.setTurnOpenLoop(0.0)
+  }
+
+  fun setBrakeMode(neutralModeValue: NeutralModeValue) {
+    io.toggleBrakeMode(neutralModeValue)
   }
 
   val angle: Angle

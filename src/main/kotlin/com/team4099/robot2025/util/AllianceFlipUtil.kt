@@ -1,15 +1,11 @@
 package com.team4099.robot2025.util
 
 import com.team4099.lib.math.Zone2d
-import com.team4099.lib.trajectory.FieldWaypoint
-import com.team4099.lib.trajectory.OdometryWaypoint
 import com.team4099.lib.trajectory.RotationSequence
-import com.team4099.lib.trajectory.Waypoint
 import com.team4099.robot2025.config.constants.FieldConstants
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.trajectory.Trajectory
 import edu.wpi.first.wpilibj.DriverStation
-import edu.wpi.first.wpilibj.DriverStation.Alliance
 import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.geometry.Translation2d
 import org.team4099.lib.geometry.Translation2dWPILIB
@@ -30,7 +26,7 @@ object AllianceFlipUtil {
   fun apply(translation: Translation2d, force: Boolean = false): Translation2d {
     return if (shouldFlip() || force) {
       Translation2d(
-        FieldConstants.fieldLength - translation.x, FieldConstants.fieldWidth - translation.y
+        FieldConstants.FIELD_LENGTH - translation.x, FieldConstants.FIELD_WIDTH - translation.y
       )
     } else {
       translation
@@ -40,8 +36,8 @@ object AllianceFlipUtil {
   fun apply(translation: Translation2dWPILIB): Translation2dWPILIB {
     return if (shouldFlip()) {
       Translation2dWPILIB(
-        FieldConstants.fieldLength.inMeters - translation.x,
-        FieldConstants.fieldWidth.inMeters - translation.y
+        FieldConstants.FIELD_LENGTH.inMeters - translation.x,
+        FieldConstants.FIELD_WIDTH.inMeters - translation.y
       )
     } else {
       translation
@@ -51,7 +47,7 @@ object AllianceFlipUtil {
   /** Flips an x coordinate to the correct side of the field based on the current alliance color. */
   fun apply(xCoordinate: Length): Length {
     return if (shouldFlip()) {
-      FieldConstants.fieldLength - xCoordinate
+      FieldConstants.FIELD_LENGTH - xCoordinate
     } else {
       xCoordinate
     }
@@ -72,27 +68,12 @@ object AllianceFlipUtil {
   ): Pose2d { // flipToRed is a hacky way to get it to flip when the driver station is empty
     return if (shouldFlip()) {
       Pose2d(
-        FieldConstants.fieldLength - pose.x,
-        FieldConstants.fieldWidth - pose.y,
+        FieldConstants.FIELD_LENGTH - pose.x,
+        FieldConstants.FIELD_WIDTH - pose.y,
         Angle(-pose.rotation.cos, -pose.rotation.sin)
       )
     } else {
       pose
-    }
-  }
-
-  /*
-  Don't flip an OdometryWaypoint because it's done relative to robot origin
-   */
-  fun apply(waypoint: OdometryWaypoint): Waypoint {
-    return waypoint
-  }
-
-  fun apply(waypoint: FieldWaypoint): Waypoint {
-    return if (shouldFlip()) {
-      FieldWaypoint(apply(waypoint.translation), waypoint.driveRotation, waypoint.holonomicRotation)
-    } else {
-      waypoint
     }
   }
 
@@ -106,7 +87,7 @@ object AllianceFlipUtil {
         state.velocityMetersPerSecond,
         state.accelerationMetersPerSecondSq,
         Pose2d(
-          FieldConstants.fieldLength - state.poseMeters.x.meters,
+          FieldConstants.FIELD_LENGTH - state.poseMeters.x.meters,
           state.poseMeters.y.meters,
           Angle(-state.poseMeters.rotation.cos, state.poseMeters.rotation.sin)
         )
@@ -139,7 +120,7 @@ object AllianceFlipUtil {
 
   fun shouldFlip(): Boolean {
     if (DriverStation.getAlliance().isPresent) {
-      return DriverStation.getAlliance().get() == Alliance.Red
+      return !FMSData.isBlue
     } else {
       return false
     }

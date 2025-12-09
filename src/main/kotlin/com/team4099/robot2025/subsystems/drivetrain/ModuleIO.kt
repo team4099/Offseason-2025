@@ -12,6 +12,7 @@
 // GNU General Public License for more details.
 package com.team4099.robot2025.subsystems.drivetrain
 
+import com.ctre.phoenix6.signals.NeutralModeValue
 import edu.wpi.first.math.geometry.Rotation2d
 import org.littletonrobotics.junction.LogTable
 import org.littletonrobotics.junction.inputs.LoggableInputs
@@ -136,5 +137,5 @@ interface ModuleIO {
   fun setTurnPosition(rotation: Rotation2d) {}
 
   /** Enable/disable brake mode on the drive and steer motors */
-  fun toggleBrakeMode(brake: Boolean)
+  fun toggleBrakeMode(brake: NeutralModeValue)
 }

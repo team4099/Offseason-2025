@@ -109,15 +109,7 @@ class Climber(private val io: ClimberIO) : ControlledByStateMachine() {
       UNINITIALIZED,
       OPEN_LOOP,
       CLOSED_LOOP,
-      HOME;
-
-      fun equivalentToRequest(request: Request.ClimberRequest): Boolean {
-        return (
-          (request is Request.ClimberRequest.Home && this == HOME) ||
-            (request is Request.ClimberRequest.OpenLoop && this == OPEN_LOOP) ||
-            (request is Request.ClimberRequest.ClosedLoop && this == CLOSED_LOOP)
-          )
-      }
+      HOME
     }
 
     fun fromRequestToState(request: Request.ClimberRequest): ClimberState {

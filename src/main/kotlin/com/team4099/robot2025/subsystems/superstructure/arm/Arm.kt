@@ -44,8 +44,6 @@ class Arm(val io: ArmIO) : ControlledByStateMachine() {
       field = value
     }
 
-  var isHomed = false
-
   val algaeIntakeSimulation: IntakeSimulation?
     get() = io.intakeSimulation
 

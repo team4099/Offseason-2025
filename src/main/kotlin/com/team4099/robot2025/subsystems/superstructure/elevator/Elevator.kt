@@ -155,13 +155,7 @@ class Elevator(private val io: ElevatorIO) : ControlledByStateMachine() {
       UNINITIALIZED,
       OPEN_LOOP,
       CLOSED_LOOP,
-      HOME;
-
-      inline fun equivalentToRequest(request: ElevatorRequest): Boolean {
-        return (request is ElevatorRequest.Home && this == HOME) ||
-          (request is ElevatorRequest.OpenLoop && this == OPEN_LOOP) ||
-          (request is ElevatorRequest.ClosedLoop && this == CLOSED_LOOP)
-      }
+      HOME
     }
 
     inline fun fromElevatorRequestToState(request: ElevatorRequest): ElevatorState {

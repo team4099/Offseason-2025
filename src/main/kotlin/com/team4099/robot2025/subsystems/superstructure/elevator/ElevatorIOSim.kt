@@ -125,7 +125,6 @@ object ElevatorIOSim : ElevatorIO {
     kV: VelocityFeedforward<Meter, Volt>,
     kA: AccelerationFeedforward<Meter, Volt>
   ) {
-    // why is there no set method for ElevatorFeedforward lol
     elevatorFFController = ElevatorFeedforward(kS, kGFirstStage, kV, kA)
   }
 }

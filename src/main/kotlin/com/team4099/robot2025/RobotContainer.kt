@@ -9,6 +9,7 @@ import com.team4099.robot2025.commands.drivetrain.TeleopDriveCommand
 import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.Constants.Universal.GamePiece
+import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.config.constants.VisionConstants
 import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.subsystems.drivetrain.GyroIOPigeon2
@@ -50,7 +51,6 @@ import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
 import org.littletonrobotics.junction.Logger
 import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.smoothDeadband
-import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.radians
 import java.util.function.Supplier
 import com.team4099.robot2025.subsystems.superstructure.arm.rollers.Rollers as ArmRollers
@@ -109,7 +109,6 @@ object RobotContainer {
             VisionConstants.CAMERA_TRANSFORMS[1],
             drivetrain::addVisionMeasurement,
             { drivetrain.pose.rotation },
-            //            { vision.isAutoAligning }
           ),
           CameraIOPhotonvision(
             CameraIO.DetectionPipeline.OBJECT_DETECTION,
@@ -132,7 +131,7 @@ object RobotContainer {
         )
     } else {
       driveSimulation =
-        SwerveDriveSimulation(Drive.mapleSimConfig, Pose2d(3.meters, 3.meters, 0.radians).pose2d)
+        SwerveDriveSimulation(Drive.mapleSimConfig, DrivetrainConstants.INITIAL_SIM_POSE)
       SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation)
 
       drivetrain =
@@ -199,11 +198,9 @@ object RobotContainer {
         intake,
         indexer,
         canrange,
-        led,
         driveSimulation
       )
 
-    //    led.isAlignedSupplier = Supplier { vision.isAligned }
     led.gamePieceArmSupplier = Supplier { superstructure.theoreticalGamePieceArm }
     led.stateSupplier = Supplier { superstructure.currentState }
   }
@@ -230,12 +227,12 @@ object RobotContainer {
       )
   }
 
-  fun zeroSensors(isInAutonomous: Boolean = false) {
+  fun zeroSensors() {
     drivetrain.pose = Pose2d(drivetrain.pose.x, drivetrain.pose.y, 0.radians)
   }
 
   fun setDriveBrakeMode(neutralModeValue: NeutralModeValue = NeutralModeValue.Brake) {
-    //    drivetrain.configNeutralMode(neutralModeValue)
+    drivetrain.setBrakeMode(neutralModeValue)
   }
 
   fun mapTeleopControls() {
@@ -282,26 +279,6 @@ object RobotContainer {
     ControlBoard.targetCoral.whileTrue(
       TargetObjectCommand(drivetrain, vision, VisionConstants.OBJECT_CLASS.CORAL, superstructure)
     )
-
-    //    ControlBoard.test.onTrue(
-    //      DrivePathOTF(
-    //        drivetrain,
-    //        { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //        { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //        { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-    //        { drivetrain.pose.pose2d },
-    //        VisionConstants.OTF_PATHS[vision.lastTrigVisionUpdate.targetTagID]
-    //          ?: listOf(
-    //            Supplier { Pose2d(4.748.meters, 1.56.meters, 27.216.degrees) },
-    //            Supplier { Pose2d(6.1.meters, 2.996.meters, 87.degrees) },
-    //            Supplier { Pose2d(6.1.meters, 4.093.meters, 90.degrees) }
-    //          ),
-    //        0.0.degrees,
-    //        PathPlannerHolonomicDriveController.Companion.GoalEndState(
-    //          0.0.meters.perSecond, 180.degrees
-    //        )
-    //      )
-    //    )
   }
 
   fun mapTestControls() {}
@@ -309,14 +286,12 @@ object RobotContainer {
   fun getAutonomousCommand() =
     AutonomousSelector.getCommand(drivetrain, elevator, superstructure, vision)
 
-  fun getAutonomousLoadingCommand() = AutonomousSelector.getLoadingCommand(drivetrain)
-
   fun mapTunableCommands() {}
 
   fun resetSimulationField() {
     if (!RobotBase.isSimulation()) return
 
-    driveSimulation!!.setSimulationWorldPose(Pose2d(3.meters, 3.meters, 0.radians).pose2d)
+    driveSimulation!!.setSimulationWorldPose(DrivetrainConstants.INITIAL_SIM_POSE)
     SimulatedArena.getInstance().resetFieldForAuto()
   }
 

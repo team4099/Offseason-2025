@@ -110,14 +110,7 @@ class Intake(private val io: IntakeIO) : ControlledByStateMachine() {
       UNINITIALIZED,
       ZEROING_PIVOT,
       TARGETING_POSITION,
-      OPEN_LOOP;
-
-      inline fun equivalentToRequest(request: Request.IntakeRequest): Boolean {
-        return (
-          (request is Request.IntakeRequest.OpenLoop && this == OPEN_LOOP) ||
-            (request is Request.IntakeRequest.TargetingPosition && this == TARGETING_POSITION)
-          )
-      }
+      OPEN_LOOP
     }
 
     inline fun fromRequestToState(request: Request.IntakeRequest): IntakeState {

@@ -13,6 +13,7 @@
 package com.team4099.robot2025.subsystems.drivetrain
 
 import com.ctre.phoenix6.CANBus
+import com.ctre.phoenix6.signals.NeutralModeValue
 import com.pathplanner.lib.auto.AutoBuilder
 import com.pathplanner.lib.config.ModuleConfig
 import com.pathplanner.lib.config.PIDConstants
@@ -401,6 +402,12 @@ class Drive(
   val maxAngularSpeedRadPerSec: Double
     /** Returns the maximum angular speed in radians per sec. */
     get() = maxLinearSpeedMetersPerSec / DRIVE_BASE_RADIUS
+
+  fun setBrakeMode(neutralModeValue: NeutralModeValue) {
+    for (module in modules) {
+      module?.setBrakeMode(neutralModeValue)
+    }
+  }
 
   companion object {
     // TunerConstants doesn't include these constants, so they are declared locally

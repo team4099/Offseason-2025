@@ -169,7 +169,6 @@ object IntakeIOTalonFX : IntakeIO {
     inputs.rollerStatorCurrent = rollerStatorCurrentStatusSignal.valueAsDouble.amps
     inputs.rollerSupplyCurrent = rollerSupplyCurrentStatusSignal.valueAsDouble.amps
     inputs.rollerTemp = rollerTempStatusSignal.valueAsDouble.celsius
-    // inputs.beamBroken = beamBreakStatusSignal.value
   }
 
   override fun setPivotVoltage(voltage: ElectricalPotential) {

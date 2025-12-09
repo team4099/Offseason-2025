@@ -96,6 +96,7 @@ object RollersIOTalon : RollersIO {
     } else {
       rollerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast
     }
+    rollerTalon.configurator.apply(rollerConfig)
   }
 
   override fun setVoltage(voltage: ElectricalPotential) {

@@ -159,9 +159,6 @@ object ElevatorIOTalon : ElevatorIO {
     motionMagicTargetPosition = leaderTalon.closedLoopReference
     motionMagicTargetVelocity = leaderTalon.closedLoopReferenceSlope
 
-    //    motionMagicTargetPosition.setUpdateFrequency(250.0)
-    //    motionMagicTargetVelocity.setUpdateFrequency(250.0)
-
     leaderTalon.configurator.apply(leaderConfigs)
     followerTalon.configurator.apply(followerConfigs)
   }

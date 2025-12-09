@@ -3,7 +3,6 @@ package com.team4099.robot2025
 import com.pathplanner.lib.commands.FollowPathCommand
 import com.team4099.lib.hal.Clock
 import com.team4099.robot2025.auto.AutonomousSelector
-import com.team4099.robot2025.auto.PathStore
 import com.team4099.robot2025.commands.drivetrain.DrivePathOTF
 import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.Constants
@@ -54,14 +53,6 @@ object Robot : LoggedRobot() {
     Alert("Tuning Mode Enabled. Expect loop times to be greater", AlertType.WARNING)
   lateinit var allianceSelected: GenericEntry
   lateinit var autonomousCommand: Command
-  lateinit var autonomousLoadingCommand: Command
-  /*
-  val port0 = AnalogInput(0)
-  val port1 = AnalogInput(1)
-  val port2 = AnalogInput(2)
-  val port3 = AnalogInput(3)
-
-   */
 
   override fun robotInit() {
     // elastic layout upload dont remove
@@ -132,7 +123,6 @@ object Robot : LoggedRobot() {
     // init robot container too
     RobotContainer
     AutonomousSelector
-    PathStore
     RobotContainer.mapDefaultCommands()
 
     // init commands that have long startup
@@ -162,11 +152,14 @@ object Robot : LoggedRobot() {
     FollowPathCommand.warmupCommand().schedule()
 
     Logger.recordOutput("RobotSimulation/simulateVision", Constants.Universal.SIMULATE_VISION)
+
+    if (isSimulation()) {
+      DriverStation.silenceJoystickConnectionWarning(true)
+    }
   }
 
   override fun autonomousInit() {
-    val autonCommandWithWait =
-      runOnce({ RobotContainer.zeroSensors(isInAutonomous = true) }).andThen(autonomousCommand)
+    val autonCommandWithWait = runOnce({ RobotContainer.zeroSensors() }).andThen(autonomousCommand)
     autonCommandWithWait?.schedule()
   }
 
@@ -176,8 +169,6 @@ object Robot : LoggedRobot() {
   }
 
   override fun disabledInit() {
-    // RobotContainer.requestIdle()
-    // autonomousCommand.cancel()
     RobotContainer.resetSimulationField()
   }
 
@@ -194,23 +185,17 @@ object Robot : LoggedRobot() {
       "LoggedRobot/RemainingRamMB", Runtime.getRuntime().freeMemory() / 1024 / 1024
     )
 
-    CustomLogger.recordDebugOutput(
-      "LoggedRobot/totalMS", (Clock.realTimestamp - startTime).inMilliseconds
-    )
-
     ControlBoard.driverRumbleConsumer.accept(RobotContainer.driverRumbleState)
     ControlBoard.operatorRumbleConsumer.accept(RobotContainer.operatorRumbleState)
 
-    if (isSimulation()) {
-      DriverStation.silenceJoystickConnectionWarning(true)
-    }
+    CustomLogger.recordDebugOutput(
+      "LoggedRobot/totalMS", (Clock.realTimestamp - startTime).inMilliseconds
+    )
   }
 
   override fun teleopInit() {
-    //    RobotContainer.zeroSensors(isInAutonomous = false)
     RobotContainer.mapTeleopControls()
     RobotContainer.getAutonomousCommand().cancel()
-    //    RobotContainer.requestIdle()
     RobotContainer.setDriveBrakeMode()
     if (Constants.Tuning.TUNING_MODE) {
       RobotContainer.mapTunableCommands()

@@ -22,29 +22,16 @@ import org.team4099.lib.units.base.inSeconds
 import org.team4099.lib.units.base.seconds
 
 object AutonomousSelector {
-  //  private var orientationChooser: SendableChooser<Angle> = SendableChooser()
   private var autonomousModeChooser: LoggedDashboardChooser<AutonomousMode> =
     LoggedDashboardChooser("AutonomousMode")
   private var waitBeforeCommandSlider: GenericEntry
-  private var secondaryWaitInAuto: GenericEntry
 
   init {
     val autoTab = Shuffleboard.getTab("Pre-match")
-    //    orientationChooser.setDefaultOption("Forward", 0.degrees)
-    //    orientationChooser.addOption("Backwards", 180.degrees)
-    //    orientationChooser.addOption("Left", 90.degrees)
-    //    orientationChooser.addOption("Right", 270.degrees)
-    //    autoTab.add("Starting Orientation", orientationChooser)
 
-    //    autonomousModeChooser.addOption("Drive Wheel Radius Characterization",
-    // AutonomousMode.WHEEL_RADIUS_CHARACTERIZATION)
-
-    autonomousModeChooser
-      .addOption( // This is an example auto similarly to -1337 it is a placeholder so it should
-        // not be used
-        "Example Auto DO NOT RUN AT COMPETITION",
-        AutonomousMode.EXAMPLE_AUTO
-      )
+    autonomousModeChooser.addOption(
+      "Example Auto DO NOT RUN AT COMPETITION", AutonomousMode.EXAMPLE_AUTO
+    )
 
     autonomousModeChooser.addOption("Center L4 Only", AutonomousMode.CENTER_L4_ONLY)
 
@@ -69,20 +56,10 @@ object AutonomousSelector {
         .withPosition(0, 2)
         .withWidget(BuiltInWidgets.kTextView)
         .entry
-    secondaryWaitInAuto =
-      autoTab
-        .add("Secondary Wait Time Between Shooting and Driving", 0)
-        .withSize(3, 2)
-        .withPosition(3, 2)
-        .withWidget(BuiltInWidgets.kTextView)
-        .entry
   }
 
   val waitTime: Time
     get() = waitBeforeCommandSlider.getDouble(0.0).seconds
-
-  val secondaryWaitTime: Time
-    get() = secondaryWaitInAuto.getDouble(0.0).seconds
 
   fun getCommand(
     drivetrain: Drive,
@@ -122,10 +99,6 @@ object AutonomousSelector {
           .andThen(ThreeL4CoralStationLeft(drivetrain, elevator, superstructure, vision))
       else -> return InstantCommand()
     }
-  }
-
-  fun getLoadingCommand(drivetrain: Drive): Command {
-    return ExamplePathAuto(drivetrain)
   }
 
   private enum class AutonomousMode {

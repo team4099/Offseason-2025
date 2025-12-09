@@ -73,8 +73,8 @@ class Rollers(val io: RollersIO) : ControlledByStateMachine() {
       OPEN_LOOP,
       UNINITIALIZED
     }
-    fun fromRequestToState(Request: Request.RollersRequest): rollerStates {
-      return when (Request) {
+    fun fromRequestToState(request: Request.RollersRequest): rollerStates {
+      return when (request) {
         is Request.RollersRequest.OpenLoop -> rollerStates.OPEN_LOOP
       }
     }

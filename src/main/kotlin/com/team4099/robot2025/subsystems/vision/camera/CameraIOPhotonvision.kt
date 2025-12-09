@@ -1,8 +1,7 @@
 package com.team4099.robot2025.subsystems.vision.camera
 
+import com.team4099.robot2025.config.constants.FieldConstants
 import com.team4099.robot2025.config.constants.VisionConstants
-import edu.wpi.first.apriltag.AprilTagFieldLayout
-import edu.wpi.first.apriltag.AprilTagFields
 import edu.wpi.first.math.Matrix
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.numbers.N1
@@ -24,7 +23,7 @@ class CameraIOPhotonvision(
 ) : CameraIO {
   override val photonEstimator: PhotonPoseEstimator =
     PhotonPoseEstimator(
-      AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark),
+      FieldConstants.FIELD_LAYOUT,
       PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
       transform.transform3d
     )

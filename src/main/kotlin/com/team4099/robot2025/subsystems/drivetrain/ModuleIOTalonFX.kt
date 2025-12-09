@@ -214,14 +214,12 @@ abstract class ModuleIOTalonFX(
     turnTalon.setControl(positionVoltageRequest.withPosition(rotation.rotations))
   }
 
-  override fun toggleBrakeMode(brake: Boolean) {
-    val brakeMode = if (brake) NeutralModeValue.Brake else NeutralModeValue.Coast
-
+  override fun toggleBrakeMode(brake: NeutralModeValue) {
     driveTalon.configurator.apply(
-      constants.DriveMotorInitialConfigs!!.MotorOutput.withNeutralMode(brakeMode)
+      constants.DriveMotorInitialConfigs!!.MotorOutput.withNeutralMode(brake)
     )
     turnTalon.configurator.apply(
-      constants.SteerMotorInitialConfigs!!.MotorOutput.withNeutralMode(brakeMode)
+      constants.SteerMotorInitialConfigs!!.MotorOutput.withNeutralMode(brake)
     )
   }
 }

@@ -14,6 +14,7 @@ package com.team4099.robot2025.subsystems.drivetrain
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration
 import com.ctre.phoenix6.configs.TalonFXConfiguration
+import com.ctre.phoenix6.signals.NeutralModeValue
 import com.ctre.phoenix6.swerve.SwerveModuleConstants
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.DrivetrainConstants
@@ -151,7 +152,7 @@ class ModuleIOSim(
     turnController.setpoint = rotation.radians
   }
 
-  override fun toggleBrakeMode(brake: Boolean) {}
+  override fun toggleBrakeMode(brake: NeutralModeValue) {}
 
   companion object {
     // TunerConstants doesn't support separate sim constants, so they are declared locally

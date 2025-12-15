@@ -1,6 +1,7 @@
 package com.team4099.robot2025.config.constants
 
 import edu.wpi.first.wpilibj.RobotBase
+import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.units.Velocity
 import org.team4099.lib.units.base.Meter
 import org.team4099.lib.units.base.amps
@@ -62,6 +63,8 @@ object DrivetrainConstants {
   val DRIVE_COMPENSATION_VOLTAGE = 12.volts
 
   const val NITRILE_WHEEL_COF = 1.2
+
+  val INITIAL_SIM_POSE = Pose2d(3.meters, 3.meters, 0.radians).pose2d
 
   object PID {
     val AUTO_POS_KP: ProportionalGain<Meter, Velocity<Meter>>

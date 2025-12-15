@@ -12,7 +12,6 @@ import com.team4099.robot2025.config.constants.ElevatorConstants
 import com.team4099.robot2025.config.constants.IndexerConstants
 import com.team4099.robot2025.config.constants.IntakeConstants
 import com.team4099.robot2025.subsystems.drivetrain.Drive
-import com.team4099.robot2025.subsystems.led.Led
 import com.team4099.robot2025.subsystems.superstructure.Request.SuperstructureRequest
 import com.team4099.robot2025.subsystems.superstructure.arm.Arm
 import com.team4099.robot2025.subsystems.superstructure.arm.ArmTunableValues
@@ -74,7 +73,6 @@ class Superstructure(
   private val intake: Intake,
   private val indexer: Indexer,
   private val canrange: CANRange,
-  private val led: Led,
   private val driveSimulation: AbstractDriveTrainSimulation?
 ) : SubsystemBase() {
 
@@ -94,14 +92,10 @@ class Superstructure(
         GamePiece.CORAL
       else GamePiece.NONE
 
-  private var lastCoralScoringLevel: CoralLevel = CoralLevel.NONE
   private var coralScoringLevel: CoralLevel = CoralLevel.NONE
 
-  private var lastAlgaeIntakeLevel: AlgaeIntakeLevel = AlgaeIntakeLevel.NONE
   private var algaeIntakeLevel: AlgaeIntakeLevel = AlgaeIntakeLevel.NONE
 
-  var lastAlgaeScoringLevel: AlgaeScoringLevel = AlgaeScoringLevel.NONE
-    private set
   var algaeScoringLevel: AlgaeScoringLevel = AlgaeScoringLevel.NONE
     private set
   var lastPrepLevel: CoralLevel = CoralLevel.NONE
@@ -125,8 +119,6 @@ class Superstructure(
     }
 
   var currentState: SuperstructureStates = SuperstructureStates.UNINITIALIZED
-
-  var isAtRequestedState: Boolean = false
 
   private var lastTransitionTime = Clock.fpgaTime
   private var lastSimProjectileShootTime = Clock.fpgaTime
@@ -313,7 +305,6 @@ class Superstructure(
 
     CustomLogger.recordOutput("Superstructure/currentRequest", currentRequest.javaClass.simpleName)
     CustomLogger.recordOutput("Superstructure/currentState", currentState.name)
-    CustomLogger.recordOutput("Superstructure/isAtAllTargetedPositions", isAtRequestedState)
     CustomLogger.recordOutput("Superstructure/theoreticalGamePieceArm", theoreticalGamePieceArm)
     CustomLogger.recordOutput(
       "Superstructure/theoreticalGamePieceHardstop", theoreticalGamePieceHardstop
@@ -322,12 +313,6 @@ class Superstructure(
     CustomLogger.recordOutput("Superstructure/algaeIntakeLevel", algaeIntakeLevel)
     CustomLogger.recordOutput("Superstructure/algaeScoringLevel", algaeScoringLevel)
     CustomLogger.recordOutput("Superstructure/lastPrepLevel", lastPrepLevel)
-
-    //    if (drivetrain.rotation3d.x.radians > GyroConstants.ANTI_TILT_THRESHOLD_ROLL ||
-    //      drivetrain.rotation3d.y.radians > GyroConstants.ANTI_TILT_THRESHOLD_PITCH
-    //    ) {
-    //      currentRequest = SuperstructureRequest.Idle()
-    //    }
 
     var nextState = currentState
     when (currentState) {
@@ -474,7 +459,6 @@ class Superstructure(
           currentRequest is SuperstructureRequest.Idle
         ) {
           currentRequest = SuperstructureRequest.Idle()
-          //          nextState = SuperstructureStates.GROUND_INTAKE_CORAL_CLEANUP
           nextState = SuperstructureStates.IDLE
         }
       }
@@ -972,19 +956,13 @@ class Superstructure(
   }
 
   fun requestIdleCommand(): Command {
-    val returnCommand =
-      run { currentRequest = SuperstructureRequest.Idle() }.until {
-        isAtRequestedState && currentState == SuperstructureStates.IDLE
-      }
+    val returnCommand = runOnce { currentRequest = SuperstructureRequest.Idle() }
     returnCommand.name = "RequestIdleCommand"
     return returnCommand
   }
 
   fun ejectCommand(): Command {
-    val returnCommand =
-      run { currentRequest = SuperstructureRequest.Eject() }.until {
-        isAtRequestedState && currentState == SuperstructureStates.EJECT
-      }
+    val returnCommand = runOnce { currentRequest = SuperstructureRequest.Eject() }
     returnCommand.name = "EjectCommand"
     return returnCommand
   }
@@ -1033,64 +1011,40 @@ class Superstructure(
   }
 
   fun intakeAlgaeCommand(level: AlgaeIntakeLevel): Command {
-    val returnCommand =
-      runOnce { currentRequest = SuperstructureRequest.IntakeAlgae(level) }.until {
-        isAtRequestedState && currentState == SuperstructureStates.INTAKE_ALGAE
-      }
+    val returnCommand = runOnce { currentRequest = SuperstructureRequest.IntakeAlgae(level) }
     returnCommand.name = "IntakeAlgae"
     return returnCommand
   }
 
   // -------------------------------- Prep Score Commands --------------------------------
   fun prepScoreCoralCommand(level: CoralLevel): Command {
-    val returnCommand =
-      runOnce { currentRequest = SuperstructureRequest.PrepScoreCoral(level) }.until {
-        isAtRequestedState && currentState == SuperstructureStates.PREP_SCORE_CORAL
-      }
+    val returnCommand = runOnce { currentRequest = SuperstructureRequest.PrepScoreCoral(level) }
     returnCommand.name = "PrepScoreCoralCommand"
     return returnCommand
   }
 
   fun prepScoreAlgaeCommand(level: AlgaeScoringLevel): Command {
-    val returnCommand =
-      runOnce { currentRequest = SuperstructureRequest.PrepScoreAlgae(level) }.until {
-        isAtRequestedState && currentState == SuperstructureStates.PREP_SCORE_ALGAE
-      }
+    val returnCommand = runOnce { currentRequest = SuperstructureRequest.PrepScoreAlgae(level) }
     returnCommand.name = "PrepScoreAlgaeCommand"
     return returnCommand
   }
 
   // -------------------------------- Score Commands --------------------------------
   fun scoreCommand(): Command {
-    val returnCommand =
-      runOnce { currentRequest = SuperstructureRequest.Score() }.until {
-        isAtRequestedState &&
-          (
-            currentState == SuperstructureStates.SCORE_CORAL ||
-              currentState == SuperstructureStates.SCORE_ALGAE
-            )
-      }
+    val returnCommand = runOnce { currentRequest = SuperstructureRequest.Score() }
     returnCommand.name = "ScoreCommand"
     return returnCommand
   }
 
   // -------------------------------- Climb Commands --------------------------------
   fun climbExtendCommand(): Command {
-    val returnCommand =
-      runOnce { currentRequest = SuperstructureRequest.ExtendClimb() }.until {
-        isAtRequestedState && currentState == SuperstructureStates.CLIMB_EXTEND
-      }
-
+    val returnCommand = runOnce { currentRequest = SuperstructureRequest.ExtendClimb() }
     returnCommand.name = "ClimbExtendCommand"
     return returnCommand
   }
 
   fun climbRetractCommand(): Command {
-    val returnCommand =
-      runOnce { currentRequest = SuperstructureRequest.RetractClimb() }.until {
-        isAtRequestedState && currentState == SuperstructureStates.CLIMB_RETRACT
-      }
-
+    val returnCommand = runOnce { currentRequest = SuperstructureRequest.RetractClimb() }
     returnCommand.name = "ClimbRetractCommand"
     return returnCommand
   }

@@ -1,13 +1,10 @@
 package com.team4099.robot2025.config.constants
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout
-import edu.wpi.first.wpilibj.Filesystem
+import edu.wpi.first.apriltag.AprilTagFields
 import org.team4099.lib.apriltag.AprilTag
 import org.team4099.lib.geometry.Pose3d
-import org.team4099.lib.geometry.Translation2d
-import org.team4099.lib.units.base.inches
 import org.team4099.lib.units.base.meters
-import java.nio.file.Path
 
 // Copyright (c) 2024 FRC 6328
 // http://github.com/Mechanical-Advantage
@@ -25,44 +22,18 @@ import java.nio.file.Path
  * Width refers to the *y* direction (as described by wpilib)
  */
 object FieldConstants {
+  val FIELD_LAYOUT: AprilTagFieldLayout =
+    AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField)
 
-  val aprilTags: List<AprilTag> = listOf()
-  val homeAprilTags: List<AprilTag> = listOf()
+  val FIELD_LENGTH = FIELD_LAYOUT.fieldLength.meters
+  val FIELD_WIDTH = FIELD_LAYOUT.fieldWidth.meters
 
-  val defaultAprilTagType: AprilTagLayoutType = AprilTagLayoutType.OFFICIAL
+  val FIELD_ORIGIN = FIELD_LAYOUT.origin
 
-  enum class AprilTagLayoutType(name: String) {
-    OFFICIAL("2025-official");
+  /** @see getTagPose(id: Int) */
+  val TAGS: List<AprilTag> = FIELD_LAYOUT.tags.map { tag -> AprilTag(tag) }
 
-    val layout: org.team4099.lib.apriltag.AprilTagFieldLayout
-    val layoutString: String
-
-    init {
-
-      val AprilTags = mutableListOf<AprilTag>()
-
-      val wpiLayout =
-        AprilTagFieldLayout(
-          Path.of(Filesystem.getDeployDirectory().path, "apriltags", "$name.json")
-        )
-
-      for (tag in wpiLayout.tags) {
-        AprilTags.add(AprilTag(tag.ID, Pose3d(tag.pose)))
-      }
-
-      layout =
-        org.team4099.lib.apriltag.AprilTagFieldLayout(
-          AprilTags, wpiLayout.fieldLength.meters, wpiLayout.fieldWidth.meters
-        )
-      layoutString = name
-    }
-  }
-
-  val fieldLength = AprilTagLayoutType.OFFICIAL.layout.fieldLength
-  val fieldWidth = AprilTagLayoutType.OFFICIAL.layout.fieldWidth
-
-  object REEF {
-    val blue_center: Translation2d = Translation2d(176.746.inches, fieldWidth / 2.0)
-    val red_center: Translation2d = Translation2d(fieldLength - 176.746.inches, fieldWidth / 2.0)
+  fun getTagPose(id: Int): Pose3d {
+    return Pose3d(FIELD_LAYOUT.getTagPose(id).orElse(edu.wpi.first.math.geometry.Pose3d.kZero))
   }
 }

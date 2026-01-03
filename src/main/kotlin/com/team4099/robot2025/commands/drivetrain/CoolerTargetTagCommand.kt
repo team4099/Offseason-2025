@@ -133,17 +133,17 @@ class CoolerTargetTagCommand(
     vision.isAutoAligning = true
     hasThetaAligned = false
     hasPointedAt = false
-    if(vision.lastTrigVisionUpdate.targetTagID != -1) {
+    if (vision.lastTrigVisionUpdate.targetTagID != -1) {
       LastAlignedBranch =
         (
-            (
-                if (yTargetOffset < 0.meters) {
-                  Constants.Universal.tagsTFace[vision.lastTrigVisionUpdate.targetTagID.toString() + "R"]
-                } else {
-                  Constants.Universal.tagsTFace[vision.lastTrigVisionUpdate.targetTagID.toString() + "L"]
-                }
-                )!!
-            )
+          (
+            if (yTargetOffset < 0.meters) {
+              Constants.Universal.tagsTFace[vision.lastTrigVisionUpdate.targetTagID.toString() + "R"]
+            } else {
+              Constants.Universal.tagsTFace[vision.lastTrigVisionUpdate.targetTagID.toString() + "L"]
+            }
+            )!!
+          )
 
       CustomLogger.recordOutput("CoolerTargetTagCommand/lastChangedBranch", LastAlignedBranch)
     }

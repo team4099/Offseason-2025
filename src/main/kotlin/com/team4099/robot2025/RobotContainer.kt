@@ -191,7 +191,7 @@ object RobotContainer {
           object : LedIO {}
         )
     }
-      levelPicker = LevelPicker(ReefControlsIOServer, vision)
+    levelPicker = LevelPicker(ReefControlsIOServer, vision)
     superstructure =
       Superstructure(
         drivetrain,

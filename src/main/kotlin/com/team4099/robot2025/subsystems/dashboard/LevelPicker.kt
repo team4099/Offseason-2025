@@ -34,7 +34,8 @@ class LevelPicker(val io: ReefControlsIO, vision: Vision) : SubsystemBase() {
     // Add comprehensive safety checks
     if (!lastAlignedBranch.contentEquals(intArrayOf(0, 0, 0)) &&
       inputs.coralState.isNotEmpty() &&
-      inputs.priorities.isNotEmpty()) {
+      inputs.priorities.isNotEmpty()
+    ) {
       try {
         levelDecision = branchToDecision(lastAlignedBranch)
       } catch (e: Exception) {

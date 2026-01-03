@@ -1,24 +1,15 @@
 package com.team4099.robot2025.config.constants
 
 import org.team4099.lib.units.base.grams
-import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.base.pounds
 import org.team4099.lib.units.base.seconds
 import org.team4099.lib.units.derived.meterSquared
 import org.team4099.lib.units.kilo
 import org.team4099.lib.units.milli
-import org.team4099.lib.units.perSecond
 
 object Constants {
   object Universal {
-    val gravity = -9.8.meters.perSecond.perSecond
     val SIM_MODE = Tuning.SimType.SIM
-    const val REAL_FIELD = false
-
-    const val CTRE_CONFIG_TIMEOUT = 0
-    const val EPSILON = 1E-9
-
-    val SLOW_STATUS_FRAME_TIME = 255.milli.seconds
     const val CANIVORE_NAME = "FalconVore"
     val LOG_FOLDER = "/media/sda1"
 
@@ -88,10 +79,6 @@ object Constants {
 
     val ROBOT_WEIGHT = 135.pounds
     val ROBOT_MOI = 6.76.kilo.grams.meterSquared
-  }
-
-  object AprilTagIds {
-    const val BLUE_DOUBLE_SUBSTATION_ID = 4
   }
 
   object Tuning {

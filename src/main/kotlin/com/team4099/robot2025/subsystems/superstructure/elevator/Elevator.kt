@@ -1,0 +1,169 @@
+package com.team4099.robot2025.subsystems.superstructure.elevator
+
+import com.team4099.lib.hal.Clock
+import com.team4099.robot2025.config.constants.ElevatorConstants
+import com.team4099.robot2025.util.ControlledByStateMachine
+import com.team4099.robot2025.util.CustomLogger
+import edu.wpi.first.wpilibj.RobotBase
+import org.team4099.lib.units.base.inInches
+import org.team4099.lib.units.base.inches
+import org.team4099.lib.units.derived.ElectricalPotential
+import org.team4099.lib.units.derived.inVolts
+import org.team4099.lib.units.derived.volts
+import com.team4099.robot2025.subsystems.superstructure.Request.ElevatorRequest as ElevatorRequest
+
+class Elevator(private val io: ElevatorIO) : ControlledByStateMachine() {
+  val inputs = ElevatorIO.ElevatorInputs()
+
+  val upperLimitReached: Boolean
+    get() = inputs.elevatorPosition >= ElevatorConstants.UPWARDS_EXTENSION_LIMIT
+
+  val lowerLimitReached: Boolean
+    get() = inputs.elevatorPosition <= ElevatorConstants.DOWNWARDS_EXTENSION_LIMIT
+
+  val clearsRobot: Boolean
+    get() =
+      inputs.elevatorPosition - ElevatorConstants.ELEVATOR_TOLERANCE >=
+        ElevatorConstants.HEIGHTS.CLEARS_ROBOT
+
+  var isHomed = false
+    private set
+
+  var currentState: ElevatorState = ElevatorState.UNINITIALIZED
+  var currentRequest: ElevatorRequest = ElevatorRequest.OpenLoop(0.0.volts)
+    set(value) {
+      when (value) {
+        is ElevatorRequest.OpenLoop -> elevatorVoltageTarget = value.voltage
+        is ElevatorRequest.ClosedLoop -> {
+          elevatorPositionTarget = value.position
+        }
+        else -> {}
+      }
+      field = value
+    }
+
+  var elevatorPositionTarget = 0.0.inches
+    private set
+  var elevatorVoltageTarget = 0.0.volts
+    private set
+
+  private var lastHomingStatorCurrentTripTime = Clock.fpgaTime
+
+  val isAtTargetedPosition: Boolean
+    get() =
+      (
+        currentRequest is ElevatorRequest.ClosedLoop &&
+          (inputs.elevatorPosition - elevatorPositionTarget).absoluteValue <=
+          ElevatorConstants.ELEVATOR_TOLERANCE
+        )
+
+  init {
+    if (RobotBase.isReal()) {
+      isHomed = false
+      io.configPID(
+        ElevatorConstants.PID.REAL_KP,
+        ElevatorConstants.PID.REAL_KI,
+        ElevatorConstants.PID.REAL_KD
+      )
+    } else {
+      isHomed = true
+      io.configPID(
+        ElevatorConstants.PID.SIM_KP, ElevatorConstants.PID.SIM_KI, ElevatorConstants.PID.SIM_KD
+      )
+    }
+
+    io.configFF(
+      ElevatorConstants.PID.KG_FIRST_STAGE,
+      ElevatorConstants.PID.KG_SECOND_STAGE,
+      ElevatorConstants.PID.KS,
+      ElevatorConstants.PID.KV,
+      ElevatorConstants.PID.KA
+    )
+  }
+
+  override fun onLoop() {
+    io.updateInputs(inputs)
+
+    CustomLogger.processInputs("Elevator", inputs)
+
+    CustomLogger.recordOutput("Elevator/currentState", currentState.name)
+    CustomLogger.recordOutput("Elevator/currentRequest", currentRequest.javaClass.simpleName)
+
+    CustomLogger.recordOutput("Elevator/isHomed", isHomed)
+
+    CustomLogger.recordOutput("Elevator/isAtTargetPosition", isAtTargetedPosition)
+
+    CustomLogger.recordOutput("Elevator/elevatorPositionTarget", elevatorPositionTarget.inInches)
+    CustomLogger.recordOutput("Elevator/elevatorVoltageTarget", elevatorVoltageTarget.inVolts)
+
+    CustomLogger.recordDebugOutput("Elevator/upperLimitReached", upperLimitReached)
+    CustomLogger.recordDebugOutput("Elevator/lowerLimitReached", lowerLimitReached)
+
+    var nextState = currentState
+
+    when (currentState) {
+      ElevatorState.UNINITIALIZED -> {
+        nextState = fromElevatorRequestToState(currentRequest)
+        io.zeroEncoder()
+        lastHomingStatorCurrentTripTime = Clock.fpgaTime
+      }
+      ElevatorState.HOME -> {
+        if (!inputs.isSimulating &&
+          !isHomed &&
+          (
+            //            inputs.leaderStatorCurrent < ElevatorConstants.HOMING_STALL_CURRENT ||
+            (Clock.fpgaTime - lastHomingStatorCurrentTripTime) <
+              ElevatorConstants.HOMING_STALL_TIME_THRESHOLD
+            )
+        ) {
+          setVoltage(ElevatorConstants.HOMING_APPLIED_VOLTAGE)
+        } else {
+          io.zeroEncoder()
+          isHomed = true
+        }
+
+        if (isHomed) {
+          nextState = fromElevatorRequestToState(currentRequest)
+        }
+      }
+      ElevatorState.OPEN_LOOP -> {
+        setVoltage(elevatorVoltageTarget)
+        nextState = fromElevatorRequestToState(currentRequest)
+      }
+      ElevatorState.CLOSED_LOOP -> {
+        io.setPosition(elevatorPositionTarget)
+        nextState = fromElevatorRequestToState(currentRequest)
+      }
+    }
+    currentState = nextState
+  }
+
+  private fun setVoltage(targetVoltage: ElectricalPotential) {
+    if ((
+      (upperLimitReached && targetVoltage > 0.0.volts) ||
+        (lowerLimitReached && targetVoltage < 0.0.volts)
+      ) && isHomed
+    ) {
+      io.setVoltage(0.0.volts)
+    } else {
+      io.setVoltage(targetVoltage)
+    }
+  }
+
+  companion object {
+    enum class ElevatorState {
+      UNINITIALIZED,
+      OPEN_LOOP,
+      CLOSED_LOOP,
+      HOME
+    }
+
+    inline fun fromElevatorRequestToState(request: ElevatorRequest): ElevatorState {
+      return when (request) {
+        is ElevatorRequest.Home -> ElevatorState.HOME
+        is ElevatorRequest.OpenLoop -> ElevatorState.OPEN_LOOP
+        is ElevatorRequest.ClosedLoop -> ElevatorState.CLOSED_LOOP
+      }
+    }
+  }
+}

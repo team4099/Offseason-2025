@@ -27,20 +27,32 @@ object ReefControlsIOServer : ReefControlsIO {
   private val prioritiesOut: StringArrayPublisher
 
   init {
-    // Create subscribers
+    // Create subscribers with default values
     val inputTable = NetworkTableInstance.getDefault().getTable(toRobotTable)
     coralStateIn =
       inputTable
         .getBooleanArrayTopic(coralTopicName)
-        .subscribe(BooleanArray(36), PubSubOption.keepDuplicates(true))
+        .subscribe(
+          BooleanArray(36) { false },
+          PubSubOption.keepDuplicates(true),
+          PubSubOption.sendAll(true)
+        )
     algaeStateIn =
       inputTable
         .getBooleanArrayTopic(algaeTopicName)
-        .subscribe(BooleanArray(6), PubSubOption.keepDuplicates(true))
+        .subscribe(
+          BooleanArray(6) { false },
+          PubSubOption.keepDuplicates(true),
+          PubSubOption.sendAll(true)
+        )
     prioritiesIn =
       inputTable
         .getStringArrayTopic(prioritiesTopicName)
-        .subscribe(arrayOf(), PubSubOption.keepDuplicates(true))
+        .subscribe(
+          arrayOf("Fill L4", "Fill L3", "Fill L2"),
+          PubSubOption.keepDuplicates(true),
+          PubSubOption.sendAll(true)
+        )
 
     // Create publishers
     val outputTable = NetworkTableInstance.getDefault().getTable(toDashboardTable)
@@ -49,35 +61,54 @@ object ReefControlsIOServer : ReefControlsIO {
     prioritiesOut = outputTable.getStringArrayTopic(prioritiesTopicName).publish()
 
     // Start web server
-    WebServer.start(
-      5801, // dont use 5800 because elastic is using that rn
-      Paths.get(Filesystem.getDeployDirectory().getAbsolutePath().toString(), "dashboard")
-        .toString()
-    )
+    try {
+      WebServer.start(
+        5801,
+        Paths.get(Filesystem.getDeployDirectory().getAbsolutePath().toString(), "dashboard")
+          .toString()
+      )
+      println("ReefControls: Web server started on port 5801")
+    } catch (e: Exception) {
+      println("ReefControls: Failed to start web server: ${e.message}")
+    }
   }
 
   override fun updateInputs(inputs: ReefControlsIO.ReefControlsIOInputs) {
-    inputs.coralState =
-      if (coralStateIn.readQueue().size > 0) coralStateIn.get() else booleanArrayOf(false)
-    inputs.algaeState =
-      if (algaeStateIn.readQueue().size > 0) algaeStateIn.get() else booleanArrayOf(true)
-    inputs.priorities =
-      (if (prioritiesIn.readQueue().size > 0) prioritiesIn.get() else arrayOf())
+    try {
+      // Use get() instead of readQueue() - safer
+      inputs.coralState = coralStateIn.get()
+      inputs.algaeState = algaeStateIn.get()
+      inputs.priorities = prioritiesIn.get()
+    } catch (e: Exception) {
+      println("ReefControlsIO updateInputs error: ${e.message}")
+      e.printStackTrace()
+      inputs.coralState = BooleanArray(36) { false }
+      inputs.algaeState = BooleanArray(6) { false }
+      inputs.priorities = arrayOf("Fill L4", "Fill L3", "Fill L2")
+    }
   }
 
-  public override fun setCoralState(value: BooleanArray) {
-    coralStateOut.set(value)
+  override fun setCoralState(value: BooleanArray) {
+    try {
+      coralStateOut.set(value)
+    } catch (e: Exception) {
+      println("ReefControlsIO setCoralState error: ${e.message}")
+    }
   }
 
-  public override fun setAlgaeState(value: BooleanArray) {
-    algaeStateOut.set(value)
+  override fun setAlgaeState(value: BooleanArray) {
+    try {
+      algaeStateOut.set(value)
+    } catch (e: Exception) {
+      println("ReefControlsIO setAlgaeState error: ${e.message}")
+    }
   }
 
-  public override fun setPriorities(value: Array<String>) {
-    prioritiesOut.set(value)
+  override fun setPriorities(value: Array<String>) {
+    try {
+      prioritiesOut.set(value)
+    } catch (e: Exception) {
+      println("ReefControlsIO setPriorities error: ${e.message}")
+    }
   }
-
-
-
-
 }

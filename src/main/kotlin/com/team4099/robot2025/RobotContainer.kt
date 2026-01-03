@@ -11,6 +11,9 @@ import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.Constants.Universal.GamePiece
 import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.config.constants.VisionConstants
+
+import com.team4099.robot2025.subsystems.dashboard.LevelPicker
+import com.team4099.robot2025.subsystems.dashboard.ReefControlsIOServer
 import com.team4099.robot2025.subsystems.drivetrain.Drive
 import com.team4099.robot2025.subsystems.drivetrain.GyroIOPigeon2
 import com.team4099.robot2025.subsystems.drivetrain.GyroIOSim
@@ -67,6 +70,7 @@ object RobotContainer {
   private val indexer: Indexer
   private val canrange: CANRange
   private val led: Led
+  private val levelPicker: LevelPicker
   val superstructure: Superstructure
 
   val driverRumbleState
@@ -186,7 +190,7 @@ object RobotContainer {
           object : LedIO {}
         )
     }
-
+    levelPicker = LevelPicker(ReefControlsIOServer, vision)
     superstructure =
       Superstructure(
         drivetrain,
@@ -251,7 +255,7 @@ object RobotContainer {
         CoolerTargetTagCommand(drivetrain, vision),
         CoolerTargetTagCommand.alignLeftCommand(drivetrain, vision)
       ) {
-        superstructure.theoreticalGamePieceArm == GamePiece.ALGAE
+        superstructure.theoreticalGamePieceArm == GamePiece.NONE
       }
     )
 
@@ -260,7 +264,7 @@ object RobotContainer {
         CoolerTargetTagCommand(drivetrain, vision),
         CoolerTargetTagCommand.alignRightCommand(drivetrain, vision)
       ) {
-        superstructure.theoreticalGamePieceArm == GamePiece.ALGAE
+        superstructure.theoreticalGamePieceArm == GamePiece.NONE
       }
     )
 

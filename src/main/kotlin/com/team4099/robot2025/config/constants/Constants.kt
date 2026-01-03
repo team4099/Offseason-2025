@@ -16,13 +16,43 @@ object Constants {
     val LOOP_PERIOD_TIME = 20.milli.seconds
     val POWER_DISTRIBUTION_HUB_ID = 1
 
-    const val SIMULATE_VISION = false
+    const val SIMULATE_VISION = true
 
     enum class GamePiece {
       CORAL,
       ALGAE,
       NONE
     }
+
+    val tagsTFace: Map<String, IntArray>
+      get() =
+        mapOf(
+          "18L" to intArrayOf(21, 22, 23),
+          "18R" to intArrayOf(18, 19, 20),
+          "17L" to intArrayOf(15, 16, 17),
+          "17R" to intArrayOf(12, 13, 14),
+          "22L" to intArrayOf(9, 10, 11),
+          "22R" to intArrayOf(6, 7, 8),
+          "21L" to intArrayOf(3, 4, 5),
+          "21R" to intArrayOf(0, 1, 2),
+          "20L" to intArrayOf(30, 31, 32),
+          "20R" to intArrayOf(35, 34, 33),
+          "19L" to intArrayOf(27, 28, 29),
+          "19R" to intArrayOf(24, 25, 26),
+          "7L" to intArrayOf(21, 22, 23),
+          "7R" to intArrayOf(18, 19, 20),
+          "8L" to intArrayOf(15, 16, 17),
+          "8R" to intArrayOf(12, 13, 14),
+          "9L" to intArrayOf(9, 10, 11),
+          "9R" to intArrayOf(6, 7, 8),
+          "10L" to intArrayOf(3, 4, 5),
+          "10R" to intArrayOf(0, 1, 2),
+          "11L" to intArrayOf(30, 31, 32),
+          "11R" to intArrayOf(35, 34, 33),
+          "6L" to intArrayOf(27, 28, 29),
+          "6R" to intArrayOf(24, 25, 26)
+        )
+          .withDefault { intArrayOf(0, 0, 0) }
 
     enum class CoralLevel {
       NONE,

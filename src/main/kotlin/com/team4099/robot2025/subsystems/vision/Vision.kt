@@ -2,6 +2,8 @@ package com.team4099.robot2025.subsystems.vision
 
 import com.team4099.lib.hal.Clock
 import com.team4099.lib.logging.TunableNumber
+import com.team4099.lib.math.toPose3d
+import com.team4099.lib.math.toTransform3d
 import com.team4099.lib.vision.TimestampedObjectVisionUpdate
 import com.team4099.lib.vision.TimestampedTrigVisionUpdate
 import com.team4099.lib.vision.TimestampedVisionUpdate
@@ -12,10 +14,6 @@ import com.team4099.robot2025.subsystems.superstructure.Request
 import com.team4099.robot2025.subsystems.vision.camera.CameraIO
 import com.team4099.robot2025.util.CustomLogger
 import com.team4099.robot2025.util.FMSData
-import com.team4099.robot2025.util.toPose3d
-import com.team4099.robot2025.util.toTransform3d
-import edu.wpi.first.apriltag.AprilTagFieldLayout
-import edu.wpi.first.apriltag.AprilTagFields
 import edu.wpi.first.math.VecBuilder
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.wpilibj.DriverStation
@@ -87,8 +85,6 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d>) : Sub
       .map { TimestampedObjectVisionUpdate(Clock.fpgaTime, it, Translation2d()) }
       .toMutableList()
 
-  private val fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField)
-
   private var lastSeenTagId: Int? = null
   private var pulseEndTime = 0.0.seconds
   var autoAlignReadyRumble = false
@@ -99,7 +95,7 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d>) : Sub
   init {
     if (RobotBase.isSimulation() && Constants.Universal.SIMULATE_VISION) {
       visionSim = VisionSystemSim("main")
-      visionSim!!.addAprilTags(AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField))
+      visionSim!!.addAprilTags(FieldConstants.FIELD_LAYOUT)
 
       cameras.forEach { camera ->
         visionSim!!.addCamera(camera.cameraSim, camera.transform.transform3d)
@@ -162,7 +158,12 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d>) : Sub
                 ) {
 
                   val aprilTagAlignmentAngle =
-                    fieldLayout.getTagPose(tag.fiducialId).get().rotation.z.radians
+                    FieldConstants.FIELD_LAYOUT
+                      .getTagPose(tag.fiducialId)
+                      .get()
+                      .rotation
+                      .z
+                      .radians
                   //                if (FMSData.isBlue) {
                   //                  VisionConstants.BLUE_REEF_TAG_THETA_ALIGNMENTS[tag.fiducialId]
                   //                } else {
@@ -170,9 +171,11 @@ class Vision(vararg cameras: CameraIO, val poseSupplier: Supplier<Pose2d>) : Sub
                   //                }
 
                   val fieldTTag =
-                    FieldConstants.AprilTagLayoutType.OFFICIAL
-                      .layout
-                      .getTagPose(tag.fiducialId)
+                    Pose3d(
+                      FieldConstants.FIELD_LAYOUT
+                        .getTagPose(tag.fiducialId)
+                        .orElse(edu.wpi.first.math.geometry.Pose3d.kZero)
+                    )
                       .toTransform3d()
 
                   val cameraDistanceToTarget3D = tag.bestCameraToTarget.translation.norm.meters

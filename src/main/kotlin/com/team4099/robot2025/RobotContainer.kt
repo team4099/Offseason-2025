@@ -9,17 +9,9 @@ import com.team4099.robot2025.commands.drivetrain.TeleopDriveCommand
 import com.team4099.robot2025.config.ControlBoard
 import com.team4099.robot2025.config.constants.Constants
 import com.team4099.robot2025.config.constants.Constants.Universal.GamePiece
+import com.team4099.robot2025.config.constants.DrivetrainConstants
 import com.team4099.robot2025.config.constants.VisionConstants
-import com.team4099.robot2025.subsystems.Arm.Arm
-import com.team4099.robot2025.subsystems.Arm.ArmIOSim
-import com.team4099.robot2025.subsystems.Arm.ArmIOTalon
-import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOTalon
-import com.team4099.robot2025.subsystems.canRange.CANRange
-import com.team4099.robot2025.subsystems.canRange.CANRangeIO
-import com.team4099.robot2025.subsystems.canRange.CANRangeReal
-import com.team4099.robot2025.subsystems.climber.Climber
-import com.team4099.robot2025.subsystems.climber.ClimberIO
-import com.team4099.robot2025.subsystems.climber.ClimberIOSim
+
 import com.team4099.robot2025.subsystems.dashboard.LevelPicker
 import com.team4099.robot2025.subsystems.dashboard.ReefControlsIOServer
 import com.team4099.robot2025.subsystems.drivetrain.Drive
@@ -27,37 +19,45 @@ import com.team4099.robot2025.subsystems.drivetrain.GyroIOPigeon2
 import com.team4099.robot2025.subsystems.drivetrain.GyroIOSim
 import com.team4099.robot2025.subsystems.drivetrain.ModuleIOTalonFXReal
 import com.team4099.robot2025.subsystems.drivetrain.ModuleIOTalonFXSim
-import com.team4099.robot2025.subsystems.elevator.Elevator
-import com.team4099.robot2025.subsystems.elevator.ElevatorIOSim
-import com.team4099.robot2025.subsystems.elevator.ElevatorIOTalon
-import com.team4099.robot2025.subsystems.indexer.Indexer
-import com.team4099.robot2025.subsystems.indexer.IndexerIOSim
-import com.team4099.robot2025.subsystems.indexer.IndexerIOTalon
-import com.team4099.robot2025.subsystems.intake.Intake
-import com.team4099.robot2025.subsystems.intake.IntakeIOSim
-import com.team4099.robot2025.subsystems.intake.IntakeIOTalonFX
 import com.team4099.robot2025.subsystems.led.Led
 import com.team4099.robot2025.subsystems.led.LedIO
 import com.team4099.robot2025.subsystems.led.LedIOCandle
 import com.team4099.robot2025.subsystems.superstructure.Superstructure
+import com.team4099.robot2025.subsystems.superstructure.arm.Arm
+import com.team4099.robot2025.subsystems.superstructure.arm.ArmIOSim
+import com.team4099.robot2025.subsystems.superstructure.arm.ArmIOTalon
+import com.team4099.robot2025.subsystems.superstructure.arm.rollers.RollersIOTalon
+import com.team4099.robot2025.subsystems.superstructure.canRange.CANRange
+import com.team4099.robot2025.subsystems.superstructure.canRange.CANRangeIO
+import com.team4099.robot2025.subsystems.superstructure.canRange.CANRangeReal
+import com.team4099.robot2025.subsystems.superstructure.climber.Climber
+import com.team4099.robot2025.subsystems.superstructure.climber.ClimberIO
+import com.team4099.robot2025.subsystems.superstructure.climber.ClimberIOSim
+import com.team4099.robot2025.subsystems.superstructure.elevator.Elevator
+import com.team4099.robot2025.subsystems.superstructure.elevator.ElevatorIOSim
+import com.team4099.robot2025.subsystems.superstructure.elevator.ElevatorIOTalon
+import com.team4099.robot2025.subsystems.superstructure.indexer.Indexer
+import com.team4099.robot2025.subsystems.superstructure.indexer.IndexerIOSim
+import com.team4099.robot2025.subsystems.superstructure.indexer.IndexerIOTalon
+import com.team4099.robot2025.subsystems.superstructure.intake.Intake
+import com.team4099.robot2025.subsystems.superstructure.intake.IntakeIOSim
+import com.team4099.robot2025.subsystems.superstructure.intake.IntakeIOTalonFX
 import com.team4099.robot2025.subsystems.vision.Vision
 import com.team4099.robot2025.subsystems.vision.camera.CameraIO
 import com.team4099.robot2025.subsystems.vision.camera.CameraIOPVSim
 import com.team4099.robot2025.subsystems.vision.camera.CameraIOPhotonvision
 import com.team4099.robot2025.util.driver.Jessika
 import edu.wpi.first.wpilibj.RobotBase
-import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
 import org.littletonrobotics.junction.Logger
 import org.team4099.lib.geometry.Pose2d
 import org.team4099.lib.smoothDeadband
-import org.team4099.lib.units.base.meters
 import org.team4099.lib.units.derived.radians
 import java.util.function.Supplier
-import com.team4099.robot2025.subsystems.Arm.Rollers.Rollers as ArmRollers
-import com.team4099.robot2025.subsystems.Arm.Rollers.RollersIOSim as ArmRollersIOSim
+import com.team4099.robot2025.subsystems.superstructure.arm.rollers.Rollers as ArmRollers
+import com.team4099.robot2025.subsystems.superstructure.arm.rollers.RollersIOSim as ArmRollersIOSim
 
 object RobotContainer {
   private val drivetrain: Drive
@@ -113,7 +113,6 @@ object RobotContainer {
             VisionConstants.CAMERA_TRANSFORMS[1],
             drivetrain::addVisionMeasurement,
             { drivetrain.pose.rotation },
-            //            { vision.isAutoAligning }
           ),
           CameraIOPhotonvision(
             CameraIO.DetectionPipeline.OBJECT_DETECTION,
@@ -136,7 +135,7 @@ object RobotContainer {
         )
     } else {
       driveSimulation =
-        SwerveDriveSimulation(Drive.mapleSimConfig, Pose2d(3.meters, 3.meters, 0.radians).pose2d)
+        SwerveDriveSimulation(Drive.mapleSimConfig, DrivetrainConstants.INITIAL_SIM_POSE)
       SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation)
 
       drivetrain =
@@ -203,35 +202,11 @@ object RobotContainer {
         intake,
         indexer,
         canrange,
-        led,
         driveSimulation
       )
 
-    //    led.isAlignedSupplier = Supplier { vision.isAligned }
     led.gamePieceArmSupplier = Supplier { superstructure.theoreticalGamePieceArm }
     led.stateSupplier = Supplier { superstructure.currentState }
-
-    // unregister subsystems which get magically registered to the commandscheduler
-    CommandScheduler.getInstance().unregisterAllSubsystems()
-
-    // subsystem periodics get ran in the order registered
-    // superstructure should always get run last, except for leds which should reflect the most
-    // recent state
-    CommandScheduler.getInstance()
-      .registerSubsystem(
-        drivetrain,
-        vision,
-        elevator,
-        arm,
-        armRollers,
-        climber,
-        intake,
-        indexer,
-        canrange,
-        led,
-        levelPicker,
-        superstructure
-      )
   }
 
   fun mapDefaultCommands() {
@@ -256,12 +231,12 @@ object RobotContainer {
       )
   }
 
-  fun zeroSensors(isInAutonomous: Boolean = false) {
+  fun zeroSensors() {
     drivetrain.pose = Pose2d(drivetrain.pose.x, drivetrain.pose.y, 0.radians)
   }
 
   fun setDriveBrakeMode(neutralModeValue: NeutralModeValue = NeutralModeValue.Brake) {
-    //    drivetrain.configNeutralMode(neutralModeValue)
+    drivetrain.setBrakeMode(neutralModeValue)
   }
 
   fun mapTeleopControls() {
@@ -308,26 +283,6 @@ object RobotContainer {
     ControlBoard.targetCoral.whileTrue(
       TargetObjectCommand(drivetrain, vision, VisionConstants.OBJECT_CLASS.CORAL, superstructure)
     )
-
-    //    ControlBoard.test.onTrue(
-    //      DrivePathOTF(
-    //        drivetrain,
-    //        { ControlBoard.forward.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //        { ControlBoard.strafe.smoothDeadband(Constants.Joysticks.THROTTLE_DEADBAND) },
-    //        { ControlBoard.turn.smoothDeadband(Constants.Joysticks.TURN_DEADBAND) },
-    //        { drivetrain.pose.pose2d },
-    //        VisionConstants.OTF_PATHS[vision.lastTrigVisionUpdate.targetTagID]
-    //          ?: listOf(
-    //            Supplier { Pose2d(4.748.meters, 1.56.meters, 27.216.degrees) },
-    //            Supplier { Pose2d(6.1.meters, 2.996.meters, 87.degrees) },
-    //            Supplier { Pose2d(6.1.meters, 4.093.meters, 90.degrees) }
-    //          ),
-    //        0.0.degrees,
-    //        PathPlannerHolonomicDriveController.Companion.GoalEndState(
-    //          0.0.meters.perSecond, 180.degrees
-    //        )
-    //      )
-    //    )
   }
 
   fun mapTestControls() {}
@@ -335,14 +290,12 @@ object RobotContainer {
   fun getAutonomousCommand() =
     AutonomousSelector.getCommand(drivetrain, elevator, superstructure, vision)
 
-  fun getAutonomousLoadingCommand() = AutonomousSelector.getLoadingCommand(drivetrain)
-
   fun mapTunableCommands() {}
 
   fun resetSimulationField() {
     if (!RobotBase.isSimulation()) return
 
-    driveSimulation!!.setSimulationWorldPose(Pose2d(3.meters, 3.meters, 0.radians).pose2d)
+    driveSimulation!!.setSimulationWorldPose(DrivetrainConstants.INITIAL_SIM_POSE)
     SimulatedArena.getInstance().resetFieldForAuto()
   }
 

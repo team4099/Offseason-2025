@@ -55,6 +55,10 @@ import org.team4099.lib.units.derived.radians
 import java.util.function.Supplier
 import com.team4099.robot2025.subsystems.superstructure.arm.rollers.Rollers as ArmRollers
 import com.team4099.robot2025.subsystems.superstructure.arm.rollers.RollersIOSim as ArmRollersIOSim
+import com.team4099.robot2025.subsystems.pneumatictest.PneumaticIO
+import com.team4099.robot2025.subsystems.pneumatictest.PneumaticIOPH
+import com.team4099.robot2025.subsystems.pneumatictest.PneumaticTest
+import edu.wpi.first.wpilibj2.command.Commands
 
 object RobotContainer {
   private val drivetrain: Drive
@@ -67,6 +71,7 @@ object RobotContainer {
   private val indexer: Indexer
   private val canrange: CANRange
   private val led: Led
+  private val pneumaticTest: PneumaticTest
   val superstructure: Superstructure
 
   val driverRumbleState
@@ -129,6 +134,8 @@ object RobotContainer {
           LedIOCandle(Constants.Candle.CANDLE_ID_1),
           LedIOCandle(Constants.Candle.CANDLE_ID_2)
         )
+
+      pneumaticTest = PneumaticTest(PneumaticIOPH)
     } else {
       driveSimulation =
         SwerveDriveSimulation(Drive.mapleSimConfig, DrivetrainConstants.INITIAL_SIM_POSE)
@@ -185,6 +192,8 @@ object RobotContainer {
           { Superstructure.Companion.SuperstructureStates.UNINITIALIZED },
           object : LedIO {}
         )
+
+      pneumaticTest = PneumaticTest(object : PneumaticIO {})
     }
 
     superstructure =
@@ -279,6 +288,9 @@ object RobotContainer {
     ControlBoard.targetCoral.whileTrue(
       TargetObjectCommand(drivetrain, vision, VisionConstants.OBJECT_CLASS.CORAL, superstructure)
     )
+
+    ControlBoard.test.onTrue(Commands.runOnce({ pneumaticTest.currentState = PneumaticTest.Companion.PneumaticTestState.FORWARD }))
+    ControlBoard.test.onFalse(Commands.runOnce({ pneumaticTest.currentState = PneumaticTest.Companion.PneumaticTestState.REVERSE }))
   }
 
   fun mapTestControls() {}
